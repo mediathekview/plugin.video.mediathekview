@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="30001">
+		<setting id="quality"			type="bool"	label="30110"	default="true" />
+	</category>
+	<category label="30002">
+		<setting id="dbhost"			type="text"	label="30210"	default="localhost" />
+		<setting id="dbuser"			type="text"	label="30211"	default="filmliste" />
+		<setting id="dbpass"			type="text"	label="30212"	default="" option="hidden" />
+		<setting id="dbdata"			type="text"	label="30213"	default="filmliste" />
+	</category>
+</settings>

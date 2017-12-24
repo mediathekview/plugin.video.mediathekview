@@ -32,6 +32,11 @@
 		<assets>
 			<icon>resources/icon.jpg</icon>
 			<fanart>resources/fanart.jpg</fanart>
+			<screenshot>resources/screenshot1.png</screenshot>
+			<screenshot>resources/screenshot2.png</screenshot>
+			<screenshot>resources/screenshot3.png</screenshot>
+			<screenshot>resources/screenshot4.png</screenshot>
+			<screenshot>resources/screenshot5.png</screenshot>
 		</assets>
 	</extension>
 </addon>

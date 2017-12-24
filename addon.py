@@ -183,10 +183,10 @@ class MediathekView( xbmcaddon.Addon ):
 		self.addon_handle	= int( sys.argv[1] )
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.conn			= mysql.connector.connect(
-			user='filmliste',
-			password='MediathekView-2017',
-			host='10.65.0.82',
-			database='filmliste'
+			host		= xbmcplugin.getSetting( self.addon_handle, 'dbhost' ),
+			user		= xbmcplugin.getSetting( self.addon_handle, 'dbuser' ),
+			password	= xbmcplugin.getSetting( self.addon_handle, 'dbpass' ),
+			database	= xbmcplugin.getSetting( self.addon_handle, 'dbdata' )
 		)
 
 	def Do( self ):

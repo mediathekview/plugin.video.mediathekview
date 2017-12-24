@@ -1,0 +1,45 @@
+# Kodi Media Center language file
+# Addon Name: MediathekView
+# Addon id: plugin.video.mediathekview
+# Addon Provider: leo.moll@yeasoft.com
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: leo.moll@yeasoft.com\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Alex\n"
+"Language-Team: English (http://www.transifex.com/projects/p/xbmc-addons/language/en/)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "General"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Database Settings"
+msgstr ""
+
+msgctxt "#30110"
+msgid "Prefer HD Streams"
+msgstr ""
+
+msgctxt "#30210"
+msgid "Database Hostname"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Database Username"
+msgstr ""
+
+msgctxt "#30212"
+msgid "Database Password"
+msgstr ""
+
+msgctxt "#30213"
+msgid "Database Name"
+msgstr ""
