@@ -101,19 +101,18 @@ class MediathekView( xbmcaddon.Addon ):
 
 	def addFilm( self, title, category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd ):
 		# get the best url
-		videourl = url_video_hd if url_video_hd != "" else url_video if url_video != "" else url_video_sd
+		videourl = url_video_hd if ( url_video_hd != "" and self.preferhd ) else url_video if url_video != "" else url_video_sd
+		videohds = " (HD)" if ( url_video_hd != "" and self.preferhd ) else ""
 		# exit if no url supplied
 		if videourl == "":
 			return
 
-		li = xbmcgui.ListItem(
-			label = title,
-			label2 = title
-		)
+		li = xbmcgui.ListItem( title, title )
+
 		airedstring = '%s' % aired
 		aireddate = airedstring[8:10] + '-' + airedstring[5:7] + '-' + airedstring[:4]
 		li.setInfo( type = 'video', infoLabels = {
-			'title' : title,
+			'title' : title + videohds,
 			'tvshowtitle' : category,
 			'size' : size * 1024 * 1024,
 			'date' : aireddate,
@@ -181,6 +180,7 @@ class MediathekView( xbmcaddon.Addon ):
 		self.notice( "Init" );
 		self.base_url		= sys.argv[0]
 		self.addon_handle	= int( sys.argv[1] )
+		self.preferhd		= xbmcplugin.getSetting( self.addon_handle, 'quality' ) == 'true'
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.conn			= mysql.connector.connect(
 			host		= xbmcplugin.getSetting( self.addon_handle, 'dbhost' ),
