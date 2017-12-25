@@ -14,7 +14,7 @@ wget -P ${WORKDIR} -q http://verteiler2.mediathekview.de/Filmliste-akt.xz
 xz -d ${WORKDIR}/Filmliste-akt.xz
 
 # process
-echo python ${SCRIPTDIR}/updatefl.py ${WORKDIR}/Filmliste-akt
+python ${SCRIPTDIR}/updatefl.py ${WORKDIR}/Filmliste-akt
 
 # clean up
-# rm -f ${WORKDIR}/Filmliste-akt.xz ${WORKDIR}/Filmliste-akt
+rm -f ${WORKDIR}/Filmliste-akt.xz ${WORKDIR}/Filmliste-akt
