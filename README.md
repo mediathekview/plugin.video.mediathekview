@@ -1,5 +1,5 @@
-MediathekVIew Backend
-=====================
+MediathekView Addon for Kodi
+============================
 
 Frontend Installation
 ---------------------
