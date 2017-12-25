@@ -24,8 +24,26 @@ Backend Installation
 In order to use the MediathekView video addon for Kodi, you need to operate a
 MySQL Server as a backend.
 
-You can install the database by executing the script into the `backend/sql`
-directory.
+You can install the database by executing the SQL-script in the `backend/sql`
+directory:
+
+´´´´
+root@db1:~/plugin.video.mediathekview # mysql -u root -p
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 227292
+Server version: 5.7.20-log MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2017, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> source backend/sql/filmliste-init-0.sql
+´´´´
 
 The periodic update of the database is done by executing the script ´updatefl.sh´
 in the ´backend´ directory.
