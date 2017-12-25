@@ -27,7 +27,7 @@ MySQL Server as a backend.
 You can install the database by executing the SQL-script in the `backend/sql`
 directory:
 
-´´´´
+````
 root@db1:~/plugin.video.mediathekview # mysql -u root -p
 Enter password:
 Welcome to the MySQL monitor.  Commands end with ; or \g.
@@ -43,7 +43,7 @@ owners.
 Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 
 mysql> source backend/sql/filmliste-init-0.sql
-´´´´
+````
 
 The periodic update of the database is done by executing the script ´updatefl.sh´
 in the ´backend´ directory.
