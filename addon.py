@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 RauteMusik GmbH, Leo Moll
+# Copyright 2017 Leo Moll and DOminik Schlösser
 #
 
 # -- Imports ------------------------------------------------
@@ -73,7 +73,6 @@ class MediathekView( xbmcaddon.Addon ):
 
 	def addChannelList( self ):
 		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
-		self.addChannel( 0, " All" )
 		cursor = self.conn.cursor()
 		query = "SELECT id,channel FROM channel"
 		cursor.execute( query )
@@ -176,11 +175,77 @@ class MediathekView( xbmcaddon.Addon ):
 		xbmcplugin.endOfDirectory( self.addon_handle )
 		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
 
+	def addLiveStreams( self ):
+		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
+		cursor = self.conn.cursor()
+		cursor.execute(
+			"SELECT title,category,description,TIME_TO_SEC(duration) AS seconds,size,aired,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN category ON category.id=film.categoryid WHERE category.search='LIVESTREAM'"
+		)
+		for ( title, category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd ) in cursor:
+			self.addFilm( title, category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd )
+		cursor.close()
+		xbmcplugin.endOfDirectory( self.addon_handle )
+
+	def addRecentlyAdded( self ):
+		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
+		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_DATE )
+		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_DURATION )
+		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_SIZE )
+		cursor = self.conn.cursor()
+		cursor.execute(
+			"SELECT title,category,channel,description,TIME_TO_SEC(duration) AS seconds,size,aired,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN category ON category.id=film.categoryid LEFT JOIN channel ON channel.id=film.channelid WHERE ( TIMESTAMPDIFF(HOUR,film.aired,CURRENT_TIMESTAMP()) < 24 )" +
+			" AND ( TIMESTAMPDIFF(HOUR,film.aired,CURRENT_TIMESTAMP()) > 0 )" if self.nofuture else "" +
+			" AND ( TIME_TO_SEC(duration) >= %d )" % self.minlength if self.minlength > 0 else ""
+		)
+		for ( title, category, channel, description, seconds, size, aired, url_video, url_video_sd, url_video_hd ) in cursor:
+			self.addFilm( category + ': ' + title + ' [' + channel + ']', category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd )
+		cursor.close()
+		xbmcplugin.endOfDirectory( self.addon_handle )
+
+	def addMainMenu( self ):
+		# xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
+		# search
+		li = xbmcgui.ListItem( language( 30901 ) )
+		xbmcplugin.addDirectoryItem(
+			handle		= self.addon_handle,
+			url			= self.build_url( { 'mode': "main-search" } ),
+			listitem	= li,
+			isFolder	= True
+		)
+		# livestreams
+		li = xbmcgui.ListItem( language( 30902 ) )
+		xbmcplugin.addDirectoryItem(
+			handle		= self.addon_handle,
+			url			= self.build_url( { 'mode': "main-livestreams" } ),
+			listitem	= li,
+			isFolder	= True
+		)
+		# recently added
+		li = xbmcgui.ListItem( language( 30903 ) )
+		xbmcplugin.addDirectoryItem(
+			handle		= self.addon_handle,
+			url			= self.build_url( { 'mode': "main-recent" } ),
+			listitem	= li,
+			isFolder	= True
+		)
+		# Browse by Show in all Channels
+		self.addChannel( 0, language( 30904 ) )
+		# Browse Shows by Channel
+		li = xbmcgui.ListItem( language( 30905 ) )
+		xbmcplugin.addDirectoryItem(
+			handle		= self.addon_handle,
+			url			= self.build_url( { 'mode': "main-channels" } ),
+			listitem	= li,
+			isFolder	= True
+		)
+		xbmcplugin.endOfDirectory( self.addon_handle )
+
 	def Init( self ):
-		self.notice( "Init" );
 		self.base_url		= sys.argv[0]
 		self.addon_handle	= int( sys.argv[1] )
 		self.preferhd		= xbmcplugin.getSetting( self.addon_handle, 'quality' ) == 'true'
+		self.nofuture		= xbmcplugin.getSetting( self.addon_handle, 'nofuture' ) == 'true'
+		self.minlength		= xbmcplugin.getSetting( self.addon_handle, 'minduration' ) == 'true'
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.conn			= mysql.connector.connect(
 			host		= xbmcplugin.getSetting( self.addon_handle, 'dbhost' ),
@@ -192,6 +257,12 @@ class MediathekView( xbmcaddon.Addon ):
 	def Do( self ):
 		mode = self.args.get('mode', None)
 		if mode is None:
+			self.addMainMenu()
+		elif mode[0] == 'main-livestreams':
+			self.addLiveStreams()
+		elif mode[0] == 'main-recent':
+			self.addRecentlyAdded()
+		elif mode[0] == 'main-channels':
 			self.addChannelList()
 		elif mode[0] == 'channel':
 			channel = self.args.get( 'channel', [0] )

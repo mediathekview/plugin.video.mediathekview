@@ -28,6 +28,14 @@ msgctxt "#30110"
 msgid "HD Streams bevorzugen"
 msgstr ""
 
+msgctxt "#30111"
+msgid "Keine Videos aus der Zukunft (üblicherweise Trailer)"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Minimlae Länge in Sekunden"
+msgstr ""
+
 msgctxt "#30210"
 msgid "Datenbank Hostname"
 msgstr ""
@@ -43,3 +51,24 @@ msgstr ""
 msgctxt "#30213"
 msgid "Datenbank Name"
 msgstr ""
+
+msgctxt "#30901"
+msgid "Suchen"
+msgstr ""
+
+msgctxt "#30902"
+msgid "Livestreams"
+msgstr ""
+
+msgctxt "#30903"
+msgid "Vor Kurzen hinzugefügt"
+msgstr ""
+
+msgctxt "#30904"
+msgid "Alle Sendungen"
+msgstr ""
+
+msgctxt "#30905"
+msgid "Alle Sendungen nach Sender"
+msgstr ""
+

@@ -28,6 +28,14 @@ msgctxt "#30110"
 msgid "Prefer HD Streams"
 msgstr ""
 
+msgctxt "#30111"
+msgid "No future videos (usually trailers)"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Minimum duration in seconds"
+msgstr ""
+
 msgctxt "#30210"
 msgid "Database Hostname"
 msgstr ""
@@ -43,3 +51,24 @@ msgstr ""
 msgctxt "#30213"
 msgid "Database Name"
 msgstr ""
+
+msgctxt "#30901"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30902"
+msgid "Livestreams"
+msgstr ""
+
+msgctxt "#30903"
+msgid "Recently Added"
+msgstr ""
+
+msgctxt "#30904"
+msgid "Browse by Show in all Channels"
+msgstr ""
+
+msgctxt "#30905"
+msgid "Browse Shows by Channel"
+msgstr ""
+

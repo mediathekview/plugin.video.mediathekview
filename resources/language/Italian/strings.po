@@ -28,6 +28,14 @@ msgctxt "#30110"
 msgid "Preferisci alta definizione"
 msgstr ""
 
+msgctxt "#30111"
+msgid "Non mostrare video futuri (usualmente trailer)"
+msgstr ""
+
+msgctxt "#30112"
+msgid "Durata minima in secondi"
+msgstr ""
+
 msgctxt "#30210"
 msgid "Hostname banca dati"
 msgstr ""
@@ -43,3 +51,24 @@ msgstr ""
 msgctxt "#30213"
 msgid "Nome Database"
 msgstr ""
+
+msgctxt "#30901"
+msgid "Cerca"
+msgstr ""
+
+msgctxt "#30902"
+msgid "Livestreams"
+msgstr ""
+
+msgctxt "#30903"
+msgid "Recenti"
+msgstr ""
+
+msgctxt "#30904"
+msgid "Tutte le trasmissioni"
+msgstr ""
+
+msgctxt "#30905"
+msgid "Trasmissioni secondo emittenti"
+msgstr ""
+
