@@ -45,8 +45,8 @@ Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
 mysql> source backend/sql/filmliste-init-0.sql
 ````
 
-The periodic update of the database is done by executing the script ´updatefl.sh´
-in the ´backend´ directory.
+The periodic update of the database is done by executing the script `updatefl.sh`
+in the `backend` directory.
 
 In order to run this script, you system needs python 2 and the following libraries
 installed via pip:
