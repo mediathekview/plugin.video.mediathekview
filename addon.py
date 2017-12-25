@@ -90,7 +90,7 @@ class MediathekView( xbmcaddon.Addon ):
 			)
 		else:
 			cursor.execute(
-				'SELECT LEFT(search,1) AS letter,COUNT(*) AS count FROM category WHERE channelid=%s GROUP BY LEFT(search,1) ORDER BY LEFT(search,1)' %
+				'SELECT LEFT(search,1) AS letter,COUNT(*) AS count FROM category WHERE channelid=%s GROUP BY LEFT(search,1)' %
 				channelid
 			)
 		for ( letter, count ) in cursor:
@@ -134,10 +134,12 @@ class MediathekView( xbmcaddon.Addon ):
 		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_DATE )
 		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_DURATION )
 		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_SIZE )
+		query = "SELECT title,category,description,TIME_TO_SEC(duration) AS seconds,size,aired,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN category ON category.id=film.categoryid WHERE categoryid=%s" % categoryid
 		cursor = self.conn.cursor()
 		cursor.execute(
-			"SELECT title,category,description,TIME_TO_SEC(duration) AS seconds,size,aired,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN category ON category.id=film.categoryid WHERE categoryid=%s ORDER BY TITLE" %
-			categoryid
+			query +
+			self.nofuturesql +
+			self.minlengthsql
 		)
 		for ( title, category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd ) in cursor:
 			self.addFilm( title, category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd )
@@ -161,16 +163,18 @@ class MediathekView( xbmcaddon.Addon ):
 		cursor = self.conn.cursor()
 		if channelid == '0':
 			cursor.execute(
-				"SELECT id,channelid,category FROM category WHERE search LIKE '%s%%' ORDER BY category" %
+				"SELECT category.id,category.channelid,category.category,channel.channel FROM category LEFT JOIN channel ON channel.id=category.channelid WHERE search LIKE '%s%%'" %
 				letter
 			)
+			for ( id, channelid, category, channel ) in cursor:
+				self.addCategoryInChannel( id, channelid, category + ' [' + channel + ']' )
 		else:
 			cursor.execute(
 				"SELECT id,channelid,category FROM category WHERE channelid=%s AND search LIKE '%s%%' ORDER BY category" %
 				( channelid, letter )
 			)
-		for ( id, channelid, category ) in cursor:
-			self.addCategoryInChannel( id, channelid, category )
+			for ( id, channelid, category ) in cursor:
+				self.addCategoryInChannel( id, channelid, category )
 		cursor.close()
 		xbmcplugin.endOfDirectory( self.addon_handle )
 		xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
@@ -194,8 +198,8 @@ class MediathekView( xbmcaddon.Addon ):
 		cursor = self.conn.cursor()
 		cursor.execute(
 			"SELECT title,category,channel,description,TIME_TO_SEC(duration) AS seconds,size,aired,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN category ON category.id=film.categoryid LEFT JOIN channel ON channel.id=film.channelid WHERE ( TIMESTAMPDIFF(HOUR,film.aired,CURRENT_TIMESTAMP()) < 24 )" +
-			" AND ( TIMESTAMPDIFF(HOUR,film.aired,CURRENT_TIMESTAMP()) > 0 )" if self.nofuture else "" +
-			" AND ( TIME_TO_SEC(duration) >= %d )" % self.minlength if self.minlength > 0 else ""
+			self.nofuturesql +
+			self.minlengthsql
 		)
 		for ( title, category, channel, description, seconds, size, aired, url_video, url_video_sd, url_video_hd ) in cursor:
 			self.addFilm( category + ': ' + title + ' [' + channel + ']', category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd )
@@ -245,7 +249,7 @@ class MediathekView( xbmcaddon.Addon ):
 		self.addon_handle	= int( sys.argv[1] )
 		self.preferhd		= xbmcplugin.getSetting( self.addon_handle, 'quality' ) == 'true'
 		self.nofuture		= xbmcplugin.getSetting( self.addon_handle, 'nofuture' ) == 'true'
-		self.minlength		= xbmcplugin.getSetting( self.addon_handle, 'minduration' ) == 'true'
+		self.minlength		= int( float( xbmcplugin.getSetting( self.addon_handle, 'minduration' ) ) )
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.conn			= mysql.connector.connect(
 			host		= xbmcplugin.getSetting( self.addon_handle, 'dbhost' ),
@@ -253,6 +257,8 @@ class MediathekView( xbmcaddon.Addon ):
 			password	= xbmcplugin.getSetting( self.addon_handle, 'dbpass' ),
 			database	= xbmcplugin.getSetting( self.addon_handle, 'dbdata' )
 		)
+		self.nofuturesql	= " AND ( TIMESTAMPDIFF(HOUR,film.aired,CURRENT_TIMESTAMP()) > 0 )" if self.nofuture else ""
+		self.minlengthsql	= " AND ( TIME_TO_SEC(duration) >= %d )" % self.minlength if self.minlength > 0 else ""
 
 	def Do( self ):
 		mode = self.args.get('mode', None)
