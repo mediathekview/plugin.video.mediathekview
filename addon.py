@@ -206,6 +206,33 @@ class MediathekView( xbmcaddon.Addon ):
 		cursor.close()
 		xbmcplugin.endOfDirectory( self.addon_handle )
 
+	def addSearch( self ):
+		keyboard = xbmc.Keyboard( '' )
+		keyboard.doModal()
+		if keyboard.isConfirmed():
+			searchText = unicode( keyboard.getText().decode( 'UTF-8' ) )
+			if len( searchText ) > 2:
+				condition = "( title LIKE '%%%s%%')" % searchText
+				cursor = self.conn.cursor()
+				cursor.execute(
+					"SELECT title,category,channel,description,TIME_TO_SEC(duration) AS seconds,size,aired,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN category ON category.id=film.categoryid LEFT JOIN channel ON channel.id=film.channelid WHERE " +
+					condition +
+					self.nofuturesql +
+					self.minlengthsql
+				)
+				xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
+				xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_DATE )
+				xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_DURATION )
+				xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_SIZE )
+				for ( title, category, channel, description, seconds, size, aired, url_video, url_video_sd, url_video_hd ) in cursor:
+					self.addFilm( category + ': ' + title + ' [' + channel + ']', category, description, seconds, size, aired, url_video, url_video_sd, url_video_hd )
+				cursor.close()
+				xbmcplugin.endOfDirectory( self.addon_handle )
+			else:
+				xbmc.executebuiltin( "Action(PreviousMenu)" )
+		else:
+			xbmc.executebuiltin( "Action(PreviousMenu)" )
+
 	def addMainMenu( self ):
 		# xbmcplugin.addSortMethod( self.addon_handle, xbmcplugin.SORT_METHOD_LABEL )
 		# search
@@ -264,6 +291,8 @@ class MediathekView( xbmcaddon.Addon ):
 		mode = self.args.get('mode', None)
 		if mode is None:
 			self.addMainMenu()
+		elif mode[0] == 'main-search':
+			self.addSearch()
 		elif mode[0] == 'main-livestreams':
 			self.addLiveStreams()
 		elif mode[0] == 'main-recent':
