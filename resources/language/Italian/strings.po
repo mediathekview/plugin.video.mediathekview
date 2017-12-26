@@ -33,7 +33,7 @@ msgid "Non mostrare video futuri (usualmente trailer)"
 msgstr ""
 
 msgctxt "#30112"
-msgid "Durata minima in secondi"
+msgid "Durata minima in minuti"
 msgstr ""
 
 msgctxt "#30210"

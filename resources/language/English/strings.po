@@ -33,7 +33,7 @@ msgid "No future videos (usually trailers)"
 msgstr ""
 
 msgctxt "#30112"
-msgid "Minimum duration in seconds"
+msgid "Minimum duration in minutes"
 msgstr ""
 
 msgctxt "#30210"

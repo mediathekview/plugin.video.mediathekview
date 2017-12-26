@@ -249,7 +249,7 @@ class MediathekView( xbmcaddon.Addon ):
 		self.addon_handle	= int( sys.argv[1] )
 		self.preferhd		= xbmcplugin.getSetting( self.addon_handle, 'quality' ) == 'true'
 		self.nofuture		= xbmcplugin.getSetting( self.addon_handle, 'nofuture' ) == 'true'
-		self.minlength		= int( float( xbmcplugin.getSetting( self.addon_handle, 'minduration' ) ) )
+		self.minlength		= int( float( xbmcplugin.getSetting( self.addon_handle, 'minlength' ) ) ) * 60
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.conn			= mysql.connector.connect(
 			host		= xbmcplugin.getSetting( self.addon_handle, 'dbhost' ),
