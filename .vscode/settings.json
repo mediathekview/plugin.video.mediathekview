@@ -3,4 +3,6 @@
         "PATH": "/Users/leo/.platformio/penv/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/MacGPG2/bin:/opt/X11/bin:/Applications/Wireshark.app/Contents/MacOS:/usr/local/sbin"
     },
     "editor.formatOnSave": false,
+    "editor.insertSpaces": false,
+    "python.linting.enabled": false,
 }
