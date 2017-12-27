@@ -36,6 +36,10 @@ msgctxt "#30112"
 msgid "Durata minima in minuti"
 msgstr ""
 
+msgctxt "#30113"
+msgid "Raggruppa trasmissioni su canali diversi"
+msgstr ""
+
 msgctxt "#30210"
 msgid "Hostname banca dati"
 msgstr ""
@@ -72,3 +76,6 @@ msgctxt "#30905"
 msgid "Trasmissioni secondo emittenti"
 msgstr ""
 
+msgctxt "#30951"
+msgid "Errore Database"
+msgstr ""

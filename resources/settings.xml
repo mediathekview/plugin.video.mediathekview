@@ -4,6 +4,7 @@
 		<setting id="quality"			type="bool"		label="30110"	default="true"					/>
 		<setting id="nofuture"			type="bool"		label="30111"	default="true"					/>
 		<setting id="minlength"			type="slider"	label="30112"	default="0"	range="0,30"		/>
+		<setting id="groupshows"		type="bool"		label="30113"	default="true"					/>
 	</category>
 	<category label="30002">
 		<setting id="dbhost"			type="text"		label="30210"	default="localhost"				/>

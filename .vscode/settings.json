@@ -5,4 +5,12 @@
     "editor.formatOnSave": false,
     "editor.insertSpaces": false,
     "python.linting.enabled": false,
+    "files.exclude": {
+        "**/*.pyo": true,
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true
+    },
 }

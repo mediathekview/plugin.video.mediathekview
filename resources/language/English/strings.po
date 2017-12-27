@@ -25,7 +25,7 @@ msgid "Database Settings"
 msgstr ""
 
 msgctxt "#30110"
-msgid "Prefer HD Streams"
+msgid "Prefer HD streams"
 msgstr ""
 
 msgctxt "#30111"
@@ -36,20 +36,24 @@ msgctxt "#30112"
 msgid "Minimum duration in minutes"
 msgstr ""
 
+msgctxt "#30113"
+msgid "Group shows of different channel"
+msgstr ""
+
 msgctxt "#30210"
-msgid "Database Hostname"
+msgid "Database hostname"
 msgstr ""
 
 msgctxt "#30211"
-msgid "Database Username"
+msgid "Database username"
 msgstr ""
 
 msgctxt "#30212"
-msgid "Database Password"
+msgid "Database password"
 msgstr ""
 
 msgctxt "#30213"
-msgid "Database Name"
+msgid "Database name"
 msgstr ""
 
 msgctxt "#30901"
@@ -70,5 +74,9 @@ msgstr ""
 
 msgctxt "#30905"
 msgid "Browse Shows by Channel"
+msgstr ""
+
+msgctxt "#30951"
+msgid "Database Error"
 msgstr ""
 

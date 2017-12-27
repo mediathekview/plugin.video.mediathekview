@@ -1,3 +1,4 @@
 .DS*
 ._DS*
+*.pyo
 backend/tmp

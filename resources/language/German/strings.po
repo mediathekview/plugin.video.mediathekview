@@ -36,6 +36,10 @@ msgctxt "#30112"
 msgid "Minimlae Länge in Minuten"
 msgstr ""
 
+msgctxt "#30113"
+msgid "Sendungen verschiedener Sender zusammenfassen"
+msgstr ""
+
 msgctxt "#30210"
 msgid "Datenbank Hostname"
 msgstr ""
@@ -72,3 +76,6 @@ msgctxt "#30905"
 msgid "Alle Sendungen nach Sender"
 msgstr ""
 
+msgctxt "#30951"
+msgid "Datenbank Fehler"
+msgstr ""
