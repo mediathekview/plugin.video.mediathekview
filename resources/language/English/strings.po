@@ -57,22 +57,26 @@ msgid "Database name"
 msgstr ""
 
 msgctxt "#30901"
-msgid "Search"
+msgid "Search in Title"
 msgstr ""
 
 msgctxt "#30902"
-msgid "Livestreams"
+msgid "Search in Title and Description"
 msgstr ""
 
 msgctxt "#30903"
-msgid "Recently Added"
+msgid "Livestreams"
 msgstr ""
 
 msgctxt "#30904"
-msgid "Browse by Show in all Channels"
+msgid "Recently Added"
 msgstr ""
 
 msgctxt "#30905"
+msgid "Browse by Show in all Channels"
+msgstr ""
+
+msgctxt "#30906"
 msgid "Browse Shows by Channel"
 msgstr ""
 

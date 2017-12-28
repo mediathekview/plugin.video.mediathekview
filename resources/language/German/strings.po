@@ -57,22 +57,26 @@ msgid "Datenbank Name"
 msgstr ""
 
 msgctxt "#30901"
-msgid "Suchen"
+msgid "Suchen in Titel"
 msgstr ""
 
 msgctxt "#30902"
-msgid "Livestreams"
+msgid "Suchen in Titel und Beschreibung"
 msgstr ""
 
 msgctxt "#30903"
-msgid "Vor Kurzen hinzugefügt"
+msgid "Livestreams"
 msgstr ""
 
 msgctxt "#30904"
-msgid "Alle Sendungen"
+msgid "Vor Kurzen hinzugefügt"
 msgstr ""
 
 msgctxt "#30905"
+msgid "Alle Sendungen"
+msgstr ""
+
+msgctxt "#30906"
 msgid "Alle Sendungen nach Sender"
 msgstr ""
 

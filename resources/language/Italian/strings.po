@@ -57,22 +57,26 @@ msgid "Nome Database"
 msgstr ""
 
 msgctxt "#30901"
-msgid "Cerca"
+msgid "Cerca nel Titolo"
 msgstr ""
 
 msgctxt "#30902"
-msgid "Livestreams"
+msgid "Cerca nel Titolo e Descrizione"
 msgstr ""
 
 msgctxt "#30903"
-msgid "Recenti"
+msgid "Livestreams"
 msgstr ""
 
 msgctxt "#30904"
-msgid "Tutte le trasmissioni"
+msgid "Recenti"
 msgstr ""
 
 msgctxt "#30905"
+msgid "Tutte le trasmissioni"
+msgstr ""
+
+msgctxt "#30906"
 msgid "Trasmissioni secondo emittenti"
 msgstr ""
 

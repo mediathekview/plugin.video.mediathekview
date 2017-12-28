@@ -10,6 +10,7 @@ from de.yeasoft.kodi.KodiLogger import KodiLogger
 from de.yeasoft.kodi.KodiAddon import KodiAddon
 
 from classes.storemysql import StoreMySQL
+# from classes.storesqlite import StoreSQLite
 from classes.notifier import Notifier
 from classes.settings import Settings
 from classes.filmui import FilmUI
@@ -26,9 +27,11 @@ class MediathekView( KodiAddon ):
 	def __init__( self, id  ):
 		super( MediathekView, self ).__init__( id )
 		self.settings	= Settings( int( sys.argv[1] ) )
-		self.db			= StoreMySQL( self.getNewLogger( 'StoreMySQL' ), Notifier( id ), self.settings )
+		self.db			= StoreMySQL( id, self.getNewLogger( 'StoreMySQL' ), Notifier( id ), self.settings )
+#		self.dbs		= StoreSQLite( id, self.getNewLogger( 'StoreSQLite' ), Notifier( id ), self.settings )
 
 	def __del__( self ):
+#		del self.dbs
 		del self.db
 
 	def addChannelList( self ):
@@ -61,6 +64,18 @@ class MediathekView( KodiAddon ):
 		else:
 			xbmc.executebuiltin( "Action(PreviousMenu)" )
 
+	def addSearchAll( self ):
+		keyboard = xbmc.Keyboard( '' )
+		keyboard.doModal()
+		if keyboard.isConfirmed():
+			searchText = unicode( keyboard.getText().decode( 'UTF-8' ) )
+			if len( searchText ) > 2:
+				self.db.SearchFull( searchText, FilmUI( self.addon_handle ) )
+			else:
+				xbmc.executebuiltin( "Action(PreviousMenu)" )
+		else:
+			xbmc.executebuiltin( "Action(PreviousMenu)" )
+
 	def addFolderItem( self, strid, params ):
 		li = xbmcgui.ListItem( self.language( strid ) )
 		xbmcplugin.addDirectoryItem(
@@ -73,19 +88,22 @@ class MediathekView( KodiAddon ):
 	def addMainMenu( self ):
 		# search
 		self.addFolderItem( 30901, { 'mode': "main-search" } )
+		# search all
+		self.addFolderItem( 30902, { 'mode': "main-searchall" } )
 		# livestreams
-		self.addFolderItem( 30902, { 'mode': "main-livestreams" } )
+		self.addFolderItem( 30903, { 'mode': "main-livestreams" } )
 		# recently added
-		self.addFolderItem( 30903, { 'mode': "main-recent" } )
+		self.addFolderItem( 30904, { 'mode': "main-recent" } )
 		# Browse by Show in all Channels
-		self.addFolderItem( 30904, { 'mode': "channel", 'channel': 0 } )
+		self.addFolderItem( 30905, { 'mode': "channel", 'channel': 0 } )
 		# Browse Shows by Channel
-		self.addFolderItem( 30905, { 'mode': "main-channels" } )
+		self.addFolderItem( 30906, { 'mode': "main-channels" } )
 		xbmcplugin.endOfDirectory( self.addon_handle )
 
 	def Init( self ):
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.db.Init()
+#		self.dbs.Init()
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )
@@ -93,6 +111,8 @@ class MediathekView( KodiAddon ):
 			self.addMainMenu()
 		elif mode[0] == 'main-search':
 			self.addSearch()
+		elif mode[0] == 'main-searchall':
+			self.addSearchAll()
 		elif mode[0] == 'main-livestreams':
 			self.addLiveStreams()
 		elif mode[0] == 'main-recent':
@@ -112,6 +132,7 @@ class MediathekView( KodiAddon ):
 			self.addFilmlistInChannelAndCategory( show[0] )
 
 	def Exit( self ):
+#		self.dbs.Exit()
 		self.db.Exit()
 
 # -- Main Code ----------------------------------------------

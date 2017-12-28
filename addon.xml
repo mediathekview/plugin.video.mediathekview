@@ -11,14 +11,21 @@
 		<import addon="script.module.requests" version="2.12.4"/>
 		<import addon="script.module.myconnpy" version="1.1.7"/>
 	</requires>
-	<extension point="xbmc.python.pluginsource" library="addon.py">
+	<extension
+		point="xbmc.service"
+		library="service.py"
+		start="startup">
+	</extension>
+	<extension
+		point="xbmc.python.pluginsource"
+		library="addon.py">
 		<provides>video</provides>
 	</extension>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="de">Öffentlich-Rechtliche Mediatheken</summary>
 		<summary lang="en">Public service video-platforms</summary>
 		<summary lang="it">Piattaforme video dalle emittenti pubbliche</summary>
-		<description lang="de">Ermöglicht den Zugriff auf alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView</description>
+		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView</description>
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
 		<news>v0.1.0 (2017-12-22): First working version</news>
