@@ -84,3 +84,18 @@ msgctxt "#30951"
 msgid "Database Error"
 msgstr ""
 
+msgctxt "#30952"
+msgid "Dowload Error"
+msgstr ""
+
+msgctxt "#30953"
+msgid "Error while downloading {}: {}"
+msgstr ""
+
+msgctxt "#30954"
+msgid "Required decompression program 'xz' not found on your system"
+msgstr ""
+
+msgctxt "#30955"
+msgid "Download Database Update"
+msgstr ""

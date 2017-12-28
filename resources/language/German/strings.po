@@ -83,3 +83,19 @@ msgstr ""
 msgctxt "#30951"
 msgid "Datenbank Fehler"
 msgstr ""
+
+msgctxt "#30952"
+msgid "Dowload Fehler"
+msgstr ""
+
+msgctxt "#30953"
+msgid "Fehler beim herunterladen von {}: {}"
+msgstr ""
+
+msgctxt "#30954"
+msgid "Der benötigte Entpacker 'xz' konnte nicht gefunden werden"
+msgstr ""
+
+msgctxt "#30955"
+msgid "Datenbank Update wird heruntergeladen"
+msgstr ""

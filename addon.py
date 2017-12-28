@@ -17,6 +17,7 @@ from classes.filmui import FilmUI
 from classes.channelui import ChannelUI
 from classes.initialui import InitialUI
 from classes.showui import ShowUI
+# from classes.updater import MediathekViewUpdater
 
 # -- Constants ----------------------------------------------
 ADDON_ID = 'plugin.video.mediathekview'
@@ -104,6 +105,10 @@ class MediathekView( KodiAddon ):
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.db.Init()
 #		self.dbs.Init()
+#		x = MediathekViewUpdater( ADDON_ID, self.getNewLogger( 'Updater' ), Notifier( ADDON_ID ), self.settings )
+#		x.GetNewestList()
+#		x.Update()
+#		del x
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )
