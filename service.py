@@ -47,7 +47,6 @@ class MediathekViewService( KodiService ):
 		while not self.monitor.abortRequested():
 			# Sleep/wait for abort for 60 seconds
 			status = self.db.GetStatus()
-			self.info('{}', status)
 			if status['status'] != "UNINIT":
 				if int( time.time() ) - status['lastupdate'] > self.settings.updinterval:
 					updater = MediathekViewUpdater( self.addon_id, self.getNewLogger( 'MediathekViewUpdater' ), Notifier(), self.settings )

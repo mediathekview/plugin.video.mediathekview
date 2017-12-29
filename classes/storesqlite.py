@@ -198,7 +198,7 @@ class StoreSQLite( object ):
 		if self.conn is None:
 			return
 		new = self.GetStatus()
-		old = new
+		old = new['status']
 		if status is not None:
 			new['status'] = status
 		if lastupdate is not None:
@@ -223,11 +223,10 @@ class StoreSQLite( object ):
 			new['tot_mov'] = tot_mov
 		if description is not None:
 			new['description'] = description
-		if old == new:
-			return
-		status['modified'] = int( time.time() )
+		# TODO: we should only write, if we have changed something...
+		new['modified'] = int( time.time() )
 		cursor = self.conn.cursor()
-		if old['status'] == "NONE":
+		if old == "NONE":
 			# insert status
 			cursor.execute(
 				"""
@@ -262,19 +261,19 @@ class StoreSQLite( object ):
 					?
 				)
 				""", (
-					status['modified'],
-					status['status'],
-					status['lastupdate'],
-					status['add_chn'],
-					status['add_shw'],
-					status['add_mov'],
-					status['del_chn'],
-					status['del_shw'],
-					status['del_mov'],
-					status['tot_chn'],
-					status['tot_shw'],
-					status['tot_mov'],
-					status['description']
+					new['modified'],
+					new['status'],
+					new['lastupdate'],
+					new['add_chn'],
+					new['add_shw'],
+					new['add_mov'],
+					new['del_chn'],
+					new['del_shw'],
+					new['del_mov'],
+					new['tot_chn'],
+					new['tot_shw'],
+					new['tot_mov'],
+					new['description']
 				)
 			)
 		else:
@@ -296,19 +295,19 @@ class StoreSQLite( object ):
 						`tot_mov`		= ?,
 						`description`	= ?
 				""", (
-					status['modified'],
-					status['status'],
-					status['lastupdate'],
-					status['add_chn'],
-					status['add_shw'],
-					status['add_mov'],
-					status['del_chn'],
-					status['del_shw'],
-					status['del_mov'],
-					status['tot_chn'],
-					status['tot_shw'],
-					status['tot_mov'],
-					status['description']
+					new['modified'],
+					new['status'],
+					new['lastupdate'],
+					new['add_chn'],
+					new['add_shw'],
+					new['add_mov'],
+					new['del_chn'],
+					new['del_shw'],
+					new['del_mov'],
+					new['tot_chn'],
+					new['tot_shw'],
+					new['tot_mov'],
+					new['description']
 				)
 			)
 		cursor.close()
