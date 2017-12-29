@@ -7,7 +7,7 @@
 		<setting id="groupshows"		type="bool"		label="30113"	default="true"						/>
 	</category>
 	<category label="30002">
-		<setting id="dbtype"			type="enum"		label="30210"	default="30221"	lvalues="30221|30222"			/>
+		<setting id="dbtype"			type="enum"		label="30210"	default="0"	lvalues="30221|30222"				/>
 		<setting id="dbhost"			type="text"		label="30211"	default="localhost"			visible="eq(-1,1)"	/>
 		<setting id="dbuser"			type="text"		label="30212"	default="filmliste"			visible="eq(-2,1)"	/>
 		<setting id="dbpass"			type="text"		label="30213"	default=""	option="hidden"	visible="eq(-3,1)"	/>

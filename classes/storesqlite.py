@@ -14,6 +14,7 @@ class StoreSQLite( object ):
 		self.settings	= settings
 		# internals
 		self.conn		= None
+		self.dbpath		= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id )
 		self.dbfile		= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id, 'filmliste01.db' )
 		# useful query fragments
 		self.sql_query_films	= "SELECT title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
@@ -22,6 +23,8 @@ class StoreSQLite( object ):
 
 	def Init( self, reset = False ):
 		self.logger.info( 'Using SQLite version {}, pathon library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
+		if not self._dir_exists( self.dbpath ):
+			os.mkdir( self.dbpath )
 		if reset == True or not self._file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )
@@ -161,7 +164,7 @@ class StoreSQLite( object ):
 			'add_chn': 0,
 			'add_shw': 0,
 			'add_mov': 0,
-			'del_chm': 0,
+			'del_chn': 0,
 			'del_shw': 0,
 			'del_mov': 0,
 			'tot_chn': 0,
@@ -491,27 +494,27 @@ class StoreSQLite( object ):
 	def ftUpdateEnd( self, aborted ):
 		cursor = self.conn.cursor()
 		cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
-		r1 = cursor.fetchone()
+		( del_chn, ) = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `show` WHERE ( touched = 0 )' )
-		r2 = cursor.fetchone()
+		( del_shw, ) = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
-		r3 = cursor.fetchone()
+		( del_mov, ) = cursor.fetchone()
 		if aborted:
-			r1[0] = 0
-			r2[0] = 0
-			r3[0] = 0
+			del_chn = 0
+			del_shw = 0
+			del_mov = 0
 		else:
 			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
 			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
 		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
-		r4 = cursor.fetchone()
+		( cnt_chn, ) = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
-		r5 = cursor.fetchone()
+		( cnt_shw, ) = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
-		r6 = cursor.fetchone()
+		( cnt_mov, ) = cursor.fetchone()
 		cursor.close()
 		self.conn.commit()
-		return ( r1[0], r2[0], r3[0], r4[0], r5[0], r6[0], )
+		return ( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov, )
 
 	def Reset( self ):
 		self.conn.executescript( """
@@ -620,6 +623,13 @@ PRAGMA foreign_keys = true;
 		if len( x ) != 3:
 			return None
 		return int( x[0] ) * 3600 + int( x[1] ) * 60 + int( x[2] )
+
+	def _dir_exists( self, name ):
+		try:
+			s = os.stat( name )
+			return stat.S_ISDIR( s.st_mode )
+		except OSError as err:
+			return False
 
 	def _file_exists( self, name ):
 		try:
