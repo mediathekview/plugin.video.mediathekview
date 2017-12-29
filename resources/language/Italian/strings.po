@@ -68,6 +68,18 @@ msgctxt "#30222"
 msgid "Esterna (mysql)"
 msgstr ""
 
+msgctxt "#30231"
+msgid "Attualizzazione Database"
+msgstr ""
+
+msgctxt "#30232"
+msgid "Intervallo di attualizzazione in ore"
+msgstr ""
+
+msgctxt "#30238"
+msgid "Resetta Database"
+msgstr ""
+
 msgctxt "#30901"
 msgid "Cerca nel Titolo"
 msgstr ""

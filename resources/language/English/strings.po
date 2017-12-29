@@ -68,6 +68,18 @@ msgctxt "#30222"
 msgid "External (mysql)"
 msgstr ""
 
+msgctxt "#30231"
+msgid "Database Updates"
+msgstr ""
+
+msgctxt "#30232"
+msgid "Update interval in hours"
+msgstr ""
+
+msgctxt "#30238"
+msgid "Reset Database"
+msgstr ""
+
 msgctxt "#30901"
 msgid "Search in Title"
 msgstr ""
@@ -110,4 +122,24 @@ msgstr ""
 
 msgctxt "#30955"
 msgid "Download Database Update"
+msgstr ""
+
+msgctxt "#30956"
+msgid "Applying Database Update"
+msgstr ""
+
+msgctxt "#30957"
+msgid "In progress (%d): channels:%d, shows:%d, movies:%d ..."
+msgstr ""
+
+msgctxt "#30958"
+msgid "Updated finished"
+msgstr ""
+
+msgctxt "#30959"
+msgid "Kodi Shutdown during update"
+msgstr ""
+
+msgctxt "#30960"
+msgid "Error {0} while processing {1}"
 msgstr ""

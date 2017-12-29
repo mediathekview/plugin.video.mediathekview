@@ -15,8 +15,10 @@
 	<extension
 		point="xbmc.service"
 		library="service.py"
-		start="startup">
-	</extension>
+		start="startup" />
+	<extension
+		point="xbmc.python.library"
+		library="script.py" />
 	<extension
 		point="xbmc.python.pluginsource"
 		library="addon.py">

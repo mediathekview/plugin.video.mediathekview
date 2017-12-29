@@ -12,7 +12,7 @@ from classes.settings import Settings
 class FilmUI( Film ):
 	def __init__( self, handle, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ] ):
 		self.handle			= handle
-		self.settings		= Settings( handle )
+		self.settings		= Settings()
 		self.sortmethods	= sortmethods
 		self.showshows		= False
 		self.showchannels	= False

@@ -22,7 +22,7 @@ class StoreSQLite( object ):
 
 	def Init( self, reset = False ):
 		self.logger.info( 'Using SQLite version {}, pathon library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
-		if reset == True:
+		if reset == True or not self._file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )
 			self.conn = sqlite3.connect( self.dbfile )
@@ -152,6 +152,167 @@ class StoreSQLite( object ):
 		except sqlite3.Error as err:
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
+
+	def GetStatus( self ):
+		status = {
+			'modified': int( time.time() ),
+			'status': '',
+			'lastupdate': 0,
+			'add_chn': 0,
+			'add_shw': 0,
+			'add_mov': 0,
+			'del_chm': 0,
+			'del_shw': 0,
+			'del_mov': 0,
+			'tot_chn': 0,
+			'tot_shw': 0,
+			'tot_mov': 0,
+			'description': ''
+		}
+		if self.conn is None:
+			status['status'] = "UNINIT"
+			return status
+		cursor = self.conn.cursor()
+		cursor.execute( 'SELECT * FROM `status` LIMIT 1' )
+		r = cursor.fetchall()
+		cursor.close()
+		if len( r ) == 0:
+			status['status'] = "NONE"
+			return status
+		status['modified']		= r[0][0]
+		status['status']		= r[0][1]
+		status['lastupdate']	= r[0][2]
+		status['add_chn']		= r[0][3]
+		status['add_shw']		= r[0][4]
+		status['add_mov']		= r[0][5]
+		status['del_chn']		= r[0][6]
+		status['del_shw']		= r[0][7]
+		status['del_mov']		= r[0][8]
+		status['tot_chn']		= r[0][9]
+		status['tot_shw']		= r[0][10]
+		status['tot_mov']		= r[0][11]
+		status['description']	= r[0][12]
+		return status
+
+	def UpdateStatus( self, status = None, description = None, lastupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
+		if self.conn is None:
+			return
+		new = self.GetStatus()
+		old = new
+		if status is not None:
+			new['status'] = status
+		if lastupdate is not None:
+			new['lastupdate'] = lastupdate
+		if add_chn is not None:
+			new['add_chn'] = add_chn
+		if add_shw is not None:
+			new['add_shw'] = add_shw
+		if add_mov is not None:
+			new['add_mov'] = add_mov
+		if del_chn is not None:
+			new['del_chn'] = del_chn
+		if del_shw is not None:
+			new['del_shw'] = del_shw
+		if del_mov is not None:
+			new['del_mov'] = del_mov
+		if tot_chn is not None:
+			new['tot_chn'] = tot_chn
+		if tot_shw is not None:
+			new['tot_shw'] = tot_shw
+		if tot_mov is not None:
+			new['tot_mov'] = tot_mov
+		if description is not None:
+			new['description'] = description
+		if old == new:
+			return
+		status['modified'] = int( time.time() )
+		cursor = self.conn.cursor()
+		if old['status'] == "NONE":
+			# insert status
+			cursor.execute(
+				"""
+				INSERT INTO `status` (
+					`modified`,
+					`status`,
+					`lastupdate`,
+					`add_chn`,
+					`add_shw`,
+					`add_mov`,
+					`del_chm`,
+					`del_shw`,
+					`del_mov`,
+					`tot_chn`,
+					`tot_shw`,
+					`tot_mov`,
+					`description`
+				)
+				VALUES (
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?,
+					?
+				)
+				""", (
+					status['modified'],
+					status['status'],
+					status['lastupdate'],
+					status['add_chn'],
+					status['add_shw'],
+					status['add_mov'],
+					status['del_chn'],
+					status['del_shw'],
+					status['del_mov'],
+					status['tot_chn'],
+					status['tot_shw'],
+					status['tot_mov'],
+					status['description']
+				)
+			)
+		else:
+			# update status
+			cursor.execute(
+				"""
+				UPDATE `status`
+				SET		`modified`		= ?,
+						`status`		= ?,
+						`lastupdate`	= ?,
+						`add_chn`		= ?,
+						`add_shw`		= ?,
+						`add_mov`		= ?,
+						`del_chm`		= ?,
+						`del_shw`		= ?,
+						`del_mov`		= ?,
+						`tot_chn`		= ?,
+						`tot_shw`		= ?,
+						`tot_mov`		= ?,
+						`description`	= ?
+				""", (
+					status['modified'],
+					status['status'],
+					status['lastupdate'],
+					status['add_chn'],
+					status['add_shw'],
+					status['add_mov'],
+					status['del_chn'],
+					status['del_shw'],
+					status['del_mov'],
+					status['tot_chn'],
+					status['tot_shw'],
+					status['tot_mov'],
+					status['description']
+				)
+			)
+		cursor.close()
+		self.conn.commit()
 
 	def ftInit( self ):
 		self.ft_channel = None
@@ -318,10 +479,17 @@ class StoreSQLite( object ):
 			UPDATE	`film`
 			SET		`touched` = 0;
 		""" )
+		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
+		r1 = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
+		r2 = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
+		r3 = cursor.fetchone()
 		cursor.close()
 		self.conn.commit()
+		return ( r1[0], r2[0], r3[0], )
 
-	def ftUpdateEnd( self ):
+	def ftUpdateEnd( self, aborted ):
 		cursor = self.conn.cursor()
 		cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
 		r1 = cursor.fetchone()
@@ -329,29 +497,25 @@ class StoreSQLite( object ):
 		r2 = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
 		r3 = cursor.fetchone()
-		cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
-		cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
+		if aborted:
+			r1[0] = 0
+			r2[0] = 0
+			r3[0] = 0
+		else:
+			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
+			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
+		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
+		r4 = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
+		r5 = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
+		r6 = cursor.fetchone()
 		cursor.close()
 		self.conn.commit()
-		return ( r1[0], r2[0], r3[0], )
+		return ( r1[0], r2[0], r3[0], r4[0], r5[0], r6[0], )
 
 	def Reset( self ):
 		self.conn.executescript( """
-/*
- Navicat Premium Data Transfer
-
- Source Server         : Kodi MediathekView
- Source Server Type    : SQLite
- Source Server Version : 3012001
- Source Database       : main
-
- Target Server Type    : SQLite
- Target Server Version : 3012001
- File Encoding         : utf-8
-
- Date: 12/27/2017 23:56:51 PM
-*/
-
 PRAGMA foreign_keys = false;
 
 -- ----------------------------
@@ -405,6 +569,26 @@ CREATE TABLE "show" (
 );
 
 -- ----------------------------
+--  Table structure for status
+-- ----------------------------
+DROP TABLE IF EXISTS "status";
+CREATE TABLE "status" (
+	 "modified" integer(11,0),
+	 "status" TEXT(32,0),
+	 "lastupdate" integer(11,0),
+	 "add_chn" integer(11,0),
+	 "add_shw" integer(11,0),
+	 "add_mov" integer(11,0),
+	 "del_chm" integer(11,0),
+	 "del_shw" integer(11,0),
+	 "del_mov" integer(11,0),
+	 "tot_chn" integer(11,0),
+	 "tot_shw" integer(11,0),
+	 "tot_mov" integer(11,0),
+	 "description" TEXT(512,0)
+);
+
+-- ----------------------------
 --  Indexes structure for table film
 -- ----------------------------
 CREATE INDEX "dupecheck" ON film ("channelid", "showid", "url_video");
@@ -414,13 +598,14 @@ CREATE INDEX "index_2" ON film ("showid", "title" COLLATE NOCASE);
 -- ----------------------------
 --  Indexes structure for table show
 -- ----------------------------
-CREATE INDEX "show" ON show ("show");
+CREATE INDEX "category" ON show ("category");
 CREATE INDEX "search" ON show ("search");
 CREATE INDEX "combined_1" ON show ("channelid", "search");
 CREATE INDEX "combined_2" ON show ("channelid", "show");
 
 PRAGMA foreign_keys = true;
 		""" )
+		self.UpdateStatus( 'IDLE', '' )
 
 	def _make_search( self, val ):
 		cset = string.letters + string.digits + ' _-#'

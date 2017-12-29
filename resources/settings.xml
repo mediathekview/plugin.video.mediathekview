@@ -12,5 +12,9 @@
 		<setting id="dbuser"			type="text"		label="30212"	default="filmliste"			visible="eq(-2,1)"	/>
 		<setting id="dbpass"			type="text"		label="30213"	default=""	option="hidden"	visible="eq(-3,1)"	/>
 		<setting id="dbdata"			type="text"		label="30214"	default="filmliste"			visible="eq(-4,1)"	/>
+		<setting id="updtext"			type="lsep"		label="30231"								visible="eq(-5,0)"	/>
+		<setting id="updinterval"		type="slider"	label="30232"	default="4"	range="2,24"	visible="eq(-6,0)"	/>
+
+		<setting						type="action"	label="30238"	action="RunScript(plugin.video.mediathekview, downloadreport)"/>
 	</category>
 </settings>

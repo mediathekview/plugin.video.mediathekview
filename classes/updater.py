@@ -3,9 +3,9 @@
 #
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson
+import os, stat, urllib, urllib2, subprocess, ijson, time
 import xml.etree.ElementTree as etree
-import xbmc, xbmcgui
+import xbmc, xbmcaddon
 
 from operator import itemgetter
 from classes.storesqlite import StoreSQLite
@@ -21,11 +21,13 @@ class MediathekViewUpdater( object ):
 		self.notifier	= notifier
 		self.settings	= settings
 		self.addonpath	= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id )
+		self.language	= xbmcaddon.Addon().getLocalizedString
 
 	def Update( self ):
 		self.sql = StoreSQLite( self.id, self.logger, self.notifier, self.settings )
-		self.sql.Init( reset = False )
-		self.Import()
+		self.sql.Init()
+		if self.GetNewestList():
+			self.Import()
 		self.sql.Exit()
 		del self.sql
 
@@ -35,17 +37,24 @@ class MediathekViewUpdater( object ):
 			self.logger.error( 'File {} does not exists')
 			return False
 		try:
+			monitor = xbmc.Monitor()
 			file = open( destfile, 'r' )
 			parser = ijson.parse( file )
-			self._update_start()
+			( tot_chn, tot_shw, tot_mov ) = self._update_start()
+			self.notifier.ShowUpdateProgress()
+			# estimate number of records
+			records = 220000 if tot_mov < 50000 else tot_mov + 10000
 			for prefix, event, value in parser:
 				if ( prefix, event ) == ( "X", "start_array" ):
 					self._init_record()
 				elif ( prefix, event ) == ( "X", "end_array" ):
-					self._end_record()
-					if self.count >= 50000:
-						self._update_end()
+					self._end_record( records )
+					if self.count % 100 == 0 and monitor.abortRequested():
+						# kodi is shutting down. Close all
+						del monitor
 						file.close()
+						self._update_end( True, 'ABORTED', self.language(30959) )
+						self.notifier.CloseUpdateProgress()
 						return True
 				elif ( prefix, event ) == ( "X.item", "string" ):
 					if value is not None:
@@ -53,17 +62,22 @@ class MediathekViewUpdater( object ):
 						self._add_value( value.strip() )
 					else:
 						self._add_value( "" )
-			self._update_end()
+			del monitor
 			file.close()
+			self._update_end( False, 'IDLE', self.language(30958) )
+			self.logger.info( 'Import of {} finished', destfile )
+			self.notifier.CloseUpdateProgress()
+			return True
 		except IOError as err:
 			self.logger.error( 'Error {} wile processing {}', err, destfile )
 			try:
+				self._update_end( True, 'ABORTED', self.language(30960).format( err, destfile ) )
+				self.notifier.CloseUpdateProgress()
+				del monitor
 				file.close()
 			except Exception as err:
 				pass
 			return False
-		self.logger.info( 'Import of {} finished', destfile )
-		return True
 
 	def GetNewestList( self ):
 		# get xz binary
@@ -100,7 +114,7 @@ class MediathekViewUpdater( object ):
 
 		# download filmliste
 		compfile = os.path.join( self.addonpath, 'Filmliste-akt.xz' )
-		self.logger.info( 'Tryinig to download file...' )
+		self.logger.info( 'Trying to download file...' )
 		self.notifier.ShowDownloadProgress()
 		lasturl = ''
 		for url in urls:
@@ -182,13 +196,24 @@ class MediathekViewUpdater( object ):
 			"airedepoch": 0,
 			"geo": ""
 		}
+		self.sql.UpdateStatus( 'UPDATING' )
 		self.sql.ftInit()
-		self.sql.ftUpdateStart()
+		return self.sql.ftUpdateStart()
 
-	def _update_end( self ):
+	def _update_end( self, aborted, status = 'IDLE', description = None ):
 		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.channels, self.shows, self.movies ) )
-		( cnt_chn, cnt_shw, cnt_mov ) = self.sql.ftUpdateEnd()
-		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( cnt_chn, cnt_shw, cnt_mov ) )
+		( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov ) = self.sql.ftUpdateEnd( aborted )
+		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( del_chn, del_shw, del_mov ) )
+		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( cnt_chn, cnt_shw, cnt_mov ) )
+		self.sql.UpdateStatus(
+			status,
+			description,
+			int( time.time() ),
+			self.channels, self.shows, self.movies,
+			del_chn, del_shw, del_mov,
+			cnt_chn, cnt_shw, cnt_mov
+		)
+
 
 	def _init_record( self ):
 		self.index = 0
@@ -205,9 +230,11 @@ class MediathekViewUpdater( object ):
 		self.film["airedepoch"] = 0
 		self.film["geo"] = ""
 
-	def _end_record( self ):
+	def _end_record( self, records ):
 		if self.count % 1000 == 0:
 			self.logger.info( 'In progress (%d): channels:%d, shows:%d, movies:%d ...' % ( self.count, self.channels, self.shows, self.movies ) )
+			percent = self.count * 100 / records
+			self.notifier.UpdateUpdateProgress( percent, self.count, self.channels, self.shows, self.movies )
 		self.count = self.count + 1
 		( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.sql.ftInsertFilm( self.film )
 		self.channels += cnt_chn

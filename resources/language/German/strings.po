@@ -68,6 +68,18 @@ msgctxt "#30222"
 msgid "Extern (mysql)"
 msgstr ""
 
+msgctxt "#30231"
+msgid "Datenbankupdates"
+msgstr ""
+
+msgctxt "#30232"
+msgid "Aktualisierungsintervall in Stunden"
+msgstr ""
+
+msgctxt "#30238"
+msgid "Datenbank zurücksetzen"
+msgstr ""
+
 msgctxt "#30901"
 msgid "Suchen in Titel"
 msgstr ""
@@ -110,4 +122,24 @@ msgstr ""
 
 msgctxt "#30955"
 msgid "Datenbank Update wird heruntergeladen"
+msgstr ""
+
+msgctxt "#30956"
+msgid "Datenbank wird aktualisiert"
+msgstr ""
+
+msgctxt "#30957"
+msgid "In Bearbeitung (%d): Sender:%d, Sendungen:%d, Filme:%d ..."
+msgstr ""
+
+msgctxt "#30958"
+msgid "Aktualkisierung beendet"
+msgstr ""
+
+msgctxt "#30959"
+msgid "Kodi wurde während der aktualisierung heruntergefahren"
+msgstr ""
+
+msgctxt "#30960"
+msgid "Fehler {0} beim Verarbeiten von {1}"
 msgstr ""

@@ -3,17 +3,22 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcplugin
+import xbmcaddon
+
+# -- Constants ----------------------------------------------
+ADDON_ID = 'plugin.video.mediathekview'
 
 # -- Classes ------------------------------------------------
 class Settings( object ):
-	def __init__( self, handle ):
-		self.preferhd		= xbmcplugin.getSetting( handle, 'quality' ) == 'true'
-		self.nofuture		= xbmcplugin.getSetting( handle, 'nofuture' ) == 'true'
-		self.minlength		= int( float( xbmcplugin.getSetting( handle, 'minlength' ) ) ) * 60
-		self.groupshows		= xbmcplugin.getSetting( handle, 'groupshows' ) == 'true'
-		self.type			= xbmcplugin.getSetting( handle, 'dbtype' )
-		self.host			= xbmcplugin.getSetting( handle, 'dbhost' )
-		self.user			= xbmcplugin.getSetting( handle, 'dbuser' )
-		self.password		= xbmcplugin.getSetting( handle, 'dbpass' )
-		self.database		= xbmcplugin.getSetting( handle, 'dbdata' )
+	def __init__( self ):
+		addon = xbmcaddon.Addon()
+		self.preferhd		= addon.getSetting( 'quality' ) == 'true'
+		self.nofuture		= addon.getSetting( 'nofuture' ) == 'true'
+		self.minlength		= int( float( addon.getSetting( 'minlength' ) ) ) * 60
+		self.groupshows		= addon.getSetting( 'groupshows' ) == 'true'
+		self.type			= addon.getSetting( 'dbtype' )
+		self.host			= addon.getSetting( 'dbhost' )
+		self.user			= addon.getSetting( 'dbuser' )
+		self.password		= addon.getSetting( 'dbpass' )
+		self.database		= addon.getSetting( 'dbdata' )
+		self.updinterval	= int( float( addon.getSetting( 'updinterval' ) ) ) * 3600

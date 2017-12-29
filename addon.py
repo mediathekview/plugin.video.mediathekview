@@ -7,29 +7,26 @@ import sys,urlparse
 import xbmc,xbmcplugin,xbmcgui
 
 from de.yeasoft.kodi.KodiLogger import KodiLogger
-from de.yeasoft.kodi.KodiAddon import KodiAddon
+from de.yeasoft.kodi.KodiAddon import KodiPlugin
 
 from classes.store import Store
-# from classes.storemysql import StoreMySQL
-# from classes.storesqlite import StoreSQLite
 from classes.notifier import Notifier
 from classes.settings import Settings
 from classes.filmui import FilmUI
 from classes.channelui import ChannelUI
 from classes.initialui import InitialUI
 from classes.showui import ShowUI
-# from classes.updater import MediathekViewUpdater
 
 # -- Constants ----------------------------------------------
 ADDON_ID = 'plugin.video.mediathekview'
 
 # -- Classes ------------------------------------------------
-class MediathekView( KodiAddon ):
+class MediathekView( KodiPlugin ):
 
-	def __init__( self, id  ):
-		super( MediathekView, self ).__init__( id )
-		self.settings	= Settings( int( sys.argv[1] ) )
-		self.db			= Store( id, self.getNewLogger( 'StoreMySQL' ), Notifier( id ), self.settings )
+	def __init__( self ):
+		super( MediathekView, self ).__init__()
+		self.settings	= Settings()
+		self.db			= Store( self.addon_id, self.getNewLogger( 'Store' ), Notifier(), self.settings )
 
 	def __del__( self ):
 		del self.db
@@ -103,11 +100,6 @@ class MediathekView( KodiAddon ):
 	def Init( self ):
 		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.db.Init()
-#		self.dbs.Init()
-#		x = MediathekViewUpdater( ADDON_ID, self.getNewLogger( 'Updater' ), Notifier( ADDON_ID ), self.settings )
-#		x.GetNewestList()
-#		x.Update()
-#		del x
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )
@@ -139,7 +131,7 @@ class MediathekView( KodiAddon ):
 		self.db.Exit()
 
 # -- Main Code ----------------------------------------------
-addon = MediathekView( ADDON_ID )
+addon = MediathekView()
 addon.Init()
 addon.Do()
 addon.Exit()

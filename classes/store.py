@@ -6,7 +6,6 @@
 from classes.storemysql  import StoreMySQL
 from classes.storesqlite import StoreSQLite
 
-
 # -- Classes ------------------------------------------------
 class Store( object ):
 	def __init__( self, id, logger, notifier, settings ):
@@ -69,13 +68,14 @@ class Store( object ):
 		if self.sql is not None:
 			self.sql.GetFilms( showid, filmui )
 
-"""
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-		self.sql. if self.sql is not None
-"""
+	def SearchCondition( self, condition, filmui, showshows, showchannels ):
+		if self.sql is not None:
+			self.sql.SearchCondition( condition, filmui, showshows, showchannels )
+
+	def GetStatus( self ):
+		if self.sql is not None:
+			return self.sql.GetStatus()
+
+	def UpdateStatus( self, status = None, description = None, lastupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
+		if self.sql is not None:
+			self.sql.UpdateStatus( status, description, lastupdate, add_chn, add_shw, add_mov, del_chn, del_shw, del_mov, tot_chn, tot_shw, tot_mov )

@@ -66,6 +66,26 @@ CREATE TABLE "show" (
 );
 
 -- ----------------------------
+--  Table structure for status
+-- ----------------------------
+DROP TABLE IF EXISTS "status";
+CREATE TABLE "status" (
+	 "modified" integer(11,0),
+	 "status" TEXT(32,0),
+	 "lastupdate" integer(11,0),
+	 "add_chn" integer(11,0),
+	 "add_shw" integer(11,0),
+	 "add_mov" integer(11,0),
+	 "del_chm" integer(11,0),
+	 "del_shw" integer(11,0),
+	 "del_mov" integer(11,0),
+	 "tot_chn" integer(11,0),
+	 "tot_shw" integer(11,0),
+	 "tot_mov" integer(11,0),
+	 "description" TEXT(512,0)
+);
+
+-- ----------------------------
 --  Indexes structure for table film
 -- ----------------------------
 CREATE INDEX "dupecheck" ON film ("channelid", "showid", "url_video");
