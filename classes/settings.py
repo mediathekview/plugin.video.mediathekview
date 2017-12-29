@@ -12,6 +12,7 @@ class Settings( object ):
 		self.nofuture		= xbmcplugin.getSetting( handle, 'nofuture' ) == 'true'
 		self.minlength		= int( float( xbmcplugin.getSetting( handle, 'minlength' ) ) ) * 60
 		self.groupshows		= xbmcplugin.getSetting( handle, 'groupshows' ) == 'true'
+		self.type			= xbmcplugin.getSetting( handle, 'dbtype' )
 		self.host			= xbmcplugin.getSetting( handle, 'dbhost' )
 		self.user			= xbmcplugin.getSetting( handle, 'dbuser' )
 		self.password		= xbmcplugin.getSetting( handle, 'dbpass' )

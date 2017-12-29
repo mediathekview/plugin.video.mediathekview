@@ -41,19 +41,31 @@ msgid "Group shows of different channel"
 msgstr ""
 
 msgctxt "#30210"
-msgid "Database hostname"
+msgid "Database type"
 msgstr ""
 
 msgctxt "#30211"
-msgid "Database username"
+msgid "Database hostname"
 msgstr ""
 
 msgctxt "#30212"
-msgid "Database password"
+msgid "Database username"
 msgstr ""
 
 msgctxt "#30213"
+msgid "Database password"
+msgstr ""
+
+msgctxt "#30214"
 msgid "Database name"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Internal (sqlite)"
+msgstr ""
+
+msgctxt "#30222"
+msgid "External (mysql)"
 msgstr ""
 
 msgctxt "#30901"

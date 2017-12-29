@@ -9,7 +9,8 @@ import xbmc,xbmcplugin,xbmcgui
 from de.yeasoft.kodi.KodiLogger import KodiLogger
 from de.yeasoft.kodi.KodiAddon import KodiAddon
 
-from classes.storemysql import StoreMySQL
+from classes.store import Store
+# from classes.storemysql import StoreMySQL
 # from classes.storesqlite import StoreSQLite
 from classes.notifier import Notifier
 from classes.settings import Settings
@@ -28,11 +29,9 @@ class MediathekView( KodiAddon ):
 	def __init__( self, id  ):
 		super( MediathekView, self ).__init__( id )
 		self.settings	= Settings( int( sys.argv[1] ) )
-		self.db			= StoreMySQL( id, self.getNewLogger( 'StoreMySQL' ), Notifier( id ), self.settings )
-#		self.dbs		= StoreSQLite( id, self.getNewLogger( 'StoreSQLite' ), Notifier( id ), self.settings )
+		self.db			= Store( id, self.getNewLogger( 'StoreMySQL' ), Notifier( id ), self.settings )
 
 	def __del__( self ):
-#		del self.dbs
 		del self.db
 
 	def addChannelList( self ):
@@ -137,7 +136,6 @@ class MediathekView( KodiAddon ):
 			self.addFilmlistInChannelAndCategory( show[0] )
 
 	def Exit( self ):
-#		self.dbs.Exit()
 		self.db.Exit()
 
 # -- Main Code ----------------------------------------------

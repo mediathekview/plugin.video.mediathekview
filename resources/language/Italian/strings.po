@@ -41,19 +41,31 @@ msgid "Raggruppa trasmissioni su canali diversi"
 msgstr ""
 
 msgctxt "#30210"
-msgid "Hostname banca dati"
+msgid "Tipo banca dati"
 msgstr ""
 
 msgctxt "#30211"
-msgid "Nome utente"
+msgid "Hostname banca dati"
 msgstr ""
 
 msgctxt "#30212"
-msgid "Password"
+msgid "Nome utente"
 msgstr ""
 
 msgctxt "#30213"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30214"
 msgid "Nome Database"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Interna (sqlite)"
+msgstr ""
+
+msgctxt "#30222"
+msgid "Esterna (mysql)"
 msgstr ""
 
 msgctxt "#30901"

@@ -9,9 +9,16 @@ import xbmc
 # -- Classes ------------------------------------------------
 class StoreSQLite( object ):
 	def __init__( self, id, logger, notifier, settings ):
-		self.conn		= None
 		self.logger		= logger
+		self.notifier	= notifier
+		self.settings	= settings
+		# internals
+		self.conn		= None
 		self.dbfile		= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id, 'filmliste01.db' )
+		# useful query fragments
+		self.sql_query_films	= "SELECT title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
+		self.sql_cond_nofuture	= " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
+		self.sql_cond_minlength	= " AND ( ( duration IS NULL ) OR ( duration >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
 	def Init( self, reset = False ):
 		self.logger.info( 'Using SQLite version {}, pathon library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
@@ -22,11 +29,129 @@ class StoreSQLite( object ):
 			self.Reset()
 		else:
 			self.conn = sqlite3.connect( self.dbfile )
+		self.conn.create_function( 'UNIX_TIMESTAMP', 0, UNIX_TIMESTAMP )
+		self.conn.create_aggregate( 'GROUP_CONCAT', 1, GROUP_CONCAT )
 
 	def Exit( self ):
 		if self.conn is not None:
 			self.conn.close()
 			self.conn	= None
+
+	def Search( self, search, filmui ):
+		self.SearchCondition( '( title LIKE "%%%s%%")' % search, filmui, True, True )
+
+	def SearchFull( self, search, filmui ):
+		self.SearchCondition( '( ( title LIKE "%%%s%%") OR ( description LIKE "%%%s%%") )' % ( search, search ), filmui, True, True )
+
+	def GetRecents( self, filmui ):
+		self.SearchCondition( '( ( UNIX_TIMESTAMP() - aired ) <= 86400 )', filmui, True, True )
+
+	def GetLiveStreams( self, filmui ):
+		self.SearchCondition( '( show.search="LIVESTREAM" )', filmui, False, False )
+
+	def GetChannels( self, channelui ):
+		if self.conn is None:
+			return
+		try:
+			self.logger.info( 'SQLite Query: {}', "SELECT id,channel FROM channel" )
+			cursor = self.conn.cursor()
+			cursor.execute( 'SELECT id,channel FROM channel' )
+			channelui.Begin()
+			for ( channelui.id, channelui.channel ) in cursor:
+				channelui.Add()
+			channelui.End()
+			cursor.close()
+		except sqlite3.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
+
+	def GetInitials( self, channelid, initialui ):
+		if self.conn is None:
+			return
+		try:
+			condition = 'WHERE ( channelid=' + str( channelid ) + ' ) ' if channelid != '0' else ''
+			self.logger.info( 'SQlite Query: {}', 
+				'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
+				condition +
+				'GROUP BY LEFT(search,1)'
+			)
+			cursor = self.conn.cursor()
+			cursor.execute(
+				'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
+				condition +
+				'GROUP BY SUBSTR(search,1,1)'
+			)
+			initialui.Begin( channelid )
+			for ( initialui.initial, initialui.count ) in cursor:
+				initialui.Add()
+			initialui.End()
+			cursor.close()
+		except sqlite3.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
+
+	def GetShows( self, channelid, initial, showui ):
+		if self.conn is None:
+			return
+		try:
+			if channelid == '0' and self.settings.groupshows:
+				query = 'SELECT GROUP_CONCAT(show.id),GROUP_CONCAT(channelid),show,GROUP_CONCAT(channel) FROM show LEFT JOIN channel ON channel.id=show.channelid WHERE ( show LIKE "%s%%" ) GROUP BY show' % initial
+			elif channelid == '0':
+				query = 'SELECT show.id,show.channelid,show.show,channel.channel FROM show LEFT JOIN channel ON channel.id=show.channelid WHERE ( show LIKE "%s%%" )' % initial
+			else:
+				query = 'SELECT show.id,show.channelid,show.show,channel.channel FROM show LEFT JOIN channel ON channel.id=show.channelid WHERE ( channelid=%s ) AND ( show LIKE "%s%%" )' % ( channelid, initial )
+			self.logger.info( 'SQLite Query: {}', query )
+			cursor = self.conn.cursor()
+			cursor.execute( query )
+			showui.Begin( channelid )
+			for ( showui.id, showui.channelid, showui.show, showui.channel ) in cursor:
+				showui.Add()
+			showui.End()
+			cursor.close()
+		except sqlite3.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
+
+	def GetFilms( self, showid, filmui ):
+		if self.conn is None:
+			return
+		if showid.find( ',' ) == -1:
+			# only one channel id
+			condition = '( showid=%s )' % showid
+			showchannels = False
+		else:
+			# multiple channel ids
+			condition = '( showid IN ( %s ) )' % showid
+			showchannels = True
+		self.SearchCondition( condition, filmui, False, showchannels )
+
+	def SearchCondition( self, condition, filmui, showshows, showchannels ):
+		if self.conn is None:
+			return
+		try:
+			self.logger.info( 'SQLite Query: {}', 
+				self.sql_query_films +
+				' WHERE ' +
+				condition +
+				self.sql_cond_nofuture +
+				self.sql_cond_minlength
+			)
+			cursor = self.conn.cursor()
+			cursor.execute(
+				self.sql_query_films +
+				' WHERE ' +
+				condition +
+				self.sql_cond_nofuture +
+				self.sql_cond_minlength
+			)
+			filmui.Begin( showshows, showchannels )
+			for ( filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd ) in cursor:
+				filmui.Add()
+			filmui.End()
+			cursor.close()
+		except sqlite3.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
 
 	def ftInit( self ):
 		self.ft_channel = None
@@ -289,7 +414,7 @@ CREATE INDEX "index_2" ON film ("showid", "title" COLLATE NOCASE);
 -- ----------------------------
 --  Indexes structure for table show
 -- ----------------------------
-CREATE INDEX "category" ON show ("category");
+CREATE INDEX "show" ON show ("show");
 CREATE INDEX "search" ON show ("search");
 CREATE INDEX "combined_1" ON show ("channelid", "search");
 CREATE INDEX "combined_2" ON show ("channelid", "show");
@@ -328,3 +453,19 @@ PRAGMA foreign_keys = true;
 				self.logger.error( 'Failed to remove {}: error {}', name, err )
 		return False
 
+def UNIX_TIMESTAMP():
+	return int( time.time() )
+
+class GROUP_CONCAT:
+	def __init__( self ):
+		self.value = ''
+
+	def step( self, value ):
+		if value is not None:
+			if self.value == '':
+				self.value = '{0}'.format( value )
+			else:
+				self.value = '{0},{1}'.format( self.value, value )
+
+	def finalize(self):
+		return self.value

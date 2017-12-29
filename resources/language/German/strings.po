@@ -41,19 +41,31 @@ msgid "Sendungen verschiedener Sender zusammenfassen"
 msgstr ""
 
 msgctxt "#30210"
-msgid "Datenbank Hostname"
+msgid "Datenbank Typ"
 msgstr ""
 
 msgctxt "#30211"
-msgid "Datenbank Benutzername"
+msgid "Datenbank Hostname"
 msgstr ""
 
 msgctxt "#30212"
-msgid "Datenbank Passwort"
+msgid "Datenbank Benutzername"
 msgstr ""
 
 msgctxt "#30213"
+msgid "Datenbank Passwort"
+msgstr ""
+
+msgctxt "#30214"
 msgid "Datenbank Name"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Intern (sqlite)"
+msgstr ""
+
+msgctxt "#30222"
+msgid "Extern (mysql)"
 msgstr ""
 
 msgctxt "#30901"
