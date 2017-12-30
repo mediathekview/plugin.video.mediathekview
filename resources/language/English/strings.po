@@ -206,7 +206,7 @@ msgid "The database updator needs the program 'xz' in order to process the datab
 msgstr ""
 
 msgctxt "#30965"
-msgid "'Database Status: %s"
+msgid "Database Status: %s"
 msgstr ""
 
 msgctxt "#30966"

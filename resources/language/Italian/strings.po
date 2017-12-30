@@ -89,11 +89,11 @@ msgstr ""
 
 # Main Menu
 msgctxt "#30901"
-msgid "Cerca nel Titolo"
+msgid "Ricerca nel Titolo"
 msgstr ""
 
 msgctxt "#30902"
-msgid "Cerca nel Titolo e Descrizione"
+msgid "Ricerca nel Titolo e nella Descrizione"
 msgstr ""
 
 msgctxt "#30903"
@@ -117,7 +117,6 @@ msgid "Informazioni Database"
 msgstr ""
 
 # Database status
-
 msgctxt "#30941"
 msgid "Non inizializzato"
 msgstr ""
@@ -148,11 +147,11 @@ msgid "Errore di Scricamento"
 msgstr ""
 
 msgctxt "#30953"
-msgid "Errore scaricando {}: {}"
+msgid "Errore scaricando {0}: {1}"
 msgstr ""
 
 msgctxt "#30954"
-msgid "Lo spacchettatore 'xz' manca sul sistema"
+msgid "Il decompressore 'xz' manca sul sistema"
 msgstr ""
 
 msgctxt "#30955"
@@ -189,17 +188,17 @@ msgid "L'attualizzatore del database necessita il programma di decompressione 'x
 msgstr ""
 
 msgctxt "#30965"
-msgid "'Database Status: %s"
+msgid "Stato del Database: %s"
 msgstr ""
 
 msgctxt "#30966"
-msgid "This database was never updated"
+msgid "Questo database non è stato mai attualizzato"
 msgstr ""
 
 msgctxt "#30967"
-msgid "Last update: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgid "Ultima attualizzazione: %s\nAggiunzioni: %d canali, %d programmi, %d film\nCancellazioni: %d canali, %d programmi, %d film"
 msgstr ""
 
 msgctxt "#30968"
-msgid "Total: %d channels, %d shows, %d movies"
+msgid "Somme: %d canali, %d programmi, %d film"
 msgstr ""
