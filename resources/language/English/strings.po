@@ -16,6 +16,7 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# Settings categories
 msgctxt "#30001"
 msgid "General"
 msgstr ""
@@ -24,6 +25,7 @@ msgctxt "#30002"
 msgid "Database Settings"
 msgstr ""
 
+# Settings Page 1
 msgctxt "#30110"
 msgid "Prefer HD streams"
 msgstr ""
@@ -40,6 +42,7 @@ msgctxt "#30113"
 msgid "Group shows of different channel"
 msgstr ""
 
+# Settings Page 2
 msgctxt "#30210"
 msgid "Database type"
 msgstr ""
@@ -76,10 +79,15 @@ msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr ""
 
+msgctxt "#30233"
+msgid "XZ Program Location"
+msgstr ""
+
 msgctxt "#30238"
 msgid "Reset Database"
 msgstr ""
 
+# Main Menu
 msgctxt "#30901"
 msgid "Search in Title"
 msgstr ""
@@ -104,6 +112,33 @@ msgctxt "#30906"
 msgid "Browse Shows by Channel"
 msgstr ""
 
+msgctxt "#30907"
+msgid "Database Information"
+msgstr ""
+
+# Database status
+
+msgctxt "#30941"
+msgid "Not Initialized"
+msgstr ""
+
+msgctxt "#30942"
+msgid "No Status Available"
+msgstr ""
+
+msgctxt "#30943"
+msgid "Idle"
+msgstr ""
+
+msgctxt "#30944"
+msgid "Updating..."
+msgstr ""
+
+msgctxt "#30945"
+msgid "Last Update Aborted"
+msgstr ""
+
+# Other Strings
 msgctxt "#30951"
 msgid "Database Error"
 msgstr ""
@@ -142,4 +177,46 @@ msgstr ""
 
 msgctxt "#30960"
 msgid "Error {0} while processing {1}"
+msgstr ""
+
+msgctxt "#30961"
+msgid "Welcome to MediathekView"
+msgstr ""
+
+msgctxt "#30962"
+msgid "This Kodi addon allows access to most video-platforms from German public service "
+"broadcasters using the database provided by the great project of MediathekView.\n\n"
+"Without the endless effort of the MediathekView contributors, addons like this would not "
+"exist.\n\n"
+"Please consider donating to this great project! Visit MediathekView at https://mediathekview.de/"
+msgstr ""
+
+msgctxt "#30963"
+msgid "XZ Decompressor is Missing"
+msgstr ""
+
+msgctxt "#30964"
+msgid "The database updator needs the program 'xz' in order to process the database update files. "
+"This programm was not found on your Kodi system.\n\nIf you want to use the database updator on this "
+"system, you have to install 'xz' in one of the standard locations (/bin, /usr/bin, /usr/local/bin).\n\n"
+"Alternatively you can specify the location of the 'xz' program in the addon settings.\n\n"
+"Another possibilty would be the use of an external database updated either by another Kodi system "
+"or by the provided update script running on a server (see README file).\n\n"
+"The datebase updator has been disabled so you have to enable it again from the addon settings page."
+msgstr ""
+
+msgctxt "#30965"
+msgid "'Database Status: %s"
+msgstr ""
+
+msgctxt "#30966"
+msgid "This database was never updated"
+msgstr ""
+
+msgctxt "#30967"
+msgid "Last update: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgstr ""
+
+msgctxt "#30968"
+msgid "Total: %d channels, %d shows, %d movies"
 msgstr ""

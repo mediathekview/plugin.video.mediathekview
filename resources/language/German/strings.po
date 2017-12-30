@@ -16,6 +16,7 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# Settings categories
 msgctxt "#30001"
 msgid "Allgemein"
 msgstr ""
@@ -24,6 +25,7 @@ msgctxt "#30002"
 msgid "Datenbank Einstellungen"
 msgstr ""
 
+# Settings Page 1
 msgctxt "#30110"
 msgid "HD Streams bevorzugen"
 msgstr ""
@@ -40,6 +42,7 @@ msgctxt "#30113"
 msgid "Sendungen verschiedener Sender zusammenfassen"
 msgstr ""
 
+# Settings Page 2
 msgctxt "#30210"
 msgid "Datenbank Typ"
 msgstr ""
@@ -76,10 +79,15 @@ msgctxt "#30232"
 msgid "Aktualisierungsintervall in Stunden"
 msgstr ""
 
+msgctxt "#30233"
+msgid "XZ Programm"
+msgstr ""
+
 msgctxt "#30238"
 msgid "Datenbank zurücksetzen"
 msgstr ""
 
+# Main Menu
 msgctxt "#30901"
 msgid "Suchen in Titel"
 msgstr ""
@@ -104,6 +112,33 @@ msgctxt "#30906"
 msgid "Alle Sendungen nach Sender"
 msgstr ""
 
+msgctxt "#30907"
+msgid "Datenbank Informationen"
+msgstr ""
+
+# Database status
+
+msgctxt "#30941"
+msgid "Nicht initialisiert"
+msgstr ""
+
+msgctxt "#30942"
+msgid "Kein Status verfügbar"
+msgstr ""
+
+msgctxt "#30943"
+msgid "Bereit"
+msgstr ""
+
+msgctxt "#30944"
+msgid "Aktualisierung läuft..."
+msgstr ""
+
+msgctxt "#30945"
+msgid "Letzte Aktualisierung abgebrochen"
+msgstr ""
+
+# Other Strings
 msgctxt "#30951"
 msgid "Datenbank Fehler"
 msgstr ""
@@ -142,4 +177,48 @@ msgstr ""
 
 msgctxt "#30960"
 msgid "Fehler {0} beim Verarbeiten von {1}"
+msgstr ""
+
+msgctxt "#30961"
+msgid "Willkommen"
+msgstr ""
+
+msgctxt "#30962"
+msgid "Dieses Kodi Addon Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der "
+"öffentlich Rechtlichen basierend auf der Datenbank des großartigen MediathekView Projektes.\n\n"
+"Ohne den unermüdlichen Einsatz des MediathekView-Teams wäre ein solches Addon nicht möglich.\n\n"
+"Um das Projekt zu unterstützen, besteht die Möglichkeit auf https://mediathekview.de/ eine "
+"Spende zu hinterlassen."
+msgstr ""
+
+msgctxt "#30963"
+msgid "Entpacker XZ nicht gefunden"
+msgstr ""
+
+msgctxt "#30964"
+msgid="Der Datenbank-Aktualisierer benötigt den Entpacker 'xz' der auf diesem Kodi-System leider "
+"nicht gefunden wurde.\n\nUm den Datenbank-Aktualisierer zu benutzen, muss dieses Programm auf dem "
+"System in einem der Standard-Verzeichnisse (/bin, /usr/bin, /usr/local/bin) installiert werden.\n\n"
+"Unter Windows bzw. falls das Programm in einem anderen Verzeichnis installiert ist, muss der Pfad "
+"zum Programm in den Addon-Einstellungen angegeben werden.\n\n"
+"Eine andere Möglichkeit ist die Benutzung einer externen Datenbank die entweder über eine anderes "
+"Kodi-System oder über das mitgelieferte Update-Skript (siehe README) regelmäßig aktualisiert wird.\n\n"
+"Der Datenbank-Aktualisierer wurde deaktiviert. Er kann über die Addon-Einstellungen wieder aktiviert "
+"werden."
+msgstr ""
+
+msgctxt "#30965"
+msgid "Datenbank-Status: %s"
+msgstr ""
+
+msgctxt "#30966"
+msgid "Diese Datenbank wurde noch nicht aktualisiert"
+msgstr ""
+
+msgctxt "#30967"
+msgid "Letzte Aktualisierung: %s\nNeuzugänge: %d Sender, %d Sendungen, %d Filme\nLöschungen: %d Sender, %d Sendungen, %d Filme"
+msgstr ""
+
+msgctxt "#30968"
+msgid "Summen: %d Sender, %d Sendungen, %d Filme"
 msgstr ""

@@ -3,13 +3,20 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcgui
+import xbmc, xbmcgui
 
 # -- Classes ------------------------------------------------
 class KodiUI( object ):
 
 	def __init__( self ):
 		self.bgdialog		= None
+
+	def GetEnteredText( self, deftext = '', heading = '', hidden = False ):
+		keyboard = xbmc.Keyboard( deftext, heading, 1 if hidden else 0 )
+		keyboard.doModal()
+		if keyboard.isConfirmed():
+			return keyboard.getText()
+		return deftext
 
 	def ShowNotification( self, heading, message, icon = xbmcgui.NOTIFICATION_INFO, time = 5000, sound = True ):
 		xbmcgui.Dialog().notification( heading, message, icon, time, sound )

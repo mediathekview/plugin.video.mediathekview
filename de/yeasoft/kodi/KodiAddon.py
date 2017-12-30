@@ -4,7 +4,7 @@
 
 # -- Imports ------------------------------------------------
 import os, sys, urllib
-import xbmc, xbmcaddon, xbmcplugin
+import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 
 from de.yeasoft.kodi.KodiLogger import KodiLogger
 
@@ -22,6 +22,12 @@ class KodiAddon( KodiLogger ):
 		self.language		= self.addon.getLocalizedString
 		KodiLogger.__init__( self, self.addon_id, self.version )
 
+	def getSetting( self, id ):
+		return self.addon.getSetting( id )
+
+	def setSetting( self, id, value ):
+		return self.addon.setSetting( id, value )
+
 class KodiService( KodiAddon ):
 	def __init__( self ):
 		KodiAddon.__init__( self )
@@ -32,9 +38,16 @@ class KodiPlugin( KodiAddon ):
 		self.base_url		= sys.argv[0]
 		self.addon_handle	= int( sys.argv[1] )
 
-	def getSetting( self, id ):
-		return xbmcplugin.getSetting( self.addon_handle, id )
-
 	def build_url( self, query ):
 		return self.base_url + '?' + urllib.urlencode( query )
 
+	def addFolderItem( self, name, params ):
+		if type( name ) is int:
+			name = self.language( name )
+		li = xbmcgui.ListItem( name )
+		xbmcplugin.addDirectoryItem(
+			handle		= self.addon_handle,
+			url			= self.build_url( params ),
+			listitem	= li,
+			isFolder	= True
+		)

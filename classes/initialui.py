@@ -33,7 +33,7 @@ class InitialUI( object ):
 			url		= self.build_url( {
 				'mode': "channel-initial",
 				'channel': self.channelid,
-				'letter': self.initial,
+				'initial': self.initial,
 				'count': self.count
 			} ),
 			listitem = li,

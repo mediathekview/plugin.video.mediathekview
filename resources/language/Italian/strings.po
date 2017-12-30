@@ -16,6 +16,7 @@ msgstr ""
 "Language: en\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+# Settings categories
 msgctxt "#30001"
 msgid "Visualizzazione"
 msgstr ""
@@ -24,6 +25,7 @@ msgctxt "#30002"
 msgid "Impostazioni Banca Dati"
 msgstr ""
 
+# Settings Page 1
 msgctxt "#30110"
 msgid "Preferisci alta definizione"
 msgstr ""
@@ -40,6 +42,7 @@ msgctxt "#30113"
 msgid "Raggruppa trasmissioni su canali diversi"
 msgstr ""
 
+# Settings Page 2
 msgctxt "#30210"
 msgid "Tipo banca dati"
 msgstr ""
@@ -76,10 +79,15 @@ msgctxt "#30232"
 msgid "Intervallo di attualizzazione in ore"
 msgstr ""
 
+msgctxt "#30233"
+msgid "Programma XZ"
+msgstr ""
+
 msgctxt "#30238"
 msgid "Resetta Database"
 msgstr ""
 
+# Main Menu
 msgctxt "#30901"
 msgid "Cerca nel Titolo"
 msgstr ""
@@ -104,6 +112,33 @@ msgctxt "#30906"
 msgid "Trasmissioni secondo emittenti"
 msgstr ""
 
+msgctxt "#30907"
+msgid "Informazioni Database"
+msgstr ""
+
+# Database status
+
+msgctxt "#30941"
+msgid "Non inizializzato"
+msgstr ""
+
+msgctxt "#30942"
+msgid "Stato non disponibile"
+msgstr ""
+
+msgctxt "#30943"
+msgid "Disponibile"
+msgstr ""
+
+msgctxt "#30944"
+msgid "Attualizzazione in corso..."
+msgstr ""
+
+msgctxt "#30945"
+msgid "Ultima attualizzazione interrotta"
+msgstr ""
+
+# Other Strings
 msgctxt "#30951"
 msgid "Errore Database"
 msgstr ""
@@ -122,4 +157,49 @@ msgstr ""
 
 msgctxt "#30955"
 msgid "Attualizzazione viene scaricata"
+msgstr ""
+
+msgctxt "#30961"
+msgid "Benvenuti"
+msgstr ""
+
+msgctxt "#30962"
+msgid "Questo addon di Kodi fornisce l'accesso a gran parte delle piattaforme video operate dalle "
+"emittenti pubbliche tedesche usando la banca dati del grandioso progetto MediathekView.\n\n"
+"Senza l'assiduo impegno del team di MediathekView un addon come questo non sarebba mai "
+"stato fattibile.\n\n"
+"Per aiutare i programmatori ad offrire continui aggiornamente al database, è possibile "
+"donare un piccolo contributo sulla pagina del progetto https://mediathekview.de/"
+msgstr ""
+
+msgctxt "#30963"
+msgid "Decompressore XZ non trovato"
+msgstr ""
+
+msgctxt "#30964"
+msgid "L'attualizzatore del database necessita il programma di decompressione 'xz' che purtroppo "
+"non è stato trovato su questo sistema Kodi.\n\nSe si vuole usare l'attualizzatore del database su "
+"questo sistema, è necessario installare il programma di decompressione in una delle directory "
+"standard (/bin, /usr/bin, /usr/local/bin).\n\nSu sistemi Windows o nel caso il programma di "
+"decompressione sia installato in una directory alternativa, il percorso potrà essere specificato "
+"nelle impostazioni dell'addon.\n\n"
+"In alternativa è possibile utilizzare un database esterno attualizzato da un altro sistema Kodi "
+"o dallo script in allegato operato su un server unix (vedi file di README).\n\n"
+"L'attualizzatore è stato disabilitato e potrà essere riattivato nelle impostazione dell'addon."
+msgstr ""
+
+msgctxt "#30965"
+msgid "'Database Status: %s"
+msgstr ""
+
+msgctxt "#30966"
+msgid "This database was never updated"
+msgstr ""
+
+msgctxt "#30967"
+msgid "Last update: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgstr ""
+
+msgctxt "#30968"
+msgid "Total: %d channels, %d shows, %d movies"
 msgstr ""

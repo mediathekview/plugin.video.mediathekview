@@ -23,6 +23,14 @@ class MediathekViewUpdater( object ):
 		self.addonpath	= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id )
 		self.language	= xbmcaddon.Addon().getLocalizedString
 
+	def PrerequisitesMissing( self ):
+		return self.settings.updenabled and self._find_xz() is None
+
+	def IsEnabled( self ):
+		if self.settings.updenabled:
+			xz = self._find_xz()
+			return xz is not None
+
 	def Update( self ):
 		self.sql = StoreSQLite( self.id, self.logger, self.notifier, self.settings )
 		self.sql.Init()
@@ -148,6 +156,8 @@ class MediathekViewUpdater( object ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
 			if self._file_exists( xzbin ):
 				return xzbin
+		if self.settings.updxzbin != '' and self._file_exists( self.settings.updxzbin ):
+			return self.settings.updxzbin
 		return None
 
 	def _file_exists( self, name ):

@@ -3,10 +3,9 @@
 #
 
 # -- Imports ------------------------------------------------
-import sys,urlparse
-import xbmc,xbmcplugin,xbmcgui
+import sys,urlparse,datetime
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 
-from de.yeasoft.kodi.KodiLogger import KodiLogger
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
 
 from classes.store import Store
@@ -16,6 +15,7 @@ from classes.filmui import FilmUI
 from classes.channelui import ChannelUI
 from classes.initialui import InitialUI
 from classes.showui import ShowUI
+from classes.updater import MediathekViewUpdater
 
 # -- Constants ----------------------------------------------
 ADDON_ID = 'plugin.video.mediathekview'
@@ -26,63 +26,13 @@ class MediathekView( KodiPlugin ):
 	def __init__( self ):
 		super( MediathekView, self ).__init__()
 		self.settings	= Settings()
-		self.db			= Store( self.addon_id, self.getNewLogger( 'Store' ), Notifier(), self.settings )
+		self.notifier	= Notifier()
+		self.db			= Store( self.addon_id, self.getNewLogger( 'Store' ), self.notifier, self.settings )
 
 	def __del__( self ):
 		del self.db
 
-	def addChannelList( self ):
-		self.db.GetChannels( ChannelUI( self.addon_handle ) )
-
-	def addInitialListInChannel( self, channelid ):
-		self.db.GetInitials( channelid, InitialUI( self.addon_handle ) )
-
-	def addFilmlistInChannelAndCategory( self, showid ):
-		self.db.GetFilms( showid, FilmUI( self.addon_handle ) )
-
-	def addShowListInChannelAndInitial( self, channelid, initial, count ):
-		self.db.GetShows( channelid, initial, ShowUI( self.addon_handle ) )
-
-	def addLiveStreams( self ):
-		self.db.GetLiveStreams( FilmUI( self.addon_handle, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
-
-	def addRecentlyAdded( self ):
-		self.db.GetRecents( FilmUI( self.addon_handle ) )
-
-	def addSearch( self ):
-		keyboard = xbmc.Keyboard( '' )
-		keyboard.doModal()
-		if keyboard.isConfirmed():
-			searchText = unicode( keyboard.getText().decode( 'UTF-8' ) )
-			if len( searchText ) > 2:
-				self.db.Search( searchText, FilmUI( self.addon_handle ) )
-			else:
-				xbmc.executebuiltin( "Action(PreviousMenu)" )
-		else:
-			xbmc.executebuiltin( "Action(PreviousMenu)" )
-
-	def addSearchAll( self ):
-		keyboard = xbmc.Keyboard( '' )
-		keyboard.doModal()
-		if keyboard.isConfirmed():
-			searchText = unicode( keyboard.getText().decode( 'UTF-8' ) )
-			if len( searchText ) > 2:
-				self.db.SearchFull( searchText, FilmUI( self.addon_handle ) )
-			else:
-				xbmc.executebuiltin( "Action(PreviousMenu)" )
-		else:
-			xbmc.executebuiltin( "Action(PreviousMenu)" )
-
-	def addFolderItem( self, strid, params ):
-		li = xbmcgui.ListItem( self.language( strid ) )
-		xbmcplugin.addDirectoryItem(
-			handle		= self.addon_handle,
-			url			= self.build_url( params ),
-			listitem	= li,
-			isFolder	= True
-		)
-
-	def addMainMenu( self ):
+	def showMainMenu( self ):
 		# search
 		self.addFolderItem( 30901, { 'mode': "main-search" } )
 		# search all
@@ -95,44 +45,110 @@ class MediathekView( KodiPlugin ):
 		self.addFolderItem( 30905, { 'mode': "channel", 'channel': 0 } )
 		# Browse Shows by Channel
 		self.addFolderItem( 30906, { 'mode': "main-channels" } )
+		# Database Information
+		self.addFolderItem( 30907, { 'mode': "main-dbinfo" } )
 		xbmcplugin.endOfDirectory( self.addon_handle )
 
+	def showSearch( self ):
+		# searchText = unicode( self.notifier.GetEnteredText( '', self.language( 30901 ) ).decode( 'UTF-8' ) )
+		searchText = self.notifier.GetEnteredText( '', self.language( 30901 ) )
+		if len( searchText ) > 2:
+			self.db.Search( searchText, FilmUI( self.addon_handle ) )
+
+	def showSearchAll( self ):
+		# searchText = unicode( self.notifier.GetEnteredText( '', self.language( 30902 ) ).decode( 'UTF-8' ) )
+		searchText = self.notifier.GetEnteredText( '', self.language( 30902 ) )
+		if len( searchText ) > 2:
+			self.db.SearchFull( searchText, FilmUI( self.addon_handle ) )
+
+	def showDbInfo( self ):
+		info = self.db.GetStatus()
+		heading = self.language( 30907 )
+		infostr = self.language( {
+			'NONE': 30941,
+			'UNINIT': 30942,
+			'IDLE': 30943,
+			'UPDATING': 30944,
+			'ABORTED': 30945
+		}.get( info['status'], 30941 ) )
+		if len( info['description'] ) > 0:
+			infostr = '%s: %s' % ( infostr, info['description'] )
+		infostr = self.language( 30965 ) % infostr
+		totinfo = self.language( 30968 ) % (
+			info['tot_chn'],
+			info['tot_shw'],
+			info['tot_mov']
+		)
+		if info['lastupdate'] > 0:
+			updinfo = self.language( 30967 ) % (
+				datetime.datetime.fromtimestamp( info['lastupdate'] ).strftime( '%Y-%m-%d %H:%M:%S' ),
+				info['add_chn'],
+				info['add_shw'],
+				info['add_mov'],
+				info['del_chn'],
+				info['del_shw'],
+				info['del_mov']
+			)
+		else:
+			updinfo = self.language( 30966 )
+
+		xbmcgui.Dialog().textviewer(
+			heading,
+			infostr + '\n\n' +
+			totinfo + '\n\n' +
+			updinfo
+		)
+
 	def Init( self ):
-		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
+		self.args = urlparse.parse_qs( sys.argv[2][1:] )
 		self.db.Init()
+		if self.settings.HandleFirstRun():
+			xbmcgui.Dialog().textviewer(
+				self.language( 30961 ),
+				self.language( 30962 )
+			)
+		if MediathekViewUpdater( self.addon_id, self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
+			self.setSetting( 'updenabled', 'false' )
+			self.settings.Reload()
+			xbmcgui.Dialog().textviewer(
+				self.language( 30963 ),
+				self.language( 30964 )
+			)
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )
 		if mode is None:
-			self.addMainMenu()
+			self.showMainMenu()
 		elif mode[0] == 'main-search':
-			self.addSearch()
+			self.showSearch()
 		elif mode[0] == 'main-searchall':
-			self.addSearchAll()
+			self.showSearchAll()
 		elif mode[0] == 'main-livestreams':
-			self.addLiveStreams()
+			self.db.GetLiveStreams( FilmUI( self.addon_handle, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
 		elif mode[0] == 'main-recent':
-			self.addRecentlyAdded()
+			self.db.GetRecents( FilmUI( self.addon_handle ) )
 		elif mode[0] == 'main-channels':
-			self.addChannelList()
+			self.db.GetChannels( ChannelUI( self.addon_handle ) )
+		elif mode[0] == 'main-dbinfo':
+			self.showDbInfo()
 		elif mode[0] == 'channel':
 			channel = self.args.get( 'channel', [0] )
-			self.addInitialListInChannel( channel[0] )
+			self.db.GetInitials( channel[0], InitialUI( self.addon_handle ) )
 		elif mode[0] == 'channel-initial':
 			channel = self.args.get( 'channel', [0] )
-			letter = self.args.get( 'letter', [None] )
-			count = self.args.get( 'count', [0] )
-			self.addShowListInChannelAndInitial( channel[0], letter[0], count[0] )
+			initial = self.args.get( 'initial', [None] )
+			self.db.GetShows( channel[0], initial[0], ShowUI( self.addon_handle ) )
 		elif mode[0] == 'show':
 			show = self.args.get( 'show', [0] )
-			self.addFilmlistInChannelAndCategory( show[0] )
+			self.db.GetFilms( show[0], FilmUI( self.addon_handle ) )
 
 	def Exit( self ):
 		self.db.Exit()
 
 # -- Main Code ----------------------------------------------
-addon = MediathekView()
-addon.Init()
-addon.Do()
-addon.Exit()
-del addon
+if __name__ == '__main__':
+	addon = MediathekView()
+	addon.Init()
+	addon.Do()
+	addon.Exit()
+	del addon

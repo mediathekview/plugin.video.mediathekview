@@ -11,14 +11,27 @@ ADDON_ID = 'plugin.video.mediathekview'
 # -- Classes ------------------------------------------------
 class Settings( object ):
 	def __init__( self ):
-		addon = xbmcaddon.Addon()
-		self.preferhd		= addon.getSetting( 'quality' ) == 'true'
-		self.nofuture		= addon.getSetting( 'nofuture' ) == 'true'
-		self.minlength		= int( float( addon.getSetting( 'minlength' ) ) ) * 60
-		self.groupshows		= addon.getSetting( 'groupshows' ) == 'true'
-		self.type			= addon.getSetting( 'dbtype' )
-		self.host			= addon.getSetting( 'dbhost' )
-		self.user			= addon.getSetting( 'dbuser' )
-		self.password		= addon.getSetting( 'dbpass' )
-		self.database		= addon.getSetting( 'dbdata' )
-		self.updinterval	= int( float( addon.getSetting( 'updinterval' ) ) ) * 3600
+		self.addon = xbmcaddon.Addon()
+		self.Reload()
+
+	def Reload( self ):
+		self.firstrun		= self.addon.getSetting( 'firstrun' ) == 'true'
+		self.preferhd		= self.addon.getSetting( 'quality' ) == 'true'
+		self.nofuture		= self.addon.getSetting( 'nofuture' ) == 'true'
+		self.minlength		= int( float( self.addon.getSetting( 'minlength' ) ) ) * 60
+		self.groupshows		= self.addon.getSetting( 'groupshows' ) == 'true'
+		self.type			= self.addon.getSetting( 'dbtype' )
+		self.host			= self.addon.getSetting( 'dbhost' )
+		self.user			= self.addon.getSetting( 'dbuser' )
+		self.password		= self.addon.getSetting( 'dbpass' )
+		self.database		= self.addon.getSetting( 'dbdata' )
+		self.updenabled		= self.addon.getSetting( 'updenabled' ) == 'true'
+		self.updinterval	= int( float( self.addon.getSetting( 'updinterval' ) ) ) * 3600
+		self.updxzbin		= self.addon.getSetting( 'updxzbin' )
+
+	def HandleFirstRun( self ):
+		if self.firstrun:
+			self.firstrun = False
+			self.addon.setSetting( 'firstrun', 'false' )
+			return True
+		return False

@@ -50,12 +50,12 @@ class MediathekViewService( KodiService ):
 			if status['status'] != "UNINIT":
 				if int( time.time() ) - status['lastupdate'] > self.settings.updinterval:
 					updater = MediathekViewUpdater( self.addon_id, self.getNewLogger( 'MediathekViewUpdater' ), Notifier(), self.settings )
-					updater.Update()
+					if updater.IsEnabled():
+						updater.Update()
 					del updater
 			if self.monitor.waitForAbort( 60 ):
 				# Abort was requested while waiting. We should exit
 				break			
-			# xbmc.log("hello addon! %s" % time.time(), level=xbmc.LOGNOTICE)
 
 	def Exit( self ):
 		self.info( 'Shutdown' )
