@@ -8,7 +8,7 @@ import xml.etree.ElementTree as etree
 import xbmc, xbmcaddon
 
 from operator import itemgetter
-from classes.storesqlite import StoreSQLite
+from classes.store import Store
 
 # -- Constants ----------------------------------------------
 FILMLISTE_URL = 'https://res.mediathekview.de/akt.xml'
@@ -32,12 +32,13 @@ class MediathekViewUpdater( object ):
 			return xz is not None
 
 	def Update( self ):
-		self.sql = StoreSQLite( self.id, self.logger, self.notifier, self.settings )
-		self.sql.Init()
-		if self.GetNewestList():
-			self.Import()
-		self.sql.Exit()
-		del self.sql
+		self.db = Store( self.id, self.logger, self.notifier, self.settings )
+		if self.db.SupportsUpdate():
+			self.db.Init()
+			if self.GetNewestList():
+				self.Import()
+			self.db.Exit()
+		del self.db
 
 	def Import( self ):
 		destfile = os.path.join( self.addonpath, 'Filmliste-akt' )
@@ -206,16 +207,16 @@ class MediathekViewUpdater( object ):
 			"airedepoch": 0,
 			"geo": ""
 		}
-		self.sql.UpdateStatus( 'UPDATING' )
-		self.sql.ftInit()
-		return self.sql.ftUpdateStart()
+		self.db.UpdateStatus( 'UPDATING' )
+		self.db.ftInit()
+		return self.db.ftUpdateStart()
 
 	def _update_end( self, aborted, status = 'IDLE', description = None ):
 		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.channels, self.shows, self.movies ) )
-		( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov ) = self.sql.ftUpdateEnd( aborted )
+		( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftUpdateEnd( aborted )
 		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( del_chn, del_shw, del_mov ) )
 		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( cnt_chn, cnt_shw, cnt_mov ) )
-		self.sql.UpdateStatus(
+		self.db.UpdateStatus(
 			status,
 			description,
 			int( time.time() ),
@@ -246,7 +247,7 @@ class MediathekViewUpdater( object ):
 			percent = self.count * 100 / records
 			self.notifier.UpdateUpdateProgress( percent, self.count, self.channels, self.shows, self.movies )
 		self.count = self.count + 1
-		( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.sql.ftInsertFilm( self.film )
+		( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film )
 		self.channels += cnt_chn
 		self.shows += cnt_shw
 		self.movies += cnt_mov

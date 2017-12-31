@@ -146,7 +146,50 @@ class StoreMySQL( object ):
 				filmui.Add()
 			filmui.End()
 			cursor.close()
-
 		except mysql.connector.Error as err:
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
+
+	def GetStatus( self ):
+		status = {
+			'modified': int( time.time() ),
+			'status': '',
+			'lastupdate': 0,
+			'add_chn': 0,
+			'add_shw': 0,
+			'add_mov': 0,
+			'del_chn': 0,
+			'del_shw': 0,
+			'del_mov': 0,
+			'tot_chn': 0,
+			'tot_shw': 0,
+			'tot_mov': 0,
+			'description': ''
+		}
+		status['status'] = 'UNINIT'
+		return status
+
+	def UpdateStatus( self, status = None, description = None, lastupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
+		pass
+
+	def SupportsUpdate( self ):
+		return False
+
+	def ftInit( self ):
+		if self.db is not None:
+			self.db.ftInit()
+
+	def ftUpdateStart( self ):
+		if self.db is not None:
+			return self.db.ftUpdateStart()
+		return ( 0, 0, 0, )
+
+	def ftUpdateEnd( self, aborted ):
+		if self.db is not None:
+			return self.db.ftUpdateEnd( aborted )
+		return ( 0, 0, 0, 0, 0, 0, )
+
+	def ftInsertFilm( self, film ):
+		if self.db is not None:
+			return self.db.ftInsertFilm( film )
+		return ( 0, 0, 0, 0, )

@@ -22,7 +22,7 @@ class StoreSQLite( object ):
 		self.sql_cond_minlength	= " AND ( ( duration IS NULL ) OR ( duration >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
 	def Init( self, reset = False ):
-		self.logger.info( 'Using SQLite version {}, pathon library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
+		self.logger.info( 'Using SQLite version {}, python library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
 		if not self._dir_exists( self.dbpath ):
 			os.mkdir( self.dbpath )
 		if reset == True or not self._file_exists( self.dbfile ):
@@ -316,11 +316,61 @@ class StoreSQLite( object ):
 		cursor.close()
 		self.conn.commit()
 
+	def SupportsUpdate( self ):
+		return True
+
 	def ftInit( self ):
 		self.ft_channel = None
 		self.ft_channelid = None
 		self.ft_show = None
 		self.ft_showid = None
+
+	def ftUpdateStart( self ):
+		cursor = self.conn.cursor()
+		cursor.executescript( """
+			UPDATE	`channel`
+			SET		`touched` = 0;
+
+			UPDATE	`show`
+			SET		`touched` = 0;
+
+			UPDATE	`film`
+			SET		`touched` = 0;
+		""" )
+		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
+		r1 = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
+		r2 = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
+		r3 = cursor.fetchone()
+		cursor.close()
+		self.conn.commit()
+		return ( r1[0], r2[0], r3[0], )
+
+	def ftUpdateEnd( self, aborted ):
+		cursor = self.conn.cursor()
+		cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
+		( del_chn, ) = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `show` WHERE ( touched = 0 )' )
+		( del_shw, ) = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
+		( del_mov, ) = cursor.fetchone()
+		if aborted:
+			del_chn = 0
+			del_shw = 0
+			del_mov = 0
+		else:
+			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
+			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
+		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
+		( cnt_chn, ) = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
+		( cnt_shw, ) = cursor.fetchone()
+		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
+		( cnt_mov, ) = cursor.fetchone()
+		cursor.close()
+		self.conn.commit()
+		return ( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov, )
 
 	def ftInsertFilm( self, film ):
 		cursor = self.conn.cursor()
@@ -468,53 +518,6 @@ class StoreSQLite( object ):
 			self.conn.commit()
 		cursor.close()
 		return ( filmid, inschn, insshw, insmov )
-
-	def ftUpdateStart( self ):
-		cursor = self.conn.cursor()
-		cursor.executescript( """
-			UPDATE	`channel`
-			SET		`touched` = 0;
-
-			UPDATE	`show`
-			SET		`touched` = 0;
-
-			UPDATE	`film`
-			SET		`touched` = 0;
-		""" )
-		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
-		r1 = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
-		r2 = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
-		r3 = cursor.fetchone()
-		cursor.close()
-		self.conn.commit()
-		return ( r1[0], r2[0], r3[0], )
-
-	def ftUpdateEnd( self, aborted ):
-		cursor = self.conn.cursor()
-		cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
-		( del_chn, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `show` WHERE ( touched = 0 )' )
-		( del_shw, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
-		( del_mov, ) = cursor.fetchone()
-		if aborted:
-			del_chn = 0
-			del_shw = 0
-			del_mov = 0
-		else:
-			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
-			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
-		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
-		( cnt_chn, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
-		( cnt_shw, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
-		( cnt_mov, ) = cursor.fetchone()
-		cursor.close()
-		self.conn.commit()
-		return ( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov, )
 
 	def Reset( self ):
 		self.conn.executescript( """
