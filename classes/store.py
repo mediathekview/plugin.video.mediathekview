@@ -18,7 +18,7 @@ class Store( object ):
 			self.db = StoreSQLite( id, logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
 		elif settings.type == '1':
 			self.logger.info( 'Database driver: External (mysql)' )
-			self.db = StoreSQLite( id, logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
+			self.db = StoreMySQL( id, logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
 		else:
 			self.logger.warn( 'Unknown Database driver selected' )
 			self.db = None

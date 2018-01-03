@@ -325,18 +325,19 @@ class StoreSQLite( object ):
 		self.ft_show = None
 		self.ft_showid = None
 
-	def ftUpdateStart( self ):
+	def ftUpdateStart( self, full = True ):
 		cursor = self.conn.cursor()
-		cursor.executescript( """
-			UPDATE	`channel`
-			SET		`touched` = 0;
+		if full:
+			cursor.executescript( """
+				UPDATE	`channel`
+				SET		`touched` = 0;
 
-			UPDATE	`show`
-			SET		`touched` = 0;
+				UPDATE	`show`
+				SET		`touched` = 0;
 
-			UPDATE	`film`
-			SET		`touched` = 0;
-		""" )
+				UPDATE	`film`
+				SET		`touched` = 0;
+			""" )
 		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
 		r1 = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
@@ -403,7 +404,7 @@ class StoreSQLite( object ):
 
 		# handle show
 		if newchn or self.ft_show != film['show']:
-			# process changes show
+			# process changed show
 			cursor.execute( 'SELECT `id`,`touched` FROM `show` WHERE ( show.channelid=? ) AND ( show.show=? )', ( self.ft_channelid, film['show'] ) )
 			r = cursor.fetchall()
 			if len( r ) > 0:

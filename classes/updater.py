@@ -207,11 +207,11 @@ class MediathekViewUpdater( object ):
 			"airedepoch": 0,
 			"geo": ""
 		}
-		self.db.UpdateStatus( 'UPDATING' )
+		self.db.UpdateStatus( 'UPDATING', '' )
 		self.db.ftInit()
 		return self.db.ftUpdateStart()
 
-	def _update_end( self, aborted, status = 'IDLE', description = None ):
+	def _update_end( self, aborted, status = 'IDLE', description = '' ):
 		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.channels, self.shows, self.movies ) )
 		( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftUpdateEnd( aborted )
 		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( del_chn, del_shw, del_mov ) )
