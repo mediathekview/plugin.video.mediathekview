@@ -216,9 +216,13 @@ msgid "Diese Datenbank wurde noch nicht aktualisiert"
 msgstr ""
 
 msgctxt "#30967"
-msgid "Letzte Aktualisierung: %s\nNeuzugänge: %d Sender, %d Sendungen, %d Filme\nLöschungen: %d Sender, %d Sendungen, %d Filme"
+msgid "Aktualisierung läuft...\nNeuzugänge: %d Sender, %d Sendungen, %d Filme"
 msgstr ""
 
 msgctxt "#30968"
+msgid "Letzte Aktualisierung: %s\nNeuzugänge: %d Sender, %d Sendungen, %d Filme\nLöschungen: %d Sender, %d Sendungen, %d Filme"
+msgstr ""
+
+msgctxt "#30969"
 msgid "Summen: %d Sender, %d Sendungen, %d Filme"
 msgstr ""

@@ -19,6 +19,7 @@ class StoreMySQL( object ):
 		self.sql_cond_minlength	= " AND ( ( `duration` IS NULL ) OR ( TIME_TO_SEC(`duration`) >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
 	def Init( self, reset = False ):
+		self.logger.info( 'Using MySQL connector version {}', mysql.connector.__version__ )
 		try:
 			self.conn		= mysql.connector.connect(
 				host		= self.settings.host,

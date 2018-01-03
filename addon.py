@@ -74,13 +74,19 @@ class MediathekView( KodiPlugin ):
 		if len( info['description'] ) > 0:
 			infostr = '%s: %s' % ( infostr, info['description'] )
 		infostr = self.language( 30965 ) % infostr
-		totinfo = self.language( 30968 ) % (
+		totinfo = self.language( 30969 ) % (
 			info['tot_chn'],
 			info['tot_shw'],
 			info['tot_mov']
 		)
-		if info['lastupdate'] > 0:
+		if info['status'] == 'UPDATING':
 			updinfo = self.language( 30967 ) % (
+				info['add_chn'],
+				info['add_shw'],
+				info['add_mov']
+			)
+		elif info['lastupdate'] > 0:
+			updinfo = self.language( 30968 ) % (
 				datetime.datetime.fromtimestamp( info['lastupdate'] ).strftime( '%Y-%m-%d %H:%M:%S' ),
 				info['add_chn'],
 				info['add_shw'],

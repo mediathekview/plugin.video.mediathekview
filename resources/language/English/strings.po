@@ -214,9 +214,13 @@ msgid "This database was never updated"
 msgstr ""
 
 msgctxt "#30967"
-msgid "Last update: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgid "Update in progress...\nAdditions: %d channels, %d shows, %d movies"
 msgstr ""
 
 msgctxt "#30968"
+msgid "Last update: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgstr ""
+
+msgctxt "#30969"
 msgid "Total: %d channels, %d shows, %d movies"
 msgstr ""

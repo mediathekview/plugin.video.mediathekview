@@ -49,10 +49,10 @@ class MediathekViewUpdater( object ):
 			monitor = xbmc.Monitor()
 			file = open( destfile, 'r' )
 			parser = ijson.parse( file )
-			( tot_chn, tot_shw, tot_mov ) = self._update_start()
+			( self.tot_chn, self.tot_shw, self.tot_mov ) = self._update_start()
 			self.notifier.ShowUpdateProgress()
-			# estimate number of records
-			records = 220000 if tot_mov < 50000 else tot_mov + 10000
+			# estimate number of records in update
+			records = 220000 if self.tot_mov < 50000 else self.tot_mov + 10000
 			for prefix, event, value in parser:
 				if ( prefix, event ) == ( "X", "start_array" ):
 					self._init_record()
@@ -182,13 +182,19 @@ class MediathekViewUpdater( object ):
 		if totalsize > 0:
 			percent = int( (downloaded * 100) / totalsize )
 			self.notifier.UpdateDownloadProgress( percent )
-		self.logger.info( 'Downloading blockcount={}, blocksize={}, totalsize={}', blockcount, blocksize, totalsize )
+		self.logger.debug( 'Downloading blockcount={}, blocksize={}, totalsize={}', blockcount, blocksize, totalsize )
 
 	def _update_start( self ):
 		self.logger.info( 'Initialting update...' )
-		self.channels = 0
-		self.shows = 0
-		self.movies = 0
+		self.add_chn = 0
+		self.add_shw = 0
+		self.add_mov = 0
+		self.add_chn = 0
+		self.add_shw = 0
+		self.add_mov = 0
+		self.del_chn = 0
+		self.del_shw = 0
+		self.del_mov = 0
 		self.index = 0
 		self.count = 0
 		self.film = {
@@ -212,19 +218,18 @@ class MediathekViewUpdater( object ):
 		return self.db.ftUpdateStart()
 
 	def _update_end( self, aborted, status = 'IDLE', description = '' ):
-		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.channels, self.shows, self.movies ) )
-		( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftUpdateEnd( aborted )
-		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( del_chn, del_shw, del_mov ) )
-		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( cnt_chn, cnt_shw, cnt_mov ) )
+		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.add_chn, self.add_shw, self.add_mov ) )
+		( self.del_chn, self.del_shw, self.del_mov, self.tot_chn, self.tot_shw, self.tot_mov ) = self.db.ftUpdateEnd( aborted )
+		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( self.del_chn, self.del_shw, self.del_mov ) )
+		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( self.tot_chn, self.tot_shw, self.tot_mov ) )
 		self.db.UpdateStatus(
 			status,
 			description,
 			int( time.time() ),
-			self.channels, self.shows, self.movies,
-			del_chn, del_shw, del_mov,
-			cnt_chn, cnt_shw, cnt_mov
+			self.add_chn, self.add_shw, self.add_mov,
+			self.del_chn, self.del_shw, self.del_mov,
+			self.tot_chn, self.tot_shw, self.tot_mov
 		)
-
 
 	def _init_record( self ):
 		self.index = 0
@@ -243,14 +248,22 @@ class MediathekViewUpdater( object ):
 
 	def _end_record( self, records ):
 		if self.count % 1000 == 0:
-			self.logger.info( 'In progress (%d): channels:%d, shows:%d, movies:%d ...' % ( self.count, self.channels, self.shows, self.movies ) )
 			percent = self.count * 100 / records
-			self.notifier.UpdateUpdateProgress( percent, self.count, self.channels, self.shows, self.movies )
+			self.logger.info( 'In progress (%d): channels:%d, shows:%d, movies:%d ...' % ( percent, self.add_chn, self.add_shw, self.add_mov ) )
+			self.notifier.UpdateUpdateProgress( percent if percent <= 100 else 100, self.count, self.add_chn, self.add_shw, self.add_mov )
+			self.db.UpdateStatus(
+				add_chn = self.add_chn,
+				add_shw = self.add_shw,
+				add_mov = self.add_mov,
+				tot_chn = self.tot_chn + self.add_chn,
+				tot_shw = self.tot_shw + self.add_shw,
+				tot_mov = self.tot_mov + self.add_mov
+			)
 		self.count = self.count + 1
 		( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film )
-		self.channels += cnt_chn
-		self.shows += cnt_shw
-		self.movies += cnt_mov
+		self.add_chn += cnt_chn
+		self.add_shw += cnt_shw
+		self.add_mov += cnt_mov
 
 	def _add_value( self, val ):
 		if self.index == 0:

@@ -196,9 +196,13 @@ msgid "Questo database non è stato mai attualizzato"
 msgstr ""
 
 msgctxt "#30967"
-msgid "Ultima attualizzazione: %s\nAggiunzioni: %d canali, %d programmi, %d film\nCancellazioni: %d canali, %d programmi, %d film"
+msgid "Attualizzazione in corso...\nAggiunzioni: %d canali, %d programmi, %d film"
 msgstr ""
 
 msgctxt "#30968"
+msgid "Ultima attualizzazione: %s\nAggiunzioni: %d canali, %d programmi, %d film\nCancellazioni: %d canali, %d programmi, %d film"
+msgstr ""
+
+msgctxt "#30969"
 msgid "Somme: %d canali, %d programmi, %d film"
 msgstr ""
