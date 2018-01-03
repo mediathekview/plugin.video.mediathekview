@@ -176,6 +176,7 @@ class StoreMySQL( object ):
 			cursor.execute( 'SELECT * FROM `status` LIMIT 1' )
 			r = cursor.fetchall()
 			cursor.close()
+			self.conn.commit()
 			if len( r ) == 0:
 				status['status'] = "NONE"
 				return status
@@ -349,8 +350,8 @@ class StoreMySQL( object ):
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, 0, )
 
-	def ftUpdateEnd( self, aborted ):
-		param = ( 1, ) if aborted else ( 0, )
+	def ftUpdateEnd( self, delete ):
+		param = ( 1, ) if delete else ( 0, )
 		try:
 			cursor = self.conn.cursor()
 			cursor.callproc( 'ftUpdateEnd', param )

@@ -110,9 +110,9 @@ class Store( object ):
 			return self.db.ftUpdateStart()
 		return ( 0, 0, 0, )
 
-	def ftUpdateEnd( self, aborted ):
+	def ftUpdateEnd( self, delete ):
 		if self.db is not None:
-			return self.db.ftUpdateEnd( aborted )
+			return self.db.ftUpdateEnd( delete )
 		return ( 0, 0, 0, 0, 0, 0, )
 
 	def ftInsertFilm( self, film ):

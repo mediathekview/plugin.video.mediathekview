@@ -348,7 +348,7 @@ class StoreSQLite( object ):
 		self.conn.commit()
 		return ( r1[0], r2[0], r3[0], )
 
-	def ftUpdateEnd( self, aborted ):
+	def ftUpdateEnd( self, delete ):
 		cursor = self.conn.cursor()
 		cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
 		( del_chn, ) = cursor.fetchone()
@@ -356,7 +356,7 @@ class StoreSQLite( object ):
 		( del_shw, ) = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
 		( del_mov, ) = cursor.fetchone()
-		if aborted:
+		if delete:
 			del_chn = 0
 			del_shw = 0
 			del_mov = 0

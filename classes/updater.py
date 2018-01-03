@@ -217,9 +217,9 @@ class MediathekViewUpdater( object ):
 		self.db.ftInit()
 		return self.db.ftUpdateStart()
 
-	def _update_end( self, aborted, status = 'IDLE', description = '' ):
+	def _update_end( self, delete, status = 'IDLE', description = '' ):
 		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.add_chn, self.add_shw, self.add_mov ) )
-		( self.del_chn, self.del_shw, self.del_mov, self.tot_chn, self.tot_shw, self.tot_mov ) = self.db.ftUpdateEnd( aborted )
+		( self.del_chn, self.del_shw, self.del_mov, self.tot_chn, self.tot_shw, self.tot_mov ) = self.db.ftUpdateEnd( delete )
 		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( self.del_chn, self.del_shw, self.del_mov ) )
 		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( self.tot_chn, self.tot_shw, self.tot_mov ) )
 		self.db.UpdateStatus(

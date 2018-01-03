@@ -48,12 +48,15 @@ class MediathekViewService( KodiService ):
 			# Sleep/wait for abort for 60 seconds
 			if self.db.SupportsUpdate():
 				status = self.db.GetStatus()
-				if status['status'] != "UNINIT":
+				if status['status'] != "UNINIT" and status['status'] != "UPDATING":
 					if int( time.time() ) - status['lastupdate'] > self.settings.updinterval:
 						updater = MediathekViewUpdater( self.addon_id, self.getNewLogger( 'MediathekViewUpdater' ), Notifier(), self.settings )
 						if updater.IsEnabled():
 							updater.Update()
 						del updater
+				elif status['status'] == "UPDATING" and int( time.time() ) - status['lastupdate'] > 86400:
+					# update was hardly interrupted...
+					self.db.UpdateStatus( 'ABORTED' )
 			if self.monitor.waitForAbort( 60 ):
 				# Abort was requested while waiting. We should exit
 				break			
