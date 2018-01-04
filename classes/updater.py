@@ -166,7 +166,7 @@ class MediathekViewUpdater( object ):
 		self.logger.info( 'Opening {}', url )
 		try:
 			data = urllib2.urlopen( url ).read()
-		except URLError as err:
+		except urllib2.URLError as err:
 			self.logger.error( 'Failure opening {}', url )
 			self.notifier.ShowDowloadError( url, err )
 			return False
