@@ -33,33 +33,31 @@ class MediathekViewService( KodiService ):
 		self.setTopic( 'Service' )
 		self.settings	= Settings()
 		self.notifier	= Notifier()
-		self.db			= Store( self.getNewLogger( 'Store' ), self.notifier, self.settings )
 		self.monitor	= MediathekViewMonitor( self )
+		self.updater	= MediathekViewUpdater( self.getNewLogger( 'MediathekViewUpdater' ), self.notifier, self.settings, self.monitor )
 
 	def __del__( self ):
+		del self.updater
 		del self.monitor
 		del self.notifier
 		del self.settings
-		del self.db
 
 	def Init( self ):
 		self.info( 'Startup' )
-		self.db.Init()
+		self.updater.Init()
 
 	def Run( self ):
 		self.info( 'Starting up...' )
 		while not self.monitor.abortRequested():
-			if self.db.SupportsUpdate():
-				status = self.db.GetStatus()
-				if status['status'] != "UNINIT" and status['status'] != "UPDATING":
-					if int( time.time() ) - status['lastupdate'] > self.settings.updinterval:
-						updater = MediathekViewUpdater( self.getNewLogger( 'MediathekViewUpdater' ), self.notifier, self.settings )
-						if updater.IsEnabled():
-							updater.Update()
-						del updater
-				elif status['status'] == "UPDATING" and int( time.time() ) - status['lastupdate'] > 86400:
-					# update was hardly interrupted...
-					self.db.UpdateStatus( 'ABORTED' )
+			updateop = self.updater.GetCurrentUpdateOperation()
+			if updateop == 1:
+				# full update
+				self.info( 'Initiating full update...' )
+				self.updater.Update( True )
+			elif updateop == 2:
+				# differential update
+				self.info( 'Initiating differential update...' )
+				self.updater.Update( False )
 			# Sleep/wait for abort for 60 seconds
 			if self.monitor.waitForAbort( 60 ):
 				# Abort was requested while waiting. We should exit
@@ -68,7 +66,7 @@ class MediathekViewService( KodiService ):
 
 	def Exit( self ):
 		self.info( 'Shutdown' )
-		self.db.Exit()
+		self.updater.Exit()
 
 	def ReloadSettings( self ):
 		# TODO: support online reconfiguration

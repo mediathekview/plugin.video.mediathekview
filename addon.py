@@ -17,9 +17,6 @@ from classes.initialui import InitialUI
 from classes.showui import ShowUI
 from classes.updater import MediathekViewUpdater
 
-# -- Constants ----------------------------------------------
-ADDON_ID = 'plugin.video.mediathekview'
-
 # -- Classes ------------------------------------------------
 class MediathekView( KodiPlugin ):
 
@@ -54,12 +51,16 @@ class MediathekView( KodiPlugin ):
 		searchText = self.notifier.GetEnteredText( '', self.language( 30901 ) )
 		if len( searchText ) > 2:
 			self.db.Search( searchText, FilmUI( self.addon_handle ) )
+		else:
+			self.showMainMenu()
 
 	def showSearchAll( self ):
 		# searchText = unicode( self.notifier.GetEnteredText( '', self.language( 30902 ) ).decode( 'UTF-8' ) )
 		searchText = self.notifier.GetEnteredText( '', self.language( 30902 ) )
 		if len( searchText ) > 2:
 			self.db.SearchFull( searchText, FilmUI( self.addon_handle ) )
+		else:
+			self.showMainMenu()
 
 	def showDbInfo( self ):
 		info = self.db.GetStatus()
@@ -71,22 +72,43 @@ class MediathekView( KodiPlugin ):
 			'UPDATING': 30944,
 			'ABORTED': 30945
 		}.get( info['status'], 30941 ) )
-		if len( info['description'] ) > 0:
-			infostr = '%s: %s' % ( infostr, info['description'] )
 		infostr = self.language( 30965 ) % infostr
-		totinfo = self.language( 30969 ) % (
+		totinfo = self.language( 30971 ) % (
 			info['tot_chn'],
 			info['tot_shw'],
 			info['tot_mov']
 		)
-		if info['status'] == 'UPDATING':
+		updatetype = self.language( 30972 if info['fullupdate'] > 0 else 30973 )
+		if info['status'] == 'UPDATING' and info['filmupdate'] > 0:
 			updinfo = self.language( 30967 ) % (
+				updatetype,
+				datetime.datetime.fromtimestamp( info['filmupdate'] ).strftime( '%Y-%m-%d %H:%M:%S' ),
 				info['add_chn'],
 				info['add_shw'],
 				info['add_mov']
 			)
-		elif info['lastupdate'] > 0:
+		elif info['status'] == 'UPDATING':
 			updinfo = self.language( 30968 ) % (
+				updatetype,
+				info['add_chn'],
+				info['add_shw'],
+				info['add_mov']
+			)
+		elif info['lastupdate'] > 0 and info['filmupdate'] > 0:
+			updinfo = self.language( 30969 ) % (
+				updatetype,
+				datetime.datetime.fromtimestamp( info['lastupdate'] ).strftime( '%Y-%m-%d %H:%M:%S' ),
+				datetime.datetime.fromtimestamp( info['filmupdate'] ).strftime( '%Y-%m-%d %H:%M:%S' ),
+				info['add_chn'],
+				info['add_shw'],
+				info['add_mov'],
+				info['del_chn'],
+				info['del_shw'],
+				info['del_mov']
+			)
+		elif info['lastupdate'] > 0:
+			updinfo = self.language( 30970 ) % (
+				updatetype,
 				datetime.datetime.fromtimestamp( info['lastupdate'] ).strftime( '%Y-%m-%d %H:%M:%S' ),
 				info['add_chn'],
 				info['add_shw'],
@@ -104,6 +126,7 @@ class MediathekView( KodiPlugin ):
 			totinfo + '\n\n' +
 			updinfo
 		)
+		self.showMainMenu()
 
 	def Init( self ):
 		self.args = urlparse.parse_qs( sys.argv[2][1:] )

@@ -167,18 +167,6 @@ msgctxt "#30957"
 msgid "In progress (%d): channels:%d, shows:%d, movies:%d ..."
 msgstr ""
 
-msgctxt "#30958"
-msgid "Updated finished"
-msgstr ""
-
-msgctxt "#30959"
-msgid "Kodi Shutdown during update"
-msgstr ""
-
-msgctxt "#30960"
-msgid "Error {0} while processing {1}"
-msgstr ""
-
 msgctxt "#30961"
 msgid "Welcome to MediathekView"
 msgstr ""
@@ -214,13 +202,29 @@ msgid "This database was never updated"
 msgstr ""
 
 msgctxt "#30967"
-msgid "Update in progress...\nAdditions: %d channels, %d shows, %d movies"
+msgid "%s in progress...\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies"
 msgstr ""
 
 msgctxt "#30968"
-msgid "Last update: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgid "%s in progress...\nAdditions: %d channels, %d shows, %d movies"
 msgstr ""
 
 msgctxt "#30969"
+msgid "Last %s: %s\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgstr ""
+
+msgctxt "#30970"
+msgid "Last %s: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgstr ""
+
+msgctxt "#30971"
 msgid "Total: %d channels, %d shows, %d movies"
+msgstr ""
+
+msgctxt "#30972"
+msgid "Full Update"
+msgstr ""
+
+msgctxt "#30973"
+msgid "Differential Update"
 msgstr ""

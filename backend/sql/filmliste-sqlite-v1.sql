@@ -73,6 +73,8 @@ CREATE TABLE "status" (
 	 "modified" integer(11,0),
 	 "status" TEXT(32,0),
 	 "lastupdate" integer(11,0),
+	 "filmupdate" integer(11,0),
+	 "fullupdate" integer(1,0),
 	 "add_chn" integer(11,0),
 	 "add_shw" integer(11,0),
 	 "add_mov" integer(11,0),
@@ -81,8 +83,7 @@ CREATE TABLE "status" (
 	 "del_mov" integer(11,0),
 	 "tot_chn" integer(11,0),
 	 "tot_shw" integer(11,0),
-	 "tot_mov" integer(11,0),
-	 "description" TEXT(512,0)
+	 "tot_mov" integer(11,0)
 );
 
 -- ----------------------------

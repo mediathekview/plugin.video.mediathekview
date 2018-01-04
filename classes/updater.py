@@ -3,23 +3,36 @@
 #
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson, time
+import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
-import xbmc, xbmcaddon
 
 from operator import itemgetter
 from classes.store import Store
 
 # -- Constants ----------------------------------------------
-FILMLISTE_URL = 'https://res.mediathekview.de/akt.xml'
+FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
+FILMLISTE_DIF_URL = 'https://res.mediathekview.de/diff.xml'
 
 # -- Classes ------------------------------------------------
 class MediathekViewUpdater( object ):
-	def __init__( self, logger, notifier, settings ):
+	def __init__( self, logger, notifier, settings, monitor = None ):
 		self.logger		= logger
 		self.notifier	= notifier
 		self.settings	= settings
-		self.language	= xbmcaddon.Addon().getLocalizedString
+		self.monitor	= monitor
+		self.db			= None
+
+	def Init( self ):
+		if self.db is not None:
+			self.Exit()
+		self.db = Store( self.logger, self.notifier, self.settings )
+		self.db.Init()
+
+	def Exit( self ):
+		if self.db is not None:
+			self.db.Exit()
+			del self.db
+			self.db = None
 
 	def PrerequisitesMissing( self ):
 		return self.settings.updenabled and self._find_xz() is None
@@ -29,38 +42,80 @@ class MediathekViewUpdater( object ):
 			xz = self._find_xz()
 			return xz is not None
 
-	def Update( self ):
-		self.db = Store( self.logger, self.notifier, self.settings )
+	def GetCurrentUpdateOperation( self ):
+		if not self.IsEnabled() or self.db is None:
+			# update disabled or not possible
+			self.logger.info( 'update disabled or not possible' )
+			return 0
+		status = self.db.GetStatus()
+		tsnow = int( time.time() )
+		tsold = status['lastupdate']
+		dtnow = datetime.datetime.fromtimestamp( tsnow ).date()
+		dtold = datetime.datetime.fromtimestamp( tsold ).date()
+		if status['status'] == 'UNINIT':
+			# database not initialized
+			self.logger.debug( 'database not initialized' )
+			return 0
+		elif status['status'] == "UPDATING" and tsnow - tsold > 86400:
+			# process was probably killed during update
+			self.logger.info( 'Stuck update pretending to run since epoch {} reset', tsold )
+			self.db.UpdateStatus( 'ABORTED' )
+			return 0
+		elif status['status'] == "UPDATING":
+			# already updating
+			self.logger.debug( 'already updating' )
+			return 0
+		elif tsnow - tsold < self.settings.updinterval:
+			# last update less than the configured update interval. do nothing
+			self.logger.debug( 'last update less than the configured update interval. do nothing' )
+			return 0
+		elif dtnow != dtold:
+			# last update was not today. do full update once a day
+			self.logger.debug( 'last update was not today. do full update once a day' )
+			return 1
+		elif status['status'] == "ABORTED" and status['fullupdate'] == 1:
+			# last full update was aborted - full update needed
+			self.logger.debug( 'last full update was aborted - full update needed' )
+			return 1
+		else:
+			# do differential update
+			self.logger.debug( 'do differential update' )
+			return 2
+		
+	def Update( self, full ):
+		if self.db is None:
+			return
 		if self.db.SupportsUpdate():
-			self.db.Init()
-			if self.GetNewestList():
-				self.Import()
-			self.db.Exit()
-		del self.db
+			if self.GetNewestList( full ):
+				self.Import( full )
 
-	def Import( self ):
-		destfile = os.path.join( self.settings.datapath, 'Filmliste-akt' )
+	def Import( self, full ):
+		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
 		if not self._file_exists( destfile ):
-			self.logger.error( 'File {} does not exists')
+			self.logger.error( 'File {} does not exists', destfile )
+			return False
+		# estimate number of records in update file
+		records = int( self._file_size( destfile ) / avgrecsize )
+		if not self.db.ftInit():
+			self.logger.warn( 'Failed to initialize update. Maybe a concurrency problem?' )
 			return False
 		try:
-			monitor = xbmc.Monitor()
+			self.logger.info( 'Starting import of approx. {} records from {}', records, destfile )
 			file = open( destfile, 'r' )
 			parser = ijson.parse( file )
-			( self.tot_chn, self.tot_shw, self.tot_mov ) = self._update_start()
+			flsm = 0
+			flts = 0
+			( self.tot_chn, self.tot_shw, self.tot_mov ) = self._update_start( full )
 			self.notifier.ShowUpdateProgress()
-			# estimate number of records in update
-			records = 220000 if self.tot_mov < 50000 else self.tot_mov + 10000
 			for prefix, event, value in parser:
 				if ( prefix, event ) == ( "X", "start_array" ):
 					self._init_record()
 				elif ( prefix, event ) == ( "X", "end_array" ):
 					self._end_record( records )
-					if self.count % 100 == 0 and monitor.abortRequested():
+					if self.count % 100 == 0 and self.monitor.abortRequested():
 						# kodi is shutting down. Close all
-						del monitor
 						file.close()
-						self._update_end( True, 'ABORTED', self.language(30959) )
+						self._update_end( full, 'ABORTED' )
 						self.notifier.CloseUpdateProgress()
 						return True
 				elif ( prefix, event ) == ( "X.item", "string" ):
@@ -69,37 +124,51 @@ class MediathekViewUpdater( object ):
 						self._add_value( value.strip() )
 					else:
 						self._add_value( "" )
-			del monitor
+				elif ( prefix, event ) == ( "Filmliste", "start_array" ):
+					flsm += 1
+				elif ( prefix, event ) == ( "Filmliste.item", "string" ):
+					flsm += 1
+					if flsm == 2 and value is not None:
+						# this is the timestmap of this database update
+						try:
+							fldt = datetime.datetime.strptime( value.strip(), "%d.%m.%Y, %H:%M" )
+							flts = int( time.mktime( fldt.timetuple() ) )
+							self.db.UpdateStatus( filmupdate = flts )
+							self.logger.info( 'Filmliste dated {}', value.strip() )
+						except ValueError as err:
+							pass
+
 			file.close()
-			self._update_end( False, 'IDLE', self.language(30958) )
+			self._update_end( full, 'IDLE' )
 			self.logger.info( 'Import of {} finished', destfile )
 			self.notifier.CloseUpdateProgress()
 			return True
 		except IOError as err:
 			self.logger.error( 'Error {} wile processing {}', err, destfile )
 			try:
-				self._update_end( True, 'ABORTED', self.language(30960).format( err, destfile ) )
+				self._update_end( full, 'ABORTED' )
 				self.notifier.CloseUpdateProgress()
-				del monitor
 				file.close()
 			except Exception as err:
 				pass
 			return False
 
-	def GetNewestList( self ):
+	def GetNewestList( self, full ):
 		# get xz binary
 		xzbin = self._find_xz()
 		if xzbin is None:
 			self.notifier.ShowMissingXZError()
 			return False
 
+		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
+
 		# get mirrorlist
-		self.logger.info( 'Opening {}', FILMLISTE_URL )
+		self.logger.info( 'Opening {}', url )
 		try:
-			data = urllib2.urlopen( FILMLISTE_URL ).read()
+			data = urllib2.urlopen( url ).read()
 		except URLError as err:
-			self.logger.error( 'Failure opening {}', FILMLISTE_URL )
-			self.notifier.ShowDowloadError( FILMLISTE_URL, err )
+			self.logger.error( 'Failure opening {}', url )
+			self.notifier.ShowDowloadError( url, err )
 			return False
 
 		root = etree.fromstring ( data )
@@ -117,10 +186,11 @@ class MediathekViewUpdater( object ):
 		result = None
 
 		# cleanup downloads
-		self._cleanup_downloads()
+		self.logger.info( 'Cleaning up old downloads...' )
+		self._file_remove( compfile )
+		self._file_remove( destfile )
 
 		# download filmliste
-		compfile = os.path.join( self.settings.datapath, 'Filmliste-akt.xz' )
 		self.logger.info( 'Trying to download file...' )
 		self.notifier.ShowDownloadProgress()
 		lasturl = ''
@@ -140,17 +210,27 @@ class MediathekViewUpdater( object ):
 
 		# decompress filmliste
 		self.logger.info( 'Trying to decompress file...' )
-		destfile = os.path.join( self.settings.datapath, 'Filmliste-akt' )
 		retval = subprocess.call( [ xzbin, '-d', compfile ] )
 		self.logger.info( 'Return {}', retval )
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and self._file_exists( destfile )
 
-	def _cleanup_downloads( self ):
-		self.logger.info( 'Cleaning up old downloads...' )
-		self._file_remove( os.path.join( self.settings.datapath, 'Filmliste-akt.xz' ) )
-		self._file_remove( os.path.join( self.settings.datapath, 'Filmliste-akt' ) )
-
+	def _get_update_info( self, full ):
+		if full:
+			return (
+				FILMLISTE_AKT_URL,
+				os.path.join( self.settings.datapath, 'Filmliste-akt.xz' ),
+				os.path.join( self.settings.datapath, 'Filmliste-akt' ),
+				600,
+			)
+		else:
+			return (
+				FILMLISTE_DIF_URL,
+				os.path.join( self.settings.datapath, 'Filmliste-diff.xz' ),
+				os.path.join( self.settings.datapath, 'Filmliste-diff' ),
+				700,
+			)
+			
 	def _find_xz( self ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
 			if self._file_exists( xzbin ):
@@ -165,6 +245,13 @@ class MediathekViewUpdater( object ):
 			return stat.S_ISREG( s.st_mode )
 		except OSError as err:
 			return False
+
+	def _file_size( self, name ):
+		try:
+			s = os.stat( name )
+			return s.st_size
+		except OSError as err:
+			return 0
 
 	def _file_remove( self, name ):
 		if self._file_exists( name ):
@@ -182,7 +269,7 @@ class MediathekViewUpdater( object ):
 			self.notifier.UpdateDownloadProgress( percent )
 		self.logger.debug( 'Downloading blockcount={}, blocksize={}, totalsize={}', blockcount, blocksize, totalsize )
 
-	def _update_start( self ):
+	def _update_start( self, full ):
 		self.logger.info( 'Initializing update...' )
 		self.add_chn = 0
 		self.add_shw = 0
@@ -211,19 +298,18 @@ class MediathekViewUpdater( object ):
 			"airedepoch": 0,
 			"geo": ""
 		}
-		self.db.UpdateStatus( 'UPDATING', '' )
-		self.db.ftInit()
-		return self.db.ftUpdateStart()
+		return self.db.ftUpdateStart( full )
 
-	def _update_end( self, delete, status = 'IDLE', description = '' ):
+	def _update_end( self, full, status ):
 		self.logger.info( 'Added: channels:%d, shows:%d, movies:%d ...' % ( self.add_chn, self.add_shw, self.add_mov ) )
-		( self.del_chn, self.del_shw, self.del_mov, self.tot_chn, self.tot_shw, self.tot_mov ) = self.db.ftUpdateEnd( delete )
+		( self.del_chn, self.del_shw, self.del_mov, self.tot_chn, self.tot_shw, self.tot_mov ) = self.db.ftUpdateEnd( full and status == 'IDLE' )
 		self.logger.info( 'Deleted: channels:%d, shows:%d, movies:%d' % ( self.del_chn, self.del_shw, self.del_mov ) )
 		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( self.tot_chn, self.tot_shw, self.tot_mov ) )
 		self.db.UpdateStatus(
 			status,
-			description,
 			int( time.time() ),
+			None,
+			1 if full else 0,
 			self.add_chn, self.add_shw, self.add_mov,
 			self.del_chn, self.del_shw, self.del_mov,
 			self.tot_chn, self.tot_shw, self.tot_mov

@@ -14,7 +14,7 @@
 		<setting id="dbpass"			type="text"		label="30213"	default=""	option="hidden"	visible="eq(-3,1)"		/>
 		<setting id="dbdata"			type="text"		label="30214"	default="filmliste"			visible="eq(-4,1)"		/>
 		<setting id="updenabled"		type="bool"		label="30231"	default="true"										/>
-		<setting id="updinterval"		type="slider"	label="30232"	default="4"	range="2,24"	visible="eq(-1,true)"	/>
+		<setting id="updinterval"		type="slider"	label="30232"	default="2"	range="1,24"	visible="eq(-1,true)"	/>
 		<setting id="updxzbin"			type="file"		label="30233"	default=""					visible="eq(-2,true)"	/>
 
 		<!-- setting						type="action"	label="30238"	action="RunScript(plugin.video.mediathekview, downloadreport)"/ -->

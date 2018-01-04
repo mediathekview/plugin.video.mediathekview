@@ -80,6 +80,8 @@ class Store( object ):
 				'modified': int( time.time() ),
 				'status': 'UNINIT',
 				'lastupdate': 0,
+				'filmupdate': 0,
+				'fullupdate': 0,
 				'add_chn': 0,
 				'add_shw': 0,
 				'add_mov': 0,
@@ -88,13 +90,12 @@ class Store( object ):
 				'del_mov': 0,
 				'tot_chn': 0,
 				'tot_shw': 0,
-				'tot_mov': 0,
-				'description': ''
+				'tot_mov': 0
 			}
 
-	def UpdateStatus( self, status = None, description = None, lastupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
+	def UpdateStatus( self, status = None, lastupdate = None, filmupdate = None, fullupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
 		if self.db is not None:
-			self.db.UpdateStatus( status, description, lastupdate, add_chn, add_shw, add_mov, del_chn, del_shw, del_mov, tot_chn, tot_shw, tot_mov )
+			self.db.UpdateStatus( status, lastupdate, filmupdate, fullupdate, add_chn, add_shw, add_mov, del_chn, del_shw, del_mov, tot_chn, tot_shw, tot_mov )
 
 	def SupportsUpdate( self ):
 		if self.db is not None:
@@ -103,11 +104,12 @@ class Store( object ):
 
 	def ftInit( self ):
 		if self.db is not None:
-			self.db.ftInit()
+			return self.db.ftInit()
+		return False
 
-	def ftUpdateStart( self ):
+	def ftUpdateStart( self, full ):
 		if self.db is not None:
-			return self.db.ftUpdateStart()
+			return self.db.ftUpdateStart( full )
 		return ( 0, 0, 0, )
 
 	def ftUpdateEnd( self, delete ):

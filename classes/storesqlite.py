@@ -13,7 +13,7 @@ class StoreSQLite( object ):
 		self.settings	= settings
 		# internals
 		self.conn		= None
-		self.dbfile		= os.path.join( self.settings.datapath, 'filmliste01.db' )
+		self.dbfile		= os.path.join( self.settings.datapath, 'filmliste-v1.db' )
 		# useful query fragments
 		self.sql_query_films	= "SELECT title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
 		self.sql_cond_nofuture	= " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
@@ -159,6 +159,8 @@ class StoreSQLite( object ):
 			'modified': int( time.time() ),
 			'status': '',
 			'lastupdate': 0,
+			'filmupdate': 0,
+			'fullupdate': 0,
 			'add_chn': 0,
 			'add_shw': 0,
 			'add_mov': 0,
@@ -167,35 +169,37 @@ class StoreSQLite( object ):
 			'del_mov': 0,
 			'tot_chn': 0,
 			'tot_shw': 0,
-			'tot_mov': 0,
-			'description': ''
+			'tot_mov': 0
 		}
 		if self.conn is None:
 			status['status'] = "UNINIT"
 			return status
+		self.conn.commit()
 		cursor = self.conn.cursor()
 		cursor.execute( 'SELECT * FROM `status` LIMIT 1' )
 		r = cursor.fetchall()
 		cursor.close()
+		self.conn.commit()
 		if len( r ) == 0:
 			status['status'] = "NONE"
 			return status
 		status['modified']		= r[0][0]
 		status['status']		= r[0][1]
 		status['lastupdate']	= r[0][2]
-		status['add_chn']		= r[0][3]
-		status['add_shw']		= r[0][4]
-		status['add_mov']		= r[0][5]
-		status['del_chn']		= r[0][6]
-		status['del_shw']		= r[0][7]
-		status['del_mov']		= r[0][8]
-		status['tot_chn']		= r[0][9]
-		status['tot_shw']		= r[0][10]
-		status['tot_mov']		= r[0][11]
-		status['description']	= r[0][12]
+		status['filmupdate']	= r[0][3]
+		status['fullupdate']	= r[0][4]
+		status['add_chn']		= r[0][5]
+		status['add_shw']		= r[0][6]
+		status['add_mov']		= r[0][7]
+		status['del_chn']		= r[0][8]
+		status['del_shw']		= r[0][9]
+		status['del_mov']		= r[0][10]
+		status['tot_chn']		= r[0][11]
+		status['tot_shw']		= r[0][12]
+		status['tot_mov']		= r[0][13]
 		return status
 
-	def UpdateStatus( self, status = None, description = None, lastupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
+	def UpdateStatus( self, status = None, lastupdate = None, filmupdate = None, fullupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
 		if self.conn is None:
 			return
 		new = self.GetStatus()
@@ -204,6 +208,10 @@ class StoreSQLite( object ):
 			new['status'] = status
 		if lastupdate is not None:
 			new['lastupdate'] = lastupdate
+		if filmupdate is not None:
+			new['filmupdate'] = filmupdate
+		if fullupdate is not None:
+			new['fullupdate'] = fullupdate
 		if add_chn is not None:
 			new['add_chn'] = add_chn
 		if add_shw is not None:
@@ -222,8 +230,6 @@ class StoreSQLite( object ):
 			new['tot_shw'] = tot_shw
 		if tot_mov is not None:
 			new['tot_mov'] = tot_mov
-		if description is not None:
-			new['description'] = description
 		# TODO: we should only write, if we have changed something...
 		new['modified'] = int( time.time() )
 		cursor = self.conn.cursor()
@@ -235,6 +241,8 @@ class StoreSQLite( object ):
 					`modified`,
 					`status`,
 					`lastupdate`,
+					`filmupdate`,
+					`fullupdate`,
 					`add_chn`,
 					`add_shw`,
 					`add_mov`,
@@ -243,10 +251,10 @@ class StoreSQLite( object ):
 					`del_mov`,
 					`tot_chn`,
 					`tot_shw`,
-					`tot_mov`,
-					`description`
+					`tot_mov`
 				)
 				VALUES (
+					?,
 					?,
 					?,
 					?,
@@ -265,6 +273,8 @@ class StoreSQLite( object ):
 					new['modified'],
 					new['status'],
 					new['lastupdate'],
+					new['filmupdate'],
+					new['fullupdate'],
 					new['add_chn'],
 					new['add_shw'],
 					new['add_mov'],
@@ -274,7 +284,6 @@ class StoreSQLite( object ):
 					new['tot_chn'],
 					new['tot_shw'],
 					new['tot_mov'],
-					new['description']
 				)
 			)
 		else:
@@ -285,6 +294,8 @@ class StoreSQLite( object ):
 				SET		`modified`		= ?,
 						`status`		= ?,
 						`lastupdate`	= ?,
+						`filmupdate`	= ?,
+						`fullupdate`	= ?,
 						`add_chn`		= ?,
 						`add_shw`		= ?,
 						`add_mov`		= ?,
@@ -293,12 +304,13 @@ class StoreSQLite( object ):
 						`del_mov`		= ?,
 						`tot_chn`		= ?,
 						`tot_shw`		= ?,
-						`tot_mov`		= ?,
-						`description`	= ?
+						`tot_mov`		= ?
 				""", (
 					new['modified'],
 					new['status'],
 					new['lastupdate'],
+					new['filmupdate'],
+					new['fullupdate'],
 					new['add_chn'],
 					new['add_shw'],
 					new['add_mov'],
@@ -308,7 +320,6 @@ class StoreSQLite( object ):
 					new['tot_chn'],
 					new['tot_shw'],
 					new['tot_mov'],
-					new['description']
 				)
 			)
 		cursor.close()
@@ -318,12 +329,31 @@ class StoreSQLite( object ):
 		return True
 
 	def ftInit( self ):
+		# prevent concurrent updating
+		cursor = self.conn.cursor()
+		cursor.execute(
+			"""
+			UPDATE	`status`
+			SET		`modified`		= ?,
+					`status`		= 'UPDATING'
+			WHERE	( `status` != 'UPDATING' )
+					OR
+					( `modified` < ? )
+			""", (
+				int( time.time() ),
+				int( time.time() ) - 86400
+			)
+		)
+		retval = cursor.rowcount > 0
+		self.conn.commit()
+		cursor.close()
 		self.ft_channel = None
 		self.ft_channelid = None
 		self.ft_show = None
 		self.ft_showid = None
+		return retval
 
-	def ftUpdateStart( self, full = True ):
+	def ftUpdateStart( self, full ):
 		cursor = self.conn.cursor()
 		if full:
 			cursor.executescript( """
@@ -355,12 +385,12 @@ class StoreSQLite( object ):
 		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
 		( del_mov, ) = cursor.fetchone()
 		if delete:
+			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
+			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
+		else:
 			del_chn = 0
 			del_shw = 0
 			del_mov = 0
-		else:
-			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
-			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
 		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
 		( cnt_chn, ) = cursor.fetchone()
 		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
@@ -580,6 +610,8 @@ CREATE TABLE "status" (
 	 "modified" integer(11,0),
 	 "status" TEXT(32,0),
 	 "lastupdate" integer(11,0),
+	 "filmupdate" integer(11,0),
+	 "fullupdate" integer(1,0),
 	 "add_chn" integer(11,0),
 	 "add_shw" integer(11,0),
 	 "add_mov" integer(11,0),
@@ -588,8 +620,7 @@ CREATE TABLE "status" (
 	 "del_mov" integer(11,0),
 	 "tot_chn" integer(11,0),
 	 "tot_shw" integer(11,0),
-	 "tot_mov" integer(11,0),
-	 "description" TEXT(512,0)
+	 "tot_mov" integer(11,0)
 );
 
 -- ----------------------------
@@ -609,7 +640,7 @@ CREATE INDEX "combined_2" ON show ("channelid", "show");
 
 PRAGMA foreign_keys = true;
 		""" )
-		self.UpdateStatus( 'IDLE', '' )
+		self.UpdateStatus( 'IDLE' )
 
 	def _make_search( self, val ):
 		cset = string.letters + string.digits + ' _-#'

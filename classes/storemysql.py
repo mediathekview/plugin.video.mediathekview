@@ -157,6 +157,8 @@ class StoreMySQL( object ):
 			'modified': int( time.time() ),
 			'status': '',
 			'lastupdate': 0,
+			'filmupdate': 0,
+			'fullupdate': 0,
 			'add_chn': 0,
 			'add_shw': 0,
 			'add_mov': 0,
@@ -165,8 +167,7 @@ class StoreMySQL( object ):
 			'del_mov': 0,
 			'tot_chn': 0,
 			'tot_shw': 0,
-			'tot_mov': 0,
-			'description': ''
+			'tot_mov': 0
 		}
 		if self.conn is None:
 			status['status'] = "UNINIT"
@@ -183,16 +184,17 @@ class StoreMySQL( object ):
 			status['modified']		= r[0][0]
 			status['status']		= r[0][1]
 			status['lastupdate']	= r[0][2]
-			status['add_chn']		= r[0][3]
-			status['add_shw']		= r[0][4]
-			status['add_mov']		= r[0][5]
-			status['del_chn']		= r[0][6]
-			status['del_shw']		= r[0][7]
-			status['del_mov']		= r[0][8]
-			status['tot_chn']		= r[0][9]
-			status['tot_shw']		= r[0][10]
-			status['tot_mov']		= r[0][11]
-			status['description']	= r[0][12]
+			status['filmupdate']	= r[0][3]
+			status['fullupdate']	= r[0][4]
+			status['add_chn']		= r[0][5]
+			status['add_shw']		= r[0][6]
+			status['add_mov']		= r[0][7]
+			status['del_chn']		= r[0][8]
+			status['del_shw']		= r[0][9]
+			status['del_mov']		= r[0][10]
+			status['tot_chn']		= r[0][11]
+			status['tot_shw']		= r[0][12]
+			status['tot_mov']		= r[0][13]
 			return status
 		except mysql.connector.Error as err:
 			self.logger.error( 'Database error: {}', err )
@@ -200,7 +202,7 @@ class StoreMySQL( object ):
 			status['status'] = "UNINIT"
 			return status
 
-	def UpdateStatus( self, status = None, description = None, lastupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
+	def UpdateStatus( self, status = None, lastupdate = None, filmupdate = None, fullupdate = None, add_chn = None, add_shw = None, add_mov = None, del_chn = None, del_shw = None, del_mov = None, tot_chn = None, tot_shw = None, tot_mov = None ):
 		if self.conn is None:
 			return
 		new = self.GetStatus()
@@ -209,6 +211,10 @@ class StoreMySQL( object ):
 			new['status'] = status
 		if lastupdate is not None:
 			new['lastupdate'] = lastupdate
+		if filmupdate is not None:
+			new['filmupdate'] = filmupdate
+		if fullupdate is not None:
+			new['fullupdate'] = fullupdate
 		if add_chn is not None:
 			new['add_chn'] = add_chn
 		if add_shw is not None:
@@ -227,8 +233,6 @@ class StoreMySQL( object ):
 			new['tot_shw'] = tot_shw
 		if tot_mov is not None:
 			new['tot_mov'] = tot_mov
-		if description is not None:
-			new['description'] = description
 		# TODO: we should only write, if we have changed something...
 		new['modified'] = int( time.time() )
 		try:
@@ -241,6 +245,8 @@ class StoreMySQL( object ):
 						`modified`,
 						`status`,
 						`lastupdate`,
+						`filmupdate`,
+						`fullupdate`,
 						`add_chn`,
 						`add_shw`,
 						`add_mov`,
@@ -249,10 +255,10 @@ class StoreMySQL( object ):
 						`del_mov`,
 						`tot_chn`,
 						`tot_shw`,
-						`tot_mov`,
-						`description`
+						`tot_mov`
 					)
 					VALUES (
+						%s,
 						%s,
 						%s,
 						%s,
@@ -271,6 +277,8 @@ class StoreMySQL( object ):
 						new['modified'],
 						new['status'],
 						new['lastupdate'],
+						new['filmupdate'],
+						new['fullupdate'],
 						new['add_chn'],
 						new['add_shw'],
 						new['add_mov'],
@@ -280,7 +288,6 @@ class StoreMySQL( object ):
 						new['tot_chn'],
 						new['tot_shw'],
 						new['tot_mov'],
-						new['description'],
 					)
 				)
 			else:
@@ -291,6 +298,8 @@ class StoreMySQL( object ):
 					SET		`modified`		= %s,
 							`status`		= %s,
 							`lastupdate`	= %s,
+							`filmupdate`	= %s,
+							`fullupdate`	= %s,
 							`add_chn`		= %s,
 							`add_shw`		= %s,
 							`add_mov`		= %s,
@@ -299,12 +308,13 @@ class StoreMySQL( object ):
 							`del_mov`		= %s,
 							`tot_chn`		= %s,
 							`tot_shw`		= %s,
-							`tot_mov`		= %s,
-							`description`	= %s
+							`tot_mov`		= %s
 					""", (
 						new['modified'],
 						new['status'],
 						new['lastupdate'],
+						new['filmupdate'],
+						new['fullupdate'],
 						new['add_chn'],
 						new['add_shw'],
 						new['add_mov'],
@@ -314,7 +324,6 @@ class StoreMySQL( object ):
 						new['tot_chn'],
 						new['tot_shw'],
 						new['tot_mov'],
-						new['description'],
 					)
 				)
 			cursor.close()
@@ -327,12 +336,31 @@ class StoreMySQL( object ):
 		return True
 
 	def ftInit( self ):
+		# prevent concurrent updating
+		cursor = self.conn.cursor()
+		cursor.execute(
+			"""
+			UPDATE	`status`
+			SET		`modified`		= %s,
+					`status`		= 'UPDATING'
+			WHERE	( `status` != 'UPDATING' )
+					OR
+					( `modified` < %s )
+			""", (
+				int( time.time() ),
+				int( time.time() ) - 86400
+			)
+		)
+		retval = cursor.rowcount > 0
+		self.conn.commit()
+		cursor.close()
 		self.ft_channel = None
 		self.ft_channelid = None
 		self.ft_show = None
 		self.ft_showid = None
+		return retval
 
-	def ftUpdateStart( self, full = True ):
+	def ftUpdateStart( self, full ):
 		param = ( 1, ) if full else ( 0, )
 		try:
 			cursor = self.conn.cursor()

@@ -110,6 +110,8 @@ CREATE TABLE `status` (
   `modified` int(11) NOT NULL,
   `status` varchar(255) NOT NULL,
   `lastupdate` int(11) NOT NULL,
+  `filmupdate` int(11) NOT NULL,
+  `fullupdate` int(1) NOT NULL,
   `add_chn` int(11) NOT NULL,
   `add_shw` int(11) NOT NULL,
   `add_mov` int(11) NOT NULL,
@@ -118,14 +120,19 @@ CREATE TABLE `status` (
   `del_mov` int(11) NOT NULL,
   `tot_chn` int(11) NOT NULL,
   `tot_shw` int(11) NOT NULL,
-  `tot_mov` int(11) NOT NULL,
-  `description` varchar(512) DEFAULT NULL
+  `tot_mov` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping events for database 'filmliste'
+-- Dumping data for table `status`
 --
+
+LOCK TABLES `status` WRITE;
+/*!40000 ALTER TABLE `status` DISABLE KEYS */;
+INSERT INTO `status` VALUES (0,'IDLE',0,0,0,0,0,0,0,0,0,0,0,0);
+/*!40000 ALTER TABLE `status` ENABLE KEYS */;
+UNLOCK TABLES;
 
 --
 -- Dumping routines for database 'filmliste'
@@ -333,7 +340,7 @@ DELIMITER ;
 /*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
 DELIMITER ;;
 CREATE DEFINER=`root`@`localhost` PROCEDURE `ftUpdateEnd`(
-	_aborted	INT(1)
+	_full	INT(1)
 )
 BEGIN
 	DECLARE		del_chn_		INT DEFAULT 0;
@@ -343,11 +350,7 @@ BEGIN
 	DECLARE		cnt_shw_		INT DEFAULT 0;
 	DECLARE		cnt_mov_		INT DEFAULT 0;
 
-	IF ( _aborted = 1 ) THEN
-		SET del_chn_ = 0;
-		SET del_shw_ = 0;
-		SET del_mov_ = 0;
-	ELSE
+	IF ( _full = 1 ) THEN
 		SELECT		COUNT(*)
 		INTO		del_chn_
 		FROM		`channel`
@@ -370,6 +373,10 @@ BEGIN
 
 		DELETE FROM	`film`
 		WHERE		( `touched` = 0 );
+	ELSE
+		SET del_chn_ = 0;
+		SET del_shw_ = 0;
+		SET del_mov_ = 0;
 	END IF;
 
 	SELECT	del_chn_	AS	`del_chn`,
