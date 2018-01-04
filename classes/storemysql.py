@@ -8,7 +8,7 @@ import mysql.connector
 
 # -- Classes ------------------------------------------------
 class StoreMySQL( object ):
-	def __init__( self, id, logger, notifier, settings ):
+	def __init__( self, logger, notifier, settings ):
 		self.conn		= None
 		self.logger		= logger
 		self.notifier	= notifier

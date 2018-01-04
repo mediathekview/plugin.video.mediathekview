@@ -8,17 +8,17 @@ from classes.storesqlite import StoreSQLite
 
 # -- Classes ------------------------------------------------
 class Store( object ):
-	def __init__( self, id, logger, notifier, settings ):
+	def __init__( self, logger, notifier, settings ):
 		self.logger = logger
 		self.notifier = notifier
 		self.settings = settings
 		# load storage engine
 		if settings.type == '0':
 			self.logger.info( 'Database driver: Internal (sqlite)' )
-			self.db = StoreSQLite( id, logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
+			self.db = StoreSQLite( logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
 		elif settings.type == '1':
 			self.logger.info( 'Database driver: External (mysql)' )
-			self.db = StoreMySQL( id, logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
+			self.db = StoreMySQL( logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
 		else:
 			self.logger.warn( 'Unknown Database driver selected' )
 			self.db = None

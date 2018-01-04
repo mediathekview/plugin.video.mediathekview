@@ -27,7 +27,7 @@ class MediathekView( KodiPlugin ):
 		super( MediathekView, self ).__init__()
 		self.settings	= Settings()
 		self.notifier	= Notifier()
-		self.db			= Store( self.addon_id, self.getNewLogger( 'Store' ), self.notifier, self.settings )
+		self.db			= Store( self.getNewLogger( 'Store' ), self.notifier, self.settings )
 
 	def __del__( self ):
 		del self.db
@@ -113,7 +113,7 @@ class MediathekView( KodiPlugin ):
 				self.language( 30961 ),
 				self.language( 30962 )
 			)
-		if MediathekViewUpdater( self.addon_id, self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
+		if MediathekViewUpdater( self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
 			self.setSetting( 'updenabled', 'false' )
 			self.settings.Reload()
 			xbmcgui.Dialog().textviewer(

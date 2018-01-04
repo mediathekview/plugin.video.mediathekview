@@ -4,18 +4,16 @@
 
 # -- Imports ------------------------------------------------
 import os, stat, string, sqlite3, time
-import xbmc
 
 # -- Classes ------------------------------------------------
 class StoreSQLite( object ):
-	def __init__( self, id, logger, notifier, settings ):
+	def __init__( self, logger, notifier, settings ):
 		self.logger		= logger
 		self.notifier	= notifier
 		self.settings	= settings
 		# internals
 		self.conn		= None
-		self.dbpath		= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id )
-		self.dbfile		= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id, 'filmliste01.db' )
+		self.dbfile		= os.path.join( self.settings.datapath, 'filmliste01.db' )
 		# useful query fragments
 		self.sql_query_films	= "SELECT title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
 		self.sql_cond_nofuture	= " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
@@ -23,8 +21,8 @@ class StoreSQLite( object ):
 
 	def Init( self, reset = False ):
 		self.logger.info( 'Using SQLite version {}, python library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
-		if not self._dir_exists( self.dbpath ):
-			os.mkdir( self.dbpath )
+		if not self._dir_exists( self.settings.datapath ):
+			os.mkdir( self.settings.datapath )
 		if reset == True or not self._file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )

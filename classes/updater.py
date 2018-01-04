@@ -15,12 +15,10 @@ FILMLISTE_URL = 'https://res.mediathekview.de/akt.xml'
 
 # -- Classes ------------------------------------------------
 class MediathekViewUpdater( object ):
-	def __init__( self, id, logger, notifier, settings ):
-		self.id			= id
+	def __init__( self, logger, notifier, settings ):
 		self.logger		= logger
 		self.notifier	= notifier
 		self.settings	= settings
-		self.addonpath	= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', id )
 		self.language	= xbmcaddon.Addon().getLocalizedString
 
 	def PrerequisitesMissing( self ):
@@ -32,7 +30,7 @@ class MediathekViewUpdater( object ):
 			return xz is not None
 
 	def Update( self ):
-		self.db = Store( self.id, self.logger, self.notifier, self.settings )
+		self.db = Store( self.logger, self.notifier, self.settings )
 		if self.db.SupportsUpdate():
 			self.db.Init()
 			if self.GetNewestList():
@@ -41,7 +39,7 @@ class MediathekViewUpdater( object ):
 		del self.db
 
 	def Import( self ):
-		destfile = os.path.join( self.addonpath, 'Filmliste-akt' )
+		destfile = os.path.join( self.settings.datapath, 'Filmliste-akt' )
 		if not self._file_exists( destfile ):
 			self.logger.error( 'File {} does not exists')
 			return False
@@ -122,7 +120,7 @@ class MediathekViewUpdater( object ):
 		self._cleanup_downloads()
 
 		# download filmliste
-		compfile = os.path.join( self.addonpath, 'Filmliste-akt.xz' )
+		compfile = os.path.join( self.settings.datapath, 'Filmliste-akt.xz' )
 		self.logger.info( 'Trying to download file...' )
 		self.notifier.ShowDownloadProgress()
 		lasturl = ''
@@ -142,7 +140,7 @@ class MediathekViewUpdater( object ):
 
 		# decompress filmliste
 		self.logger.info( 'Trying to decompress file...' )
-		destfile = os.path.join( self.addonpath, 'Filmliste-akt' )
+		destfile = os.path.join( self.settings.datapath, 'Filmliste-akt' )
 		retval = subprocess.call( [ xzbin, '-d', compfile ] )
 		self.logger.info( 'Return {}', retval )
 		self.notifier.CloseDownloadProgress()
@@ -150,8 +148,8 @@ class MediathekViewUpdater( object ):
 
 	def _cleanup_downloads( self ):
 		self.logger.info( 'Cleaning up old downloads...' )
-		self._file_remove( os.path.join( self.addonpath, 'Filmliste-akt.xz' ) )
-		self._file_remove( os.path.join( self.addonpath, 'Filmliste-akt' ) )
+		self._file_remove( os.path.join( self.settings.datapath, 'Filmliste-akt.xz' ) )
+		self._file_remove( os.path.join( self.settings.datapath, 'Filmliste-akt' ) )
 
 	def _find_xz( self ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
@@ -185,7 +183,7 @@ class MediathekViewUpdater( object ):
 		self.logger.debug( 'Downloading blockcount={}, blocksize={}, totalsize={}', blockcount, blocksize, totalsize )
 
 	def _update_start( self ):
-		self.logger.info( 'Initialting update...' )
+		self.logger.info( 'Initializing update...' )
 		self.add_chn = 0
 		self.add_shw = 0
 		self.add_mov = 0
@@ -248,8 +246,8 @@ class MediathekViewUpdater( object ):
 
 	def _end_record( self, records ):
 		if self.count % 1000 == 0:
-			percent = self.count * 100 / records
-			self.logger.info( 'In progress (%d): channels:%d, shows:%d, movies:%d ...' % ( percent, self.add_chn, self.add_shw, self.add_mov ) )
+			percent = int( self.count * 100 / records )
+			self.logger.info( 'In progress (%d%%): channels:%d, shows:%d, movies:%d ...' % ( percent, self.add_chn, self.add_shw, self.add_mov ) )
 			self.notifier.UpdateUpdateProgress( percent if percent <= 100 else 100, self.count, self.add_chn, self.add_shw, self.add_mov )
 			self.db.UpdateStatus(
 				add_chn = self.add_chn,
