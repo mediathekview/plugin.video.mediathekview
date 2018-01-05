@@ -5,6 +5,8 @@
 # -- Imports ------------------------------------------------
 import os, stat, string, sqlite3, time
 
+from classes.exceptions import DatabaseCorrupted
+
 # -- Classes ------------------------------------------------
 class StoreSQLite( object ):
 	def __init__( self, logger, notifier, settings ):
@@ -27,12 +29,16 @@ class StoreSQLite( object ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )
 			self.conn = sqlite3.connect( self.dbfile )
-			self.Reset()
+			self._handle_database_initialization()
 		else:
-			self.conn = sqlite3.connect( self.dbfile )
-			
-		self.conn.execute('pragma journal_mode=off')  # 3x speed-up, check mode 'WAL'
-		self.conn.execute('pragma synchronous=off')  # that is a bit dangerous :-) but faaaast
+			try:
+				self.conn = sqlite3.connect( self.dbfile )
+			except sqlite3.DatabaseError as err:
+				self.logger.error( 'Errore while opening database. Trying to fully reset the Database...' )
+				self.Init( reset = True )
+
+		self.conn.execute( 'pragma journal_mode=off' )	# 3x speed-up, check mode 'WAL'
+		self.conn.execute( 'pragma synchronous=off' )	# that is a bit dangerous :-) but faaaast
 		
 		self.conn.create_function( 'UNIX_TIMESTAMP', 0, UNIX_TIMESTAMP )
 		self.conn.create_aggregate( 'GROUP_CONCAT', 1, GROUP_CONCAT )
@@ -183,7 +189,6 @@ class StoreSQLite( object ):
 		cursor.execute( 'SELECT * FROM `status` LIMIT 1' )
 		r = cursor.fetchall()
 		cursor.close()
-		self.conn.commit()
 		if len( r ) == 0:
 			status['status'] = "NONE"
 			return status
@@ -333,132 +338,212 @@ class StoreSQLite( object ):
 		return True
 
 	def ftInit( self ):
-		# prevent concurrent updating
-		cursor = self.conn.cursor()
-		cursor.execute(
-			"""
-			UPDATE	`status`
-			SET		`modified`		= ?,
-					`status`		= 'UPDATING'
-			WHERE	( `status` != 'UPDATING' )
-					OR
-					( `modified` < ? )
-			""", (
-				int( time.time() ),
-				int( time.time() ) - 86400
+		try:
+			# prevent concurrent updating
+			self.conn.commit()
+			cursor = self.conn.cursor()
+			cursor.execute(
+				"""
+				UPDATE	`status`
+				SET		`modified`		= ?,
+						`status`		= 'UPDATING'
+				WHERE	( `status` != 'UPDATING' )
+						OR
+						( `modified` < ? )
+				""", (
+					int( time.time() ),
+					int( time.time() ) - 86400
+				)
 			)
-		)
-		retval = cursor.rowcount > 0
-		self.conn.commit()
-		cursor.close()
-		self.ft_channel = None
-		self.ft_channelid = None
-		self.ft_show = None
-		self.ft_showid = None
-		return retval
+			retval = cursor.rowcount > 0
+			self.conn.commit()
+			cursor.close()
+			self.ft_channel = None
+			self.ft_channelid = None
+			self.ft_show = None
+			self.ft_showid = None
+			return retval
+		except sqlite3.DatabaseError as err:
+			self._handle_database_corruption( err )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def ftUpdateStart( self, full ):
-		cursor = self.conn.cursor()
-		if full:
-			cursor.executescript( """
-				UPDATE	`channel`
-				SET		`touched` = 0;
+		try:
+			cursor = self.conn.cursor()
+			if full:
+				cursor.executescript( """
+					UPDATE	`channel`
+					SET		`touched` = 0;
 
-				UPDATE	`show`
-				SET		`touched` = 0;
+					UPDATE	`show`
+					SET		`touched` = 0;
 
-				UPDATE	`film`
-				SET		`touched` = 0;
-			""" )
-		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
-		r1 = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
-		r2 = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
-		r3 = cursor.fetchone()
-		cursor.close()
-		self.conn.commit()
-		return ( r1[0], r2[0], r3[0], )
+					UPDATE	`film`
+					SET		`touched` = 0;
+				""" )
+			cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
+			r1 = cursor.fetchone()
+			cursor.execute( 'SELECT COUNT(*) FROM `show`' )
+			r2 = cursor.fetchone()
+			cursor.execute( 'SELECT COUNT(*) FROM `film`' )
+			r3 = cursor.fetchone()
+			cursor.close()
+			self.conn.commit()
+			return ( r1[0], r2[0], r3[0], )
+		except sqlite3.DatabaseError as err:
+			self._handle_database_corruption( err )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def ftUpdateEnd( self, delete ):
-		cursor = self.conn.cursor()
-		cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
-		( del_chn, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `show` WHERE ( touched = 0 )' )
-		( del_shw, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
-		( del_mov, ) = cursor.fetchone()
-		if delete:
-			cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
-			cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
-		else:
-			del_chn = 0
-			del_shw = 0
-			del_mov = 0
-		cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
-		( cnt_chn, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `show`' )
-		( cnt_shw, ) = cursor.fetchone()
-		cursor.execute( 'SELECT COUNT(*) FROM `film`' )
-		( cnt_mov, ) = cursor.fetchone()
-		cursor.close()
-		self.conn.commit()
-		return ( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov, )
+		try:
+			cursor = self.conn.cursor()
+			cursor.execute( 'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )' )
+			( del_chn, ) = cursor.fetchone()
+			cursor.execute( 'SELECT COUNT(*) FROM `show` WHERE ( touched = 0 )' )
+			( del_shw, ) = cursor.fetchone()
+			cursor.execute( 'SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )' )
+			( del_mov, ) = cursor.fetchone()
+			if delete:
+				cursor.execute( 'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )' )
+				cursor.execute( 'DELETE FROM `film` WHERE ( touched = 0 )' )
+			else:
+				del_chn = 0
+				del_shw = 0
+				del_mov = 0
+			cursor.execute( 'SELECT COUNT(*) FROM `channel`' )
+			( cnt_chn, ) = cursor.fetchone()
+			cursor.execute( 'SELECT COUNT(*) FROM `show`' )
+			( cnt_shw, ) = cursor.fetchone()
+			cursor.execute( 'SELECT COUNT(*) FROM `film`' )
+			( cnt_mov, ) = cursor.fetchone()
+			cursor.close()
+			self.conn.commit()
+			return ( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov, )
+		except sqlite3.DatabaseError as err:
+			self._handle_database_corruption( err )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def ftInsertFilm( self, film ):
-		cursor = self.conn.cursor()
-		newchn = False
-		inschn = 0
-		insshw = 0
-		insmov = 0
+		try:
+			cursor = self.conn.cursor()
+			newchn = False
+			inschn = 0
+			insshw = 0
+			insmov = 0
 
-		# handle channel
-		if self.ft_channel != film['channel']:
-			# process changed channel
-			newchn = True
-			cursor.execute( 'SELECT `id`,`touched` FROM `channel` WHERE channel.channel=?', ( film['channel'], ) )
+			# handle channel
+			if self.ft_channel != film['channel']:
+				# process changed channel
+				newchn = True
+				cursor.execute( 'SELECT `id`,`touched` FROM `channel` WHERE channel.channel=?', ( film['channel'], ) )
+				r = cursor.fetchall()
+				if len( r ) > 0:
+					# get the channel data
+					self.ft_channel = film['channel']
+					self.ft_channelid = r[0][0]
+					if r[0][1] == 0:
+						# updated touched
+						cursor.execute( 'UPDATE `channel` SET `touched`=1 WHERE ( channel.id=? )', ( self.ft_channelid, ) )
+						self.conn.commit()
+				else:
+					# insert the new channel
+					inschn = 1
+					cursor.execute( 'INSERT INTO `channel` ( `dtCreated`,`channel` ) VALUES ( ?,? )', ( int( time.time() ), film['channel'] ) )
+					self.ft_channel = film['channel']
+					self.ft_channelid = cursor.lastrowid
+					self.conn.commit()
+
+			# handle show
+			if newchn or self.ft_show != film['show']:
+				# process changed show
+				cursor.execute( 'SELECT `id`,`touched` FROM `show` WHERE ( show.channelid=? ) AND ( show.show=? )', ( self.ft_channelid, film['show'] ) )
+				r = cursor.fetchall()
+				if len( r ) > 0:
+					# get the show data
+					self.ft_show = film['show']
+					self.ft_showid = r[0][0]
+					if r[0][1] == 0:
+						# updated touched
+						cursor.execute( 'UPDATE `show` SET `touched`=1 WHERE ( show.id=? )', ( self.ft_showid, ) )
+						self.conn.commit()
+				else:
+					# insert the new show
+					insshw = 1
+					cursor.execute(
+						"""
+						INSERT INTO `show` (
+							`dtCreated`,
+							`channelid`,
+							`show`,
+							`search`
+						)
+						VALUES (
+							?,
+							?,
+							?,
+							?
+						)
+						""", (
+							int( time.time() ),
+							self.ft_channelid, film['show'],
+							self._make_search( film['show'] )
+						)
+					)
+					self.ft_show = film['show']
+					self.ft_showid = cursor.lastrowid
+					self.conn.commit()
+
+			# check if the movie is there
+			cursor.execute( """
+				SELECT		`id`,
+							`touched`
+				FROM		`film`
+				WHERE		( film.channelid = ? )
+							AND
+							( film.showid = ? )
+							AND
+							( film.url_video = ? )
+			""", ( self.ft_channelid, self.ft_showid, film['url_video'] ) )
 			r = cursor.fetchall()
 			if len( r ) > 0:
-				# get the channel data
-				self.ft_channel = film['channel']
-				self.ft_channelid = r[0][0]
+				# film found
+				filmid = r[0][0]
 				if r[0][1] == 0:
-					# updated touched
-					cursor.execute( 'UPDATE `channel` SET `touched`=1 WHERE ( channel.id=? )', ( self.ft_channelid, ) )
+					# update touched
+					cursor.execute( 'UPDATE `film` SET `touched`=1 WHERE ( film.id=? )', ( filmid, ) )
 					self.conn.commit()
 			else:
-				# insert the new channel
-				inschn = 1
-				cursor.execute( 'INSERT INTO `channel` ( `dtCreated`,`channel` ) VALUES ( ?,? )', ( int( time.time() ), film['channel'] ) )
-				self.ft_channel = film['channel']
-				self.ft_channelid = cursor.lastrowid
-				self.conn.commit()
-
-		# handle show
-		if newchn or self.ft_show != film['show']:
-			# process changed show
-			cursor.execute( 'SELECT `id`,`touched` FROM `show` WHERE ( show.channelid=? ) AND ( show.show=? )', ( self.ft_channelid, film['show'] ) )
-			r = cursor.fetchall()
-			if len( r ) > 0:
-				# get the show data
-				self.ft_show = film['show']
-				self.ft_showid = r[0][0]
-				if r[0][1] == 0:
-					# updated touched
-					cursor.execute( 'UPDATE `show` SET `touched`=1 WHERE ( show.id=? )', ( self.ft_showid, ) )
-					self.conn.commit()
-			else:
-				# insert the new show
-				insshw = 1
+				# insert the new film
+				insmov = 1
 				cursor.execute(
 					"""
-					INSERT INTO `show` (
+					INSERT INTO `film` (
 						`dtCreated`,
 						`channelid`,
-						`show`,
-						`search`
+						`showid`,
+						`title`,
+						`search`,
+						`aired`,
+						`duration`,
+						`size`,
+						`description`,
+						`website`,
+						`url_sub`,
+						`url_video`,
+						`url_video_sd`,
+						`url_video_hd`
 					)
 					VALUES (
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
+						?,
 						?,
 						?,
 						?,
@@ -466,93 +551,36 @@ class StoreSQLite( object ):
 					)
 					""", (
 						int( time.time() ),
-						self.ft_channelid, film['show'],
-						self._make_search( film['show'] )
+						self.ft_channelid,
+						self.ft_showid,
+						film['title'],
+						self._make_search( film['title'] ),
+						film['airedepoch'],
+						self._make_duration( film['duration'] ),
+						film['size'],
+						film['description'],
+						film['website'],
+						film['url_sub'],
+						film['url_video'],
+						film['url_video_sd'],
+						film['url_video_hd']
 					)
 				)
-				self.ft_show = film['show']
-				self.ft_showid = cursor.lastrowid
+				filmid = cursor.lastrowid
 				self.conn.commit()
+			cursor.close()
+			return ( filmid, inschn, insshw, insmov )
+		except sqlite3.DatabaseError as err:
+			self._handle_database_corruption( err )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
-		# check if the movie is there
-		cursor.execute( """
-			SELECT		`id`,
-						`touched`
-			FROM		`film`
-			WHERE		( film.channelid = ? )
-						AND
-						( film.showid = ? )
-						AND
-						( film.url_video = ? )
-		""", ( self.ft_channelid, self.ft_showid, film['url_video'] ) )
-		r = cursor.fetchall()
-		if len( r ) > 0:
-			# film found
-			filmid = r[0][0]
-			if r[0][1] == 0:
-				# update touched
-				cursor.execute( 'UPDATE `film` SET `touched`=1 WHERE ( film.id=? )', ( filmid, ) )
-				self.conn.commit()
-		else:
-			# insert the new film
-			insmov = 1
-			cursor.execute(
-				"""
-				INSERT INTO `film` (
-					`dtCreated`,
-					`channelid`,
-					`showid`,
-					`title`,
-					`search`,
-					`aired`,
-					`duration`,
-					`size`,
-					`description`,
-					`website`,
-					`url_sub`,
-					`url_video`,
-					`url_video_sd`,
-					`url_video_hd`
-				)
-				VALUES (
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?,
-					?
-				)
-				""", (
-					int( time.time() ),
-					self.ft_channelid,
-					self.ft_showid,
-					film['title'],
-					self._make_search( film['title'] ),
-					film['airedepoch'],
-					self._make_duration( film['duration'] ),
-					film['size'],
-					film['description'],
-					film['website'],
-					film['url_sub'],
-					film['url_video'],
-					film['url_video_sd'],
-					film['url_video_hd']
-				)
-			)
-			filmid = cursor.lastrowid
-			self.conn.commit()
-		cursor.close()
-		return ( filmid, inschn, insshw, insmov )
+	def _handle_database_corruption( self, err ):
+		self.logger.error( 'Database error during critical operation: {} - Database will be rebuilt from scratch.', err )
+		self.notifier.ShowDatabaseError( err )
+		self.Exit()
+		self.Init( reset = True )
 
-	def Reset( self ):
+	def _handle_database_initialization( self ):
 		self.conn.executescript( """
 PRAGMA foreign_keys = false;
 
