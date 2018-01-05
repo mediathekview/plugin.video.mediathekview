@@ -353,8 +353,11 @@ class MediathekViewUpdater( object ):
 				tot_shw = self.tot_shw + self.add_shw,
 				tot_mov = self.tot_mov + self.add_mov
 			)
-		self.count = self.count + 1
-		( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film )
+			self.count = self.count + 1
+			( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film, True )
+		else:
+			self.count = self.count + 1
+			( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film, False )
 		self.add_chn += cnt_chn
 		self.add_shw += cnt_shw
 		self.add_mov += cnt_mov

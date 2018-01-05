@@ -117,7 +117,7 @@ class Store( object ):
 			return self.db.ftUpdateEnd( delete )
 		return ( 0, 0, 0, 0, 0, 0, )
 
-	def ftInsertFilm( self, film ):
+	def ftInsertFilm( self, film, commit = True ):
 		if self.db is not None:
-			return self.db.ftInsertFilm( film )
+			return self.db.ftInsertFilm( film, commit )
 		return ( 0, 0, 0, 0, )

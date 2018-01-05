@@ -28,11 +28,11 @@ class StoreSQLite( object ):
 		if reset == True or not self._file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )
-			self.conn = sqlite3.connect( self.dbfile )
+			self.conn = sqlite3.connect( self.dbfile, timeout = 30 )
 			self._handle_database_initialization()
 		else:
 			try:
-				self.conn = sqlite3.connect( self.dbfile )
+				self.conn = sqlite3.connect( self.dbfile, timeout = 30 )
 			except sqlite3.DatabaseError as err:
 				self.logger.error( 'Errore while opening database. Trying to fully reset the Database...' )
 				self.Init( reset = True )
@@ -423,7 +423,7 @@ class StoreSQLite( object ):
 			self._handle_database_corruption( err )
 			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
-	def ftInsertFilm( self, film ):
+	def ftInsertFilm( self, film, commit ):
 		try:
 			cursor = self.conn.cursor()
 			newchn = False
@@ -444,14 +444,12 @@ class StoreSQLite( object ):
 					if r[0][1] == 0:
 						# updated touched
 						cursor.execute( 'UPDATE `channel` SET `touched`=1 WHERE ( channel.id=? )', ( self.ft_channelid, ) )
-						self.conn.commit()
 				else:
 					# insert the new channel
 					inschn = 1
 					cursor.execute( 'INSERT INTO `channel` ( `dtCreated`,`channel` ) VALUES ( ?,? )', ( int( time.time() ), film['channel'] ) )
 					self.ft_channel = film['channel']
 					self.ft_channelid = cursor.lastrowid
-					self.conn.commit()
 
 			# handle show
 			if newchn or self.ft_show != film['show']:
@@ -465,7 +463,6 @@ class StoreSQLite( object ):
 					if r[0][1] == 0:
 						# updated touched
 						cursor.execute( 'UPDATE `show` SET `touched`=1 WHERE ( show.id=? )', ( self.ft_showid, ) )
-						self.conn.commit()
 				else:
 					# insert the new show
 					insshw = 1
@@ -491,7 +488,6 @@ class StoreSQLite( object ):
 					)
 					self.ft_show = film['show']
 					self.ft_showid = cursor.lastrowid
-					self.conn.commit()
 
 			# check if the movie is there
 			cursor.execute( """
@@ -511,7 +507,6 @@ class StoreSQLite( object ):
 				if r[0][1] == 0:
 					# update touched
 					cursor.execute( 'UPDATE `film` SET `touched`=1 WHERE ( film.id=? )', ( filmid, ) )
-					self.conn.commit()
 			else:
 				# insert the new film
 				insmov = 1
@@ -567,6 +562,7 @@ class StoreSQLite( object ):
 					)
 				)
 				filmid = cursor.lastrowid
+			if commit:
 				self.conn.commit()
 			cursor.close()
 			return ( filmid, inschn, insshw, insmov )
