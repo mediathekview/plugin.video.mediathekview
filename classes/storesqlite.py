@@ -28,11 +28,11 @@ class StoreSQLite( object ):
 		if reset == True or not self._file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )
-			self.conn = sqlite3.connect( self.dbfile, timeout = 30 )
+			self.conn = sqlite3.connect( self.dbfile, timeout = 60 )
 			self._handle_database_initialization()
 		else:
 			try:
-				self.conn = sqlite3.connect( self.dbfile, timeout = 30 )
+				self.conn = sqlite3.connect( self.dbfile, timeout = 60 )
 			except sqlite3.DatabaseError as err:
 				self.logger.error( 'Errore while opening database. Trying to fully reset the Database...' )
 				self.Init( reset = True )

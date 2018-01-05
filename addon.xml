@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.2.8"
+	version="0.2.9"
 	provider-name="YeaSoft International, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -27,10 +27,9 @@
 		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView</description>
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
-		<news>v0.2.8 (2018-01-05):
-- Last update time not updated when update aborted
-- Dramatic speedup of update with SQLite
-- Handling of database corruption
+		<news>v0.2.9 (2018-01-05):
+- Longer lock timeout (60 seconds) for very slow systems
+- Lazy commits (one commit each 1000 movie additions)
 </news>
 		<platform>all</platform>
 		<language>de fr</language>
