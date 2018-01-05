@@ -2,7 +2,7 @@
 # Copyright 2017 Leo Moll
 #
 
-class DatabaseCurrupted( RuntimeError ):
+class DatabaseCorrupted( RuntimeError ):
 	"""This exception is raised when the database throws errors during update"""
 
 class DatabaseLost( RuntimeError ):

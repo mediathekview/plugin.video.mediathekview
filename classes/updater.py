@@ -317,7 +317,7 @@ class MediathekViewUpdater( object ):
 		self.logger.info( 'Total: channels:%d, shows:%d, movies:%d' % ( self.tot_chn, self.tot_shw, self.tot_mov ) )
 		self.db.UpdateStatus(
 			status,
-			int( time.time() ),
+			int( time.time() ) if status != 'ABORTED' else None,
 			None,
 			1 if full else 0,
 			self.add_chn, self.add_shw, self.add_mov,
