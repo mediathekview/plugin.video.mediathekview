@@ -396,7 +396,7 @@ class StoreMySQL( object ):
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, 0, 0, 0, 0, )
 
-	def ftInsertFilm( self, film ):
+	def ftInsertFilm( self, film, commit ):
 		newchn = False
 		inschn = 0
 		insshw = 0
@@ -441,11 +441,13 @@ class StoreMySQL( object ):
 			for result in cursor.stored_results():
 				for ( filmid, insmov ) in result:
 					cursor.close()
-					self.conn.commit()
+					if commit:
+						self.conn.commit()
 					return ( filmid, inschn, insshw, insmov )
 				# should never happen
 				cursor.close()
-				self.conn.commit()
+				if commit:
+					self.conn.commit()
 		except mysql.connector.Error as err:
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
