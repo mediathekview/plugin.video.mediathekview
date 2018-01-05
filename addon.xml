@@ -7,7 +7,6 @@
 		<import addon="xbmc.python" version="2.25.0"/>
 		<import addon="xbmc.addon" version="17.0.0"/>
 		<import addon="xbmc.gui" version="5.12.0"/>
-		<import addon="xbmc.json" version="7.0.0"/>
 		<import addon="script.module.requests" version="2.12.4"/>
 		<import addon="script.module.myconnpy" version="1.1.7"/>
 		<import addon="script.module.ijson" version="2.3"/>
@@ -28,12 +27,15 @@
 		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView</description>
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
-		<news>v0.2.7 (2018-01-XX):
+		<news>v0.2.7 (2018-01-05):
 - Fixed Naming Exception during update
-- Added German README</news>
+- Updated English README
+- Added German README
+- Added Italian README
+- Added LICENSE (MIT)</news>
 		<platform>all</platform>
-		<language>en de</language>
-		<license>TBD</license>
+		<language>de fr</language>
+		<license>MIT License</license>
 		<forum></forum>
 		<source>https://github.com/YeaSoft/plugin.video.mediathekview</source>
 		<website></website>
