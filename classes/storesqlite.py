@@ -30,6 +30,10 @@ class StoreSQLite( object ):
 			self.Reset()
 		else:
 			self.conn = sqlite3.connect( self.dbfile )
+			
+		self.conn.execute('pragma journal_mode=off')  # 3x speed-up, check mode 'WAL'
+		self.conn.execute('pragma synchronous=off')  # that is a bit dangerous :-) but faaaast
+		
 		self.conn.create_function( 'UNIX_TIMESTAMP', 0, UNIX_TIMESTAMP )
 		self.conn.create_aggregate( 'GROUP_CONCAT', 1, GROUP_CONCAT )
 
