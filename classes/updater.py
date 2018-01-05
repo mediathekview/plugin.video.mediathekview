@@ -8,6 +8,8 @@ import xml.etree.ElementTree as etree
 
 from operator import itemgetter
 from classes.store import Store
+from classes.exceptions import DatabaseCurrupted
+from classes.exceptions import DatabaseLost
 
 # -- Constants ----------------------------------------------
 FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
@@ -143,6 +145,14 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Import of {} finished', destfile )
 			self.notifier.CloseUpdateProgress()
 			return True
+		except DatabaseCorrupted as err:
+			self.logger.error( '{}', err )
+			self.notifier.CloseUpdateProgress()
+			file.close()
+		except DatabaseLost as err:
+			self.logger.error( '{}', err )
+			self.notifier.CloseUpdateProgress()
+			file.close()
 		except IOError as err:
 			self.logger.error( 'Error {} wile processing {}', err, destfile )
 			try:
