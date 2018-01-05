@@ -8,7 +8,7 @@ import xml.etree.ElementTree as etree
 
 from operator import itemgetter
 from classes.store import Store
-from classes.exceptions import DatabaseCurrupted
+from classes.exceptions import DatabaseCorrupted
 from classes.exceptions import DatabaseLost
 
 # -- Constants ----------------------------------------------

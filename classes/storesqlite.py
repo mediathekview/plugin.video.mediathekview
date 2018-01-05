@@ -5,7 +5,7 @@
 # -- Imports ------------------------------------------------
 import os, stat, string, sqlite3, time
 
-from classes.exceptions import DatabaseCurrupted
+from classes.exceptions import DatabaseCorrupted
 
 # -- Classes ------------------------------------------------
 class StoreSQLite( object ):
@@ -365,7 +365,7 @@ class StoreSQLite( object ):
 			return retval
 		except sqlite3.DatabaseError as err:
 			self._handle_database_corruption( err )
-			raise DatabaseCurrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def ftUpdateStart( self, full ):
 		try:
@@ -392,7 +392,7 @@ class StoreSQLite( object ):
 			return ( r1[0], r2[0], r3[0], )
 		except sqlite3.DatabaseError as err:
 			self._handle_database_corruption( err )
-			raise DatabaseCurrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def ftUpdateEnd( self, delete ):
 		try:
@@ -421,7 +421,7 @@ class StoreSQLite( object ):
 			return ( del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov, )
 		except sqlite3.DatabaseError as err:
 			self._handle_database_corruption( err )
-			raise DatabaseCurrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def ftInsertFilm( self, film ):
 		try:
@@ -572,7 +572,7 @@ class StoreSQLite( object ):
 			return ( filmid, inschn, insshw, insmov )
 		except sqlite3.DatabaseError as err:
 			self._handle_database_corruption( err )
-			raise DatabaseCurrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
+			raise DatabaseCorrupted( 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format( err ) )
 
 	def _handle_database_corruption( self, err ):
 		self.logger.error( 'Database error during critical operation: {} - Database will be rebuilt from scratch.', err )
