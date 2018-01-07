@@ -69,7 +69,7 @@ adatto come server di database MySQL, dal momento che quasi tutti i sistemi
 operativi NAS offrono l'installazione di un tale database.
 
 Dopodiche sarà sufficiente creare la banca dati mediante lo script SQL
-disponibile in `resources/sql/filmliste-mysql-v1. sql`.
+disponibile in `resources/sql/filmliste-mysql-v1.sql`.
 
 Il collegamento al database può essere effettuato nelle impostazioni 
 dell'addon nella sezione "Impostazioni Banca Dati".
