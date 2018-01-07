@@ -182,6 +182,32 @@ class MediathekView( KodiPlugin ):
 					self.notifier.ShowError( self.language( 30952 ), self.language( 30959 ).format( err ) )
 					return
 
+			# create NFO files
+			try:
+				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
+				file.write( u'<tvshow>\n' )
+				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
+				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
+				file.write( u'</tvshow>\n' )
+				file.close()
+			except IOError as err:
+				self.error( 'Failure creating show NFO file for {}', videourl )
+
+			try:
+				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
+				file.write( u'<episodedetails>\n' )
+				file.write( u'\t<title>{}</title>\n'.format( film.title ) )
+				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
+				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
+				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
+				if film.seconds > 60:
+					file.write( u'\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
+				file.write( u'\t<studio>{}</studio\n'.format( film.channel ) )
+				file.write( u'</episodedetails>\n' )
+				file.close()
+			except IOError as err:
+				self.error( 'Failure creating NFO file for {}', videourl )
+
 			# download video
 			bgd = KodiBGDialog()
 			bgd.Create( self.language( 30974 ), filestem + extension )
@@ -211,32 +237,6 @@ class MediathekView( KodiPlugin ):
 				except IOError as err:
 					bgd.Close()
 					self.error( 'Failure downloading {}', film.url_sub )
-
-			# create NFO files
-			try:
-				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
-				file.write( u'<tvshow>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
-				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
-				file.write( u'</tvshow>\n' )
-				file.close()
-			except IOError as err:
-				self.error( 'Failure creating show NFO file for {}', videourl )
-
-			try:
-				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
-				file.write( u'<episodedetails>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.title ) )
-				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
-				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
-				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
-				if film.seconds > 60:
-					file.write( u'\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
-				file.write( u'\t<studio>{}</studio\n'.format( film.channel ) )
-				file.write( u'</episodedetails>\n' )
-				file.close()
-			except IOError as err:
-				self.error( 'Failure creating NFO file for {}', videourl )
 
 		else:
 			self.notifier.ShowError( self.language( 30952 ), self.language( 30958 ) )
