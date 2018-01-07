@@ -43,3 +43,34 @@ class KodiUI( object ):
 			self.bgdialog.close()
 			del self.bgdialog
 			self.bgdialog = None
+
+class KodiBGDialog( object ):
+	def __init__( self ):
+		self.bgdialog= None
+
+	def __del__( self ):
+		self.Close()
+
+	def Create( self, heading = None, message = None ):
+		if self.bgdialog is None:
+			self.bgdialog = xbmcgui.DialogProgressBG()
+			self.bgdialog.create( heading, message )
+		else:
+			self.bgdialog.update( 0, heading, message )
+
+	def Update( self, percent, heading = None, message = None ):
+		if self.bgdialog is not None:
+			self.bgdialog.update( percent, heading, message )
+
+	def UrlRetrieveHook( self, blockcount, blocksize, totalsize ):
+		downloaded = blockcount * blocksize
+		if totalsize > 0:
+			percent = int( (downloaded * 100) / totalsize )
+			if self.bgdialog is not None:
+				self.bgdialog.update( percent )
+
+	def Close( self ):
+		if self.bgdialog is not None:
+			self.bgdialog.close()
+			del self.bgdialog
+			self.bgdialog = None

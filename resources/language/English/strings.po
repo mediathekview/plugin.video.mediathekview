@@ -42,6 +42,10 @@ msgctxt "#30113"
 msgid "Group shows of different channel"
 msgstr ""
 
+msgctxt "#30114"
+msgid "Download directory"
+msgstr ""
+
 # Settings Page 2
 msgctxt "#30210"
 msgid "Database type"
@@ -116,8 +120,16 @@ msgctxt "#30907"
 msgid "Database Information"
 msgstr ""
 
-# Database status
+# Context Menu
+msgctxt "#30921"
+msgid "Download video"
+msgstr ""
 
+msgctxt "#30922"
+msgid "Add to queue"
+msgstr ""
+
+# Database status
 msgctxt "#30941"
 msgid "Not Initialized"
 msgstr ""
@@ -165,6 +177,18 @@ msgstr ""
 
 msgctxt "#30957"
 msgid "In progress (%d): channels:%d, shows:%d, movies:%d ..."
+msgstr ""
+
+msgctxt "#30958"
+msgid "Please set a download folder in the settings"
+msgstr ""
+
+msgctxt "#30959"
+msgid "Download directory could not be created: {}"
+msgstr ""
+
+msgctxt "#30960"
+msgid "Download Successful"
 msgstr ""
 
 msgctxt "#30961"
@@ -227,4 +251,32 @@ msgstr ""
 
 msgctxt "#30973"
 msgid "Differential Update"
+msgstr ""
+
+msgctxt "#30974"
+msgid "Downloading Video"
+msgstr ""
+
+msgctxt "#30975"
+msgid "Error while downloading {}: {}"
+msgstr ""
+
+msgctxt "#30976"
+msgid "Video {} has been downloaded"
+msgstr ""
+
+msgctxt "#30977"
+msgid "Video Already Exists"
+msgstr ""
+
+msgctxt "#30978"
+msgid "Downloading Subtitles"
+msgstr ""
+
+msgctxt "#30979"
+msgid ""
+msgstr ""
+
+msgctxt "#30980"
+msgid ""
 msgstr ""

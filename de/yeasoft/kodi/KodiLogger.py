@@ -35,20 +35,21 @@ class KodiLogger( Logger ):
 			if isinstance( arg, basestring ):
 				part = arg # arg.decode('utf-8')
 			parts.append( part )
-		formatMessage = self._getFormatMessage( message )
-		xbmc.log( self.prefix + formatMessage.format( *parts ), level = level )
+		xbmc.log( self.prefix + message.format( *parts ), level = level )
+#		formatMessage = self._getFormatMessage( message )
+#		xbmc.log( self.prefix + formatMessage.format( *parts ), level = level )
 
-	def _getFormatMessage( self, message ):
-		j = message.find( '{}' )
-		if j == -1:
-			return message
-		formatMessage = ''
-		i = 0
-		index = 0
-		while j != -1:
-			formatMessage += message[i:j] + '{' + str( index ) + '}'
-			i = j + len( '{}' )
-			j = message.find( '{}', i )
-			index += 1
-		formatMessage += message[i:]
-		return formatMessage
+#	def _getFormatMessage( self, message ):
+#		j = message.find( '{}' )
+#		if j == -1:
+#			return message
+#		formatMessage = ''
+#		i = 0
+#		index = 0
+#		while j != -1:
+#			formatMessage += message[i:j] + '{' + str( index ) + '}'
+#			i = j + len( '{}' )
+#			j = message.find( '{}', i )
+#			index += 1
+#		formatMessage += message[i:]
+#		return formatMessage

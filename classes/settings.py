@@ -19,6 +19,7 @@ class Settings( object ):
 		self.nofuture		= self.addon.getSetting( 'nofuture' ) == 'true'
 		self.minlength		= int( float( self.addon.getSetting( 'minlength' ) ) ) * 60
 		self.groupshows		= self.addon.getSetting( 'groupshows' ) == 'true'
+		self.downloadpath	= self.addon.getSetting( 'downloadpath' )
 		self.type			= self.addon.getSetting( 'dbtype' )
 		self.host			= self.addon.getSetting( 'dbhost' )
 		self.user			= self.addon.getSetting( 'dbuser' )
