@@ -72,6 +72,10 @@ class Store( object ):
 		if self.db is not None:
 			self.db.SearchCondition( condition, filmui, showshows, showchannels )
 
+	def RetrieveFilmInfo( self, filmid ):
+		if self.db is not None:
+			return self.db.RetrieveFilmInfo( filmid )
+
 	def GetStatus( self ):
 		if self.db is not None:
 			return self.db.GetStatus()

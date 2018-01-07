@@ -390,7 +390,7 @@ class MediathekViewUpdater( object ):
 		elif self.index == 9:
 			self.film["website"] = val
 		elif self.index == 10:
-			self.film["suburl_subtitles"] = val
+			self.film["url_sub"] = val
 		elif self.index == 12:
 			self.film["url_video_sd"] = self._make_url(val)
 		elif self.index == 14:

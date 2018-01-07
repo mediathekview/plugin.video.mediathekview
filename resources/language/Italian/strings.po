@@ -42,6 +42,10 @@ msgctxt "#30113"
 msgid "Raggruppa trasmissioni su canali diversi"
 msgstr ""
 
+msgctxt "#30114"
+msgid "Directory di download"
+msgstr ""
+
 # Settings Page 2
 msgctxt "#30210"
 msgid "Tipo banca dati"
@@ -116,6 +120,15 @@ msgctxt "#30907"
 msgid "Informazioni Database"
 msgstr ""
 
+# Context Menu
+msgctxt "#30921"
+msgid "Scarica video"
+msgstr ""
+
+msgctxt "#30922"
+msgid "Metti in coda"
+msgstr ""
+
 # Database status
 msgctxt "#30941"
 msgid "Non inizializzato"
@@ -139,11 +152,11 @@ msgstr ""
 
 # Other Strings
 msgctxt "#30951"
-msgid "Errore Database"
+msgid "Errore Database Mediathek"
 msgstr ""
 
 msgctxt "#30952"
-msgid "Errore di Scricamento"
+msgid "Errore di Scaricamento"
 msgstr ""
 
 msgctxt "#30953"
@@ -159,11 +172,23 @@ msgid "Attualizzazione viene scaricata"
 msgstr ""
 
 msgctxt "#30956"
-msgid "Database in attualizzazione"
+msgid "Mediathek in attualizzazione"
 msgstr ""
 
 msgctxt "#30957"
-msgid "Attualizzazione (%d): canali:%d, programmi:%d, film:%d ..."
+msgid "Mediathek (%d): canali:%d, programmi:%d, film:%d ..."
+msgstr ""
+
+msgctxt "#30958"
+msgid "Selezionare una directory di download nelle impostazioni"
+msgstr ""
+
+msgctxt "#30959"
+msgid "Non è stato possibile creare la directory di download: {}"
+msgstr ""
+
+msgctxt "#30960"
+msgid "Download Completato"
 msgstr ""
 
 msgctxt "#30961"
@@ -229,4 +254,32 @@ msgstr ""
 
 msgctxt "#30973"
 msgid "Aggiornamento Differenziale"
+msgstr ""
+
+msgctxt "#30974"
+msgid "Scaricamento video"
+msgstr ""
+
+msgctxt "#30975"
+msgid "Errore durante lo scaricamento di {}: {}"
+msgstr ""
+
+msgctxt "#30976"
+msgid "Il video {} è stato scaricato"
+msgstr ""
+
+msgctxt "#30977"
+msgid "Il video è già esistente"
+msgstr ""
+
+msgctxt "#30978"
+msgid ""
+msgstr ""
+
+msgctxt "#30979"
+msgid ""
+msgstr ""
+
+msgctxt "#30980"
+msgid ""
 msgstr ""

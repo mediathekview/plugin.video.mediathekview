@@ -6,6 +6,7 @@
 		<setting id="nofuture"			type="bool"		label="30111"	default="true"						/>
 		<setting id="minlength"			type="slider"	label="30112"	default="0"	range="0,30"			/>
 		<setting id="groupshows"		type="bool"		label="30113"	default="true"						/>
+		<setting id="downloadpath"		type="folder"	label="30114"	source="auto"	option="writeable"	/>
 	</category>
 	<category label="30002">
 		<setting id="dbtype"			type="enum"		label="30210"	default="0"	lvalues="30221|30222"					/>

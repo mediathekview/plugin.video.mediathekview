@@ -3,15 +3,16 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcplugin, xbmcgui
+import xbmcaddon, xbmcplugin, xbmcgui
 
 from classes.film import Film
 from classes.settings import Settings
 
 # -- Classes ------------------------------------------------
 class FilmUI( Film ):
-	def __init__( self, handle, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ] ):
-		self.handle			= handle
+	def __init__( self, plugin, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ] ):
+		self.plugin			= plugin
+		self.handle			= plugin.addon_handle
 		self.settings		= Settings()
 		self.sortmethods	= sortmethods
 		self.showshows		= False
@@ -64,12 +65,28 @@ class FilmUI( Film ):
 		li.setInfo( type = 'video', infoLabels = infoLabels )
 		li.setProperty( 'IsPlayable', 'true' )
 
+		# create context menu
+		contextmenu = []
+		if self.size > 0:
+			# Download video
+			contextmenu.append( (
+				self.plugin.language( 30921 ),
+				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id } ) )
+			) )
+		# Add to queue
+		# TODO: Enable later
+#		contextmenu.append( (
+#			self.plugin.language( 30922 ),
+#			'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "enqueue", 'id': self.id } ) )
+#		) )
+		li.addContextMenuItems( contextmenu )
+
 		xbmcplugin.addDirectoryItem(
-			handle	= self.handle,
-			url		= videourl,
-			listitem = li,
-			isFolder = False
+			handle		= self.handle,
+			url			= videourl,
+			listitem	= li,
+			isFolder	= False
 		)
 
 	def End( self ):
-		xbmcplugin.endOfDirectory( self.handle )
+		xbmcplugin.endOfDirectory( self.handle, cacheToDisc = False )

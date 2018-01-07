@@ -3,8 +3,11 @@
 #
 
 # -- Imports ------------------------------------------------
-import string,time
+import string, time
 import mysql.connector
+
+from classes.film import Film
+from classes.exceptions import DatabaseCorrupted
 
 # -- Classes ------------------------------------------------
 class StoreMySQL( object ):
@@ -14,7 +17,7 @@ class StoreMySQL( object ):
 		self.notifier	= notifier
 		self.settings	= settings
 		# useful query fragments
-		self.sql_query_films	= "SELECT `title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
+		self.sql_query_films	= "SELECT film.id,`title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_sub`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
 		self.sql_cond_nofuture	= " AND ( ( `aired` IS NULL ) OR ( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( `duration` IS NULL ) OR ( TIME_TO_SEC(`duration`) >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
@@ -144,13 +147,39 @@ class StoreMySQL( object ):
 				self.sql_cond_minlength
 			)
 			filmui.Begin( showshows, showchannels )
-			for ( filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd ) in cursor:
+			for ( filmui.id, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd ) in cursor:
 				filmui.Add()
 			filmui.End()
 			cursor.close()
 		except mysql.connector.Error as err:
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
+
+	def RetrieveFilmInfo( self, filmid ):
+		if self.conn is None:
+			return None
+		try:
+			condition = '( film.id={} )'.format( filmid )
+			self.logger.info( 'MySQL Query: {}', 
+				self.sql_query_films +
+				' WHERE ' +
+				condition
+			)
+			cursor = self.conn.cursor()
+			cursor.execute(
+				self.sql_query_films +
+				' WHERE ' +
+				condition
+			)
+			film = Film()
+			for ( film.id, film.title, film.show, film.channel, film.description, film.seconds, film.size, film.aired, film.url_sub, film.url_video, film.url_video_sd, film.url_video_hd ) in cursor:
+				cursor.close()
+				return film
+			cursor.close()
+		except mysql.connector.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
+		return None
 
 	def GetStatus( self ):
 		status = {

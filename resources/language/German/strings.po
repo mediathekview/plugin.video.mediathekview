@@ -42,6 +42,10 @@ msgctxt "#30113"
 msgid "Sendungen verschiedener Sender zusammenfassen"
 msgstr ""
 
+msgctxt "#30114"
+msgid "Download-Verzeichnis"
+msgstr ""
+
 # Settings Page 2
 msgctxt "#30210"
 msgid "Datenbank Typ"
@@ -116,8 +120,16 @@ msgctxt "#30907"
 msgid "Datenbank Informationen"
 msgstr ""
 
-# Database status
+# Context Menu
+msgctxt "#30921"
+msgid "Video herunterladen"
+msgstr ""
 
+msgctxt "#30922"
+msgid "Zur Warteschlange hinzufügen"
+msgstr ""
+
+# Database status
 msgctxt "#30941"
 msgid "Nicht initialisiert"
 msgstr ""
@@ -140,7 +152,7 @@ msgstr ""
 
 # Other Strings
 msgctxt "#30951"
-msgid "Datenbank Fehler"
+msgid "Mediathek Datenbank Fehler"
 msgstr ""
 
 msgctxt "#30952"
@@ -160,11 +172,23 @@ msgid "Datenbank Update wird heruntergeladen"
 msgstr ""
 
 msgctxt "#30956"
-msgid "Datenbank wird aktualisiert"
+msgid "Mediathek wird aktualisiert"
 msgstr ""
 
 msgctxt "#30957"
-msgid "In Bearbeitung (%d): Sender:%d, Sendungen:%d, Filme:%d ..."
+msgid "Mediathek (%d): Sender:%d, Sendungen:%d, Filme:%d ..."
+msgstr ""
+
+msgctxt "#30958"
+msgid "Bitte waehlen Sie ein Download-Verzeichnis in den Einstellungen"
+msgstr ""
+
+msgctxt "#30959"
+msgid "Fehler beim Ertzeugen des Download-Verzeichnisses: {}"
+msgstr ""
+
+msgctxt "#30960"
+msgid "Download Erfolgreich"
 msgstr ""
 
 msgctxt "#30961"
@@ -229,4 +253,32 @@ msgstr ""
 
 msgctxt "#30973"
 msgid "Differentielle Aktualisierung"
+msgstr ""
+
+msgctxt "#30974"
+msgid "Video wird herunterladen"
+msgstr ""
+
+msgctxt "#30975"
+msgid "Fehler beim Herunterladen von {}: {}"
+msgstr ""
+
+msgctxt "#30976"
+msgid "Video {} wurde heruntergeladen"
+msgstr ""
+
+msgctxt "#30977"
+msgid "Das Video existiert bereits"
+msgstr ""
+
+msgctxt "#30978"
+msgid ""
+msgstr ""
+
+msgctxt "#30979"
+msgid ""
+msgstr ""
+
+msgctxt "#30980"
+msgid ""
 msgstr ""
