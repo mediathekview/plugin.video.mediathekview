@@ -43,10 +43,10 @@ l'aggiornamento sarà nuovamente effettuato tramite l'aggiornamento completo
 di Mediathekview.
 
 * Un file system con prestazioni accettabili per il database. Un Raspberry con
-  la sua lenta scheda SD non è certamente la miglior scelta in questo caso.
-  Tuttavia, la navigazione dovrebbe essere ancora abbastanza accettabile. Solo
-  l'aggiornamento completo del database richiederà molto tempo. Ma poiché
-  questo accade in background, l'impatto potrebbe essere accetabile.
+  la sua lenta scheda SD non è certamente la miglior scelta ma sempre ancora
+  accettabile. La durata di un aggiornamento completo in questo caso sarà
+  intorno ai 15-20 minuti. Ma poiché questo accade in background, l'impatto
+  sarà essere accetabile.
 * Il decompressore 'xz' sul sistema Kodi. Per utilizzare il programma di
   aggiornamento del database, questo programma deve essere installato sul
   sistema in una delle directory standard (/bin, /usr/bin, /usr/local/bin). In

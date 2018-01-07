@@ -53,10 +53,9 @@ durch das Kodi-System lokal aktualisiert wird. Dies dürfte auch das
 Dieses Szenario birgt zwei Voraussetzungen die erfüllt sein sollten:
 * ein einigermaßen performantes Dateisystem für die Datenbank. Ein Raspberry
   mit seiner langsamen SD-Karte ist in diesem Fall sicherlich nicht die
-  erste Wahl. Die Navigation dürfte aber immer noch recht passabel sein.
-  Lediglich das vollständige Update der Datenbank wird mit Sicherheit
-  seine Zeit brauchen. Da dies aber im Hintergrund passiert, kann man
-  unter Umständen gut damit leben.
+  allerbeste Wahl. Das vollständige Update der Datenbank dauert hier um die
+  15-20 Minuten. Da dies aber im Hintergrund passiert, kann man unter Umständen
+  gut damit leben.
 * der Entpacker 'xz' auf dem Kodi-System. Um den Datenbank-Aktualisierer zu
   benutzen, muss dieses Programm auf dem System in einem der Standard-
   Verzeichnisse (/bin, /usr/bin, /usr/local/bin) installiert werden.

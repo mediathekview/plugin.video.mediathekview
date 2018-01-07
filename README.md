@@ -50,10 +50,9 @@ SQLite database is used, which is also updated locally by the Kodi system.
 This is probably the most common scenario.
 
 * a file system with a decent performance for the database. A Raspberry with
-  its slow SD card is certainly not the best choice in this case. However,
-  the navigation should still be quite acceptable. Only the complete update
-  of the database will take a long time. But since this happens in the
-  background, you may be able to live with it.
+  its slow SD card is certainly not the very best choice in this case but still
+  acceptable. The full update will take in this case about 15-20 Minutes but
+  since this happens in the background, you may be able to live with it.
 * The unpacker 'xz' on the Kodi system. To use the database updater, this
   program must be installed on the system in one of the standard directories
   (/bin, /usr/bin, /usr/local/bin). Under Windows or if the program is
