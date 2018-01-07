@@ -137,6 +137,16 @@ class MediathekViewUpdater( object ):
 							flts = int( time.mktime( fldt.timetuple() ) )
 							self.db.UpdateStatus( filmupdate = flts )
 							self.logger.info( 'Filmliste dated {}', value.strip() )
+						except TypeError:
+							# SEE: https://forum.kodi.tv/showthread.php?tid=112916&pid=1214507#pid1214507
+							# Wonderful. His name is also Leopold
+							try:
+								flts = int( time.mktime( time.strptime( value.strip(), "%d.%m.%Y, %H:%M" ) ) )
+								self.db.UpdateStatus( filmupdate = flts )
+								self.logger.info( 'Filmliste dated {}', value.strip() )
+							except Error as err:
+								# If the universe hates us...
+								pass
 						except ValueError as err:
 							pass
 

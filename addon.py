@@ -4,7 +4,7 @@
 
 # -- Imports ------------------------------------------------
 import io,os,sys,urlparse,datetime,string,urllib
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon
+import xbmc,xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
 
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
 from de.yeasoft.kodi.KodiUI import KodiBGDialog
@@ -153,24 +153,41 @@ class MediathekView( KodiPlugin ):
 				return
 			# get the best url
 			videourl	= film.url_video_hd if ( film.url_video_hd and self.settings.preferhd ) else film.url_video if film.url_video else film.url_video_sd
-			dirname		= self._cleanup_filename( film.show )[:64]
+			showname	= self._cleanup_filename( film.show )[:64]
 			filestem	= self._cleanup_filename( film.title )[:64]
 			extension	= os.path.splitext( videourl )[1]
 			if not extension:
 				extension = u'.mp4'
 			if not filestem:
 				filestem = u'Film-{}'.format( film.id )
-			if not dirname:
-				dirname = filestem
+			if not showname:
+				showname = filestem
+			
+			if os.path.isdir( self.settings.downloadpath ):
+				# download path is reachable
+				vfsmode = False
+				dirname = os.path.join( self.settings.downloadpath, showname )
+			else:
+				# maybe something like smb://xxxx or nfs://xxx ?
+				if xbmcvfs.exists( self.settings.downloadpath ):
+					vfsmode = True
+					dirname = os.path.join( self.settings.datapath, 'temp' )
+					self.info( 'Download path is special vfs path. Use VFS copy mode' )
+				else:
+					self.notifier.ShowError( self.language( 30952 ), self.language( 30979 ) )
+					return
 
-			# this is our download directory
-			dirname = os.path.join( self.settings.downloadpath, dirname )
+			# generate local filenames
 			movname = os.path.join( dirname, filestem ) + extension
 			srtname = os.path.join( dirname, filestem ) + u'.srt'
 			ttmname = os.path.join( dirname, filestem ) + u'.ttml'
 			nfoname = os.path.join( dirname, filestem ) + u'.nfo'
 
+			# check for existing download
 			if os.path.isfile( movname ):
+				self.notifier.ShowWarning( self.language( 30977 ), videourl )
+				return
+			if vfsmode and xbmcvfs.exists( self.settings.downloadpath + showname + '/' + os.path.basename( movname ) ):
 				self.notifier.ShowWarning( self.language( 30977 ), videourl )
 				return
 
@@ -181,6 +198,32 @@ class MediathekView( KodiPlugin ):
 				except OSError as err:
 					self.notifier.ShowError( self.language( 30952 ), self.language( 30959 ).format( err ) )
 					return
+
+			# create NFO files
+			try:
+				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
+				file.write( u'<tvshow>\n' )
+				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
+				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
+				file.write( u'</tvshow>\n' )
+				file.close()
+			except IOError as err:
+				self.error( 'Failure creating show NFO file for {}', videourl )
+
+			try:
+				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
+				file.write( u'<episodedetails>\n' )
+				file.write( u'\t<title>{}</title>\n'.format( film.title ) )
+				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
+				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
+				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
+				if film.seconds > 60:
+					file.write( u'\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
+				file.write( u'\t<studio>{}</studio\n'.format( film.channel ) )
+				file.write( u'</episodedetails>\n' )
+				file.close()
+			except IOError as err:
+				self.error( 'Failure creating NFO file for {}', videourl )
 
 			# download video
 			bgd = KodiBGDialog()
@@ -212,32 +255,22 @@ class MediathekView( KodiPlugin ):
 					bgd.Close()
 					self.error( 'Failure downloading {}', film.url_sub )
 
-			# create NFO files
-			try:
-				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
-				file.write( u'<tvshow>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
-				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
-				file.write( u'</tvshow>\n' )
-				file.close()
-			except IOError as err:
-				self.error( 'Failure creating show NFO file for {}', videourl )
-
-			try:
-				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
-				file.write( u'<episodedetails>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.title ) )
-				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
-				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
-				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
-				if film.seconds > 60:
-					file.write( u'\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
-				file.write( u'\t<studio>{}</studio\n'.format( film.channel ) )
-				file.write( u'</episodedetails>\n' )
-				file.close()
-			except IOError as err:
-				self.error( 'Failure creating NFO file for {}', videourl )
-
+			# in VFS Mode we have to move the stuff back
+			if vfsmode:
+				# create destination folder
+				xbmcvfs.mkdir( self.settings.downloadpath + showname )
+				if os.path.isfile( movname ):
+					xbmcvfs.copy( movname, self.settings.downloadpath + showname + '/' + os.path.basename( movname ) )
+					os.remove( movname )
+				if os.path.isfile( ttmname ):
+					xbmcvfs.copy( ttmname, self.settings.downloadpath + showname + '/' + os.path.basename( ttmname ) )
+					os.remove( ttmname )
+				if os.path.isfile( srtname ):
+					xbmcvfs.copy( srtname, self.settings.downloadpath + showname + '/' + os.path.basename( srtname ) )
+					os.remove( srtname )
+				if os.path.isfile( nfoname ):
+					xbmcvfs.copy( nfoname, self.settings.downloadpath + showname + '/' + os.path.basename( nfoname ) )
+					os.remove( nfoname )
 		else:
 			self.notifier.ShowError( self.language( 30952 ), self.language( 30958 ) )
 

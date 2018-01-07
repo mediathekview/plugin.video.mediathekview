@@ -274,7 +274,7 @@ msgid "Downloading Subtitles"
 msgstr ""
 
 msgctxt "#30979"
-msgid ""
+msgid "Download path does not exist"
 msgstr ""
 
 msgctxt "#30980"

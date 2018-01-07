@@ -273,7 +273,7 @@ msgid "Il video è già esistente"
 msgstr ""
 
 msgctxt "#30978"
-msgid ""
+msgid "Directory di scaricamento non esiste"
 msgstr ""
 
 msgctxt "#30979"
