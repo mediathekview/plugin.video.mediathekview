@@ -27,6 +27,8 @@
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
 		<news>v0.3.1 (2018-01-07):
 - Download is now also compatible with Kodi VFS paths
+- Fixed rare exception that kills database update
+v0.3.0 (2018-01-07):
 - Implemented movie downloads with metadata (nfo) and subtitles
 - Fixed missing subtitle field during database update
 </news>
