@@ -74,10 +74,11 @@ class FilmUI( Film ):
 				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id } ) )
 			) )
 		# Add to queue
-		contextmenu.append( (
-			self.plugin.language( 30922 ),
-			'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "enqueue", 'id': self.id } ) )
-		) )
+		# TODO: Enable later
+#		contextmenu.append( (
+#			self.plugin.language( 30922 ),
+#			'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "enqueue", 'id': self.id } ) )
+#		) )
 		li.addContextMenuItems( contextmenu )
 
 		xbmcplugin.addDirectoryItem(

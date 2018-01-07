@@ -152,7 +152,7 @@ msgstr ""
 
 # Other Strings
 msgctxt "#30951"
-msgid "Datenbank Fehler"
+msgid "Mediathek Datenbank Fehler"
 msgstr ""
 
 msgctxt "#30952"
@@ -172,11 +172,11 @@ msgid "Datenbank Update wird heruntergeladen"
 msgstr ""
 
 msgctxt "#30956"
-msgid "Datenbank wird aktualisiert"
+msgid "Mediathek wird aktualisiert"
 msgstr ""
 
 msgctxt "#30957"
-msgid "In Bearbeitung (%d): Sender:%d, Sendungen:%d, Filme:%d ..."
+msgid "Mediathek (%d): Sender:%d, Sendungen:%d, Filme:%d ..."
 msgstr ""
 
 msgctxt "#30958"

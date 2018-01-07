@@ -152,11 +152,11 @@ msgstr ""
 
 # Other Strings
 msgctxt "#30951"
-msgid "Errore Database"
+msgid "Errore Database Mediathek"
 msgstr ""
 
 msgctxt "#30952"
-msgid "Errore di Scricamento"
+msgid "Errore di Scaricamento"
 msgstr ""
 
 msgctxt "#30953"
@@ -172,11 +172,11 @@ msgid "Attualizzazione viene scaricata"
 msgstr ""
 
 msgctxt "#30956"
-msgid "Database in attualizzazione"
+msgid "Mediathek in attualizzazione"
 msgstr ""
 
 msgctxt "#30957"
-msgid "Attualizzazione (%d): canali:%d, programmi:%d, film:%d ..."
+msgid "Mediathek (%d): canali:%d, programmi:%d, film:%d ..."
 msgstr ""
 
 msgctxt "#30958"

@@ -3,7 +3,7 @@
 #
 
 # -- Imports ------------------------------------------------
-import os,sys,urlparse,datetime,string,urllib
+import io,os,sys,urlparse,datetime,string,urllib
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon
 
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
@@ -17,6 +17,7 @@ from classes.channelui import ChannelUI
 from classes.initialui import InitialUI
 from classes.showui import ShowUI
 from classes.updater import MediathekViewUpdater
+from classes.ttml2srt import ttml2srt
 
 # -- Classes ------------------------------------------------
 class MediathekView( KodiPlugin ):
@@ -201,36 +202,38 @@ class MediathekView( KodiPlugin ):
 				bgd.Create( self.language( 30978 ), filestem + u'.ttml' )
 				try:
 					bgd.Update( 0 )
-					result = urllib.urlretrieve( film.url_sub, filename = os.path.join( dirname, filestem ) + extension, reporthook = bgd.UrlRetrieveHook )
+					result = urllib.urlretrieve( film.url_sub, filename = ttmname, reporthook = bgd.UrlRetrieveHook )
+					try:
+						ttml2srt( ttmname, srtname )
+					except Error as err:
+						self.info( 'Failed to convert to srt: {}', err )
 					bgd.Close()
-					# TODO: Convert substitles to srt format.
 				except IOError as err:
 					bgd.Close()
 					self.error( 'Failure downloading {}', film.url_sub )
 
 			# create NFO files
 			try:
-				file = open( os.path.join( dirname, 'tvshow.nfo' ), 'w' )
-				file.write( '<tvshow>\n' )
-				file.write( '\t<title>{}</title>\n'.format( film.show ) )
-				file.write( '\t<studio>{}</studio>\n'.format( film.channel ) )
-				file.write( '</tvshow>\n' )
+				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
+				file.write( u'<tvshow>\n' )
+				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
+				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
+				file.write( u'</tvshow>\n' )
 				file.close()
 			except IOError as err:
 				self.error( 'Failure creating show NFO file for {}', videourl )
 
-
 			try:
-				file = open( nfoname, 'w' )
-				file.write( '<episodedetails>\n' )
-				file.write( '\t<title>{}</title>\n'.format( film.title ) )
-				file.write( '\t<showtitle>{}</showtitle>\n'.format( film.show ) )
-				file.write( '\t<plot>{}</plot>\n'.format( film.description ) )
-				file.write( '\t<aired>{}</aired>\n'.format( film.aired ) )
+				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
+				file.write( u'<episodedetails>\n' )
+				file.write( u'\t<title>{}</title>\n'.format( film.title ) )
+				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
+				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
+				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
 				if film.seconds > 60:
-					file.write( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
-				file.write( '\t<studio>{}</studio\n'.format( film.channel ) )
-				file.write( '</episodedetails>\n' )
+					file.write( u'\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
+				file.write( u'\t<studio>{}</studio\n'.format( film.channel ) )
+				file.write( u'</episodedetails>\n' )
 				file.close()
 			except IOError as err:
 				self.error( 'Failure creating NFO file for {}', videourl )
