@@ -7,7 +7,7 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # from future import standard_library
 # from builtins import *
 # standard_library.install_aliases()
-import io,os,sys,urlparse,datetime,string,urllib
+import io,os,re,sys,urlparse,datetime,string,urllib,urllib2
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
 
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
@@ -154,7 +154,14 @@ class MediathekView( KodiPlugin ):
 		if self.settings.downloadpath:
 			film = self.db.RetrieveFilmInfo( filmid )
 			if film is None:
+				# film not found - should never happen
 				return
+
+			# check if the download path is reachable
+			if not xbmcvfs.exists( self.settings.downloadpath ):
+				self.notifier.ShowError( self.language( 30952 ), self.language( 30979 ) )
+				return
+
 			# get the best url
 			videourl	= film.url_video_hd if ( film.url_video_hd and self.settings.preferhd ) else film.url_video if film.url_video else film.url_video_sd
 			showname	= self._cleanup_filename( film.show )[:64]
@@ -166,84 +173,33 @@ class MediathekView( KodiPlugin ):
 				filestem = u'Film-{}'.format( film.id )
 			if not showname:
 				showname = filestem
-			
-			if os.path.isdir( self.settings.downloadpath ):
-				# download path is reachable
-				vfsmode = False
-				dirname = os.path.join( self.settings.downloadpath, showname )
+
+			# prepare download directory and determine episode number
+			dirname = self.settings.downloadpath + showname + '/'
+			episode = 1
+			if xbmcvfs.exists( dirname ):
+				( dirs, epfiles, ) = xbmcvfs.listdir( dirname )
+				for epfile in epfiles:
+					match = re.search( '^.* [eE][pP]([0-9]*)\.[^/]*$', epfile )
+					if match and len( match.groups() ) > 0:
+						if episode <= int( match.group(1) ):
+							episode = int( match.group(1) ) + 1
 			else:
-				# maybe something like smb://xxxx or nfs://xxx ?
-				if xbmcvfs.exists( self.settings.downloadpath ):
-					vfsmode = True
-					dirname = os.path.join( self.settings.datapath, 'temp' )
-					self.info( 'Download path is special vfs path. Use VFS copy mode' )
-				else:
-					self.notifier.ShowError( self.language( 30952 ), self.language( 30979 ) )
-					return
+				xbmcvfs.mkdir( dirname )
 
-			# XXX TODO: approximation:
-			epi_marker=' - S01E01'
-
-			# generate local filenames
-			fileepi = filestem + epi_marker
-			movname = os.path.join( dirname, fileepi ) + extension
-			srtname = os.path.join( dirname, fileepi ) + u'.srt'
-			ttmname = os.path.join( dirname, fileepi ) + u'.ttml'
-			nfoname = os.path.join( dirname, fileepi ) + u'.nfo'
-
-			# check for existing download
-			if os.path.isfile( movname ):
-				self.notifier.ShowWarning( self.language( 30977 ), videourl )
-				return
-			if vfsmode and xbmcvfs.exists( self.settings.downloadpath + showname + '/' + os.path.basename( movname ) ):
-				self.notifier.ShowWarning( self.language( 30977 ), videourl )
-				return
-
-			# create dir if it does not exist
-			if not os.path.isdir( dirname ):
-				try:
-					os.mkdir( dirname )
-				except OSError as err:
-					self.notifier.ShowError( self.language( 30952 ), self.language( 30959 ).format( err ) )
-					return
-
-			# create NFO files
-			try:
-				title = film.show + epi_marker
-				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
-				file.write( u'<tvshow>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( title ) )
-				file.write( u'\t<sorttitle>{}</sorttitle>\n'.format( title ) )
-				file.write( u'\t<year>{}</year>\n'.format( 2018 ) )   # XXX TODO: That might be incorrect!
-				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
-				file.write( u'</tvshow>\n' )
-				file.close()
-			except IOError as err:
-				self.error( 'Failure creating show NFO file for {}', videourl )
-
-			try:
-				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
-				file.write( u'<episodedetails>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
-				file.write( u'\t<season>{}</season>\n'.format( 1 ) )  # XXX TODO: Approximation
-				file.write( u'\t<episode>{}</episode>\n'.format( 1 ) )  # XXX TODO: Approximation
-				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
-				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
-				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
-				if film.seconds > 60:
-					file.write( u'\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ) )
-				file.write( u'\t<studio>{}</studio\n'.format( film.channel ) )
-				file.write( u'</episodedetails>\n' )
-				file.close()
-			except IOError as err:
-				self.error( 'Failure creating NFO file for {}', videourl )
+			# prepare resulting filenames
+			fileepi = filestem + u' - EP%04d' % episode
+			movname = dirname + fileepi + extension
+			srtname = dirname + fileepi + u'.srt'
+			ttmname = dirname + fileepi + u'.ttml'
+			nfoname = dirname + fileepi + u'.nfo'
 
 			# download video
 			bgd = KodiBGDialog()
-			bgd.Create( self.language( 30974 ), filestem + extension )
+			bgd.Create( self.language( 30974 ), fileepi + extension )
 			try:
 				bgd.Update( 0 )
-				result = urllib.urlretrieve( videourl, filename = movname, reporthook = bgd.UrlRetrieveHook )
+				result = self._url_retrieve( videourl, movname, bgd.UrlRetrieveHook )
 				bgd.Close()
 				if result is not None:
 					self.notifier.ShowNotification( self.language( 30960 ), self.language( 30976 ).format( videourl ) )
@@ -255,35 +211,21 @@ class MediathekView( KodiPlugin ):
 			# download subtitles
 			if film.url_sub:
 				bgd = KodiBGDialog()
-				bgd.Create( self.language( 30978 ), filestem + u'.ttml' )
+				bgd.Create( self.language( 30978 ), fileepi + u'.ttml' )
 				try:
 					bgd.Update( 0 )
-					result = urllib.urlretrieve( film.url_sub, filename = ttmname, reporthook = bgd.UrlRetrieveHook )
-					try:
-						ttml2srt( ttmname, srtname )
-					except Exception as err:
-						self.info( 'Failed to convert to srt: {}', err )
+					result = self._url_retrieve( film.url_sub, ttmname, bgd.UrlRetrieveHook )
+#					try:
+#						ttml2srt( ttmname, srtname )
+#					except Exception as err:
+#						self.info( 'Failed to convert to srt: {}', err )
 					bgd.Close()
 				except IOError as err:
 					bgd.Close()
 					self.error( 'Failure downloading {}', film.url_sub )
 
-			# in VFS Mode we have to move the stuff back
-			if vfsmode:
-				# create destination folder
-				xbmcvfs.mkdir( self.settings.downloadpath + showname )
-				if os.path.isfile( movname ):
-					xbmcvfs.copy( movname, self.settings.downloadpath + showname + '/' + os.path.basename( movname ) )
-					os.remove( movname )
-				if os.path.isfile( ttmname ):
-					xbmcvfs.copy( ttmname, self.settings.downloadpath + showname + '/' + os.path.basename( ttmname ) )
-					os.remove( ttmname )
-				if os.path.isfile( srtname ):
-					xbmcvfs.copy( srtname, self.settings.downloadpath + showname + '/' + os.path.basename( srtname ) )
-					os.remove( srtname )
-				if os.path.isfile( nfoname ):
-					xbmcvfs.copy( nfoname, self.settings.downloadpath + showname + '/' + os.path.basename( nfoname ) )
-					os.remove( nfoname )
+			# create NFO Files
+			self._make_nfo_files( film, episode, dirname, nfoname, videourl )
 		else:
 			self.notifier.ShowError( self.language( 30952 ), self.language( 30958 ) )
 
@@ -294,6 +236,55 @@ class MediathekView( KodiPlugin ):
 		cset = string.letters + string.digits + u' _-#äöüÄÖÜßáàâéèêíìîóòôúùûÁÀÉÈÍÌÓÒÚÙçÇœ'
 		search = ''.join( [ c for c in val if c in cset ] )
 		return search.strip()
+
+	def _make_nfo_files( self, film, episode, dirname, filename, videourl ):
+		# create NFO files
+		if not xbmcvfs.exists( dirname + 'tvshow.nfo' ):
+			try:
+				file = xbmcvfs.File( dirname + 'tvshow.nfo', 'w' )
+				file.write( bytearray( '<tvshow>\n', 'utf-8' ) )
+				file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
+				file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
+#				file.write( bytearray( '\t<year>{}</year>\n'.format( 2018 ), 'utf-8' ) )   # XXX TODO: That might be incorrect!
+				file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
+				file.write( bytearray( '</tvshow>\n', 'utf-8' ) )
+				file.close()
+			except IOError as err:
+				self.error( 'Failure creating show NFO file for {}', videourl )
+
+		try:
+			file = xbmcvfs.File( filename, 'w' )
+			file.write( bytearray( '<episodedetails>\n', 'utf-8' ) )
+			file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
+			file.write( bytearray( '\t<season>1</season>\n', 'utf-8' ) )
+			file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
+			file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
+			file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
+			file.write( bytearray( '\t<aired>{}</aired>\n'.format( film.aired ), 'utf-8' ) )
+			if film.seconds > 60:
+				file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
+			file.write( bytearray( '\t<studio>{}</studio\n'.format( film.channel ), 'utf-8' ) )
+			file.write( bytearray( '</episodedetails>\n', 'utf-8' ) )
+			file.close()
+		except IOError as err:
+			self.error( 'Failure creating NFO file for {}', videourl )
+
+	def _url_retrieve( self, videourl, filename, reporthook, chunk_size = 8192 ):
+		f = xbmcvfs.File( filename, 'wb' )
+		u = urllib2.urlopen( videourl )
+
+		total_size = u.info().getheader( 'Content-Length' ).strip()
+		total_size = int( total_size )
+		total_chunks = 0
+
+		while True:
+			reporthook( total_chunks, chunk_size, total_size )
+			chunk = u.read( chunk_size )
+			if not chunk:
+				break
+			f.write( chunk )
+			total_chunks += 1
+		f.close()
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )
