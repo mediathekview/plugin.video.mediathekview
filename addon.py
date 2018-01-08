@@ -3,6 +3,10 @@
 #
 
 # -- Imports ------------------------------------------------
+from __future__ import unicode_literals  # ,absolute_import, division
+# from future import standard_library
+# from builtins import *
+# standard_library.install_aliases()
 import io,os,sys,urlparse,datetime,string,urllib
 import xbmc,xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
 
@@ -49,16 +53,16 @@ class MediathekView( KodiPlugin ):
 		xbmcplugin.endOfDirectory( self.addon_handle )
 
 	def showSearch( self ):
-		# searchText = unicode( self.notifier.GetEnteredText( '', self.language( 30901 ) ).decode( 'UTF-8' ) )
-		searchText = self.notifier.GetEnteredText( '', self.language( 30901 ) )
+		searchText = self.notifier.GetEnteredText( '', self.language( 30901 ).decode( 'UTF-8' ) )
+		# searchText = self.notifier.GetEnteredText( '', self.language( 30901 ) )
 		if len( searchText ) > 2:
 			self.db.Search( searchText, FilmUI( self ) )
 		else:
 			self.showMainMenu()
 
 	def showSearchAll( self ):
-		# searchText = unicode( self.notifier.GetEnteredText( '', self.language( 30902 ) ).decode( 'UTF-8' ) )
-		searchText = self.notifier.GetEnteredText( '', self.language( 30902 ) )
+		searchText = self.notifier.GetEnteredText( '', self.language( 30902 ).decode( 'UTF-8' ) )
+		# searchText = self.notifier.GetEnteredText( '', self.language( 30902 ) )
 		if len( searchText ) > 2:
 			self.db.SearchFull( searchText, FilmUI( self ) )
 		else:
