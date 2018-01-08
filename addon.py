@@ -203,9 +203,9 @@ class MediathekView( KodiPlugin ):
 				bgd.Close()
 				if result is not None:
 					self.notifier.ShowNotification( self.language( 30960 ), self.language( 30976 ).format( videourl ) )
-			except IOError as err:
+			except Exception as err:
 				bgd.Close()
-				self.error( 'Failure downloading {}', videourl )
+				self.error( 'Failure downloading {}: {}', videourl, err )
 				self.notifier.ShowError( self.language( 30952 ), self.language( 30975 ).format( videourl, err ) )
 
 			# download subtitles
@@ -220,9 +220,9 @@ class MediathekView( KodiPlugin ):
 #					except Exception as err:
 #						self.info( 'Failed to convert to srt: {}', err )
 					bgd.Close()
-				except IOError as err:
+				except Exception as err:
 					bgd.Close()
-					self.error( 'Failure downloading {}', film.url_sub )
+					self.error( 'Failure downloading {}: {}', film.url_sub, err )
 
 			# create NFO Files
 			self._make_nfo_files( film, episode, dirname, nfoname, videourl )
@@ -249,8 +249,8 @@ class MediathekView( KodiPlugin ):
 				file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
 				file.write( bytearray( '</tvshow>\n', 'utf-8' ) )
 				file.close()
-			except IOError as err:
-				self.error( 'Failure creating show NFO file for {}', videourl )
+			except Exception as err:
+				self.error( 'Failure creating show NFO file for {}: {}', videourl, err )
 
 		try:
 			file = xbmcvfs.File( filename, 'w' )
@@ -266,8 +266,8 @@ class MediathekView( KodiPlugin ):
 			file.write( bytearray( '\t<studio>{}</studio\n'.format( film.channel ), 'utf-8' ) )
 			file.write( bytearray( '</episodedetails>\n', 'utf-8' ) )
 			file.close()
-		except IOError as err:
-			self.error( 'Failure creating NFO file for {}', videourl )
+		except Exception as err:
+			self.error( 'Failure creating episode NFO file for {}: {}', videourl, err )
 
 	def _url_retrieve( self, videourl, filename, reporthook, chunk_size = 8192 ):
 		f = xbmcvfs.File( filename, 'wb' )
