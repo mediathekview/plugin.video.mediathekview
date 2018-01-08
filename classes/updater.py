@@ -144,7 +144,7 @@ class MediathekViewUpdater( object ):
 								flts = int( time.mktime( time.strptime( value.strip(), "%d.%m.%Y, %H:%M" ) ) )
 								self.db.UpdateStatus( filmupdate = flts )
 								self.logger.info( 'Filmliste dated {}', value.strip() )
-							except Error as err:
+							except Exception as err:
 								# If the universe hates us...
 								pass
 						except ValueError as err:

@@ -3,6 +3,8 @@
 #
 
 # -- Imports ------------------------------------------------
+from __future__ import unicode_literals  # ,absolute_import, division
+
 import time
 import xbmc
 

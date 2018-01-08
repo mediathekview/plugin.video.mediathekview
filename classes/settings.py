@@ -13,7 +13,7 @@ class Settings( object ):
 		self.Reload()
 
 	def Reload( self ):
-		self.datapath		= os.path.join( xbmc.translatePath( "special://masterprofile" ), 'addon_data', self.addon.getAddonInfo( 'id' ) )
+		self.datapath		= os.path.join( xbmc.translatePath( "special://masterprofile" ).decode('utf-8'), 'addon_data', self.addon.getAddonInfo( 'id' ).decode('utf-8') )
 		self.firstrun		= self.addon.getSetting( 'firstrun' ) == 'true'
 		self.preferhd		= self.addon.getSetting( 'quality' ) == 'true'
 		self.nofuture		= self.addon.getSetting( 'nofuture' ) == 'true'
