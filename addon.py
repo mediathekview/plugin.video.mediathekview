@@ -181,11 +181,15 @@ class MediathekView( KodiPlugin ):
 					self.notifier.ShowError( self.language( 30952 ), self.language( 30979 ) )
 					return
 
+			# XXX TODO: approximation:
+			epi_marker=' - S01E01'
+
 			# generate local filenames
-			movname = os.path.join( dirname, filestem ) + extension
-			srtname = os.path.join( dirname, filestem ) + u'.srt'
-			ttmname = os.path.join( dirname, filestem ) + u'.ttml'
-			nfoname = os.path.join( dirname, filestem ) + u'.nfo'
+			fileepi = filestem + epi_marker
+			movname = os.path.join( dirname, fileepi ) + extension
+			srtname = os.path.join( dirname, fileepi ) + u'.srt'
+			ttmname = os.path.join( dirname, fileepi ) + u'.ttml'
+			nfoname = os.path.join( dirname, fileepi ) + u'.nfo'
 
 			# check for existing download
 			if os.path.isfile( movname ):
@@ -205,9 +209,12 @@ class MediathekView( KodiPlugin ):
 
 			# create NFO files
 			try:
+				title = film.show + epi_marker
 				file = io.open( os.path.join( dirname, 'tvshow.nfo' ), mode = 'w', encoding = 'utf-8' )
 				file.write( u'<tvshow>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
+				file.write( u'\t<title>{}</title>\n'.format( title ) )
+				file.write( u'\t<sorttitle>{}</sorttitle>\n'.format( title ) )
+				file.write( u'\t<year>{}</year>\n'.format( 2018 ) )   # XXX TODO: That might be incorrect!
 				file.write( u'\t<studio>{}</studio>\n'.format( film.channel ) )
 				file.write( u'</tvshow>\n' )
 				file.close()
@@ -217,7 +224,9 @@ class MediathekView( KodiPlugin ):
 			try:
 				file = io.open( nfoname, mode = 'w', encoding = 'utf-8' )
 				file.write( u'<episodedetails>\n' )
-				file.write( u'\t<title>{}</title>\n'.format( film.title ) )
+				file.write( u'\t<title>{}</title>\n'.format( film.show ) )
+				file.write( u'\t<season>{}</season>\n'.format( 1 ) )  # XXX TODO: Approximation
+				file.write( u'\t<episode>{}</episode>\n'.format( 1 ) )  # XXX TODO: Approximation
 				file.write( u'\t<showtitle>{}</showtitle>\n'.format( film.show ) )
 				file.write( u'\t<plot>{}</plot>\n'.format( film.description ) )
 				file.write( u'\t<aired>{}</aired>\n'.format( film.aired ) )
@@ -252,7 +261,7 @@ class MediathekView( KodiPlugin ):
 					result = urllib.urlretrieve( film.url_sub, filename = ttmname, reporthook = bgd.UrlRetrieveHook )
 					try:
 						ttml2srt( ttmname, srtname )
-					except Error as err:
+					except Exception as err:
 						self.info( 'Failed to convert to srt: {}', err )
 					bgd.Close()
 				except IOError as err:
