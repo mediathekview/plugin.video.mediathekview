@@ -215,10 +215,10 @@ class MediathekView( KodiPlugin ):
 				try:
 					bgd.Update( 0 )
 					result = self._url_retrieve( film.url_sub, ttmname, bgd.UrlRetrieveHook )
-#					try:
-#						ttml2srt( ttmname, srtname )
-#					except Exception as err:
-#						self.info( 'Failed to convert to srt: {}', err )
+					try:
+						ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
+					except Exception as err:
+						self.info( 'Failed to convert to srt: {}', err )
 					bgd.Close()
 				except Exception as err:
 					bgd.Close()
@@ -284,6 +284,7 @@ class MediathekView( KodiPlugin ):
 			f.write( chunk )
 			total_chunks += 1
 		f.close()
+		return ( filename, [], )
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )

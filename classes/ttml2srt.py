@@ -200,18 +200,22 @@ def ttml2srt( infile, outfile ):
 									timestamp.total_seconds() % 60)).replace('.', ',')
 
 
-	file = io.open( outfile, 'w', encoding='utf-8' )
+	if type( outfile ) is str or type( outfile ) is unicode:
+		file = io.open( outfile, 'w', encoding='utf-8' )
+	else:
+		file = outfile
+
 	srt_i = 1
 	for i, (timestamp, content) in enumerate(rendered_grouped[:-1]):
 		if content == '':
 			continue
-		file.write( u'%d\n' % srt_i )
-		file.write(
+		file.write( bytearray( '%d\n' % srt_i, 'utf-8' ) )
+		file.write( bytearray( 
 			format_timestamp( timestamp ) +
-			u' --> ' +
+			' --> ' +
 			format_timestamp( rendered_grouped[i + 1][0] ) +
-			u'\n'
-		)
-		file.write( content + u'\n\n' )
+			'\n'
+		) )
+		file.write( bytearray( content + '\n\n', 'utf-8' ) )
 		srt_i += 1
 	file.close()
