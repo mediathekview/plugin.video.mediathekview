@@ -273,8 +273,7 @@ class MediathekView( KodiPlugin ):
 		f = xbmcvfs.File( filename, 'wb' )
 		u = urllib2.urlopen( videourl )
 
-		total_size = u.info().getheader( 'Content-Length' ).strip()
-		total_size = int( total_size )
+		total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
 		total_chunks = 0
 
 		while True:
