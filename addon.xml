@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.3.3"
+	version="0.3.4"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -22,24 +22,26 @@
 		<summary lang="de">Öffentlich-Rechtliche Mediatheken</summary>
 		<summary lang="en">Public service video-platforms</summary>
 		<summary lang="it">Piattaforme video dalle emittenti pubbliche</summary>
-		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView</description>
-		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView</description>
-		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
-		<news>v0.3.3 (2018-01-09):
+		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
+		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
+		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
+		<news>v0.3.4 (2018-01-xx):
+- Deutsche und Italienische Übnersetzung funktionieren nun
+v0.3.3 (2018-01-09):
 - Auflösung kann nun beim Download ausgewählt werden
 - Kommandozeilenaktualisierer wurde implementiert
 - Fehler in der Generierung von tvshow.nfo behoben
 - Die README Datei enthält nun alle Sprachen
 v0.3.2 (2018-01-08):
-- Fixed error when downloading files with umlauts
-- Downloads to VFS locations are now directly written without intermediate storage
-- Improved quality of NFO files
+- Dateien mit Umlauten im Namen konnten nicht heruntergeladen werden
+- Herunterladen bei nicht lokalem Download-Verzeichnis erfolgt nun ohne Zwischenspeicherung
+- NFO Dateien enthalten mehr Daten
 v0.3.1 (2018-01-07):
-- Download is now also compatible with Kodi VFS paths
-- Fixed rare exception that kills database update
+- Herunterladen ist nun auch in nicht lokalen (VFS) Download-Verzeichnissen möglich
+- Behebung eines sehr seltenen Fehlers der zu einem ENdlos-Update führen konnte
 v0.3.0 (2018-01-07):
-- Implemented movie downloads with metadata (nfo) and subtitles
-- Fixed missing subtitle field during database update
+- Neue Funktion zum Herunterladen von Videos mit Untertiteln und Metadaten (NFO-Dateien)
+- Behebung eines Fehlers der das Abspeichern der Untertitel URL in der Datenbank verhinderte
 </news>
 		<platform>all</platform>
 		<language>de fr</language>
