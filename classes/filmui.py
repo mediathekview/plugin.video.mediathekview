@@ -72,12 +72,24 @@ class FilmUI( Film ):
 			# Download video
 			contextmenu.append( (
 				self.plugin.language( 30921 ),
-				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id } ) )
+				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id, 'quality': 1 } ) )
 			) )
+			if self.url_video_hd:
+				# Download SD video
+				contextmenu.append( (
+					self.plugin.language( 30923 ),
+					'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id, 'quality': 2 } ) )
+				) )
+			if self.url_video_sd:
+				# Download SD video
+				contextmenu.append( (
+					self.plugin.language( 30922 ),
+					'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id, 'quality': 0 } ) )
+				) )
 		# Add to queue
 		# TODO: Enable later
 #		contextmenu.append( (
-#			self.plugin.language( 30922 ),
+#			self.plugin.language( 30924 ),
 #			'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "enqueue", 'id': self.id } ) )
 #		) )
 		li.addContextMenuItems( contextmenu )

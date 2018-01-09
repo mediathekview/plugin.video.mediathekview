@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.3.2"
-	provider-name="YeaSoft International, Leo Moll">
+	version="0.3.3"
+	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
 		<import addon="script.module.requests" version="2.12.4"/>
@@ -25,7 +25,12 @@
 		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView</description>
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
-		<news>v0.3.2 (2018-01-08):
+		<news>v0.3.3 (2018-01-09):
+- Auflösung kann nun beim Download ausgewählt werden
+- Kommandozeilenaktualisierer wurde implementiert
+- Fehler in der Generierung von tvshow.nfo behoben
+- Die README Datei enthält nun alle Sprachen
+v0.3.2 (2018-01-08):
 - Fixed error when downloading files with umlauts
 - Downloads to VFS locations are now directly written without intermediate storage
 - Improved quality of NFO files
@@ -39,10 +44,10 @@ v0.3.0 (2018-01-07):
 		<platform>all</platform>
 		<language>de fr</language>
 		<license>MIT License</license>
-		<forum></forum>
-		<source>https://github.com/YeaSoft/plugin.video.mediathekview</source>
-		<website></website>
-		<email></email>
+		<forum>https://forum.kodi.tv/showthread.php?tid=326799</forum>
+		<source>https://github.com/mediathekview/plugin.video.mediathekview</source>
+		<website>https://mediathekview.de/</website>
+		<email>info@mediathekview.de</email>
 		<assets>
 			<icon>resources/icon.jpg</icon>
 			<fanart>resources/fanart.jpg</fanart>

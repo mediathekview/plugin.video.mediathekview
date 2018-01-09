@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Leo Moll
-#
+# Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
 import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
@@ -153,6 +152,12 @@ class MediathekViewUpdater( object ):
 			file.close()
 			self._update_end( full, 'IDLE' )
 			self.logger.info( 'Import of {} finished', destfile )
+			self.notifier.CloseUpdateProgress()
+			return True
+		except KeyboardInterrupt:
+			file.close()
+			self._update_end( full, 'ABORTED' )
+			self.logger.info( 'Interrupted by user' )
 			self.notifier.CloseUpdateProgress()
 			return True
 		except DatabaseCorrupted as err:

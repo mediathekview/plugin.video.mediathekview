@@ -126,6 +126,14 @@ msgid "Scarica video"
 msgstr ""
 
 msgctxt "#30922"
+msgid "Scarica video bassa risoluzione"
+msgstr ""
+
+msgctxt "#30923"
+msgid "Scarica video alta risoluzione"
+msgstr ""
+
+msgctxt "#30924"
 msgid "Metti in coda"
 msgstr ""
 

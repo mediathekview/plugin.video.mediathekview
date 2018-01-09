@@ -122,10 +122,18 @@ msgstr ""
 
 # Context Menu
 msgctxt "#30921"
-msgid "Download video"
+msgid "Download Video"
 msgstr ""
 
 msgctxt "#30922"
+msgid "Download LoRes Video"
+msgstr ""
+
+msgctxt "#30923"
+msgid "Download HD Video"
+msgstr ""
+
+msgctxt "#30924"
 msgid "Add to queue"
 msgstr ""
 

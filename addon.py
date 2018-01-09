@@ -1,6 +1,26 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Leo Moll
 #
+# MIT License
+#
+# Copyright (c) 2017-2018, Leo Moll
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 # -- Imports ------------------------------------------------
 from __future__ import unicode_literals  # ,absolute_import, division
@@ -150,7 +170,7 @@ class MediathekView( KodiPlugin ):
 				self.language( 30964 )
 			)
 
-	def doDownloadFilm( self, filmid ):
+	def doDownloadFilm( self, filmid, quality ):
 		if self.settings.downloadpath:
 			film = self.db.RetrieveFilmInfo( filmid )
 			if film is None:
@@ -163,7 +183,14 @@ class MediathekView( KodiPlugin ):
 				return
 
 			# get the best url
-			videourl	= film.url_video_hd if ( film.url_video_hd and self.settings.preferhd ) else film.url_video if film.url_video else film.url_video_sd
+			if quality == '0' and film.url_video_sd:
+				videourl = film.url_video_sd
+			elif quality == '2' and film.url_video_hd:
+				videourl = film.url_video_hd
+			else:
+				videourl = film.url_video
+
+			# prepare names
 			showname	= self._cleanup_filename( film.show )[:64]
 			filestem	= self._cleanup_filename( film.title )[:64]
 			extension	= os.path.splitext( videourl )[1]
@@ -243,6 +270,7 @@ class MediathekView( KodiPlugin ):
 			try:
 				file = xbmcvfs.File( dirname + 'tvshow.nfo', 'w' )
 				file.write( bytearray( '<tvshow>\n', 'utf-8' ) )
+				file.write( bytearray( '<id></id>\n', 'utf-8' ) )
 				file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
 				file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
 #				file.write( bytearray( '\t<year>{}</year>\n'.format( 2018 ), 'utf-8' ) )   # XXX TODO: That might be incorrect!
@@ -313,7 +341,9 @@ class MediathekView( KodiPlugin ):
 			show = self.args.get( 'show', [0] )
 			self.db.GetFilms( show[0], FilmUI( self ) )
 		elif mode[0] == 'download':
-			self.doDownloadFilm( self.args.get( 'id', [0] )[0] )
+			filmid	= self.args.get( 'id', [0] )
+			quality	= self.args.get( 'quality', [1] )
+			self.doDownloadFilm( filmid[0], quality[0] )
 		elif mode[0] == 'enqueue':
 			self.doEnqueueFilm( self.args.get( 'id', [0] )[0] )
 
