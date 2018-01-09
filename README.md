@@ -1,8 +1,8 @@
 Kodi MediathekView Addon
 ========================
 
-* *English Version:* Please see below
-* *Versione Italiana:* Il testo italiano si trova più in basso
+* **English Version:** Please see below
+* **Versione Italiana:** Il testo italiano si trova più in basso
 
 Über dieses Addon
 -----------------
