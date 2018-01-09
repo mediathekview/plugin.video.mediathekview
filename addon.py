@@ -243,6 +243,7 @@ class MediathekView( KodiPlugin ):
 			try:
 				file = xbmcvfs.File( dirname + 'tvshow.nfo', 'w' )
 				file.write( bytearray( '<tvshow>\n', 'utf-8' ) )
+				file.write( bytearray( '<id></id>\n', 'utf-8' ) )
 				file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
 				file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
 #				file.write( bytearray( '\t<year>{}</year>\n'.format( 2018 ), 'utf-8' ) )   # XXX TODO: That might be incorrect!
