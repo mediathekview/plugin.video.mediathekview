@@ -39,7 +39,7 @@ Wichtigste Features
 -------------------
 * Hintergrundaktualisierung der Datenbank
 * Blitzschnelle Navigation
-* Herunterlladen von Filmen mit automatischer Erzeugung von NFO Dateien und
+* Herunterladen von Filmen mit automatischer Erzeugung von NFO Dateien und
   eventueller Untertitel
 * Lokale interne Datenbank oder geteilte MySQL Datenbank
 * Benutzeroberfläche verfügbar in Deutsch, Englisch und Italienisch
