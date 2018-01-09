@@ -26,6 +26,7 @@
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView</description>
 		<news>v0.3.3 (2018-01-XX):
+- Auflösung kann nun im Download ausgewählt werden
 - Kommandozeilenaktualisierer wurde implementiert
 - Fehler in der Generierung von tvshow.nfo behoben
 - Die README Datei enthält nun alle Sprachen

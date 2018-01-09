@@ -126,6 +126,14 @@ msgid "Video herunterladen"
 msgstr ""
 
 msgctxt "#30922"
+msgid "Niedrig auflösendes Video herunterladen"
+msgstr ""
+
+msgctxt "#30923"
+msgid "Hoch auflösendes Video herunterladen"
+msgstr ""
+
+msgctxt "#30924"
 msgid "Zur Warteschlange hinzufügen"
 msgstr ""
 
