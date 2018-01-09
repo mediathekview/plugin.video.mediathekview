@@ -1,5 +1,7 @@
 .DS*
 ._DS*
 *.pyo
+*.pyc
+*.db
+/Filmliste-*
 /.vscode
-backend/tmp

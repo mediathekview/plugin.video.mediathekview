@@ -113,9 +113,51 @@ laufen zu lassen.
 Standalone Datenbank Update Prozess
 -----------------------------------
 
-Dieser ist noch nicht vollständig implementiert und dokumentiert, wird aber in
-eine der nächsten Versionen nachgeliefert.
+Um die Datenbankaktualisierung von der Kommandozeile auszuführen, muss das
+Zielsystem einen python2-Interpreter bereitstellen. Des weiteren müssen noch
+folgende zwei Bibliotheken zur Verfügung stehen, sowie das Entpackprogramm
+'xz':
 
+* ijson
+* mysql-connector
+
+Die Installation dieser Bibliotheken erfolgt durch Eingabe folgender Befehle:
+
+````
+pip install ijson
+pip install mysql-connector==2.1.4
+````
+
+Das Aktualisierungsprogramm heisst `mvupdate` und liegt im Hauptverzeichnis
+des Addons und muss auch von dort ausgeführt werden. Aus diesem Grunde muss
+das Addon in einem Verzeichnis aus der ausführenden Maschine kopiert werden.
+
+Dies kann entweder durch Herunterladen und Entpacken der Addon-ZIP-Datei
+erfolgen oder durch Klonen des Addon-Quellcode-Repositories mittels `git`
+
+````
+git clone git@github.com:mediathekview/plugin.video.mediathekview.git
+````
+
+Durch Angabe des Parameters `-h` bzw. `-h` hinter dem Datenbanktyp, gibt
+das Programm spezifische Hilfe aus. Beispiel:
+
+````
+leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
+usage: mvupdate mysql [-h] [-H HOST] [-u USER] [-p PASSWORD] [-d DATABASE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOST, --host HOST  hostname or ip of the MySQL server (default:
+                        localhost)
+  -u USER, --user USER  username for the MySQL server connection (default:
+                        filmliste)
+  -p PASSWORD, --password PASSWORD
+                        password for the MySQL server connection (default:
+                        None)
+  -d DATABASE, --database DATABASE
+                        MySQL database for mediathekview (default: filmliste)
+````
 
 
 English Version
@@ -224,8 +266,50 @@ the database server or another machine).
 Standalone Database Update Process
 ----------------------------------
 
-This is not yet fully implemented and documented, but will be delivered in one
-of the next versions.
+A python2 interpreter as well as the unpacker 'xz' is requirered on the
+target system in order to execute the commandline update process. Additionally
+the following python libraries are required:
+
+* ijson
+* mysql-connector
+
+The required libraries can be installed via pip:
+
+````
+pip install ijson
+pip install mysql-connector==2.1.4
+````
+
+The update program is called `mvupdate` and is located in the root directory
+of the addon and must be executed from there. The whole addon has to be copied
+to the target machine.
+
+This can be either done by downloading and unpacking the addon archive or
+by cloning the source repository with `git`
+
+````
+git clone git@github.com:mediathekview/plugin.video.mediathekview.git
+````
+
+By specifying the option `-h` itself or after the requested database type,
+the application shows specific help instructions:
+
+````
+leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
+usage: mvupdate mysql [-h] [-H HOST] [-u USER] [-p PASSWORD] [-d DATABASE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOST, --host HOST  hostname or ip of the MySQL server (default:
+                        localhost)
+  -u USER, --user USER  username for the MySQL server connection (default:
+                        filmliste)
+  -p PASSWORD, --password PASSWORD
+                        password for the MySQL server connection (default:
+                        None)
+  -d DATABASE, --database DATABASE
+                        MySQL database for mediathekview (default: filmliste)
+````
 
 
 
@@ -324,5 +408,48 @@ NAS, il server di database o un altro sistema).
 Processo esterno di aggiornamento del database
 ----------------------------------------------
 
-Questo non è ancora completamente implementato e documentato, ma sarà
-dispüonibile in una delle prossime versioni.
+Per eseguire il processo esterno di aggiornamento del database, è necessario
+che sul sistema sul quale il processo viene eseguito sia istallato un
+interprete python2, il programma di decompressione 'xz' e le seguenti
+librerie python:
+
+* ijson
+* mysql-connector
+
+QUeste potranno essere istallate mediante il programma pip:
+
+````
+pip install ijson
+pip install mysql-connector==2.1.4
+````
+
+Il programma di aggiornamento si chiama `mvupdate` e si trova nella directory
+principale dell'addon e dovrà essere lanciato da questa directory. L'intero
+addon dovrà essere copiato sul sistema di destinazione.
+
+Questo sarà possibile sia scaricando l'archivio dell'addon che dovrà essere
+spacchettato in loco o mediante clonaggio dai sorgenti mediante `git`
+
+````
+git clone git@github.com:mediathekview/plugin.video.mediathekview.git
+````
+
+Specificando l'opzione `-h` a se stante o a tergo del tipo di database da
+aggiornare, l'applicazione mostrerà le opzioni disponibili:
+
+````
+leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
+usage: mvupdate mysql [-h] [-H HOST] [-u USER] [-p PASSWORD] [-d DATABASE]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -H HOST, --host HOST  hostname or ip of the MySQL server (default:
+                        localhost)
+  -u USER, --user USER  username for the MySQL server connection (default:
+                        filmliste)
+  -p PASSWORD, --password PASSWORD
+                        password for the MySQL server connection (default:
+                        None)
+  -d DATABASE, --database DATABASE
+                        MySQL database for mediathekview (default: filmliste)
+````
