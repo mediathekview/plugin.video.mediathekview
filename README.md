@@ -27,8 +27,8 @@ Dieses Addon ist allerdings *nicht* offizieller Bestandteil des MediathekView-
 Projektes, sondern eine unabhängige Entwicklung.
 
 Sollten Probleme bei der Benutzung dieses Addons auftreten, so können diese
-unter https://github.com/YeaSoft/plugin.video.mediathekview/issues gemeldet
-werden.
+unter https://github.com/mediathekview/plugin.video.mediathekview/issues
+gemeldet werden.
 
 Sollte dieses Addon nützlich sein, wäre es sinnvoll dem MediathekView-Team
 eine Spende zukommen zu lassen, da ohne deren Datenbank dieses Addon nicht
@@ -143,7 +143,7 @@ This addon *is not* an official part of the MediathekView project but an
 independent development.
 
 If you encounter any problems using this addon, please report them to
-https://github.com/YeaSoft/plugin.video.mediathekview/issues
+https://github.com/mediathekview/plugin.video.mediathekview/issues
 
 If you like this addon, consider making a donation to the MediathekView team,
 because without their database this addon would not work at all.
@@ -253,7 +253,7 @@ Tuttavia questo addon *non* è una parte ufficiale del progetto MediathekView,
 ma uno sviluppo indipendente.
 
 Se si riscontrano problemi nell'uso di questo addon, si prega di segnalarli
-all'indirizzo https://github.com/YeaSoft/plugin.video.mediathekview/issues
+all'indirizzo https://github.com/mediathekview/plugin.video.mediathekview/issues
 
 Se questo addon è utile, sarebbe utile fare una donazione al team
 MediathekView, perché senza il loro database questo addon non funzionerebbe.
