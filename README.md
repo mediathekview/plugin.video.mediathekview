@@ -1,8 +1,13 @@
-Kodi MediathekView Addon
-========================
+Kodi MediathekView.de Addon
+===========================
 
 * **English Version:** Please see below
 * **Versione Italiana:** Il testo italiano si trova più in basso
+
+[1]: https://forum.mediathekview.de/category/14/offizieller-client-kodi-add-on
+[2]: https://forum.kodi.tv/showthread.php?tid=326799
+[3]: https://github.com/mediathekview/plugin.video.mediathekview/issues
+[4]: https://github.com/mediathekview/plugin.video.mediathekview
 
 Über dieses Addon
 -----------------
@@ -10,11 +15,11 @@ Kodi MediathekView Addon
 Und schon wieder ein Kodi-Addon für deutsche Mediatheken... Wozu das ganze?
 
 Weil der Ansatz dieses Addons ein anderer ist, als der der bereits verfügbaren
-Addons: dieses Addon benutzt die Datenbank des großartigen Projektes
-"MediathekView", welche stündlich aktualisiert wird über 200.000 Einträge aus
-allen deutschen Mediatheken enthält. Dieser Ansatz hat einige entscheidende
-Vorteile gegenüber den anderen Addons, die hingegen versuchen die Mediatheken
-in Echtzeit zu scannen:
+Addons: dieses Addon benutzt die Datenbank des beliebten Projektes
+"MediathekView", welche stündlich aktualisiert wird und über 200.000 Einträge
+aus allen deutschen Mediatheken enthält. Dieser Ansatz hat einige entscheidende
+Vorteile gegenüber den anderen Addons, die in der Regel die sich stetig
+verändernden Webseiten der Mediatheken der Öffentlich Rechtlichen durchsuchen.
 
 * Hohe Geschwindigkeit beim Durchsuchen und Navigieren
 * Unabhängigkeit von allen Änderungen des Seitenlayouts der Mediatheken
@@ -23,12 +28,10 @@ in Echtzeit zu scannen:
 Dies alles wird ermöglicht durch den unermüdlichen Einsatz des MediathekView-
 Teams ohne den ein solches Addon nicht möglich wäre.
 
-Dieses Addon ist allerdings *nicht* offizieller Bestandteil des MediathekView-
-Projektes, sondern eine unabhängige Entwicklung.
-
-Sollten Probleme bei der Benutzung dieses Addons auftreten, so können diese
-unter https://github.com/mediathekview/plugin.video.mediathekview/issues
-gemeldet werden.
+Für Fragen und Anregungen zu diesem Addon steh das [Deutschsprachigen Forum][1]
+zur Verfügung. Fehler und Feature Requests können auch direkt als
+[GitHub Issue][3] gemeldet werden. Der Quelltext steht ebenfalls in [GitHub][4]
+zur Verfügung.
 
 Sollte dieses Addon nützlich sein, wäre es sinnvoll dem MediathekView-Team
 eine Spende zukommen zu lassen, da ohne deren Datenbank dieses Addon nicht
@@ -166,13 +169,14 @@ English Version
 About this Addon
 ----------------
 
-Yet another Kodi-Addon for the german pupblic service video platforms... Why?
+Yet another Kodi Addon for the German public service video platforms... Why?
 
-Because the approach of this addon is different from the already available
-addons: this addon uses the database of the awesome project _"MediathekView"_,
-which is updated hourly and contains over 200.000 entries from all German
-media libraries. This approach has some significant advantages over the other
-addons, which try to scan the libraries in real time:
+Because the approach of this addon is different from that of the already
+available addons: this addon uses the database of the popular project
+_"MediathekView"_, which is updated hourly and contains more than 200,000
+entries from all German public service video platforms. This approach has
+some significant advantages over the other add-ons that usually scan the
+ever-changing websites of the German public service video platforms:
 
 * High speed browsing and navigation
 * Independence from all changes to the page layout of the media libraries
@@ -181,11 +185,10 @@ addons, which try to scan the libraries in real time:
 All this is made possible by the endless effort of the MediathekView team
 without which such an addon would not be possible.
 
-This addon *is not* an official part of the MediathekView project but an
-independent development.
-
-If you encounter any problems using this addon, please report them to
-https://github.com/mediathekview/plugin.video.mediathekview/issues
+If you have any questions or suggestions about this addon, please feel free
+to use the [official Kodi Addon Forum topic][2] or the [German forum topic][1].
+Errors and feature requests can also be reported directly as [GitHub Issue][3].
+The source code is available as well on [GitHub][4].
 
 If you like this addon, consider making a donation to the MediathekView team,
 because without their database this addon would not work at all.
@@ -333,13 +336,12 @@ i siti delle piattaforme video in tempo reale:
 Tutto questo è reso possibile dall'assiduo impegno del team di MediathekView
 senza il quale un tale addon non sarebbe possibile.
 
-Tuttavia questo addon *non* è una parte ufficiale del progetto MediathekView,
-ma uno sviluppo indipendente.
+Se avete domande o suggerimenti riguardo quest'addon, non esitate ad utilizzare
+il [forum in lingua inglese][2] o [in lingua tedesca][1] tedesco. Errori e
+suggerimenti per nuove funzionalità possono anche essere segnalati direttamente
+come [GitHub Issue][3]. Il sorgente è disponibile in un [Repository GitHub][4].
 
-Se si riscontrano problemi nell'uso di questo addon, si prega di segnalarli
-all'indirizzo https://github.com/mediathekview/plugin.video.mediathekview/issues
-
-Se questo addon è utile, sarebbe utile fare una donazione al team
+Se questo addon è utile, sarebbe gentile fare una donazione al team
 MediathekView, perché senza il loro database questo addon non funzionerebbe.
 Una possibilità corrispondente si trova sulla homepage del progetto
 https://mediathekview.de/
