@@ -25,16 +25,16 @@ verändernden Webseiten der Mediatheken der Öffentlich Rechtlichen durchsuchen.
 * Unabhängigkeit von allen Änderungen des Seitenlayouts der Mediatheken
 * Hohe Zuverlässigkeit
 
-Dies alles wird ermöglicht durch den unermüdlichen Einsatz des MediathekView-
-Teams ohne den ein solches Addon nicht möglich wäre.
+Dies alles wird ermöglicht durch den unermüdlichen Einsatz des
+MediathekView-Teams ohne dem ein solches Addon nicht möglich wäre.
 
-Für Fragen und Anregungen zu diesem Addon steh das [Deutschsprachigen Forum][1]
-zur Verfügung. Fehler und Feature Requests können auch direkt als
-[GitHub Issue][3] gemeldet werden. Der Quelltext steht ebenfalls in [GitHub][4]
-zur Verfügung.
+Für Fragen und Anregungen zu diesem Addon steht das [deutschsprachige Forum][1]
+zur Verfügung. Fehlermeldungen und Vorschläge für neue Features können auch
+direkt als [GitHub Issue][3] gemeldet werden. Der Quelltext steht ebenfalls in
+[GitHub][4] zur Verfügung.
 
-Sollte dieses Addon nützlich sein, wäre es sinnvoll dem MediathekView-Team
-eine Spende zukommen zu lassen, da ohne deren Datenbank dieses Addon nicht
+Sollte dieses Addon nützlich sein, wäre es schön dem MediathekView-Team eine
+kleine Spende zukommen zu lassen, da ohne deren Datenbank dieses Addon nicht
 funktionieren würde. Eine entsprechende Möglichkeit befindet sich auf der
 Homepage https://mediathekview.de/ des Projektes.
 
