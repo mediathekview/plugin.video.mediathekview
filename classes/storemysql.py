@@ -41,10 +41,10 @@ class StoreMySQL( object ):
 			self.conn.close()
 
 	def Search( self, search, filmui ):
-		self._Search_Condition( '( `title` LIKE "%%%s%%")' % search, filmui, True, True )
+		self._Search_Condition( '( ( `title` LIKE "%%%s%%" ) OR ( `show` LIKE "%%%s%%" ) )' % ( search, search, ), filmui, True, True )
 
 	def SearchFull( self, search, filmui ):
-		self._Search_Condition( '( ( `title` LIKE "%%%s%%") OR ( `description` LIKE "%%%s%%") )' % ( search, search ), filmui, True, True )
+		self._Search_Condition( '( ( `title` LIKE "%%%s%%" ) OR ( `show` LIKE "%%%s%%" ) ) OR ( `description` LIKE "%%%s%%") )' % ( search, search, search ), filmui, True, True )
 
 	def GetRecents( self, channelid, filmui ):
 		sql_cond_channel = ' AND ( film.channelid=' + str( channelid ) + ' ) ' if channelid != '0' else ''
