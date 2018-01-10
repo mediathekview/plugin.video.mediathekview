@@ -66,7 +66,7 @@ class StoreMySQL( object ):
 			if condition is None:
 				query = 'SELECT `id`,`channel`,0 AS `count` FROM `channel`'
 			else:
-				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY `channel`'
+				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel.id'
 			self.logger.info( 'MySQL Query: {}', query )
 			cursor = self.conn.cursor()
 			cursor.execute( query )
