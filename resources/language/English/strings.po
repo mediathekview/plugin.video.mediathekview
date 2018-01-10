@@ -109,14 +109,18 @@ msgid "Recently Added"
 msgstr "Recently Added"
 
 msgctxt "#30905"
+msgid "Recently Added by Channel"
+msgstr "Recently Added by Channel"
+
+msgctxt "#30906"
 msgid "Browse by Show in all Channels"
 msgstr "Browse by Show in all Channels"
 
-msgctxt "#30906"
+msgctxt "#30907"
 msgid "Browse Shows by Channel"
 msgstr "Browse Shows by Channel"
 
-msgctxt "#30907"
+msgctxt "#30908"
 msgid "Database Information"
 msgstr "Database Information"
 

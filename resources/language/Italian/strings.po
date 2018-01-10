@@ -109,14 +109,18 @@ msgid "Recently Added"
 msgstr "Recenti"
 
 msgctxt "#30905"
+msgid "Recently Added by Channel"
+msgstr "Recenti secondo emittenti"
+
+msgctxt "#30906"
 msgid "Browse by Show in all Channels"
 msgstr "Tutte le trasmissioni"
 
-msgctxt "#30906"
+msgctxt "#30907"
 msgid "Browse Shows by Channel"
 msgstr "Trasmissioni secondo emittenti"
 
-msgctxt "#30907"
+msgctxt "#30908"
 msgid "Database Information"
 msgstr "Informazioni Database"
 

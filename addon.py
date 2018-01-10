@@ -56,20 +56,22 @@ class MediathekView( KodiPlugin ):
 		del self.db
 
 	def showMainMenu( self ):
-		# search
+		# Search
 		self.addFolderItem( 30901, { 'mode': "main-search" } )
-		# search all
+		# Search all
 		self.addFolderItem( 30902, { 'mode': "main-searchall" } )
-		# livestreams
+		# Browse livestreams
 		self.addFolderItem( 30903, { 'mode': "main-livestreams" } )
-		# recently added
-		self.addFolderItem( 30904, { 'mode': "main-recent" } )
-		# Browse by Show in all Channels
-		self.addFolderItem( 30905, { 'mode': "channel", 'channel': 0 } )
-		# Browse Shows by Channel
-		self.addFolderItem( 30906, { 'mode': "main-channels" } )
+		# Browse recently added
+		self.addFolderItem( 30904, { 'mode': "recent", 'channel': 0 } )
+		# Browse recently added by channel
+		self.addFolderItem( 30905, { 'mode': "main-recentchannels" } )
+		# Browse by Initial->Show
+		self.addFolderItem( 30906, { 'mode': "initial", 'channel': 0 } )
+		# Browse by Channel->Initial->Shows
+		self.addFolderItem( 30907, { 'mode': "main-channels" } )
 		# Database Information
-		self.addFolderItem( 30907, { 'mode': "main-dbinfo" } )
+		self.addFolderItem( 30908, { 'mode': "main-dbinfo" } )
 		xbmcplugin.endOfDirectory( self.addon_handle )
 
 	def showSearch( self ):
@@ -324,20 +326,23 @@ class MediathekView( KodiPlugin ):
 			self.showSearchAll()
 		elif mode[0] == 'main-livestreams':
 			self.db.GetLiveStreams( FilmUI( self, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
-		elif mode[0] == 'main-recent':
-			self.db.GetRecents( FilmUI( self ) )
+		elif mode[0] == 'recent':
+			channel = self.args.get( 'channel', [0] )
+			self.db.GetRecents( channel[0], FilmUI( self ) )
+		elif mode[0] == 'main-recentchannels':
+			self.db.GetRecentChannels( ChannelUI( self.addon_handle, next = 'recent' ) )
 		elif mode[0] == 'main-channels':
 			self.db.GetChannels( ChannelUI( self.addon_handle ) )
 		elif mode[0] == 'main-dbinfo':
 			self.showDbInfo()
-		elif mode[0] == 'channel':
+		elif mode[0] == 'initial':
 			channel = self.args.get( 'channel', [0] )
 			self.db.GetInitials( channel[0], InitialUI( self.addon_handle ) )
-		elif mode[0] == 'channel-initial':
+		elif mode[0] == 'shows':
 			channel = self.args.get( 'channel', [0] )
 			initial = self.args.get( 'initial', [None] )
 			self.db.GetShows( channel[0], initial[0], ShowUI( self.addon_handle ) )
-		elif mode[0] == 'show':
+		elif mode[0] == 'films':
 			show = self.args.get( 'show', [0] )
 			self.db.GetFilms( show[0], FilmUI( self ) )
 		elif mode[0] == 'download':

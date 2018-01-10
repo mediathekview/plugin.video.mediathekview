@@ -44,9 +44,9 @@ class Store( object ):
 		if self.db is not None:
 			self.db.SearchFull( search, filmui )
 
-	def GetRecents( self, filmui ):
+	def GetRecents( self, channelid, filmui ):
 		if self.db is not None:
-			self.db.GetRecents( filmui )
+			self.db.GetRecents( channelid, filmui )
 
 	def GetLiveStreams( self, filmui ):
 		if self.db is not None:
@@ -55,6 +55,10 @@ class Store( object ):
 	def GetChannels( self, channelui ):
 		if self.db is not None:
 			self.db.GetChannels( channelui )
+
+	def GetRecentChannels( self, channelui ):
+		if self.db is not None:
+			self.db.GetRecentChannels( channelui )
 
 	def GetInitials( self, channelid, initialui ):
 		if self.db is not None:
@@ -67,10 +71,6 @@ class Store( object ):
 	def GetFilms( self, showid, filmui ):
 		if self.db is not None:
 			self.db.GetFilms( showid, filmui )
-
-	def SearchCondition( self, condition, filmui, showshows, showchannels ):
-		if self.db is not None:
-			self.db.SearchCondition( condition, filmui, showshows, showchannels )
 
 	def RetrieveFilmInfo( self, filmid ):
 		if self.db is not None:

@@ -106,17 +106,21 @@ msgstr "Livestreams"
 
 msgctxt "#30904"
 msgid "Recently Added"
-msgstr "Vor Kurzen hinzugefügt"
+msgstr "Vor Kurzem hinzugefügt"
 
 msgctxt "#30905"
+msgid "Recently Added by Channel"
+msgstr "Vor Kurzem hinzugefügt nach Sender"
+
+msgctxt "#30906"
 msgid "Browse by Show in all Channels"
 msgstr "Alle Sendungen"
 
-msgctxt "#30906"
+msgctxt "#30907"
 msgid "Browse Shows by Channel"
 msgstr "Alle Sendungen nach Sender"
 
-msgctxt "#30907"
+msgctxt "#30908"
 msgid "Database Information"
 msgstr "Datenbank Informationen"
 

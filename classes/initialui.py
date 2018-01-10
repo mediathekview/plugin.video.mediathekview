@@ -31,7 +31,7 @@ class InitialUI( object ):
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
 			url		= self.build_url( {
-				'mode': "channel-initial",
+				'mode': "shows",
 				'channel': self.channelid,
 				'initial': self.initial,
 				'count': self.count
