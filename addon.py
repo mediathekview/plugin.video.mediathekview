@@ -57,38 +57,38 @@ class MediathekView( KodiPlugin ):
 
 	def showMainMenu( self ):
 		# Search
-		self.addFolderItem( 30901, { 'mode': "main-search" } )
+		self.addFolderItem( 30901, { 'mode': "search" } )
 		# Search all
-		self.addFolderItem( 30902, { 'mode': "main-searchall" } )
+		self.addFolderItem( 30902, { 'mode': "searchall" } )
 		# Browse livestreams
-		self.addFolderItem( 30903, { 'mode': "main-livestreams" } )
+		self.addFolderItem( 30903, { 'mode': "livestreams" } )
 		# Browse recently added
 		self.addFolderItem( 30904, { 'mode': "recent", 'channel': 0 } )
 		# Browse recently added by channel
-		self.addFolderItem( 30905, { 'mode': "main-recentchannels" } )
+		self.addFolderItem( 30905, { 'mode': "recentchannels" } )
 		# Browse by Initial->Show
 		self.addFolderItem( 30906, { 'mode': "initial", 'channel': 0 } )
 		# Browse by Channel->Initial->Shows
-		self.addFolderItem( 30907, { 'mode': "main-channels" } )
+		self.addFolderItem( 30907, { 'mode': "channels" } )
 		# Database Information
-		self.addFolderItem( 30908, { 'mode': "main-dbinfo" } )
-		xbmcplugin.endOfDirectory( self.addon_handle )
+		self.addActionItem( 30908, { 'mode': "action-dbinfo" } )
+		self.endOfDirectory()
 
 	def showSearch( self ):
 		searchText = self.notifier.GetEnteredText( '', self.language( 30901 ).decode( 'UTF-8' ) )
-		# searchText = self.notifier.GetEnteredText( '', self.language( 30901 ) )
 		if len( searchText ) > 2:
 			self.db.Search( searchText, FilmUI( self ) )
 		else:
-			self.showMainMenu()
+			self.endOfDirectory( False, cacheToDisc = True )
+			# self.showMainMenu()
 
 	def showSearchAll( self ):
 		searchText = self.notifier.GetEnteredText( '', self.language( 30902 ).decode( 'UTF-8' ) )
-		# searchText = self.notifier.GetEnteredText( '', self.language( 30902 ) )
 		if len( searchText ) > 2:
 			self.db.SearchFull( searchText, FilmUI( self ) )
 		else:
-			self.showMainMenu()
+			self.endOfDirectory( False, cacheToDisc = True )
+			# self.showMainMenu()
 
 	def showDbInfo( self ):
 		info = self.db.GetStatus()
@@ -154,7 +154,6 @@ class MediathekView( KodiPlugin ):
 			totinfo + '\n\n' +
 			updinfo
 		)
-		self.showMainMenu()
 
 	def Init( self ):
 		self.args = urlparse.parse_qs( sys.argv[2][1:] )
@@ -320,20 +319,20 @@ class MediathekView( KodiPlugin ):
 		mode = self.args.get( 'mode', None )
 		if mode is None:
 			self.showMainMenu()
-		elif mode[0] == 'main-search':
+		elif mode[0] == 'search':
 			self.showSearch()
-		elif mode[0] == 'main-searchall':
+		elif mode[0] == 'searchall':
 			self.showSearchAll()
-		elif mode[0] == 'main-livestreams':
+		elif mode[0] == 'livestreams':
 			self.db.GetLiveStreams( FilmUI( self, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
 		elif mode[0] == 'recent':
 			channel = self.args.get( 'channel', [0] )
 			self.db.GetRecents( channel[0], FilmUI( self ) )
-		elif mode[0] == 'main-recentchannels':
+		elif mode[0] == 'recentchannels':
 			self.db.GetRecentChannels( ChannelUI( self.addon_handle, next = 'recent' ) )
-		elif mode[0] == 'main-channels':
+		elif mode[0] == 'channels':
 			self.db.GetChannels( ChannelUI( self.addon_handle ) )
-		elif mode[0] == 'main-dbinfo':
+		elif mode[0] == 'action-dbinfo':
 			self.showDbInfo()
 		elif mode[0] == 'initial':
 			channel = self.args.get( 'channel', [0] )
