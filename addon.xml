@@ -25,10 +25,10 @@
 		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
-		<news>v0.3.4 (2018-01-xx):
+		<news>v0.3.4 (2018-01-11):
 - Die Suche sucht nun auch im Sendungs-Name
 - "Vor Kurzem hinzugefügt" nach Sendern durchsuchen
-- Deutsche und Italienische Übnersetzung funktionieren nun
+- Deutsche und Italienische Übersetzung funktionieren nun
 v0.3.3 (2018-01-09):
 - Auflösung kann nun beim Download ausgewählt werden
 - Kommandozeilenaktualisierer wurde implementiert
