@@ -33,7 +33,7 @@ class ShowUI( Show ):
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
 			url		= self.build_url( {
-				'mode': "show",
+				'mode': "films",
 				'show': self.id
 			} ),
 			listitem = li,

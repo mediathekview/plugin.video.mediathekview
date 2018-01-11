@@ -28,6 +28,9 @@ class KodiAddon( KodiLogger ):
 	def setSetting( self, id, value ):
 		return self.addon.setSetting( id, value )
 
+	def doAction( self, action ):
+		xbmc.executebuiltin( 'Action({})'.format( action ) )
+
 class KodiService( KodiAddon ):
 	def __init__( self ):
 		KodiAddon.__init__( self )
@@ -41,7 +44,16 @@ class KodiPlugin( KodiAddon ):
 	def build_url( self, query ):
 		return self.base_url + '?' + urllib.urlencode( query )
 
+	def runPlugin( self, params ):
+		xbmc.executebuiltin( 'RunPlugin({})'.format( self.build_url( params ) ) )
+
+	def addActionItem( self, name, params ):
+		self.addDirectoryItem( name, params, False )
+
 	def addFolderItem( self, name, params ):
+		self.addDirectoryItem( name, params, True )
+
+	def addDirectoryItem( self, name, params, isFolder ):
 		if type( name ) is int:
 			name = self.language( name )
 		li = xbmcgui.ListItem( name )
@@ -49,5 +61,8 @@ class KodiPlugin( KodiAddon ):
 			handle		= self.addon_handle,
 			url			= self.build_url( params ),
 			listitem	= li,
-			isFolder	= True
+			isFolder	= isFolder
 		)
+
+	def endOfDirectory( self, succeeded = True, updateListing = False, cacheToDisc = True ):
+		xbmcplugin.endOfDirectory( self.addon_handle, succeeded, updateListing, cacheToDisc )

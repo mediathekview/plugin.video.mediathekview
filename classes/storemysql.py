@@ -18,6 +18,7 @@ class StoreMySQL( object ):
 		self.settings	= settings
 		# useful query fragments
 		self.sql_query_films	= "SELECT film.id,`title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_sub`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
+		self.sql_cond_recent	= "( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) < 24 )"
 		self.sql_cond_nofuture	= " AND ( ( `aired` IS NULL ) OR ( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( `duration` IS NULL ) OR ( TIME_TO_SEC(`duration`) >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
@@ -40,26 +41,37 @@ class StoreMySQL( object ):
 			self.conn.close()
 
 	def Search( self, search, filmui ):
-		self.SearchCondition( '( `title` LIKE "%%%s%%")' % search, filmui, True, True )
+		self._Search_Condition( '( ( `title` LIKE "%%%s%%" ) OR ( `show` LIKE "%%%s%%" ) )' % ( search, search, ), filmui, True, True )
 
 	def SearchFull( self, search, filmui ):
-		self.SearchCondition( '( ( `title` LIKE "%%%s%%") OR ( `description` LIKE "%%%s%%") )' % ( search, search ), filmui, True, True )
+		self._Search_Condition( '( ( `title` LIKE "%%%s%%" ) OR ( `show` LIKE "%%%s%%" ) ) OR ( `description` LIKE "%%%s%%") )' % ( search, search, search ), filmui, True, True )
 
-	def GetRecents( self, filmui ):
-		self.SearchCondition( '( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) < 24 )', filmui, True, True )
+	def GetRecents( self, channelid, filmui ):
+		sql_cond_channel = ' AND ( film.channelid=' + str( channelid ) + ' ) ' if channelid != '0' else ''
+		self._Search_Condition( self.sql_cond_recent + sql_cond_channel, filmui, True, False )
 
 	def GetLiveStreams( self, filmui ):
-		self.SearchCondition( '( show.search="LIVESTREAM" )', filmui, False, False )
+		self._Search_Condition( '( show.search="LIVESTREAM" )', filmui, False, False )
 
 	def GetChannels( self, channelui ):
+		self._Channels_Condition( None, channelui )
+
+	def GetRecentChannels( self, channelui ):
+		self._Channels_Condition( self.sql_cond_recent, channelui )
+
+	def _Channels_Condition( self, condition, channelui):
 		if self.conn is None:
 			return
 		try:
-			self.logger.info( 'MySQL Query: {}', "SELECT `id`,`channel` FROM `channel`" )
+			if condition is None:
+				query = 'SELECT `id`,`channel`,0 AS `count` FROM `channel`'
+			else:
+				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel.id'
+			self.logger.info( 'MySQL Query: {}', query )
 			cursor = self.conn.cursor()
-			cursor.execute( 'SELECT `id`,`channel` FROM `channel`' )
+			cursor.execute( query )
 			channelui.Begin()
-			for ( channelui.id, channelui.channel ) in cursor:
+			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
 				channelui.Add()
 			channelui.End()
 			cursor.close()
@@ -125,9 +137,9 @@ class StoreMySQL( object ):
 			# multiple channel ids
 			condition = '( `showid` IN ( %s ) )' % showid
 			showchannels = True
-		self.SearchCondition( condition, filmui, False, showchannels )
+		self._Search_Condition( condition, filmui, False, showchannels )
 
-	def SearchCondition( self, condition, filmui, showshows, showchannels ):
+	def _Search_Condition( self, condition, filmui, showshows, showchannels ):
 		if self.conn is None:
 			return
 		try:
