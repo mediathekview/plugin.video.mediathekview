@@ -155,22 +155,6 @@ class MediathekView( KodiPlugin ):
 			updinfo
 		)
 
-	def Init( self ):
-		self.args = urlparse.parse_qs( sys.argv[2][1:] )
-		self.db.Init()
-		if self.settings.HandleFirstRun():
-			xbmcgui.Dialog().textviewer(
-				self.language( 30961 ),
-				self.language( 30962 )
-			)
-		if MediathekViewUpdater( self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
-			self.setSetting( 'updenabled', 'false' )
-			self.settings.Reload()
-			xbmcgui.Dialog().textviewer(
-				self.language( 30963 ),
-				self.language( 30964 )
-			)
-
 	def doDownloadFilm( self, filmid, quality ):
 		if self.settings.downloadpath:
 			film = self.db.RetrieveFilmInfo( filmid )
@@ -314,6 +298,20 @@ class MediathekView( KodiPlugin ):
 			total_chunks += 1
 		f.close()
 		return ( filename, [], )
+
+	def Init( self ):
+		self.args = urlparse.parse_qs( sys.argv[2][1:] )
+		self.db.Init()
+		if self.settings.HandleFirstRun():
+			# TODO: Implement Issue #16
+			pass
+		if MediathekViewUpdater( self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
+			self.setSetting( 'updenabled', 'false' )
+			self.settings.Reload()
+			xbmcgui.Dialog().textviewer(
+				self.language( 30963 ),
+				self.language( 30964 )
+			)
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )
