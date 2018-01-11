@@ -25,18 +25,12 @@ verändernden Webseiten der Mediatheken der Öffentlich Rechtlichen durchsuchen.
 * Unabhängigkeit von allen Änderungen des Seitenlayouts der Mediatheken
 * Hohe Zuverlässigkeit
 
-Dies alles wird ermöglicht durch den unermüdlichen Einsatz des
-MediathekView-Teams ohne dem ein solches Addon nicht möglich wäre.
 
 Für Fragen und Anregungen zu diesem Addon steht das [deutschsprachige Forum][1]
 zur Verfügung. Fehlermeldungen und Vorschläge für neue Features können auch
 direkt als [GitHub Issue][3] gemeldet werden. Der Quelltext steht ebenfalls in
 [GitHub][4] zur Verfügung.
 
-Sollte dieses Addon nützlich sein, wäre es schön dem MediathekView-Team eine
-kleine Spende zukommen zu lassen, da ohne deren Datenbank dieses Addon nicht
-funktionieren würde. Eine entsprechende Möglichkeit befindet sich auf der
-Homepage https://mediathekview.de/ des Projektes.
 
 Wichtigste Features
 -------------------
@@ -46,6 +40,7 @@ Wichtigste Features
   eventueller Untertitel
 * Lokale interne Datenbank oder geteilte MySQL Datenbank
 * Benutzeroberfläche verfügbar in Deutsch, Englisch und Italienisch
+
 
 Funktionsweise
 --------------
@@ -58,6 +53,7 @@ Während der Laufzeit von Kodi werden in einem konfigurierbaren Intervall
 und in die Datenbank integriert. Spätestens beim nächsten Kalendertag nach
 dem letzten Update wird die Aktualisierung wieder mittels des vollständigen
 Updates von Mediathekview ausgeführt.
+
 
 Systemvoraussetzungen
 ---------------------
@@ -88,6 +84,7 @@ Unter Windows muss der Entpacker nachträglich installiert werden und dessen
 Pfad in den Addon-Einstellungen angegeben werden. Mangels Testsystem konnte
 dies jedoch zum jetzigen Zeitpunkt noch nicht getestet werden.
 
+
 Alternativ-Konfigurationen
 --------------------------
 
@@ -112,6 +109,7 @@ der Datenbank durchzuführen, so ist für das Update gesorgt. Sollte dies nicht
 der Fall sein, so besteht auch die Möglichkeit, den Update-Prozess auf einem
 anderen System (z.B. das NAS, den Datenbankserver oder eine andere Maschine)
 laufen zu lassen.
+
 
 Standalone Datenbank Update Prozess
 -----------------------------------
@@ -182,18 +180,10 @@ ever-changing websites of the German public service video platforms:
 * Independence from all changes to the page layout of the media libraries
 * High reliability
 
-All this is made possible by the endless effort of the MediathekView team
-without which such an addon would not be possible.
-
 If you have any questions or suggestions about this addon, please feel free
 to use the [official Kodi Addon Forum topic][2] or the [German forum topic][1].
 Errors and feature requests can also be reported directly as [GitHub Issue][3].
 The source code is available as well on [GitHub][4].
-
-If you like this addon, consider making a donation to the MediathekView team,
-because without their database this addon would not work at all.
-You will find the possibility to make a donation on the project's homepage
-https://mediathekview.de/
 
 
 Highlights
@@ -333,18 +323,10 @@ i siti delle piattaforme video in tempo reale:
 * Indipendenza da qualsiasi modifica al layout di pagina delle librerie multimediali
 * Alta affidabilità
 
-Tutto questo è reso possibile dall'assiduo impegno del team di MediathekView
-senza il quale un tale addon non sarebbe possibile.
-
 Se avete domande o suggerimenti riguardo quest'addon, non esitate ad utilizzare
 il [forum in lingua inglese][2] o [in lingua tedesca][1] tedesco. Errori e
 suggerimenti per nuove funzionalità possono anche essere segnalati direttamente
 come [GitHub Issue][3]. Il sorgente è disponibile in un [Repository GitHub][4].
-
-Se questo addon è utile, sarebbe gentile fare una donazione al team
-MediathekView, perché senza il loro database questo addon non funzionerebbe.
-Una possibilità corrispondente si trova sulla homepage del progetto
-https://mediathekview.de/
 
 
 Highlights
