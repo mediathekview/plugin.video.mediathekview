@@ -279,7 +279,7 @@ msgstr "Differentielle Aktualisierung"
 
 msgctxt "#30974"
 msgid "Downloading Video"
-msgstr "Video wird herunterladen"
+msgstr "Video wird heruntergeladen"
 
 msgctxt "#30975"
 msgid "Error while downloading {}: {}"
