@@ -1,6 +1,8 @@
 Kodi MediathekView.de Addon
 ===========================
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/e4e4bfcfa9314b17a89570e61aa4a931)](https://www.codacy.com/app/tuxpoldo/plugin.video.mediathekview?utm_source=github.com&utm_medium=referral&utm_content=mediathekview/plugin.video.mediathekview&utm_campaign=badger)
+
 * **English Version:** Please see below
 * **Versione Italiana:** Il testo italiano si trova più in basso
 
