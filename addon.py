@@ -307,13 +307,6 @@ class MediathekView( KodiPlugin ):
 		if self.settings.HandleFirstRun():
 			# TODO: Implement Issue #16
 			pass
-		if MediathekViewUpdater( self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
-			self.setSetting( 'updenabled', 'false' )
-			self.settings.Reload()
-			xbmcgui.Dialog().textviewer(
-				self.language( 30963 ),
-				self.language( 30964 )
-			)
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )

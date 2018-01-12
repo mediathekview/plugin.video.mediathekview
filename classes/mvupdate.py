@@ -177,10 +177,6 @@ class UpdateApp( AppLogger ):
 		self.notifier	= Notifier()
 		self.monitor	= MediathekViewMonitor()
 		self.updater	= MediathekViewUpdater( self.getNewLogger( 'MediathekViewUpdater' ), self.notifier, self.settings, self.monitor )
-		if self.updater.PrerequisitesMissing():
-			self.error( 'Prerequisites are missing' )
-			self.Exit()
-			exit( 1 )
 		self.updater.Init()
 
 	def Run( self ):

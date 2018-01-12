@@ -2,7 +2,7 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
+import os, stat, urllib, urllib2, subprocess, ijson, datetime, time, bz2
 import xml.etree.ElementTree as etree
 
 from operator import itemgetter
@@ -22,6 +22,7 @@ class MediathekViewUpdater( object ):
 		self.settings	= settings
 		self.monitor	= monitor
 		self.db			= None
+		self.use_xz     = self._find_xz()
 
 	def Init( self ):
 		if self.db is not None:
@@ -35,13 +36,8 @@ class MediathekViewUpdater( object ):
 			del self.db
 			self.db = None
 
-	def PrerequisitesMissing( self ):
-		return self.settings.updenabled and self._find_xz() is None
-
 	def IsEnabled( self ):
-		if self.settings.updenabled:
-			xz = self._find_xz()
-			return xz is not None
+		return self.settings.updenabled
 
 	def GetCurrentUpdateOperation( self ):
 		if not self.IsEnabled() or self.db is None:
@@ -179,12 +175,6 @@ class MediathekViewUpdater( object ):
 			return False
 
 	def GetNewestList( self, full ):
-		# get xz binary
-		xzbin = self._find_xz()
-		if xzbin is None:
-			self.notifier.ShowMissingXZError()
-			return False
-
 		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
 
 		# get mirrorlist
@@ -234,24 +224,49 @@ class MediathekViewUpdater( object ):
 			return False
 
 		# decompress filmliste
-		self.logger.info( 'Trying to decompress file...' )
-		retval = subprocess.call( [ xzbin, '-d', compfile ] )
-		self.logger.info( 'Return {}', retval )
+		if self.use_xz is True:
+			xzbin = self._find_xz()
+			self.logger.info( 'Trying to decompress xz file...' )
+			retval = subprocess.call( [ xzbin, '-d', compfile ] )
+			self.logger.info( 'Return {}', retval )
+		else:
+			self.logger.info( 'Trying to decompress bz2 file...' )
+			retval = self._decompress_bz2(compfile, destfile)
+			self.logger.info( 'Return {}', retval )
+
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and self._file_exists( destfile )
 
+	def _decompress_bz2(self, sourcename, destfile):
+		size = self._file_size(sourcfile)
+		blocksize = 10000
+		try:
+			with open(destfile, 'wb') as df, open(sourcefile, 'rb') as sf:
+				decompressor = BZ2Decompressor()
+				for data in iter(lambda : file.read(blocksize), b''):
+					df.write(decompressor.decompress(data))
+		except Exception as err:
+			self.logger.error( 'bz2 decompression failed: {}', err)
+			return -1
+		return 0
+
 	def _get_update_info( self, full ):
+		if self.use_xz is True:
+			ext = 'xz'
+		else:
+			ext = 'bz2'
+
 		if full:
 			return (
 				FILMLISTE_AKT_URL,
-				os.path.join( self.settings.datapath, 'Filmliste-akt.xz' ),
+				os.path.join( self.settings.datapath, 'Filmliste-akt.' + ext ),
 				os.path.join( self.settings.datapath, 'Filmliste-akt' ),
 				600,
 			)
 		else:
 			return (
 				FILMLISTE_DIF_URL,
-				os.path.join( self.settings.datapath, 'Filmliste-diff.xz' ),
+				os.path.join( self.settings.datapath, 'Filmliste-diff.' + ext ),
 				os.path.join( self.settings.datapath, 'Filmliste-diff' ),
 				700,
 			)
