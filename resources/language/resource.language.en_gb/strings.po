@@ -43,6 +43,10 @@ msgid "Group shows of different channel"
 msgstr "Group shows of different channel"
 
 msgctxt "#30114"
+msgid "Limit search results"
+msgstr "Limit search results"
+
+msgctxt "#30115"
 msgid "Download directory"
 msgstr "Download directory"
 
@@ -298,3 +302,11 @@ msgstr "Downloading Subtitles"
 msgctxt "#30979"
 msgid "Download path does not exist"
 msgstr "Download path does not exist"
+
+msgctxt "#30980"
+msgid "Results Limited"
+msgstr "Results Limited"
+
+msgctxt "#30981"
+msgid "Only the first {} results are shown."
+msgstr "Only the first {} results are shown."

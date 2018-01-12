@@ -22,6 +22,9 @@ class Notifier( KodiUI ):
 	def ShowMissingXZError( self ):
 		self.ShowError( self.language( 30952 ), self.language( 30954 ), time = 10000 )
 
+	def ShowLimitResults( self, maxresults ):
+		self.ShowNotification( self.language( 30980 ), self.language( 30981 ).format( maxresults ) )
+
 	def ShowDownloadProgress( self ):
 		self.ShowBGDialog( self.language( 30955 ) )
 

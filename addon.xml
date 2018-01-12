@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.3.5"
+	version="0.3.6"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -25,7 +25,9 @@
 		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
-		<news>v0.3.5 (2018-01-11):
+		<news>v0.3.6 (2018-01-XX):
+- Konfigurierbare Begrenzong der Suchergebnisse
+v0.3.5 (2018-01-11):
 - Compliance with Kodi Addon Rules
 v0.3.4 (2018-01-11):
 - Die Suche sucht nun auch im Sendungs-Name

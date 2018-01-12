@@ -43,6 +43,10 @@ msgid "Group shows of different channel"
 msgstr "Raggruppa trasmissioni su canali diversi"
 
 msgctxt "#30114"
+msgid "Limit search results"
+msgstr "Limita risultati ricerche"
+
+msgctxt "#30115"
 msgid "Download directory"
 msgstr "Directory di download"
 
@@ -301,3 +305,11 @@ msgstr "Scaricamento sottotitoli"
 msgctxt "#30979"
 msgid "Download path does not exist"
 msgstr "Directory di scaricamento non esiste"
+
+msgctxt "#30980"
+msgid "Results Limited"
+msgstr "Risultati limitati"
+
+msgctxt "#30981"
+msgid "Only the first {} results are shown."
+msgstr "Vengono mostrati solo i primi {} risultati."

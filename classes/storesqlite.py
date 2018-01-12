@@ -20,6 +20,7 @@ class StoreSQLite( object ):
 		self.dbfile		= os.path.join( self.settings.datapath, 'filmliste-v1.db' )
 		# useful query fragments
 		self.sql_query_films	= "SELECT film.id,title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_sub,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
+		self.sql_query_filmcnt	= "SELECT COUNT(*) FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
 		self.sql_cond_recent	= "( ( UNIX_TIMESTAMP() - aired ) <= 86400 )"
 		self.sql_cond_nofuture	= " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( duration IS NULL ) OR ( duration >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
@@ -52,17 +53,17 @@ class StoreSQLite( object ):
 			self.conn	= None
 
 	def Search( self, search, filmui ):
-		self._Search_Condition( '( ( title LIKE "%%%s%%" ) OR ( show LIKE "%%%s%%" ) )' % ( search, search ), filmui, True, True )
+		self._Search_Condition( '( ( title LIKE "%%%s%%" ) OR ( show LIKE "%%%s%%" ) )' % ( search, search ), filmui, True, True, self.settings.maxresults )
 
 	def SearchFull( self, search, filmui ):
-		self._Search_Condition( '( ( title LIKE "%%%s%%" ) OR ( show LIKE "%%%s%%" ) OR ( description LIKE "%%%s%%") )' % ( search, search, search ), filmui, True, True )
+		self._Search_Condition( '( ( title LIKE "%%%s%%" ) OR ( show LIKE "%%%s%%" ) OR ( description LIKE "%%%s%%") )' % ( search, search, search ), filmui, True, True, self.settings.maxresults )
 
 	def GetRecents( self, channelid, filmui ):
 		sql_cond_channel = ' AND ( film.channelid=' + str( channelid ) + ' ) ' if channelid != '0' else ''
-		self._Search_Condition( self.sql_cond_recent + sql_cond_channel, filmui, True, False )
+		self._Search_Condition( self.sql_cond_recent + sql_cond_channel, filmui, True, False, 10000 )
 
 	def GetLiveStreams( self, filmui ):
-		self._Search_Condition( '( show.search="LIVESTREAM" )', filmui, False, False )
+		self._Search_Condition( '( show.search="LIVESTREAM" )', filmui, False, False, 10000 )
 
 	def GetChannels( self, channelui ):
 		self._Channels_Condition( None, channelui )
@@ -70,7 +71,7 @@ class StoreSQLite( object ):
 	def GetRecentChannels( self, channelui ):
 		self._Channels_Condition( self.sql_cond_recent, channelui )
 
-	def _Channels_Condition( self, condition, channelui):
+	def _Channels_Condition( self, condition, channelui ):
 		if self.conn is None:
 			return
 		try:
@@ -148,12 +149,13 @@ class StoreSQLite( object ):
 			# multiple channel ids
 			condition = '( showid IN ( %s ) )' % showid
 			showchannels = True
-		self._Search_Condition( condition, filmui, False, showchannels )
+		self._Search_Condition( condition, filmui, False, showchannels, 10000 )
 
-	def _Search_Condition( self, condition, filmui, showshows, showchannels ):
+	def _Search_Condition( self, condition, filmui, showshows, showchannels, maxresults ):
 		if self.conn is None:
 			return
 		try:
+			maxresults = int( maxresults )
 			self.logger.info( 'SQLite Query: {}', 
 				self.sql_query_films +
 				' WHERE ' +
@@ -163,15 +165,27 @@ class StoreSQLite( object ):
 			)
 			cursor = self.conn.cursor()
 			cursor.execute(
+				self.sql_query_filmcnt +
+				' WHERE ' +
+				condition +
+				self.sql_cond_nofuture +
+				self.sql_cond_minlength +
+				' LIMIT {}'.format( maxresults + 1 ) if maxresults else ''
+			)
+			( results, ) = cursor.fetchone()
+			if maxresults and results > maxresults:
+				self.notifier.ShowLimitResults( maxresults )
+			cursor.execute(
 				self.sql_query_films +
 				' WHERE ' +
 				condition +
 				self.sql_cond_nofuture +
-				self.sql_cond_minlength
+				self.sql_cond_minlength +
+				' LIMIT {}'.format( maxresults ) if maxresults else ''
 			)
 			filmui.Begin( showshows, showchannels )
 			for ( filmui.id, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd ) in cursor:
-				filmui.Add()
+				filmui.Add( totalItems = results )
 			filmui.End()
 			cursor.close()
 		except sqlite3.Error as err:

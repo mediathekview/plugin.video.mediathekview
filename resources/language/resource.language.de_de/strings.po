@@ -44,6 +44,10 @@ msgstr "Sendungen verschiedener Sender zusammenfassen"
 
 msgctxt "#30114"
 msgid "Download directory"
+msgstr "Suchergebnisse eingrenzen"
+
+msgctxt "#30115"
+msgid "Download directory"
 msgstr "Download-Verzeichnis"
 
 # Settings Page 2
@@ -300,3 +304,11 @@ msgstr "Untertitel werden heruntergeladen"
 msgctxt "#30979"
 msgid "Download path does not exist"
 msgstr "Download-Verzeichnis existiert nicht"
+
+msgctxt "#30980"
+msgid "Results Limited"
+msgstr "Ergebnisse Beschränkt"
+
+msgctxt "#30981"
+msgid "Only the first {} results are shown."
+msgstr "Es werden nur die ersten {} Ergebnisse angezeigt."

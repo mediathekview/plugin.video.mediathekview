@@ -25,7 +25,7 @@ class FilmUI( Film ):
 		for method in self.sortmethods:
 			xbmcplugin.addSortMethod( self.handle, method )
 
-	def Add( self, alttitle = None ):
+	def Add( self, alttitle = None, totalItems = None ):
 		# get the best url
 		videourl = self.url_video_hd if ( self.url_video_hd != "" and self.settings.preferhd ) else self.url_video if self.url_video != "" else self.url_video_sd
 		videohds = " (HD)" if ( self.url_video_hd != "" and self.settings.preferhd ) else ""
@@ -94,12 +94,21 @@ class FilmUI( Film ):
 #		) )
 		li.addContextMenuItems( contextmenu )
 
-		xbmcplugin.addDirectoryItem(
-			handle		= self.handle,
-			url			= videourl,
-			listitem	= li,
-			isFolder	= False
-		)
+		if totalItems is not None:
+			xbmcplugin.addDirectoryItem(
+				handle		= self.handle,
+				url			= videourl,
+				listitem	= li,
+				isFolder	= False,
+				totalItems	= totalItems
+			)
+		else:
+			xbmcplugin.addDirectoryItem(
+				handle		= self.handle,
+				url			= videourl,
+				listitem	= li,
+				isFolder	= False
+			)
 
 	def End( self ):
 		xbmcplugin.endOfDirectory( self.handle, cacheToDisc = False )

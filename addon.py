@@ -79,6 +79,7 @@ class MediathekView( KodiPlugin ):
 		if len( searchText ) > 2:
 			self.db.Search( searchText, FilmUI( self ) )
 		else:
+			self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
 			self.endOfDirectory( False, cacheToDisc = True )
 			# self.showMainMenu()
 
@@ -87,6 +88,7 @@ class MediathekView( KodiPlugin ):
 		if len( searchText ) > 2:
 			self.db.SearchFull( searchText, FilmUI( self ) )
 		else:
+			self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
 			self.endOfDirectory( False, cacheToDisc = True )
 			# self.showMainMenu()
 
