@@ -237,13 +237,12 @@ class MediathekViewUpdater( object ):
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and self._file_exists( destfile )
 
-	def _decompress_bz2(self, sourcename, destfile):
-		size = self._file_size(sourcfile)
+	def _decompress_bz2(self, sourcefile, destfile):
 		blocksize = 10000
 		try:
 			with open(destfile, 'wb') as df, open(sourcefile, 'rb') as sf:
-				decompressor = BZ2Decompressor()
-				for data in iter(lambda : file.read(blocksize), b''):
+				decompressor = bz2.BZ2Decompressor()
+				for data in iter(lambda : sf.read(blocksize), b''):
 					df.write(decompressor.decompress(data))
 		except Exception as err:
 			self.logger.error( 'bz2 decompression failed: {}', err)
