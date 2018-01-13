@@ -145,7 +145,7 @@ class MediathekViewUpdater( object ):
 								self.logger.info( 'Filmliste dated {}', value.strip() )
 							except Exception as err:
 								# If the universe hates us...
-								pass
+								self.logger.debug( 'Could not determine date "{}" of filmliste: {}', value.strip(), err )
 						except ValueError as err:
 							pass
 
