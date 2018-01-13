@@ -60,6 +60,10 @@ msgid "Database hostname"
 msgstr "Hostname banca dati"
 
 msgctxt "#30212"
+msgid "Database port"
+msgstr "Numero port banca dati"
+
+msgctxt "#30213"
 msgid "Database username"
 msgstr "Nome utente"
 
