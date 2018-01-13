@@ -2,7 +2,7 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
+import os, stat, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
 
 from operator import itemgetter
@@ -233,11 +233,11 @@ class MediathekViewUpdater( object ):
 				lasturl = url
 				self.logger.info( 'Trying to download {} from {}...', os.path.basename( compfile ), url )
 				self.notifier.UpdateDownloadProgress( 0, url )
-				result = self._url_retrieve( url, filename = compfile, reporthook = self._reporthook )
+				result = _url_retrieve( url, filename = compfile, reporthook = self._reporthook )
 				break
 			except urllib2.URLError as err:
 				self.logger.error( 'Failure downloading {}', url )
-			except Error as err:
+			except Exception as err:
 				self.logger.error( 'Failure writng {}', url )
 		if result is None:
 			self.logger.info( 'No file downloaded' )
@@ -246,18 +246,18 @@ class MediathekViewUpdater( object ):
 			return False
 
 		# decompress filmliste
-		if self.use_xz is True:
+		if self.use_xz:
 			xzbin = self._find_xz()
 			self.logger.info( 'Trying to decompress xz file...' )
 			retval = subprocess.call( [ xzbin, '-d', compfile ] )
 			self.logger.info( 'Return {}', retval )
 		elif upd_can_bz2:
 			self.logger.info( 'Trying to decompress bz2 file...' )
-			retval = self._decompress_bz2( compfile, destfile )
+			retval = _decompress_bz2( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
 		elif upd_can_zip:
 			self.logger.info( 'Trying to decompress zip file...' )
-			retval = self._decompress_zip( compfile, destfile )
+			retval = _decompress_zip( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
 		else:
 			# should never reach
@@ -265,39 +265,6 @@ class MediathekViewUpdater( object ):
 
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and self._file_exists( destfile )
-
-	def _url_retrieve( self, url, filename, reporthook, chunk_size = 8192 ):
-		f = open( filename, 'wb' )
-		u = urllib2.urlopen( url )
-
-		total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
-		total_chunks = 0
-
-		while True:
-			reporthook( total_chunks, chunk_size, total_size )
-			chunk = u.read( chunk_size )
-			if not chunk:
-				break
-			f.write( chunk )
-			total_chunks += 1
-		f.close()
-		return ( filename, [], )
-
-	def _decompress_bz2( self, sourcefile, destfile ):
-		blocksize = 10000
-		try:
-			with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
-				decompressor = bz2.BZ2Decompressor()
-				for data in iter( lambda : sf.read( blocksize ), b'' ):
-					df.write( decompressor.decompress( data ) )
-		except Exception as err:
-			self.logger.error( 'bz2 decompression failed: {}', err )
-			return -1
-		return 0
-
-	def _decompress_zip( self, sourcefile, destfile ):
-		# DSC: Please implement...
-		return -1
 
 	def _get_update_info( self, full ):
 		if self.use_xz:
@@ -508,3 +475,38 @@ class MediathekViewUpdater( object ):
 			return self.film["url_video"][:cnt] + x[1]
 		else:
 			return val
+
+# helper functions
+def _url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
+	f = open( filename, 'wb' )
+	u = urllib2.urlopen( url )
+
+	total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
+	total_chunks = 0
+
+	while True:
+		reporthook( total_chunks, chunk_size, total_size )
+		chunk = u.read( chunk_size )
+		if not chunk:
+			break
+		f.write( chunk )
+		total_chunks += 1
+	f.close()
+	return ( filename, [], )
+
+def _decompress_bz2( sourcefile, destfile ):
+	blocksize = 10000
+	try:
+		with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
+			decompressor = bz2.BZ2Decompressor()
+			for data in iter( lambda : sf.read( blocksize ), b'' ):
+				df.write( decompressor.decompress( data ) )
+	except Exception as err:
+		self.logger.error( 'bz2 decompression failed: {}', err )
+		return -1
+	return 0
+
+def _decompress_zip( sourcefile, destfile ):
+	# DSC: Please implement...
+	return -1
+
