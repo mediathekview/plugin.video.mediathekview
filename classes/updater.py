@@ -2,7 +2,7 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
+import os, stat, urllib, urllib2, subprocess, ijson, datetime, time, zipfile
 import xml.etree.ElementTree as etree
 
 from operator import itemgetter
@@ -12,7 +12,7 @@ from classes.exceptions import DatabaseLost
 
 # -- Unpacker support ---------------------------------------
 upd_can_bz2 = False
-upd_can_zip = False
+# upd_can_zip = False
 
 try:
 	import bz2
@@ -20,11 +20,12 @@ try:
 except ImportError:
 	pass
 
-try:
-	import zipfile
-	upd_can_zip = True
-except ImportError:
-	pass
+# Rokoko:
+# try:
+# import zipfile
+# 	upd_can_zip = True
+# except ImportError:
+# 	pass
 
 # -- Constants ----------------------------------------------
 FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
@@ -255,7 +256,7 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Trying to decompress bz2 file...' )
 			retval = self._decompress_bz2( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
-		elif upd_can_zip:
+		elif:
 			self.logger.info( 'Trying to decompress zip file...' )
 			retval = self._decompress_zip( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
@@ -304,7 +305,7 @@ class MediathekViewUpdater( object ):
 			ext = 'xz'
 		elif upd_can_bz2:
 			ext = 'bz2'
-		elif upd_can_zip:
+		else:
 			ext = 'zip'
 		else:
 			return ( None, None, None, 0, )
@@ -329,11 +330,8 @@ class MediathekViewUpdater( object ):
 			return url
 		elif upd_can_bz2:
 			return os.path.splitext( url )[0] + '.bz2'
-		elif upd_can_zip:
-			return os.path.splitext( url )[0] + '.zip'
 		else:
-			# should never happen since it will not be called
-			return None
+			return os.path.splitext( url )[0] + '.zip'
 
 	def _find_xz( self ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
