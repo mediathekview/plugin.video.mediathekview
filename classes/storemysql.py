@@ -69,7 +69,7 @@ class StoreMySQL( object ):
 			return
 		try:
 			condition = 'WHERE ( `channelid`=' + str( channelid ) + ' ) ' if channelid != '0' else ''
-			self.logger.info( 'MySQL Query: {}', 
+			self.logger.info( 'MySQL Query: {}',
 				'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
 				condition +
 				'GROUP BY LEFT(search,1)'
@@ -473,7 +473,7 @@ class StoreMySQL( object ):
 		if newchn or self.ft_show != film['show']:
 			# process changed show
 			self.ft_show = film['show']
-			( self.ft_showid, insshw ) = self._insert_show( self.ft_channelid, self.ft_show, self._make_search( self.ft_show ) )
+			( self.ft_showid, insshw ) = self._insert_show( self.ft_channelid, self.ft_show, _make_search_string( self.ft_show ) )
 			if self.ft_showid == 0:
 				self.logger.info( 'Undefined error adding show "{}"', self.ft_show )
 				return ( 0, 0, 0, 0, )
@@ -484,7 +484,7 @@ class StoreMySQL( object ):
 				self.ft_channelid,
 				self.ft_showid,
 				film["title"],
-				self._make_search( film['title'] ),
+				_make_search_string( film['title'] ),
 				film["aired"],
 				film["duration"],
 				film["size"],
@@ -544,11 +544,6 @@ class StoreMySQL( object ):
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, )
-
-	def _make_search( self, val ):
-		cset = string.letters + string.digits + ' _-#'
-		search = ''.join( [ c for c in val if c in cset ] )
-		return search.upper().strip()
 
 	def _handle_database_initialization( self ):
 		cursor = None
@@ -914,3 +909,11 @@ END
 			except mysql.connector.Error as err:
 				# should never happen
 				self.conn = None
+
+
+# -- Functions ----------------------------------------------
+
+def _make_search_string( val ):
+	cset = string.letters + string.digits + ' _-#'
+	search = ''.join( [ c for c in val if c in cset ] )
+	return search.upper().strip()

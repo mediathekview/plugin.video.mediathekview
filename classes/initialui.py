@@ -28,7 +28,7 @@ class InitialUI( object ):
 		li = xbmcgui.ListItem( label = resultingname )
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
-			url		= self.build_url( {
+			url		= _build_url( {
 				'mode': "shows",
 				'channel': self.channelid,
 				'initial': self.initial,
@@ -41,5 +41,7 @@ class InitialUI( object ):
 	def End( self ):
 		xbmcplugin.endOfDirectory( self.handle )
 
-	def build_url( self, query ):
-		return sys.argv[0] + '?' + urllib.urlencode( query )
+# -- Functions ----------------------------------------------
+
+def _build_url( query ):
+	return sys.argv[0] + '?' + urllib.urlencode( query )

@@ -81,7 +81,7 @@ class MediathekViewService( KodiService ):
 			# Sleep/wait for abort for 60 seconds
 			if self.monitor.waitForAbort( 60 ):
 				# Abort was requested while waiting. We should exit
-				break			
+				break
 		self.info( 'Exiting...' )
 
 	def Exit( self ):

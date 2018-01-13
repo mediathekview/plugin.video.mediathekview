@@ -61,7 +61,7 @@ class FilmUI( Film ):
 			infoLabels['date']		= airedstring[8:10] + '-' + airedstring[5:7] + '-' + airedstring[:4]
 			infoLabels['aired']		= airedstring
 			infoLabels['dateadded']	= airedstring
-			
+
 		li = xbmcgui.ListItem( resultingtitle, self.description )
 		li.setInfo( type = 'video', infoLabels = infoLabels )
 		li.setProperty( 'IsPlayable', 'true' )
