@@ -147,19 +147,18 @@ das Programm spezifische Hilfe aus. Beispiel:
 
 ````
 leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
-usage: mvupdate mysql [-h] [-H HOST] [-u USER] [-p PASSWORD] [-d DATABASE]
+usage: mvupdate mysql [-h] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
+                      [-d DATABASE]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -H HOST, --host HOST  hostname or ip of the MySQL server (default:
-                        localhost)
-  -u USER, --user USER  username for the MySQL server connection (default:
-                        filmliste)
+  -H HOST, --host HOST  hostname or ip address (default: localhost)
+  -P PORT, --port PORT  connection port (default: 3306)
+  -u USER, --user USER  connection username (default: mediathekview)
   -p PASSWORD, --password PASSWORD
-                        password for the MySQL server connection (default:
-                        None)
+                        connection password (default: None)
   -d DATABASE, --database DATABASE
-                        MySQL database for mediathekview (default: filmliste)
+                        database name (default: mediathekview)
 ````
 
 
@@ -296,19 +295,18 @@ the application shows specific help instructions:
 
 ````
 leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
-usage: mvupdate mysql [-h] [-H HOST] [-u USER] [-p PASSWORD] [-d DATABASE]
+usage: mvupdate mysql [-h] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
+                      [-d DATABASE]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -H HOST, --host HOST  hostname or ip of the MySQL server (default:
-                        localhost)
-  -u USER, --user USER  username for the MySQL server connection (default:
-                        filmliste)
+  -H HOST, --host HOST  hostname or ip address (default: localhost)
+  -P PORT, --port PORT  connection port (default: 3306)
+  -u USER, --user USER  connection username (default: mediathekview)
   -p PASSWORD, --password PASSWORD
-                        password for the MySQL server connection (default:
-                        None)
+                        connection password (default: None)
   -d DATABASE, --database DATABASE
-                        MySQL database for mediathekview (default: filmliste)
+                        database name (default: mediathekview)
 ````
 
 
@@ -432,17 +430,16 @@ aggiornare, l'applicazione mostrerà le opzioni disponibili:
 
 ````
 leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
-usage: mvupdate mysql [-h] [-H HOST] [-u USER] [-p PASSWORD] [-d DATABASE]
+usage: mvupdate mysql [-h] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
+                      [-d DATABASE]
 
 optional arguments:
   -h, --help            show this help message and exit
-  -H HOST, --host HOST  hostname or ip of the MySQL server (default:
-                        localhost)
-  -u USER, --user USER  username for the MySQL server connection (default:
-                        filmliste)
+  -H HOST, --host HOST  hostname or ip address (default: localhost)
+  -P PORT, --port PORT  connection port (default: 3306)
+  -u USER, --user USER  connection username (default: mediathekview)
   -p PASSWORD, --password PASSWORD
-                        password for the MySQL server connection (default:
-                        None)
+                        connection password (default: None)
   -d DATABASE, --database DATABASE
-                        MySQL database for mediathekview (default: filmliste)
+                        database name (default: mediathekview)
 ````
