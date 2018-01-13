@@ -13,7 +13,6 @@ from classes.exceptions import DatabaseLost
 # -- Unpacker support ---------------------------------------
 upd_can_bz2 = False
 upd_can_zip = False
-upd_can_gz  = False
 
 try:
 	import bz2
@@ -24,12 +23,6 @@ except ImportError:
 try:
 	import zipfile
 	upd_can_zip = True
-except ImportError:
-	pass
-
-try:
-	import gzip
-	upd_can_gz = True
 except ImportError:
 	pass
 
@@ -266,10 +259,6 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Trying to decompress zip file...' )
 			retval = self._decompress_zip( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
-		elif upd_can_gz:
-			self.logger.info( 'Trying to decompress gz file...' )
-			retval = self._decompress_gz( compfile, destfile )
-			self.logger.info( 'Return {}', retval )
 		else:
 			# should never reach
 			pass
@@ -310,10 +299,6 @@ class MediathekViewUpdater( object ):
 		# DSC: Please implement...
 		return -1
 
-	def _decompress_gz( self, sourcefile, destfile ):
-		# DSC: Please implement...
-		return -1
-
 	def _get_update_info( self, full ):
 		if self.use_xz:
 			ext = 'xz'
@@ -321,8 +306,6 @@ class MediathekViewUpdater( object ):
 			ext = 'bz2'
 		elif upd_can_zip:
 			ext = 'zip'
-		elif upd_can_gz:
-			ext = 'gz'
 		else:
 			return ( None, None, None, 0, )
 
@@ -348,8 +331,6 @@ class MediathekViewUpdater( object ):
 			return os.path.splitext( url )[0] + '.bz2'
 		elif upd_can_zip:
 			return os.path.splitext( url )[0] + '.zip'
-		elif upd_can_gz:
-			return os.path.splitext( url )[0] + '.gz'
 		else:
 			# should never happen since it will not be called
 			return None
