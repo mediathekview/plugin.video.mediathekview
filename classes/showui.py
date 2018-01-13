@@ -10,10 +10,10 @@ from classes.show import Show
 
 # -- Classes ------------------------------------------------
 class ShowUI( Show ):
-	def __init__( self, handle, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE ] ):
+	def __init__( self, handle, sortmethods = None ):
 		self.base_url		= sys.argv[0]
 		self.handle			= handle
-		self.sortmethods	= sortmethods
+		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
 		self.querychannelid	= 0
 
 	def Begin( self, channelid ):

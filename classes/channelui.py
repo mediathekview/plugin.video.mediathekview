@@ -10,11 +10,11 @@ from classes.channel import Channel
 
 # -- Classes ------------------------------------------------
 class ChannelUI( Channel ):
-	def __init__( self, handle, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE ], nextdir = 'initial' ):
+	def __init__( self, handle, sortmethods = None, nextdir = 'initial' ):
 		self.base_url		= sys.argv[0]
 		self.nextdir		= nextdir
 		self.handle			= handle
-		self.sortmethods	= sortmethods
+		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
 		self.count			= 0
 
 	def Begin( self ):

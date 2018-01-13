@@ -134,7 +134,7 @@ def ttml2srt( infile, outfile ):
 	# render subtitles on each timestamp
 
 
-	def render_subtitles(elem, timestamp, parent_style={}):
+	def render_subtitles(elem, timestamp, parent_style=None):
 
 		if timestamp < elem.attrib['{abs}begin']:
 			return ''
@@ -143,7 +143,7 @@ def ttml2srt( infile, outfile ):
 
 		result = ''
 
-		style = parent_style.copy()
+		style = parent_style.copy() if parent_style is not None else {}
 		if 'style' in elem.attrib:
 			style.update(styles[elem.attrib['style']])
 

@@ -10,11 +10,11 @@ from classes.settings import Settings
 
 # -- Classes ------------------------------------------------
 class FilmUI( Film ):
-	def __init__( self, plugin, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ] ):
+	def __init__( self, plugin, sortmethods = None ):
 		self.plugin			= plugin
 		self.handle			= plugin.addon_handle
 		self.settings		= Settings()
-		self.sortmethods	= sortmethods
+		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ]
 		self.showshows		= False
 		self.showchannels	= False
 

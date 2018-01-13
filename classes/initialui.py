@@ -8,9 +8,9 @@ import xbmcplugin, xbmcgui
 
 # -- Classes ------------------------------------------------
 class InitialUI( object ):
-	def __init__( self, handle, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE ] ):
+	def __init__( self, handle, sortmethods = None ):
 		self.handle			= handle
-		self.sortmethods	= sortmethods
+		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
 		self.channelid		= 0
 		self.initial		= ''
 		self.count			= 0
