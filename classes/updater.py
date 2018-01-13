@@ -503,7 +503,7 @@ def _decompress_zip( sourcefile, dest_dir ):
 		zipper = zipfile.ZipFile(sourcefile, 'r')
 		zipper.extractall(dest_dir)
 		zipper.close()
-	except:
+	except Exception as err:
 		self.logger.error( 'zip decompression failed: {}'.format(err) )
 		return -1
 	return 0
