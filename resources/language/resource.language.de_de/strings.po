@@ -60,14 +60,18 @@ msgid "Database hostname"
 msgstr "Datenbank Hostname"
 
 msgctxt "#30212"
+msgid "Database port"
+msgstr "Datenbank Portnummer"
+
+msgctxt "#30213"
 msgid "Database username"
 msgstr "Datenbank Benutzername"
 
-msgctxt "#30213"
+msgctxt "#30214"
 msgid "Database password"
 msgstr "Datenbank Passwort"
 
-msgctxt "#30214"
+msgctxt "#30215"
 msgid "Database name"
 msgstr "Datenbank Name"
 

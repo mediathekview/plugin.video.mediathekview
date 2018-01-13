@@ -23,6 +23,7 @@ class Settings( object ):
 		self.downloadpath	= self.addon.getSetting( 'downloadpath' )
 		self.type			= self.addon.getSetting( 'dbtype' )
 		self.host			= self.addon.getSetting( 'dbhost' )
+		self.port			= int( self.addon.getSetting( 'dbport' ) )
 		self.user			= self.addon.getSetting( 'dbuser' )
 		self.password		= self.addon.getSetting( 'dbpass' )
 		self.database		= self.addon.getSetting( 'dbdata' )
