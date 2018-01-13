@@ -2,13 +2,36 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson, datetime, time, bz2
+import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
 
 from operator import itemgetter
 from classes.store import Store
 from classes.exceptions import DatabaseCorrupted
 from classes.exceptions import DatabaseLost
+
+# -- Unpacker support ---------------------------------------
+upd_can_bz2 = False
+upd_can_zip = False
+upd_can_gz  = False
+
+try:
+	import bz2
+	upd_can_bz2 = True
+except ImportError:
+	pass
+
+try:
+	import zipfile
+	upd_can_zip = True
+except ImportError:
+	pass
+
+try:
+	import gzip
+	upd_can_gz = True
+except ImportError:
+	pass
 
 # -- Constants ----------------------------------------------
 FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
@@ -176,6 +199,10 @@ class MediathekViewUpdater( object ):
 
 	def GetNewestList( self, full ):
 		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
+		if url is None:
+			self.logger.error( 'No suitable archive extractor available for this system' )
+			self.notifier.ShowMissingExtractorError()
+			return False
 
 		# get mirrorlist
 		self.logger.info( 'Opening {}', url )
@@ -183,7 +210,7 @@ class MediathekViewUpdater( object ):
 			data = urllib2.urlopen( url ).read()
 		except urllib2.URLError as err:
 			self.logger.error( 'Failure opening {}', url )
-			self.notifier.ShowDowloadError( url, err )
+			self.notifier.ShowDownloadError( url, err )
 			return False
 
 		root = etree.fromstring ( data )
@@ -192,7 +219,7 @@ class MediathekViewUpdater( object ):
 			try:
 				URL = server.find( 'URL' ).text
 				Prio = server.find( 'Prio' ).text
-				urls.append( ( URL, Prio ) )
+				urls.append( ( self._get_update_url( URL ), Prio ) )
 				self.logger.info( 'Found mirror {} (Priority {})', URL, Prio )
 			except AttributeError as error:
 				pass
@@ -206,21 +233,23 @@ class MediathekViewUpdater( object ):
 		self._file_remove( destfile )
 
 		# download filmliste
-		self.logger.info( 'Trying to download file...' )
 		self.notifier.ShowDownloadProgress()
 		lasturl = ''
 		for url in urls:
 			try:
 				lasturl = url
+				self.logger.info( 'Trying to download {} from {}...', os.path.basename( compfile ), url )
 				self.notifier.UpdateDownloadProgress( 0, url )
-				result = urllib.urlretrieve( url, filename = compfile, reporthook = self._reporthook )
+				result = self._url_retrieve( url, filename = compfile, reporthook = self._reporthook )
 				break
-			except IOError as err:
-				self.logger.error( 'Failure opening {}', url )
+			except urllib2.URLError as err:
+				self.logger.error( 'Failure downloading {}', url )
+			except Error as err:
+				self.logger.error( 'Failure writng {}', url )
 		if result is None:
 			self.logger.info( 'No file downloaded' )
 			self.notifier.CloseDownloadProgress()
-			self.notifier.ShowDowloadError( lasturl, err )
+			self.notifier.ShowDownloadError( lasturl, err )
 			return False
 
 		# decompress filmliste
@@ -229,31 +258,73 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Trying to decompress xz file...' )
 			retval = subprocess.call( [ xzbin, '-d', compfile ] )
 			self.logger.info( 'Return {}', retval )
-		else:
+		elif upd_can_bz2:
 			self.logger.info( 'Trying to decompress bz2 file...' )
-			retval = self._decompress_bz2(compfile, destfile)
+			retval = self._decompress_bz2( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
+		elif upd_can_zip:
+			self.logger.info( 'Trying to decompress zip file...' )
+			retval = self._decompress_zip( compfile, destfile )
+			self.logger.info( 'Return {}', retval )
+		elif upd_can_gz:
+			self.logger.info( 'Trying to decompress gz file...' )
+			retval = self._decompress_gz( compfile, destfile )
+			self.logger.info( 'Return {}', retval )
+		else:
+			# should never reach
+			pass
 
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and self._file_exists( destfile )
 
-	def _decompress_bz2(self, sourcefile, destfile):
+	def _url_retrieve( self, url, filename, reporthook, chunk_size = 8192 ):
+		f = open( filename, 'wb' )
+		u = urllib2.urlopen( url )
+
+		total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
+		total_chunks = 0
+
+		while True:
+			reporthook( total_chunks, chunk_size, total_size )
+			chunk = u.read( chunk_size )
+			if not chunk:
+				break
+			f.write( chunk )
+			total_chunks += 1
+		f.close()
+		return ( filename, [], )
+
+	def _decompress_bz2( self, sourcefile, destfile ):
 		blocksize = 10000
 		try:
-			with open(destfile, 'wb') as df, open(sourcefile, 'rb') as sf:
+			with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
 				decompressor = bz2.BZ2Decompressor()
-				for data in iter(lambda : sf.read(blocksize), b''):
-					df.write(decompressor.decompress(data))
+				for data in iter( lambda : sf.read( blocksize ), b'' ):
+					df.write( decompressor.decompress( data ) )
 		except Exception as err:
-			self.logger.error( 'bz2 decompression failed: {}', err)
+			self.logger.error( 'bz2 decompression failed: {}', err )
 			return -1
 		return 0
 
+	def _decompress_zip( self, sourcefile, destfile ):
+		# DSC: Please implement...
+		return -1
+
+	def _decompress_gz( self, sourcefile, destfile ):
+		# DSC: Please implement...
+		return -1
+
 	def _get_update_info( self, full ):
-		if self.use_xz is True:
+		if self.use_xz:
 			ext = 'xz'
-		else:
+		elif upd_can_bz2:
 			ext = 'bz2'
+		elif upd_can_zip:
+			ext = 'zip'
+		elif upd_can_gz:
+			ext = 'gz'
+		else:
+			return ( None, None, None, 0, )
 
 		if full:
 			return (
@@ -269,7 +340,20 @@ class MediathekViewUpdater( object ):
 				os.path.join( self.settings.datapath, 'Filmliste-diff' ),
 				700,
 			)
-			
+
+	def _get_update_url( self, url ):
+		if self.use_xz:
+			return url
+		elif upd_can_bz2:
+			return os.path.splitext( url )[0] + '.bz2'
+		elif upd_can_zip:
+			return os.path.splitext( url )[0] + '.zip'
+		elif upd_can_gz:
+			return os.path.splitext( url )[0] + '.gz'
+		else:
+			# should never happen since it will not be called
+			return None
+
 	def _find_xz( self ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
 			if self._file_exists( xzbin ):

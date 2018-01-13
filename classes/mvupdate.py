@@ -93,7 +93,7 @@ class Notifier( object ):
 		pass
 	def ShowDownloadError( self, name, err ):
 		pass
-	def ShowMissingXZError( self ):
+	def ShowMissingExtractorError( self ):
 		pass
 	def ShowDownloadProgress( self ):
 		pass

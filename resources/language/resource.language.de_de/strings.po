@@ -224,8 +224,8 @@ msgstr "Dieses Kodi Addon Ermöglicht den Zugriff auf fast alle deutschen Mediat
 "Spende zu hinterlassen."
 
 msgctxt "#30963"
-msgid "XZ Decompressor is Missing"
-msgstr "Entpacker XZ nicht gefunden"
+msgid "No Decompressor Available"
+msgstr "Kein Entpacker Verfügbar"
 
 msgctxt "#30964"
 msgid "The database updater needs the program 'xz' in order to process the database update files. "

@@ -224,8 +224,8 @@ msgstr "This Kodi addon allows access to most video-platforms from German public
 "Please consider donating to this great project! Visit MediathekView at https://mediathekview.de/"
 
 msgctxt "#30963"
-msgid "XZ Decompressor is Missing"
-msgstr "XZ Decompressor is Missing"
+msgid "No Decompressor Available"
+msgstr "No Decompressor Available"
 
 msgctxt "#30964"
 msgid "The database updater needs the program 'xz' in order to process the database update files. "

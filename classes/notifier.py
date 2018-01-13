@@ -19,7 +19,7 @@ class Notifier( KodiUI ):
 	def ShowDownloadError( self, name, err ):
 		self.ShowError( self.language( 30952 ), self.language( 30953 ).format( name, err ) )
 
-	def ShowMissingXZError( self ):
+	def ShowMissingExtractorError( self ):
 		self.ShowError( self.language( 30952 ), self.language( 30954 ), time = 10000 )
 
 	def ShowLimitResults( self, maxresults ):
