@@ -7,7 +7,6 @@ import string, time
 import mysql.connector
 
 from classes.film import Film
-from classes.exceptions import DatabaseCorrupted
 
 # -- Classes ------------------------------------------------
 class StoreMySQL( object ):

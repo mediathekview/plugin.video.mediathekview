@@ -38,7 +38,7 @@ class StoreSQLite( object ):
 			try:
 				self.conn = sqlite3.connect( self.dbfile, timeout = 60 )
 			except sqlite3.DatabaseError as err:
-				self.logger.error( 'Errore while opening database. Trying to fully reset the Database...' )
+				self.logger.error( 'Error while opening database: {}. trying to fully reset the Database...', err )
 				self.Init( reset = True )
 
 		self.conn.execute( 'pragma journal_mode=off' )	# 3x speed-up, check mode 'WAL'
@@ -743,14 +743,14 @@ PRAGMA foreign_keys = true;
 		try:
 			s = os.stat( name )
 			return stat.S_ISDIR( s.st_mode )
-		except OSError as err:
+		except OSError:
 			return False
 
 	def _file_exists( self, name ):
 		try:
 			s = os.stat( name )
 			return stat.S_ISREG( s.st_mode )
-		except OSError as err:
+		except OSError:
 			return False
 
 	def _file_remove( self, name ):

@@ -6,8 +6,6 @@
 import sys, urllib
 import xbmcplugin, xbmcgui
 
-from classes.settings import Settings
-
 # -- Classes ------------------------------------------------
 class InitialUI( object ):
 	def __init__( self, handle, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE ] ):

@@ -25,12 +25,10 @@
 # -- Imports ------------------------------------------------
 from __future__ import unicode_literals  # ,absolute_import, division
 
-import time
 import xbmc
 
 from de.yeasoft.kodi.KodiAddon import KodiService
 
-from classes.store import Store
 from classes.notifier import Notifier
 from classes.settings import Settings
 from classes.updater import MediathekViewUpdater

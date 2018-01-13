@@ -26,7 +26,6 @@
 
 import re
 import io
-import sys
 from datetime import timedelta
 from xml.etree import ElementTree as ET
 

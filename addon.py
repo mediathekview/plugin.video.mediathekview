@@ -27,8 +27,8 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # from future import standard_library
 # from builtins import *
 # standard_library.install_aliases()
-import io,os,re,sys,urlparse,datetime,string,urllib,urllib2
-import xbmc,xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
+import os,re,sys,urlparse,datetime,string,urllib,urllib2
+import xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
 
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
 from de.yeasoft.kodi.KodiUI import KodiBGDialog

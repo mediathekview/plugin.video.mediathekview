@@ -3,7 +3,7 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcaddon, xbmcplugin, xbmcgui
+import xbmcplugin, xbmcgui
 
 from classes.film import Film
 from classes.settings import Settings

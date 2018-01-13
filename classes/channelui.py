@@ -7,7 +7,6 @@ import sys, urllib
 import xbmcplugin, xbmcgui
 
 from classes.channel import Channel
-from classes.settings import Settings
 
 # -- Classes ------------------------------------------------
 class ChannelUI( Channel ):

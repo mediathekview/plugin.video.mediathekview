@@ -7,7 +7,6 @@ import sys, urllib
 import xbmcplugin, xbmcgui
 
 from classes.show import Show
-from classes.settings import Settings
 
 # -- Classes ------------------------------------------------
 class ShowUI( Show ):

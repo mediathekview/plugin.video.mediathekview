@@ -3,7 +3,7 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcaddon, xbmcplugin
+import xbmcaddon
 
 from de.yeasoft.kodi.KodiUI import KodiUI
 

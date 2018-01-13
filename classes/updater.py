@@ -204,7 +204,7 @@ class MediathekViewUpdater( object ):
 				Prio = server.find( 'Prio' ).text
 				urls.append( ( URL, Prio ) )
 				self.logger.info( 'Found mirror {} (Priority {})', URL, Prio )
-			except AttributeError as error:
+			except AttributeError:
 				pass
 		urls = sorted( urls, key = itemgetter( 1 ) )
 		urls = [ url[0] for url in urls ]
