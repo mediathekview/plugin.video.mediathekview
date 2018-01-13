@@ -15,7 +15,7 @@ class Store( object ):
 		# load storage engine
 		if settings.type == '0':
 			self.logger.info( 'Database driver: Internal (sqlite)' )
-			self.db = StoreSQLite( logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
+			self.db = StoreSQLite( logger.getNewLogger( 'StoreSQLite' ), notifier, self.settings )
 		elif settings.type == '1':
 			self.logger.info( 'Database driver: External (mysql)' )
 			self.db = StoreMySQL( logger.getNewLogger( 'StoreMySQL' ), notifier, self.settings )
