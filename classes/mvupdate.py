@@ -19,6 +19,7 @@ class Settings( object ):
 		self.type			= { 'sqlite' : '0', 'mysql' : '1' }.get( args.dbtype, '0' )
 		if self.type == '1':
 			self.host			= args.host
+			self.port			= int( args.port )
 			self.user			= args.user
 			self.password		= args.password
 			self.database		= args.database
@@ -148,26 +149,32 @@ class UpdateApp( AppLogger ):
 		mysqlopts.add_argument(
 			'-H', '--host',
 			dest = 'host',
-			help = 'hostname or ip of the MySQL server',
+			help = 'hostname or ip address',
 			default = 'localhost'
+		)
+		mysqlopts.add_argument(
+			'-P', '--port',
+			dest = 'port',
+			help = 'connection port',
+			default = '3306'
 		)
 		mysqlopts.add_argument(
 			'-u', '--user',
 			dest = 'user',
-			help = 'username for the MySQL server connection',
-			default = 'filmliste'
+			help = 'connection username',
+			default = 'mediathekview'
 		)
 		mysqlopts.add_argument(
 			'-p', '--password',
 			dest = 'password',
-			help = 'password for the MySQL server connection',
+			help = 'connection password',
 			default = None
 		)
 		mysqlopts.add_argument(
 			'-d', '--database',
 			dest = 'database',
-			default = 'filmliste',
-			help = 'MySQL database for mediathekview'
+			default = 'mediathekview',
+			help = 'database name'
 		)
 		self.args		= parser.parse_args()
 		self.verbosity	= self.args.verbose

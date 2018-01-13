@@ -26,6 +26,8 @@
 		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.3.6 (2018-01-XX):
+- Der Datenbanktreiber für MySQL kann nun die Datenbank selbsttätig anlegen
+- Im Datenbanktreiber für MySQL kann nun auch die Portnummer angegeben werden
 - Konfigurierbare Begrenzong der Suchergebnisse
 v0.3.5 (2018-01-11):
 - Compliance with Kodi Addon Rules

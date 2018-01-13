@@ -95,11 +95,13 @@ Datenbank (MySQL) zu nutzen.
 
 Da viele Kodi-Nutzer über ein eigenes NAS-System verfügen um ihre Medien
 dem Media-Center zur Verfügung zu stellen, eignet sich dieses in der Regel
-auch als MySQL Datenbank-Server da nahezu alle NAS-Betriebssysteme die
-Installation eines solchen anbieten.
+auch als MySQL bzw. MariaDB Datenbank-Server da nahezu alle NAS-Betriebssysteme
+die Installation eines solchen anbieten.
 
-Hierfür muss lediglich die entsprechende Datenbank im MySQL Server mit
-dem SQL-Skript `resources/sql/filmliste-mysql-v1.sql` erzeugt werden.
+Ist das Addon so konfiguriert, dass eine MySQL/MariaDB Datenbank genutzt werden
+soll, erzeugt dieses die Datenbank selbsttätig, falls diese auf dem
+Datenbankserver noch nicht existiert. Der angegebene Datenabankbenutzer muss
+dafür allerdings auch die Rechte besitzen.
 
 Die Verbindung zur Datenbank kann in den Addon-Einstellungen im Abschnitt
 _"Datenbank Einstellungen"_ vorgenommen werden.
@@ -242,8 +244,13 @@ with a very slow SD card) or if the program 'xz' is missing, it is also
 possible to use the addon with an external database (MySQL).
 
 Since many Kodi users have their own NAS system to make their media available
-to the media center, this is usually also suitable as a MySQL database server
-since almost all NAS operating systems offer the installation of MySQL.
+to the media center, this is usually also suitable as a MySQL/MariaDB database
+server since almost all NAS operating systems offer the installation of MySQL.
+
+If the addon is configured to use a MySQL/MariaDB database, the database is
+created automatically if it does not yet exist on the database server. However,
+the specified database user must also have sufficient user rights in order to
+do this.
 
 When you have a running MySQL server avaible, you have only to create the
 database by running the SQL script `resources/sql/filmliste-mysql-v1.sql`.
@@ -374,11 +381,13 @@ Raspberry PI con una scheda SD molto lenta) o se manca il programma 'xz',
 
 Dal momento che molti utenti Kodi hanno il proprio sistema NAS per rendere i
 loro contenuti mediali disponibili al media center, questo è di solito anche
-adatto come server di database MySQL, dal momento che quasi tutti i sistemi
-operativi NAS offrono l'installazione di un tale database.
+adatto come server di database MySQL/MariaDB, dal momento che quasi tutti i
+sistemi operativi NAS offrono l'installazione di un tale database.
 
-Dopodiche sarà sufficiente creare la banca dati mediante lo script SQL
-disponibile in `resources/sql/filmliste-mysql-v1.sql`.
+Se l' addon è configurato per utilizzare un database MySQL/MariaDB, il database
+verrà creato automaticamente se non esiste ancora sul database server.
+Tuttavia, anche l'utente del database specificato deve avere i diritti
+necessari.
 
 Il collegamento al database può essere effettuato nelle impostazioni 
 dell'addon nella sezione "Impostazioni Banca Dati".
