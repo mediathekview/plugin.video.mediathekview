@@ -27,8 +27,8 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # from future import standard_library
 # from builtins import *
 # standard_library.install_aliases()
-import os,re,sys,urlparse,datetime,string,urllib,urllib2
-import xbmcplugin,xbmcgui,xbmcaddon,xbmcvfs
+import os,re,sys,urlparse,datetime,string,urllib2
+import xbmcplugin,xbmcgui,xbmcvfs
 
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
 from de.yeasoft.kodi.KodiUI import KodiBGDialog
@@ -307,7 +307,7 @@ class MediathekView( KodiPlugin ):
 			channel = self.args.get( 'channel', [0] )
 			self.db.GetRecents( channel[0], FilmUI( self ) )
 		elif mode[0] == 'recentchannels':
-			self.db.GetRecentChannels( ChannelUI( self.addon_handle, next = 'recent' ) )
+			self.db.GetRecentChannels( ChannelUI( self.addon_handle, nextdir = 'recent' ) )
 		elif mode[0] == 'channels':
 			self.db.GetChannels( ChannelUI( self.addon_handle ) )
 		elif mode[0] == 'action-dbinfo':
