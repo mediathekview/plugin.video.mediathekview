@@ -3,7 +3,6 @@
 #
 
 # -- Imports ------------------------------------------------
-import os
 import xbmc
 
 from de.yeasoft.base.Logger import Logger
