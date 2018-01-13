@@ -71,26 +71,6 @@ class StoreSQLite( object ):
 	def GetRecentChannels( self, channelui ):
 		self._Channels_Condition( self.sql_cond_recent, channelui )
 
-	def _Channels_Condition( self, condition, channelui ):
-		if self.conn is None:
-			return
-		try:
-			if condition is None:
-				query = 'SELECT id,channel,0 AS `count` FROM channel'
-			else:
-				query = 'SELECT channel.id AS `id`,channel,COUNT(*) AS `count` FROM film LEFT JOIN channel ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel'
-			self.logger.info( 'SQLite Query: {}', query )
-			cursor = self.conn.cursor()
-			cursor.execute( query )
-			channelui.Begin()
-			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
-				channelui.Add()
-			channelui.End()
-			cursor.close()
-		except sqlite3.Error as err:
-			self.logger.error( 'Database error: {}', err )
-			self.notifier.ShowDatabaseError( err )
-
 	def GetInitials( self, channelid, initialui ):
 		if self.conn is None:
 			return
@@ -150,6 +130,26 @@ class StoreSQLite( object ):
 			condition = '( showid IN ( %s ) )' % showid
 			showchannels = True
 		self._Search_Condition( condition, filmui, False, showchannels, 10000 )
+
+	def _Channels_Condition( self, condition, channelui ):
+		if self.conn is None:
+			return
+		try:
+			if condition is None:
+				query = 'SELECT id,channel,0 AS `count` FROM channel'
+			else:
+				query = 'SELECT channel.id AS `id`,channel,COUNT(*) AS `count` FROM film LEFT JOIN channel ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel'
+			self.logger.info( 'SQLite Query: {}', query )
+			cursor = self.conn.cursor()
+			cursor.execute( query )
+			channelui.Begin()
+			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
+				channelui.Add()
+			channelui.End()
+			cursor.close()
+		except sqlite3.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
 
 	def _Search_Condition( self, condition, filmui, showshows, showchannels, maxresults ):
 		if self.conn is None:

@@ -28,6 +28,7 @@ class StoreMySQL( object ):
 		try:
 			self.conn		= mysql.connector.connect(
 				host		= self.settings.host,
+				port		= self.settings.port,
 				user		= self.settings.user,
 				password	= self.settings.password,
 				database	= self.settings.database
@@ -59,26 +60,6 @@ class StoreMySQL( object ):
 
 	def GetRecentChannels( self, channelui ):
 		self._Channels_Condition( self.sql_cond_recent, channelui )
-
-	def _Channels_Condition( self, condition, channelui):
-		if self.conn is None:
-			return
-		try:
-			if condition is None:
-				query = 'SELECT `id`,`channel`,0 AS `count` FROM `channel`'
-			else:
-				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel.id'
-			self.logger.info( 'MySQL Query: {}', query )
-			cursor = self.conn.cursor()
-			cursor.execute( query )
-			channelui.Begin()
-			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
-				channelui.Add()
-			channelui.End()
-			cursor.close()
-		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
-			self.notifier.ShowDatabaseError( err )
 
 	def GetInitials( self, channelid, initialui ):
 		if self.conn is None:
@@ -139,6 +120,26 @@ class StoreMySQL( object ):
 			condition = '( `showid` IN ( %s ) )' % showid
 			showchannels = True
 		self._Search_Condition( condition, filmui, False, showchannels, 10000 )
+
+	def _Channels_Condition( self, condition, channelui):
+		if self.conn is None:
+			return
+		try:
+			if condition is None:
+				query = 'SELECT `id`,`channel`,0 AS `count` FROM `channel`'
+			else:
+				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel.id'
+			self.logger.info( 'MySQL Query: {}', query )
+			cursor = self.conn.cursor()
+			cursor.execute( query )
+			channelui.Begin()
+			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
+				channelui.Add()
+			channelui.End()
+			cursor.close()
+		except mysql.connector.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
 
 	def _Search_Condition( self, condition, filmui, showshows, showchannels, maxresults ):
 		if self.conn is None:
