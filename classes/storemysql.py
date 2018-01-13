@@ -132,7 +132,7 @@ class StoreMySQL( object ):
 			return
 		if showid.find( ',' ) == -1:
 			# only one channel id
-			condition = '( `showid=`%s )' % showid
+			condition = '( `showid`=%s )' % showid
 			showchannels = False
 		else:
 			# multiple channel ids
