@@ -2,7 +2,7 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib2, subprocess, ijson, datetime, time, zipfile
+import os, stat, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
 
 from operator import itemgetter
@@ -13,7 +13,6 @@ from classes.exceptions import DatabaseLost
 # -- Unpacker support ---------------------------------------
 upd_can_bz2 = False
 upd_can_gz  = False
-# upd_can_zip = False
 
 try:
 	import bz2
@@ -26,12 +25,6 @@ try:
 	upd_can_gz = True
 except ImportError:
 	pass
-
-# try:
-# import zipfile
-# 	upd_can_zip = True
-# except ImportError:
-# 	pass
 
 # -- Constants ----------------------------------------------
 FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
@@ -267,9 +260,8 @@ class MediathekViewUpdater( object ):
 			retval = _decompress_gz( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
 		else:
-			self.logger.info( 'Trying to decompress zip file...' )
-			retval = _decompress_zip( compfile, self.settings.datapath )
-			self.logger.info( 'Return {}', retval )
+			# should nebver reach
+			pass
 
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and _file_exists( destfile )
@@ -282,8 +274,8 @@ class MediathekViewUpdater( object ):
 		elif upd_can_gz is True:
 			ext = 'gz'
 		else:
-			ext = 'zip'
-
+			return ( None, None, None, 0, )
+  
 		if full:
 			return (
 				FILMLISTE_AKT_URL,
@@ -307,7 +299,8 @@ class MediathekViewUpdater( object ):
 		elif upd_can_gz is True:
 			return os.path.splitext( url )[0] + '.gz'
 		else:
-			return os.path.splitext( url )[0] + '.zip'
+			# should never happen since it will not be called
+			return None
 
 	def _find_xz( self ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
@@ -518,15 +511,5 @@ def _decompress_gz( sourcefile, destfile ):
 				df.write( data )
 	except Exception as err:
 		self.logger.error( 'gz decompression failed: {}'.format( err ) )
-		return -1
-	return 0
-
-def _decompress_zip( sourcefile, dest_dir ):
-	try:
-		zipper = zipfile.ZipFile( sourcefile, 'r' )
-		zipper.extractall( dest_dir )
-		zipper.close()
-	except Exception as err:
-		self.logger.error( 'zip decompression failed: {}'.format( err ) )
 		return -1
 	return 0
