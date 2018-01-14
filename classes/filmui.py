@@ -3,18 +3,18 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcaddon, xbmcplugin, xbmcgui
+import xbmcplugin, xbmcgui
 
 from classes.film import Film
 from classes.settings import Settings
 
 # -- Classes ------------------------------------------------
 class FilmUI( Film ):
-	def __init__( self, plugin, sortmethods = [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ] ):
+	def __init__( self, plugin, sortmethods = None ):
 		self.plugin			= plugin
 		self.handle			= plugin.addon_handle
 		self.settings		= Settings()
-		self.sortmethods	= sortmethods
+		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE, xbmcplugin.SORT_METHOD_DATE, xbmcplugin.SORT_METHOD_DURATION, xbmcplugin.SORT_METHOD_SIZE ]
 		self.showshows		= False
 		self.showchannels	= False
 
@@ -61,7 +61,7 @@ class FilmUI( Film ):
 			infoLabels['date']		= airedstring[8:10] + '-' + airedstring[5:7] + '-' + airedstring[:4]
 			infoLabels['aired']		= airedstring
 			infoLabels['dateadded']	= airedstring
-			
+
 		li = xbmcgui.ListItem( resultingtitle, self.description )
 		li.setInfo( type = 'video', infoLabels = infoLabels )
 		li.setProperty( 'IsPlayable', 'true' )
