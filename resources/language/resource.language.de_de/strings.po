@@ -139,11 +139,11 @@ msgstr "Video herunterladen"
 
 msgctxt "#30922"
 msgid "Download LoRes Video"
-msgstr "Niedrig auflösendes Video herunterladen"
+msgstr "SD Video herunterladen"
 
 msgctxt "#30923"
 msgid "Download HD Video"
-msgstr "Hoch auflösendes Video herunterladen"
+msgstr "HD Video herunterladen"
 
 msgctxt "#30924"
 msgid "Add to queue"

@@ -54,16 +54,10 @@ class MediathekViewService( KodiService ):
 		self.settings	= Settings()
 		self.notifier	= Notifier()
 		self.monitor	= MediathekViewMonitor( self )
-		self.updater	= MediathekViewUpdater( self.getNewLogger( 'MediathekViewUpdater' ), self.notifier, self.settings, self.monitor )
-
-	def __del__( self ):
-		del self.updater
-		del self.monitor
-		del self.notifier
-		del self.settings
+		self.updater	= MediathekViewUpdater( self.getNewLogger( 'Updater' ), self.notifier, self.settings, self.monitor )
 
 	def Init( self ):
-		self.info( 'Startup' )
+		self.info( 'Init' )
 		self.updater.Init()
 
 	def Run( self ):
@@ -82,10 +76,10 @@ class MediathekViewService( KodiService ):
 			if self.monitor.waitForAbort( 60 ):
 				# Abort was requested while waiting. We should exit
 				break
-		self.info( 'Exiting...' )
+		self.info( 'Shutting down...' )
 
 	def Exit( self ):
-		self.info( 'Shutdown' )
+		self.info( 'Exit' )
 		self.updater.Exit()
 
 	def ReloadSettings( self ):

@@ -30,6 +30,8 @@ from __future__ import unicode_literals  # ,absolute_import, division
 import os,re,sys,urlparse,datetime,string,urllib2
 import xbmcplugin,xbmcgui,xbmcvfs
 
+from contextlib import closing
+
 from de.yeasoft.kodi.KodiAddon import KodiPlugin
 from de.yeasoft.kodi.KodiUI import KodiBGDialog
 
@@ -51,9 +53,6 @@ class MediathekView( KodiPlugin ):
 		self.settings	= Settings()
 		self.notifier	= Notifier()
 		self.db			= Store( self.getNewLogger( 'Store' ), self.notifier, self.settings )
-
-	def __del__( self ):
-		del self.db
 
 	def showMainMenu( self ):
 		# Search
@@ -250,36 +249,35 @@ class MediathekView( KodiPlugin ):
 		# create NFO files
 		if not xbmcvfs.exists( dirname + 'tvshow.nfo' ):
 			try:
-				file = xbmcvfs.File( dirname + 'tvshow.nfo', 'w' )
-				file.write( bytearray( '<tvshow>\n', 'utf-8' ) )
-				file.write( bytearray( '<id></id>\n', 'utf-8' ) )
-				file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
-				file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
-#				file.write( bytearray( '\t<year>{}</year>\n'.format( 2018 ), 'utf-8' ) )   # XXX TODO: That might be incorrect!
-				file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
-				file.write( bytearray( '</tvshow>\n', 'utf-8' ) )
-				file.close()
+				with closing( xbmcvfs.File( dirname + 'tvshow.nfo', 'w' ) ) as file:
+					file.write( b'<tvshow>\n' )
+					file.write( b'<id></id>\n' )
+					file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
+					file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
+# TODO:				file.write( bytearray( '\t<year>{}</year>\n'.format( 2018 ), 'utf-8' ) )
+					file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
+					file.write( b'</tvshow>\n' )
 			except Exception as err:
 				self.error( 'Failure creating show NFO file for {}: {}', videourl, err )
 
 		try:
-			file = xbmcvfs.File( filename, 'w' )
-			file.write( bytearray( '<episodedetails>\n', 'utf-8' ) )
-			file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
-			file.write( bytearray( '\t<season>1</season>\n', 'utf-8' ) )
-			file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
-			file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
-			file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
-			file.write( bytearray( '\t<aired>{}</aired>\n'.format( film.aired ), 'utf-8' ) )
-			if film.seconds > 60:
-				file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
-			file.write( bytearray( '\t<studio>{}</studio\n'.format( film.channel ), 'utf-8' ) )
-			file.write( bytearray( '</episodedetails>\n', 'utf-8' ) )
-			file.close()
+			with closing( xbmcvfs.File( filename, 'w' ) ) as file:
+				file.write( b'<episodedetails>\n' )
+				file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
+				file.write( b'\t<season>1</season>\n' )
+				file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
+				file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
+				file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
+				file.write( bytearray( '\t<aired>{}</aired>\n'.format( film.aired ), 'utf-8' ) )
+				if film.seconds > 60:
+					file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
+				file.write( bytearray( '\t<studio>{}</studio\n'.format( film.channel ), 'utf-8' ) )
+				file.write( b'</episodedetails>\n' )
 		except Exception as err:
 			self.error( 'Failure creating episode NFO file for {}: {}', videourl, err )
 
 	def Init( self ):
+		self.info( '=== {} ===', self.addon.getAddonInfo('profile').decode('utf-8') )
 		self.args = urlparse.parse_qs( sys.argv[2][1:] )
 		self.db.Init()
 		if self.settings.HandleFirstRun():
@@ -336,21 +334,18 @@ class MediathekView( KodiPlugin ):
 # -- Functions ----------------------------------------------
 
 def _url_retrieve( videourl, filename, reporthook, chunk_size = 8192 ):
-	f = xbmcvfs.File( filename, 'wb' )
-	u = urllib2.urlopen( videourl )
+	with closing( urllib2.urlopen( videourl ) ) as u, closing( xbmcvfs.File( filename, 'wb' ) ) as f:
+		total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
+		total_chunks = 0
 
-	total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
-	total_chunks = 0
-
-	while True:
-		reporthook( total_chunks, chunk_size, total_size )
-		chunk = u.read( chunk_size )
-		if not chunk:
-			break
-		f.write( chunk )
-		total_chunks += 1
-	f.close()
-	return ( filename, [], )
+		while True:
+			reporthook( total_chunks, chunk_size, total_size )
+			chunk = u.read( chunk_size )
+			if not chunk:
+				break
+			f.write( chunk )
+			total_chunks += 1
+		return ( filename, [], )
 
 def _cleanup_filename( val ):
 	cset = string.letters + string.digits + u' _-#äöüÄÖÜßáàâéèêíìîóòôúùûÁÀÉÈÍÌÓÒÚÙçÇœ'

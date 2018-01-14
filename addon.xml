@@ -19,12 +19,12 @@
 		library="service.py"
 		start="startup" />
 	<extension point="xbmc.addon.metadata">
-		<summary lang="de">Öffentlich-Rechtliche Mediatheken</summary>
-		<summary lang="en">Public service video-platforms</summary>
-		<summary lang="it">Piattaforme video dalle emittenti pubbliche</summary>
-		<description lang="de">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
-		<description lang="en">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
-		<description lang="it">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
+		<summary lang="de_DE">Öffentlich-Rechtliche Mediatheken</summary>
+		<summary lang="en_GB">Public service video-platforms</summary>
+		<summary lang="it_IT">Piattaforme video dalle emittenti pubbliche</summary>
+		<description lang="de_DE">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
+		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
+		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.3.6 (2018-01-XX):
 - Der Datenbanktreiber für MySQL kann nun die Datenbank selbsttätig anlegen
 - Im Datenbanktreiber für MySQL kann nun auch die Portnummer angegeben werden
