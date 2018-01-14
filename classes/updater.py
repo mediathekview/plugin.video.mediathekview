@@ -38,7 +38,7 @@ class MediathekViewUpdater( object ):
 		self.settings	= settings
 		self.monitor	= monitor
 		self.db			= None
-		self.use_xz     = self._find_xz()
+		self.use_xz     = _find_xz()
 
 	def Init( self ):
 		if self.db is not None:
@@ -247,9 +247,8 @@ class MediathekViewUpdater( object ):
 
 		# decompress filmliste
 		if self.use_xz is True:
-			xzbin = self._find_xz()
 			self.logger.info( 'Trying to decompress xz file...' )
-			retval = subprocess.call( [ xzbin, '-d', compfile ] )
+			retval = subprocess.call( [ _find_xz(), '-d', compfile ] )
 			self.logger.info( 'Return {}', retval )
 		elif upd_can_bz2 is True:
 			self.logger.info( 'Trying to decompress bz2 file...' )
@@ -301,12 +300,6 @@ class MediathekViewUpdater( object ):
 		else:
 			# should never happen since it will not be called
 			return None
-
-	def _find_xz( self ):
-		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
-			if _file_exists( xzbin ):
-				return xzbin
-		return None
 
 	def _file_remove( self, name ):
 		if _file_exists( name ):
@@ -471,6 +464,12 @@ def _file_size( name ):
 		return s.st_size
 	except OSError as err:
 		return 0
+
+def _find_xz():
+	for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
+		if _file_exists( xzbin ):
+			return xzbin
+	return None
 
 def _url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
 	f = open( filename, 'wb' )
