@@ -306,8 +306,6 @@ class MediathekViewUpdater( object ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
 			if _file_exists( xzbin ):
 				return xzbin
-		if self.settings.updxzbin != '' and _file_exists( self.settings.updxzbin ):
-			return self.settings.updxzbin
 		return None
 
 	def _file_remove( self, name ):

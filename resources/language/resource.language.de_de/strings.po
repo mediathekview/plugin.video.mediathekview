@@ -91,14 +91,6 @@ msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Aktualisierungsintervall in Stunden"
 
-msgctxt "#30233"
-msgid "XZ Program Location"
-msgstr "XZ Programm"
-
-msgctxt "#30238"
-msgid "Reset Database"
-msgstr "Datenbank zurücksetzen"
-
 # Main Menu
 msgctxt "#30901"
 msgid "Search in Title"

@@ -27,7 +27,6 @@ class Settings( object ):
 		self.groupshows		= False
 		self.updenabled		= True
 		self.updinterval	= 3600
-		self.updxzbin		= ''
 
 class AppLogger( Logger ):
 

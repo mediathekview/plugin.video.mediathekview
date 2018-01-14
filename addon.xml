@@ -26,11 +26,12 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.3.6 (2018-01-XX):
+- Das Addon unterstützt nun auch bz2 und gz Updates von MediathekView so dass kein externer Entpacker benötigt wird falls keiner auf dem System vorhanden ist
 - Der Datenbanktreiber für MySQL kann nun die Datenbank selbsttätig anlegen
 - Im Datenbanktreiber für MySQL kann nun auch die Portnummer angegeben werden
 - Konfigurierbare Begrenzong der Suchergebnisse
 v0.3.5 (2018-01-11):
-- Compliance with Kodi Addon Rules
+- Anpassungen an die Kodi-Addon Regeln
 v0.3.4 (2018-01-11):
 - Die Suche sucht nun auch im Sendungs-Name
 - "Vor Kurzem hinzugefügt" nach Sendern durchsuchen
