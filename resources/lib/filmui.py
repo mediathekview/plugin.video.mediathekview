@@ -5,8 +5,8 @@
 # -- Imports ------------------------------------------------
 import xbmcplugin, xbmcgui
 
-from classes.film import Film
-from classes.settings import Settings
+from resources.lib.film import Film
+from resources.lib.settings import Settings
 
 # -- Classes ------------------------------------------------
 class FilmUI( Film ):
@@ -58,9 +58,11 @@ class FilmUI( Film ):
 
 		if self.aired is not None:
 			airedstring = '%s' % self.aired
-			infoLabels['date']		= airedstring[8:10] + '-' + airedstring[5:7] + '-' + airedstring[:4]
-			infoLabels['aired']		= airedstring
-			infoLabels['dateadded']	= airedstring
+			if airedstring[:4] != '1970':
+				self.plugin.info( '******** AIRED {} {}', airedstring[:4], type( self.aired ) )
+				infoLabels['date']		= airedstring[8:10] + '-' + airedstring[5:7] + '-' + airedstring[:4]
+				infoLabels['aired']		= airedstring
+				infoLabels['dateadded']	= airedstring
 
 		li = xbmcgui.ListItem( resultingtitle, self.description )
 		li.setInfo( type = 'video', infoLabels = infoLabels )

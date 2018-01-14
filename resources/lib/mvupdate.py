@@ -8,8 +8,8 @@ import argparse
 import datetime
 import xml.etree.ElementTree as ET
 
-from de.yeasoft.base.Logger import Logger
-from classes.updater import MediathekViewUpdater
+from resources.lib.base.Logger import Logger
+from resources.lib.updater import MediathekViewUpdater
 
 # -- Classes ------------------------------------------------
 class Settings( object ):

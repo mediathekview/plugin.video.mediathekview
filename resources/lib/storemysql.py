@@ -3,10 +3,12 @@
 #
 
 # -- Imports ------------------------------------------------
-import string, time
+import time
 import mysql.connector
 
-from classes.film import Film
+import resources.lib.mvutils as mvutils
+
+from resources.lib.film import Film
 
 # -- Classes ------------------------------------------------
 class StoreMySQL( object ):
@@ -148,7 +150,7 @@ class StoreMySQL( object ):
 		if self.conn is None:
 			return
 		try:
-			self.logger.info( 'MySQL Query: {}', 
+			self.logger.info( 'MySQL Query: {}',
 				self.sql_query_films +
 				' WHERE ' +
 				condition +
@@ -473,7 +475,7 @@ class StoreMySQL( object ):
 		if newchn or self.ft_show != film['show']:
 			# process changed show
 			self.ft_show = film['show']
-			( self.ft_showid, insshw ) = self._insert_show( self.ft_channelid, self.ft_show, _make_search_string( self.ft_show ) )
+			( self.ft_showid, insshw ) = self._insert_show( self.ft_channelid, self.ft_show, mvutils.make_search_string( self.ft_show ) )
 			if self.ft_showid == 0:
 				self.logger.info( 'Undefined error adding show "{}"', self.ft_show )
 				return ( 0, 0, 0, 0, )
@@ -484,7 +486,7 @@ class StoreMySQL( object ):
 				self.ft_channelid,
 				self.ft_showid,
 				film["title"],
-				_make_search_string( film['title'] ),
+				mvutils.make_search_string( film['title'] ),
 				film["aired"],
 				film["duration"],
 				film["size"],
@@ -533,10 +535,10 @@ class StoreMySQL( object ):
 			cursor = self.conn.cursor()
 			cursor.callproc( 'ftInsertShow', ( channelid, show, search, ) )
 			for result in cursor.stored_results():
-				for ( id, added ) in result:
+				for ( idd, added ) in result:
 					cursor.close()
 					self.conn.commit()
-					return ( id, added )
+					return ( idd, added )
 			# should never happen
 			cursor.close()
 			self.conn.commit()
@@ -909,11 +911,3 @@ END
 			except mysql.connector.Error as err:
 				# should never happen
 				self.conn = None
-
-
-# -- Functions ----------------------------------------------
-
-def _make_search_string( val ):
-	cset = string.letters + string.digits + ' _-#'
-	search = ''.join( [ c for c in val if c in cset ] )
-	return search.upper().strip()

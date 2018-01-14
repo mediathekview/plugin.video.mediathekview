@@ -5,7 +5,7 @@
 # -- Imports ------------------------------------------------
 import xbmcaddon
 
-from de.yeasoft.kodi.KodiUI import KodiUI
+from resources.lib.kodi.KodiUI import KodiUI
 
 # -- Classes ------------------------------------------------
 class Notifier( KodiUI ):

@@ -3,11 +3,13 @@
 #
 
 # -- Imports ------------------------------------------------
-import os, stat, string, time
+import os, time
 import sqlite3
 
-from classes.film import Film
-from classes.exceptions import DatabaseCorrupted
+import resources.lib.mvutils as mvutils
+
+from resources.lib.film import Film
+from resources.lib.exceptions import DatabaseCorrupted
 
 # -- Classes ------------------------------------------------
 class StoreSQLite( object ):
@@ -27,9 +29,9 @@ class StoreSQLite( object ):
 
 	def Init( self, reset = False ):
 		self.logger.info( 'Using SQLite version {}, python library sqlite3 version {}', sqlite3.sqlite_version, sqlite3.version )
-		if not _dir_exists( self.settings.datapath ):
+		if not mvutils.dir_exists( self.settings.datapath ):
 			os.mkdir( self.settings.datapath )
-		if reset == True or not _file_exists( self.dbfile ):
+		if reset == True or not mvutils.file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
 			self._file_remove( self.dbfile )
 			self.conn = sqlite3.connect( self.dbfile, timeout = 60 )
@@ -197,7 +199,7 @@ class StoreSQLite( object ):
 			return None
 		try:
 			condition = '( film.id={} )'.format( filmid )
-			self.logger.info( 'SQLite Query: {}', 
+			self.logger.info( 'SQLite Query: {}',
 				self.sql_query_films +
 				' WHERE ' +
 				condition
@@ -537,7 +539,7 @@ class StoreSQLite( object ):
 						""", (
 							int( time.time() ),
 							self.ft_channelid, film['show'],
-							_make_search_string( film['show'] )
+							mvutils.make_search_string( film['show'] )
 						)
 					)
 					self.ft_show = film['show']
@@ -603,9 +605,9 @@ class StoreSQLite( object ):
 						self.ft_channelid,
 						self.ft_showid,
 						film['title'],
-						_make_search_string( film['title'] ),
+						mvutils.make_search_string( film['title'] ),
 						film['airedepoch'],
-						_make_duration( film['duration'] ),
+						mvutils.make_duration( film['duration'] ),
 						film['size'],
 						film['description'],
 						film['website'],
@@ -725,7 +727,7 @@ PRAGMA foreign_keys = true;
 		self.UpdateStatus( 'IDLE' )
 
 	def _file_remove( self, name ):
-		if _file_exists( name ):
+		if mvutils.file_exists( name ):
 			try:
 				os.remove( name )
 				return True
@@ -749,35 +751,3 @@ class GROUP_CONCAT:
 
 	def finalize(self):
 		return self.value
-
-
-# -- Functions ----------------------------------------------
-
-def _make_search_string( val ):
-	cset = string.letters + string.digits + ' _-#'
-	search = ''.join( [ c for c in val if c in cset ] )
-	return search.upper().strip()
-
-def _make_duration( val ):
-	if val == "00:00:00":
-		return None
-	elif val is None:
-		return None
-	x = val.split( ':' )
-	if len( x ) != 3:
-		return None
-	return int( x[0] ) * 3600 + int( x[1] ) * 60 + int( x[2] )
-
-def _dir_exists( name ):
-	try:
-		s = os.stat( name )
-		return stat.S_ISDIR( s.st_mode )
-	except OSError:
-		return False
-
-def _file_exists( name ):
-	try:
-		s = os.stat( name )
-		return stat.S_ISREG( s.st_mode )
-	except OSError:
-		return False

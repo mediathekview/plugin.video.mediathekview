@@ -6,7 +6,7 @@
 import sys, urllib
 import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 
-from de.yeasoft.kodi.KodiLogger import KodiLogger
+from resources.lib.kodi.KodiLogger import KodiLogger
 
 # -- Classes ------------------------------------------------
 class KodiAddon( KodiLogger ):
