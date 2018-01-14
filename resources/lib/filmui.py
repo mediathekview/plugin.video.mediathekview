@@ -59,7 +59,6 @@ class FilmUI( Film ):
 		if self.aired is not None:
 			airedstring = '%s' % self.aired
 			if airedstring[:4] != '1970':
-				self.plugin.info( '******** AIRED {} {}', airedstring[:4], type( self.aired ) )
 				infoLabels['date']		= airedstring[8:10] + '-' + airedstring[5:7] + '-' + airedstring[:4]
 				infoLabels['aired']		= airedstring
 				infoLabels['dateadded']	= airedstring

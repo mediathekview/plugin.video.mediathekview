@@ -191,7 +191,7 @@ class StoreMySQL( object ):
 			return None
 		try:
 			condition = '( film.id={} )'.format( filmid )
-			self.logger.info( 'MySQL Query: {}', 
+			self.logger.info( 'MySQL Query: {}',
 				self.sql_query_films +
 				' WHERE ' +
 				condition
