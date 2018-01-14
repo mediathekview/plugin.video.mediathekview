@@ -12,11 +12,18 @@ from classes.exceptions import DatabaseLost
 
 # -- Unpacker support ---------------------------------------
 upd_can_bz2 = False
+upd_can_gz  = False
 # upd_can_zip = False
 
 try:
 	import bz2
 	upd_can_bz2 = True
+except ImportError:
+	pass
+
+try:
+	import gzip
+	upd_can_gz = True
 except ImportError:
 	pass
 
@@ -255,6 +262,10 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Trying to decompress bz2 file...' )
 			retval = _decompress_bz2( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
+		elif upd_can_gz is True:
+			self.logger.info( 'Trying to decompress gz file...' )
+			retval = _decompress_gz( compfile, destfile )
+			self.logger.info( 'Return {}', retval )
 		else:
 			self.logger.info( 'Trying to decompress zip file...' )
 			retval = _decompress_zip( compfile, self.settings.datapath )
@@ -268,6 +279,8 @@ class MediathekViewUpdater( object ):
 			ext = 'xz'
 		elif upd_can_bz2 is True:
 			ext = 'bz2'
+		elif upd_can_gz is True:
+			ext = 'gz'
 		else:
 			ext = 'zip'
 
@@ -291,6 +304,8 @@ class MediathekViewUpdater( object ):
 			return url
 		elif upd_can_bz2 is True:
 			return os.path.splitext( url )[0] + '.bz2'
+		elif upd_can_gz is True:
+			return os.path.splitext( url )[0] + '.gz'
 		else:
 			return os.path.splitext( url )[0] + '.zip'
 
@@ -487,24 +502,34 @@ def _url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
 	return ( filename, [], )
 
 def _decompress_bz2( sourcefile, destfile ):
-	blocksize = 10000
+	blocksize = 8192
 	try:
 		with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
 			decompressor = bz2.BZ2Decompressor()
 			for data in iter( lambda : sf.read( blocksize ), b'' ):
 				df.write( decompressor.decompress( data ) )
 	except Exception as err:
-		self.logger.error( 'bz2 decompression failed: {}'.format(err) )
+		self.logger.error( 'bz2 decompression failed: {}'.format( err ) )
+		return -1
+	return 0
+
+def _decompress_gz( sourcefile, destfile ):
+	blocksize = 8192
+	try:
+		with open( destfile, 'wb' ) as df, gzip.open( sourcefile ) as sf:
+			for data in iter( lambda : sf.read( blocksize ), b'' ):
+				df.write( data )
+	except Exception as err:
+		self.logger.error( 'gz decompression failed: {}'.format( err ) )
 		return -1
 	return 0
 
 def _decompress_zip( sourcefile, dest_dir ):
 	try:
-		zipper = zipfile.ZipFile(sourcefile, 'r')
-		zipper.extractall(dest_dir)
+		zipper = zipfile.ZipFile( sourcefile, 'r' )
+		zipper.extractall( dest_dir )
 		zipper.close()
 	except Exception as err:
-		self.logger.error( 'zip decompression failed: {}'.format(err) )
+		self.logger.error( 'zip decompression failed: {}'.format( err ) )
 		return -1
 	return 0
-
