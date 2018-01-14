@@ -334,6 +334,8 @@ class MediathekView( KodiPlugin ):
 # -- Functions ----------------------------------------------
 
 def _url_retrieve( videourl, filename, reporthook, chunk_size = 8192 ):
+	if videourl.lower()[:7] != 'http://' and videourl.lower()[:8] != 'https://':
+		raise Exception( 'Invalid URL - only http or https allowed' )
 	with closing( urllib2.urlopen( videourl ) ) as u, closing( xbmcvfs.File( filename, 'wb' ) ) as f:
 		total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
 		total_chunks = 0
