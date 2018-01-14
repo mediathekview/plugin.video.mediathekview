@@ -43,6 +43,10 @@ msgid "Group shows of different channel"
 msgstr "Raggruppa trasmissioni su canali diversi"
 
 msgctxt "#30114"
+msgid "Limit search results"
+msgstr "Limita risultati ricerche"
+
+msgctxt "#30115"
 msgid "Download directory"
 msgstr "Directory di download"
 
@@ -56,6 +60,10 @@ msgid "Database hostname"
 msgstr "Hostname banca dati"
 
 msgctxt "#30212"
+msgid "Database port"
+msgstr "Numero port banca dati"
+
+msgctxt "#30213"
 msgid "Database username"
 msgstr "Nome utente"
 
@@ -82,14 +90,6 @@ msgstr "Attualizzazione Database"
 msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Intervallo di attualizzazione in ore"
-
-msgctxt "#30233"
-msgid "XZ Program Location"
-msgstr "Programma XZ"
-
-msgctxt "#30238"
-msgid "Reset Database"
-msgstr "Ripristina Database"
 
 # Main Menu
 msgctxt "#30901"
@@ -131,11 +131,11 @@ msgstr "Scarica video"
 
 msgctxt "#30922"
 msgid "Download LoRes Video"
-msgstr "Scarica video bassa risoluzione"
+msgstr "Scarica video SD"
 
 msgctxt "#30923"
 msgid "Download HD Video"
-msgstr "Scarica video alta risoluzione"
+msgstr "Scarica video HD"
 
 msgctxt "#30924"
 msgid "Add to queue"
@@ -221,8 +221,8 @@ msgstr "Questo addon di Kodi permette l'accesso a gran parte delle piattaforme v
 "donare un piccolo contributo sulla pagina del progetto https://mediathekview.de/"
 
 msgctxt "#30963"
-msgid "XZ Decompressor is Missing"
-msgstr "Decompressore XZ non trovato"
+msgid "No Decompressor Available"
+msgstr "Decompressore non disponibile"
 
 msgctxt "#30964"
 msgid "The database updater needs the program 'xz' in order to process the database update files. "
@@ -301,3 +301,11 @@ msgstr "Scaricamento sottotitoli"
 msgctxt "#30979"
 msgid "Download path does not exist"
 msgstr "Directory di scaricamento non esiste"
+
+msgctxt "#30980"
+msgid "Results Limited"
+msgstr "Risultati limitati"
+
+msgctxt "#30981"
+msgid "Only the first {} results are shown."
+msgstr "Vengono mostrati solo i primi {} risultati."

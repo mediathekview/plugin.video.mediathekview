@@ -43,6 +43,10 @@ msgid "Group shows of different channel"
 msgstr "Group shows of different channel"
 
 msgctxt "#30114"
+msgid "Limit search results"
+msgstr "Limit search results"
+
+msgctxt "#30115"
 msgid "Download directory"
 msgstr "Download directory"
 
@@ -56,14 +60,18 @@ msgid "Database hostname"
 msgstr "Database hostname"
 
 msgctxt "#30212"
+msgid "Database port"
+msgstr "Database port"
+
+msgctxt "#30213"
 msgid "Database username"
 msgstr "Database username"
 
-msgctxt "#30213"
+msgctxt "#30214"
 msgid "Database password"
 msgstr "Database password"
 
-msgctxt "#30214"
+msgctxt "#30215"
 msgid "Database name"
 msgstr "Database name"
 
@@ -82,14 +90,6 @@ msgstr "Database Updates"
 msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Update interval in hours"
-
-msgctxt "#30233"
-msgid "XZ Program Location"
-msgstr "XZ Program Location"
-
-msgctxt "#30238"
-msgid "Reset Database"
-msgstr "Reset Database"
 
 # Main Menu
 msgctxt "#30901"
@@ -220,8 +220,8 @@ msgstr "This Kodi addon allows access to most video-platforms from German public
 "Please consider donating to this great project! Visit MediathekView at https://mediathekview.de/"
 
 msgctxt "#30963"
-msgid "XZ Decompressor is Missing"
-msgstr "XZ Decompressor is Missing"
+msgid "No Decompressor Available"
+msgstr "No Decompressor Available"
 
 msgctxt "#30964"
 msgid "The database updater needs the program 'xz' in order to process the database update files. "
@@ -298,3 +298,11 @@ msgstr "Downloading Subtitles"
 msgctxt "#30979"
 msgid "Download path does not exist"
 msgstr "Download path does not exist"
+
+msgctxt "#30980"
+msgid "Results Limited"
+msgstr "Results Limited"
+
+msgctxt "#30981"
+msgid "Only the first {} results are shown."
+msgstr "Only the first {} results are shown."
