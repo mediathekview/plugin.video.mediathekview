@@ -5,7 +5,7 @@
 # -- Imports ------------------------------------------------
 import xbmc
 
-from de.yeasoft.base.Logger import Logger
+from resources.lib.base.Logger import Logger
 
 # -- Classes ------------------------------------------------
 class KodiLogger( Logger ):

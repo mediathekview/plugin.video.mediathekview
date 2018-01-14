@@ -32,17 +32,17 @@ import xbmcplugin,xbmcgui,xbmcvfs
 
 from contextlib import closing
 
-from de.yeasoft.kodi.KodiAddon import KodiPlugin
-from de.yeasoft.kodi.KodiUI import KodiBGDialog
+from resources.lib.kodi.KodiAddon import KodiPlugin
+from resources.lib.kodi.KodiUI import KodiBGDialog
 
-from classes.store import Store
-from classes.notifier import Notifier
-from classes.settings import Settings
-from classes.filmui import FilmUI
-from classes.channelui import ChannelUI
-from classes.initialui import InitialUI
-from classes.showui import ShowUI
-from classes.ttml2srt import ttml2srt
+from resources.lib.store import Store
+from resources.lib.notifier import Notifier
+from resources.lib.settings import Settings
+from resources.lib.filmui import FilmUI
+from resources.lib.channelui import ChannelUI
+from resources.lib.initialui import InitialUI
+from resources.lib.showui import ShowUI
+from resources.lib.ttml2srt import ttml2srt
 
 # -- Classes ------------------------------------------------
 class MediathekView( KodiPlugin ):
@@ -176,8 +176,8 @@ class MediathekView( KodiPlugin ):
 				videourl = film.url_video
 
 			# prepare names
-			showname	= _cleanup_filename( film.show )[:64]
-			filestem	= _cleanup_filename( film.title )[:64]
+			showname	= mvutils.cleanup_filename( film.show )[:64]
+			filestem	= mvutils.cleanup_filename( film.title )[:64]
 			extension	= os.path.splitext( videourl )[1]
 			if not extension:
 				extension = u'.mp4'
@@ -211,7 +211,7 @@ class MediathekView( KodiPlugin ):
 			bgd.Create( self.language( 30974 ), fileepi + extension )
 			try:
 				bgd.Update( 0 )
-				result = _url_retrieve( videourl, movname, bgd.UrlRetrieveHook )
+				result = mvutils.url_retrieve_vfs( videourl, movname, bgd.UrlRetrieveHook )
 				bgd.Close()
 				if result is not None:
 					self.notifier.ShowNotification( self.language( 30960 ), self.language( 30976 ).format( videourl ) )
@@ -226,7 +226,7 @@ class MediathekView( KodiPlugin ):
 				bgd.Create( self.language( 30978 ), fileepi + u'.ttml' )
 				try:
 					bgd.Update( 0 )
-					result = _url_retrieve( film.url_sub, ttmname, bgd.UrlRetrieveHook )
+					result = mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
 					try:
 						ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
 					except Exception as err:
@@ -321,29 +321,6 @@ class MediathekView( KodiPlugin ):
 	def Exit( self ):
 		self.db.Exit()
 
-
-# -- Functions ----------------------------------------------
-
-def _url_retrieve( videourl, filename, reporthook, chunk_size = 8192 ):
-	if videourl.lower()[:7] != 'http://' and videourl.lower()[:8] != 'https://':
-		raise Exception( 'Invalid URL - only http or https allowed' )
-	with closing( urllib2.urlopen( videourl ) ) as u, closing( xbmcvfs.File( filename, 'wb' ) ) as f:
-		total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
-		total_chunks = 0
-
-		while True:
-			reporthook( total_chunks, chunk_size, total_size )
-			chunk = u.read( chunk_size )
-			if not chunk:
-				break
-			f.write( chunk )
-			total_chunks += 1
-		return ( filename, [], )
-
-def _cleanup_filename( val ):
-	cset = string.letters + string.digits + u' _-#äöüÄÖÜßáàâéèêíìîóòôúùûÁÀÉÈÍÌÓÒÚÙçÇœ'
-	search = ''.join( [ c for c in val if c in cset ] )
-	return search.strip()
 
 # -- Main Code ----------------------------------------------
 if __name__ == '__main__':

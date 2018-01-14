@@ -5,10 +5,13 @@
 import os, stat, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
 
+import resources.lib.mvutils as mvutils
+
 from operator import itemgetter
-from classes.store import Store
-from classes.exceptions import DatabaseCorrupted
-from classes.exceptions import DatabaseLost
+#from resources.lib.utils import *
+from resources.lib.store import Store
+from resources.lib.exceptions import DatabaseCorrupted
+from resources.lib.exceptions import DatabaseLost
 
 # -- Unpacker support ---------------------------------------
 upd_can_bz2 = False
@@ -38,7 +41,7 @@ class MediathekViewUpdater( object ):
 		self.settings	= settings
 		self.monitor	= monitor
 		self.db			= None
-		self.use_xz     = _find_xz()
+		self.use_xz     = mvutils.find_xz() is not None
 
 	def Init( self ):
 		if self.db is not None:
@@ -69,7 +72,7 @@ class MediathekViewUpdater( object ):
 			# database not initialized
 			self.logger.debug( 'database not initialized' )
 			return 0
-		elif status['status'] == "UPDATING" and tsnow - tsold > 86400:
+		elif status['status'] == "UPDATING" and tsnow - tsold > 10800:
 			# process was probably killed during update
 			self.logger.info( 'Stuck update pretending to run since epoch {} reset', tsold )
 			self.db.UpdateStatus( 'ABORTED' )
@@ -104,11 +107,11 @@ class MediathekViewUpdater( object ):
 
 	def Import( self, full ):
 		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
-		if not _file_exists( destfile ):
+		if not mvutils.file_exists( destfile ):
 			self.logger.error( 'File {} does not exists', destfile )
 			return False
 		# estimate number of records in update file
-		records = int( _file_size( destfile ) / avgrecsize )
+		records = int( mvutils.file_size( destfile ) / avgrecsize )
 		if not self.db.ftInit():
 			self.logger.warn( 'Failed to initialize update. Maybe a concurrency problem?' )
 			return False
@@ -233,7 +236,7 @@ class MediathekViewUpdater( object ):
 				lasturl = url
 				self.logger.info( 'Trying to download {} from {}...', os.path.basename( compfile ), url )
 				self.notifier.UpdateDownloadProgress( 0, url )
-				result = _url_retrieve( url, filename = compfile, reporthook = self._reporthook )
+				result = mvutils.url_retrieve( url, filename = compfile, reporthook = self._reporthook )
 				break
 			except urllib2.URLError as err:
 				self.logger.error( 'Failure downloading {}', url )
@@ -248,22 +251,22 @@ class MediathekViewUpdater( object ):
 		# decompress filmliste
 		if self.use_xz is True:
 			self.logger.info( 'Trying to decompress xz file...' )
-			retval = subprocess.call( [ _find_xz(), '-d', compfile ] )
+			retval = subprocess.call( [ mvutils.find_xz(), '-d', compfile ] )
 			self.logger.info( 'Return {}', retval )
 		elif upd_can_bz2 is True:
 			self.logger.info( 'Trying to decompress bz2 file...' )
-			retval = _decompress_bz2( compfile, destfile )
+			retval = self._decompress_bz2( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
 		elif upd_can_gz is True:
 			self.logger.info( 'Trying to decompress gz file...' )
-			retval = _decompress_gz( compfile, destfile )
+			retval = self._decompress_gz( compfile, destfile )
 			self.logger.info( 'Return {}', retval )
 		else:
 			# should nebver reach
 			pass
 
 		self.notifier.CloseDownloadProgress()
-		return retval == 0 and _file_exists( destfile )
+		return retval == 0 and mvutils.file_exists( destfile )
 
 	def _get_update_info( self, full ):
 		if self.use_xz is True:
@@ -302,7 +305,7 @@ class MediathekViewUpdater( object ):
 			return None
 
 	def _file_remove( self, name ):
-		if _file_exists( name ):
+		if mvutils.file_exists( name ):
 			try:
 				os.remove( name )
 				return True
@@ -448,65 +451,25 @@ class MediathekViewUpdater( object ):
 		else:
 			return val
 
-
-# -- Functions ----------------------------------------------
-
-def _file_exists( name ):
-	try:
-		s = os.stat( name )
-		return stat.S_ISREG( s.st_mode )
-	except OSError as err:
-		return False
-
-def _file_size( name ):
-	try:
-		s = os.stat( name )
-		return s.st_size
-	except OSError as err:
+	def _decompress_bz2( self, sourcefile, destfile ):
+		blocksize = 8192
+		try:
+			with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
+				decompressor = bz2.BZ2Decompressor()
+				for data in iter( lambda : sf.read( blocksize ), b'' ):
+					df.write( decompressor.decompress( data ) )
+		except Exception as err:
+			self.logger.error( 'bz2 decompression failed: {}'.format( err ) )
+			return -1
 		return 0
 
-def _find_xz():
-	for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
-		if _file_exists( xzbin ):
-			return xzbin
-	return None
-
-def _url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
-	f = open( filename, 'wb' )
-	u = urllib2.urlopen( url )
-
-	total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
-	total_chunks = 0
-
-	while True:
-		reporthook( total_chunks, chunk_size, total_size )
-		chunk = u.read( chunk_size )
-		if not chunk:
-			break
-		f.write( chunk )
-		total_chunks += 1
-	f.close()
-	return ( filename, [], )
-
-def _decompress_bz2( sourcefile, destfile ):
-	blocksize = 8192
-	try:
-		with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
-			decompressor = bz2.BZ2Decompressor()
-			for data in iter( lambda : sf.read( blocksize ), b'' ):
-				df.write( decompressor.decompress( data ) )
-	except Exception as err:
-		self.logger.error( 'bz2 decompression failed: {}'.format( err ) )
-		return -1
-	return 0
-
-def _decompress_gz( sourcefile, destfile ):
-	blocksize = 8192
-	try:
-		with open( destfile, 'wb' ) as df, gzip.open( sourcefile ) as sf:
-			for data in iter( lambda : sf.read( blocksize ), b'' ):
-				df.write( data )
-	except Exception as err:
-		self.logger.error( 'gz decompression failed: {}'.format( err ) )
-		return -1
-	return 0
+	def _decompress_gz( self, sourcefile, destfile ):
+		blocksize = 8192
+		try:
+			with open( destfile, 'wb' ) as df, gzip.open( sourcefile ) as sf:
+				for data in iter( lambda : sf.read( blocksize ), b'' ):
+					df.write( data )
+		except Exception as err:
+			self.logger.error( 'gz decompression failed: {}'.format( err ) )
+			return -1
+		return 0

@@ -27,11 +27,11 @@ from __future__ import unicode_literals  # ,absolute_import, division
 
 import xbmc
 
-from de.yeasoft.kodi.KodiAddon import KodiService
+from resources.lib.kodi.KodiAddon import KodiService
 
-from classes.notifier import Notifier
-from classes.settings import Settings
-from classes.updater import MediathekViewUpdater
+from resources.lib.notifier import Notifier
+from resources.lib.settings import Settings
+from resources.lib.updater import MediathekViewUpdater
 
 # -- Classes ------------------------------------------------
 class MediathekViewMonitor( xbmc.Monitor ):

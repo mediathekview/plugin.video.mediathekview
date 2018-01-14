@@ -6,29 +6,34 @@
 import sys, urllib
 import xbmcplugin, xbmcgui
 
-from classes.channel import Channel
+from resources.lib.show import Show
 
 # -- Classes ------------------------------------------------
-class ChannelUI( Channel ):
-	def __init__( self, handle, sortmethods = None, nextdir = 'initial' ):
+class ShowUI( Show ):
+	def __init__( self, handle, sortmethods = None ):
 		self.base_url		= sys.argv[0]
-		self.nextdir		= nextdir
 		self.handle			= handle
 		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
-		self.count			= 0
+		self.querychannelid	= 0
 
-	def Begin( self ):
+	def Begin( self, channelid ):
+		self.querychannelid = channelid
 		for method in self.sortmethods:
 			xbmcplugin.addSortMethod( self.handle, method )
 
 	def Add( self, altname = None ):
-		resultingname = self.channel if self.count == 0 else '%s (%d)' % ( self.channel, self.count, )
-		li = xbmcgui.ListItem( label = resultingname if altname is None else altname )
+		if altname is not None:
+			resultingname = altname
+		elif self.querychannelid == '0':
+			resultingname = self.show + ' [' + self.channel + ']'
+		else:
+			resultingname = self.show
+		li = xbmcgui.ListItem( label = resultingname )
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
 			url		= self.build_url( {
-				'mode': self.nextdir,
-				'channel': self.id
+				'mode': "films",
+				'show': self.id
 			} ),
 			listitem = li,
 			isFolder = True

@@ -3,8 +3,8 @@
 #
 
 # -- Imports ------------------------------------------------
-from classes.storemysql  import StoreMySQL
-from classes.storesqlite import StoreSQLite
+from resources.lib.storemysql  import StoreMySQL
+from resources.lib.storesqlite import StoreSQLite
 
 # -- Classes ------------------------------------------------
 class Store( object ):
