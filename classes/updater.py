@@ -2,13 +2,29 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib, urllib2, subprocess, ijson, datetime, time
+import os, stat, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
 
 from operator import itemgetter
 from classes.store import Store
 from classes.exceptions import DatabaseCorrupted
 from classes.exceptions import DatabaseLost
+
+# -- Unpacker support ---------------------------------------
+upd_can_bz2 = False
+upd_can_gz  = False
+
+try:
+	import bz2
+	upd_can_bz2 = True
+except ImportError:
+	pass
+
+try:
+	import gzip
+	upd_can_gz = True
+except ImportError:
+	pass
 
 # -- Constants ----------------------------------------------
 FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
@@ -22,6 +38,7 @@ class MediathekViewUpdater( object ):
 		self.settings	= settings
 		self.monitor	= monitor
 		self.db			= None
+		self.use_xz     = _find_xz()
 
 	def Init( self ):
 		if self.db is not None:
@@ -35,13 +52,8 @@ class MediathekViewUpdater( object ):
 			del self.db
 			self.db = None
 
-	def PrerequisitesMissing( self ):
-		return self.settings.updenabled and self._find_xz() is None
-
 	def IsEnabled( self ):
-		if self.settings.updenabled:
-			xz = self._find_xz()
-			return xz is not None
+		return self.settings.updenabled
 
 	def GetCurrentUpdateOperation( self ):
 		if not self.IsEnabled() or self.db is None:
@@ -179,13 +191,11 @@ class MediathekViewUpdater( object ):
 			return False
 
 	def GetNewestList( self, full ):
-		# get xz binary
-		xzbin = self._find_xz()
-		if xzbin is None:
-			self.notifier.ShowMissingXZError()
-			return False
-
 		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
+		if url is None:
+			self.logger.error( 'No suitable archive extractor available for this system' )
+			self.notifier.ShowMissingExtractorError()
+			return False
 
 		# get mirrorlist
 		self.logger.info( 'Opening {}', url )
@@ -193,7 +203,7 @@ class MediathekViewUpdater( object ):
 			data = urllib2.urlopen( url ).read()
 		except urllib2.URLError as err:
 			self.logger.error( 'Failure opening {}', url )
-			self.notifier.ShowDowloadError( url, err )
+			self.notifier.ShowDownloadError( url, err )
 			return False
 
 		root = etree.fromstring ( data )
@@ -202,7 +212,7 @@ class MediathekViewUpdater( object ):
 			try:
 				URL = server.find( 'URL' ).text
 				Prio = server.find( 'Prio' ).text
-				urls.append( ( URL, Prio ) )
+				urls.append( ( self._get_update_url( URL ), Prio ) )
 				self.logger.info( 'Found mirror {} (Priority {})', URL, Prio )
 			except AttributeError:
 				pass
@@ -216,53 +226,80 @@ class MediathekViewUpdater( object ):
 		self._file_remove( destfile )
 
 		# download filmliste
-		self.logger.info( 'Trying to download file...' )
 		self.notifier.ShowDownloadProgress()
 		lasturl = ''
 		for url in urls:
 			try:
 				lasturl = url
+				self.logger.info( 'Trying to download {} from {}...', os.path.basename( compfile ), url )
 				self.notifier.UpdateDownloadProgress( 0, url )
-				result = urllib.urlretrieve( url, filename = compfile, reporthook = self._reporthook )
+				result = _url_retrieve( url, filename = compfile, reporthook = self._reporthook )
 				break
-			except IOError as err:
-				self.logger.error( 'Failure opening {}', url )
+			except urllib2.URLError as err:
+				self.logger.error( 'Failure downloading {}', url )
+			except Exception as err:
+				self.logger.error( 'Failure writng {}', url )
 		if result is None:
 			self.logger.info( 'No file downloaded' )
 			self.notifier.CloseDownloadProgress()
-			self.notifier.ShowDowloadError( lasturl, err )
+			self.notifier.ShowDownloadError( lasturl, err )
 			return False
 
 		# decompress filmliste
-		self.logger.info( 'Trying to decompress file...' )
-		retval = subprocess.call( [ xzbin, '-d', compfile ] )
-		self.logger.info( 'Return {}', retval )
+		if self.use_xz is True:
+			self.logger.info( 'Trying to decompress xz file...' )
+			retval = subprocess.call( [ _find_xz(), '-d', compfile ] )
+			self.logger.info( 'Return {}', retval )
+		elif upd_can_bz2 is True:
+			self.logger.info( 'Trying to decompress bz2 file...' )
+			retval = _decompress_bz2( compfile, destfile )
+			self.logger.info( 'Return {}', retval )
+		elif upd_can_gz is True:
+			self.logger.info( 'Trying to decompress gz file...' )
+			retval = _decompress_gz( compfile, destfile )
+			self.logger.info( 'Return {}', retval )
+		else:
+			# should nebver reach
+			pass
+
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and _file_exists( destfile )
 
 	def _get_update_info( self, full ):
+		if self.use_xz is True:
+			ext = 'xz'
+		elif upd_can_bz2 is True:
+			ext = 'bz2'
+		elif upd_can_gz is True:
+			ext = 'gz'
+		else:
+			return ( None, None, None, 0, )
+  
 		if full:
 			return (
 				FILMLISTE_AKT_URL,
-				os.path.join( self.settings.datapath, 'Filmliste-akt.xz' ),
+				os.path.join( self.settings.datapath, 'Filmliste-akt.' + ext ),
 				os.path.join( self.settings.datapath, 'Filmliste-akt' ),
 				600,
 			)
 		else:
 			return (
 				FILMLISTE_DIF_URL,
-				os.path.join( self.settings.datapath, 'Filmliste-diff.xz' ),
+				os.path.join( self.settings.datapath, 'Filmliste-diff.' + ext ),
 				os.path.join( self.settings.datapath, 'Filmliste-diff' ),
 				700,
 			)
-			
-	def _find_xz( self ):
-		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
-			if _file_exists( xzbin ):
-				return xzbin
-		if self.settings.updxzbin != '' and _file_exists( self.settings.updxzbin ):
-			return self.settings.updxzbin
-		return None
+
+	def _get_update_url( self, url ):
+		if self.use_xz is True:
+			return url
+		elif upd_can_bz2 is True:
+			return os.path.splitext( url )[0] + '.bz2'
+		elif upd_can_gz is True:
+			return os.path.splitext( url )[0] + '.gz'
+		else:
+			# should never happen since it will not be called
+			return None
 
 	def _file_remove( self, name ):
 		if _file_exists( name ):
@@ -427,3 +464,49 @@ def _file_size( name ):
 		return s.st_size
 	except OSError as err:
 		return 0
+
+def _find_xz():
+	for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
+		if _file_exists( xzbin ):
+			return xzbin
+	return None
+
+def _url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
+	f = open( filename, 'wb' )
+	u = urllib2.urlopen( url )
+
+	total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
+	total_chunks = 0
+
+	while True:
+		reporthook( total_chunks, chunk_size, total_size )
+		chunk = u.read( chunk_size )
+		if not chunk:
+			break
+		f.write( chunk )
+		total_chunks += 1
+	f.close()
+	return ( filename, [], )
+
+def _decompress_bz2( sourcefile, destfile ):
+	blocksize = 8192
+	try:
+		with open( destfile, 'wb' ) as df, open( sourcefile, 'rb' ) as sf:
+			decompressor = bz2.BZ2Decompressor()
+			for data in iter( lambda : sf.read( blocksize ), b'' ):
+				df.write( decompressor.decompress( data ) )
+	except Exception as err:
+		self.logger.error( 'bz2 decompression failed: {}'.format( err ) )
+		return -1
+	return 0
+
+def _decompress_gz( sourcefile, destfile ):
+	blocksize = 8192
+	try:
+		with open( destfile, 'wb' ) as df, gzip.open( sourcefile ) as sf:
+			for data in iter( lambda : sf.read( blocksize ), b'' ):
+				df.write( data )
+	except Exception as err:
+		self.logger.error( 'gz decompression failed: {}'.format( err ) )
+		return -1
+	return 0

@@ -42,7 +42,6 @@ from classes.filmui import FilmUI
 from classes.channelui import ChannelUI
 from classes.initialui import InitialUI
 from classes.showui import ShowUI
-from classes.updater import MediathekViewUpdater
 from classes.ttml2srt import ttml2srt
 
 # -- Classes ------------------------------------------------
@@ -277,19 +276,11 @@ class MediathekView( KodiPlugin ):
 			self.error( 'Failure creating episode NFO file for {}: {}', videourl, err )
 
 	def Init( self ):
-		self.info( '=== {} ===', self.addon.getAddonInfo('profile').decode('utf-8') )
 		self.args = urlparse.parse_qs( sys.argv[2][1:] )
 		self.db.Init()
 		if self.settings.HandleFirstRun():
 			# TODO: Implement Issue #16
 			pass
-		if MediathekViewUpdater( self.getNewLogger( 'Updater' ), self.notifier, self.settings ).PrerequisitesMissing():
-			self.setSetting( 'updenabled', 'false' )
-			self.settings.Reload()
-			xbmcgui.Dialog().textviewer(
-				self.language( 30963 ),
-				self.language( 30964 )
-			)
 
 	def Do( self ):
 		mode = self.args.get( 'mode', None )

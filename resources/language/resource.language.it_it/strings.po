@@ -91,14 +91,6 @@ msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Intervallo di attualizzazione in ore"
 
-msgctxt "#30233"
-msgid "XZ Program Location"
-msgstr "Programma XZ"
-
-msgctxt "#30238"
-msgid "Reset Database"
-msgstr "Ripristina Database"
-
 # Main Menu
 msgctxt "#30901"
 msgid "Search in Title"
@@ -229,8 +221,8 @@ msgstr "Questo addon di Kodi permette l'accesso a gran parte delle piattaforme v
 "donare un piccolo contributo sulla pagina del progetto https://mediathekview.de/"
 
 msgctxt "#30963"
-msgid "XZ Decompressor is Missing"
-msgstr "Decompressore XZ non trovato"
+msgid "No Decompressor Available"
+msgstr "Decompressore non disponibile"
 
 msgctxt "#30964"
 msgid "The database updater needs the program 'xz' in order to process the database update files. "

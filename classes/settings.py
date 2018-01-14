@@ -28,7 +28,6 @@ class Settings( object ):
 		self.database		= self.addon.getSetting( 'dbdata' )
 		self.updenabled		= self.addon.getSetting( 'updenabled' ) == 'true'
 		self.updinterval	= int( float( self.addon.getSetting( 'updinterval' ) ) ) * 3600
-		self.updxzbin		= self.addon.getSetting( 'updxzbin' )
 
 	def HandleFirstRun( self ):
 		if self.firstrun:

@@ -64,25 +64,16 @@ dies bedeutet, dass eine lokale SQLite-Datenbank benutzt wird, die auch
 durch das Kodi-System lokal aktualisiert wird. Dies dürfte auch das
 üblichste Szenario sein.
 
-Dieses Szenario birgt zwei Voraussetzungen die erfüllt sein sollten:
-* ein einigermaßen performantes Dateisystem für die Datenbank. Ein Raspberry
-  mit seiner langsamen SD-Karte ist in diesem Fall sicherlich nicht die
-  allerbeste Wahl. Das vollständige Update der Datenbank dauert hier um die
-  15-20 Minuten. Da dies aber im Hintergrund passiert, kann man unter Umständen
-  gut damit leben.
-* der Entpacker 'xz' auf dem Kodi-System. Um den Datenbank-Aktualisierer zu
-  benutzen, muss dieses Programm auf dem System in einem der Standard-
-  Verzeichnisse (/bin, /usr/bin, /usr/local/bin) installiert werden.
-  Unter Windows bzw. falls das Programm in einem anderen Verzeichnis
-  installiert ist, muss der Pfad zum Programm in den Addon-Einstellungen
-  angegeben werden. Sollte der Entpacker nicht vorhanden sein, so gibt
-  das Addon eine Meldung aus und deaktiviert den Aktualisierungsprozess.
+Die Benutzung der lokalen Datenbank erfordert im Idealfall ein einigermaßen
+performantes Dateisystem. Ein Raspberry mit seiner langsamen SD-Karte ist in
+diesem Fall sicherlich nicht die allerbeste Wahl. Das vollständige Update der
+Datenbank dauert auf einem solchen System erfahrungsgemäß um die 15-20 Minuten.
+Da dies aber im Hintergrund passiert, kann man unter Umständen gut damit leben.
 
-Das Addon wurde auf verschiedenen Plattformen unter Linux, MacOS und LibreELEC
-bzw. OpenELEC getestet. Dort war auch der entsprechende Entpacker verfügbar.
-Unter Windows muss der Entpacker nachträglich installiert werden und dessen
-Pfad in den Addon-Einstellungen angegeben werden. Mangels Testsystem konnte
-dies jedoch zum jetzigen Zeitpunkt noch nicht getestet werden.
+Das Addon wurde auf verschiedenen Plattformen unter Linux, MacOS, Windows und
+LibreELEC bzw. OpenELEC getestet. Auch verschiedene Android Systeme konnten
+schon erfolgreich getestet werden. Wegen der Vielzahl der Plattformen ist es
+allerdings nicht möglich eine abschließende Kompatibilitätsaussage zu machen.
 
 
 Alternativ-Konfigurationen
@@ -119,7 +110,7 @@ Standalone Datenbank Update Prozess
 Um die Datenbankaktualisierung von der Kommandozeile auszuführen, muss das
 Zielsystem einen python2-Interpreter bereitstellen. Des weiteren müssen noch
 folgende zwei Bibliotheken zur Verfügung stehen, sowie das Entpackprogramm
-'xz':
+'xz' (optional):
 
 * ijson
 * mysql-connector
@@ -217,22 +208,16 @@ After installation, the addon starts in local mode: this means that a local
 SQLite database is used, which is also updated locally by the Kodi system.
 This is probably the most common scenario.
 
-* a file system with a decent performance for the database. A Raspberry with
-  its slow SD card is certainly not the very best choice in this case but still
-  acceptable. The full update will take in this case about 15-20 Minutes but
-  since this happens in the background, you may be able to live with it.
-* The unpacker 'xz' on the Kodi system. To use the database updater, this
-  program must be installed on the system in one of the standard directories
-  (/bin, /usr/bin, /usr/local/bin). Under Windows or if the program is
-  installed in a different directory, the path to the program must be specified
-  in the addon settings. If the unpacker is not available on the target system,
-  the addon issues a message and disables the update process.
+Ideally, using the local database requires a file system with a decent
+performance. A Raspberry with a slow SD card is certainly not the very
+best choice in this case but still acceptable. The full update will take
+in this case about 15-20 Minutes but since this happens in the background,
+you may be able to live with it.
 
-The addon has been tested on different platforms under Linux, MacOS and
-LibreELEC/OpenELEC. The corresponding unpacker was also available there.
-Under Windows, the unpacker must be manually installed and its path must
-be specified in the addon settings. Due to the lack of a test system,
-however, this could not be tested at the present time.
+The addon has been tested on different platforms under Linux, MacOS,
+Windows and LibreELEC/OpenELEC. Various Android systems have also been
+tested successfully. Due to the variety of platforms, however, it is not
+possible to make a final compatibility statement.
 
 
 Alternate Configurations
@@ -349,25 +334,22 @@ Come funziona
 
 L'addon scarica il database da MediathekView e lo importa in un database SQLite
 locale o, in alternativa, in un database MySQL locale o remoto (per l'uso da
-parte di più client Kodi).
-Durante il runtime di Kodi, i file differenziali vengono scaricati da
-MediathekView in un intervallo configurabile (predefinito: 2 ore) ed importati
-nel database. Al più tardi entro il giorno successivo all'ultimo aggiornamento,
-l'aggiornamento sarà nuovamente effettuato tramite l'aggiornamento completo
-di Mediathekview.
+parte di molteplici sistemi Kodi). Durante il runtime di Kodi, i file di
+aggiornamento differenziali vengono scaricati da MediathekView in un intervallo
+configurabile (predefinito: 2 ore) ed importati nel database. Al più tardi
+entro il giorno successivo all'ultimo aggiornamento, l'aggiornamento sarà
+nuovamente effettuato tramite l'aggiornamento completo di Mediathekview.
 
-* Un file system con prestazioni accettabili per il database. Un Raspberry con
-  la sua lenta scheda SD non è certamente la miglior scelta ma sempre ancora
-  accettabile. La durata di un aggiornamento completo in questo caso sarà
-  intorno ai 15-20 minuti. Ma poiché questo accade in background, l'impatto
-  sarà essere accetabile.
-* Il decompressore 'xz' sul sistema Kodi. Per utilizzare il programma di
-  aggiornamento del database, questo programma deve essere installato sul
-  sistema in una delle directory standard (/bin, /usr/bin, /usr/local/bin). In
-  Windows o se il programma è installato in una directory diversa, il percorso
-  del programma deve essere specificato nelle impostazioni dell'addon. Se il
-  decompressore non è disponibile per il sistema, l'addon mostra un messaggio
-  e disabilita il processo di aggiornamento.
+Idealmente, l'utilizzo del database locale richiede un file system con
+prestazioni accettabili. Un Raspberry di prima generazione con una scheda SD
+lenta non è certamente la miglior scelta ma sempre ancora accettabile. La
+durata di un aggiornamento completo in questo caso sarà intorno ai 15-20
+minuti. Ma poiché questo accade in background, l'impatto sarà accetabile.
+
+L'addon è stato testato su diverse piattaforme in Linux, MacOS, Windows e
+LibreELEC nonchè OpenELEC. Anche diversi sistemi Android sono stati testati
+con successo. A causa della varietà delle piattaforme, tuttavia, non è
+possibile fare una dichiarazione finale di compatibilità.
 
 
 Configurazioni alternative

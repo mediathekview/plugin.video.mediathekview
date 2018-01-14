@@ -27,7 +27,6 @@ class Settings( object ):
 		self.groupshows		= False
 		self.updenabled		= True
 		self.updinterval	= 3600
-		self.updxzbin		= ''
 
 class AppLogger( Logger ):
 
@@ -93,7 +92,7 @@ class Notifier( object ):
 		pass
 	def ShowDownloadError( self, name, err ):
 		pass
-	def ShowMissingXZError( self ):
+	def ShowMissingExtractorError( self ):
 		pass
 	def ShowDownloadProgress( self ):
 		pass
@@ -183,10 +182,6 @@ class UpdateApp( AppLogger ):
 		self.notifier	= Notifier()
 		self.monitor	= MediathekViewMonitor()
 		self.updater	= MediathekViewUpdater( self.getNewLogger( 'MediathekViewUpdater' ), self.notifier, self.settings, self.monitor )
-		if self.updater.PrerequisitesMissing():
-			self.error( 'Prerequisites are missing' )
-			self.Exit()
-			exit( 1 )
 		self.updater.Init()
 
 	def Run( self ):
