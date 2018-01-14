@@ -9,7 +9,6 @@ import datetime
 import xml.etree.ElementTree as ET
 
 from de.yeasoft.base.Logger import Logger
-from classes.store import Store
 from classes.updater import MediathekViewUpdater
 
 # -- Classes ------------------------------------------------
@@ -120,7 +119,7 @@ class UpdateApp( AppLogger ):
 			tree = ET.parse( self.mypath + '/addon.xml' )
 			version = tree.getroot().attrib['version']
 			AppLogger.__init__( self, os.path.basename( sys.argv[0] ), version )
-		except Exception as err:
+		except Exception:
 			AppLogger.__init__( self, os.path.basename( sys.argv[0] ), '0.0' )
 
 	def Init( self ):

@@ -101,7 +101,7 @@ class MediathekViewUpdater( object ):
 			# do differential update
 			self.logger.debug( 'do differential update' )
 			return 2
-		
+
 	def Update( self, full ):
 		if self.db is None:
 			return
@@ -111,11 +111,11 @@ class MediathekViewUpdater( object ):
 
 	def Import( self, full ):
 		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
-		if not self._file_exists( destfile ):
+		if not _file_exists( destfile ):
 			self.logger.error( 'File {} does not exists', destfile )
 			return False
 		# estimate number of records in update file
-		records = int( self._file_size( destfile ) / avgrecsize )
+		records = int( _file_size( destfile ) / avgrecsize )
 		if not self.db.ftInit():
 			self.logger.warn( 'Failed to initialize update. Maybe a concurrency problem?' )
 			return False
@@ -164,7 +164,7 @@ class MediathekViewUpdater( object ):
 								self.logger.info( 'Filmliste dated {}', value.strip() )
 							except Exception as err:
 								# If the universe hates us...
-								pass
+								self.logger.debug( 'Could not determine date "{}" of filmliste: {}', value.strip(), err )
 						except ValueError as err:
 							pass
 
@@ -221,7 +221,7 @@ class MediathekViewUpdater( object ):
 				Prio = server.find( 'Prio' ).text
 				urls.append( ( self._get_update_url( URL ), Prio ) )
 				self.logger.info( 'Found mirror {} (Priority {})', URL, Prio )
-			except AttributeError as error:
+			except AttributeError:
 				pass
 		urls = sorted( urls, key = itemgetter( 1 ) )
 		urls = [ url[0] for url in urls ]
@@ -272,7 +272,7 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Return {}', retval )
 
 		self.notifier.CloseDownloadProgress()
-		return retval == 0 and self._file_exists( destfile )
+		return retval == 0 and _file_exists( destfile )
 
 	def _get_update_info( self, full ):
 		if self.use_xz is True:
@@ -311,28 +311,14 @@ class MediathekViewUpdater( object ):
 
 	def _find_xz( self ):
 		for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
-			if self._file_exists( xzbin ):
+			if _file_exists( xzbin ):
 				return xzbin
-		if self.settings.updxzbin != '' and self._file_exists( self.settings.updxzbin ):
+		if self.settings.updxzbin != '' and _file_exists( self.settings.updxzbin ):
 			return self.settings.updxzbin
 		return None
 
-	def _file_exists( self, name ):
-		try:
-			s = os.stat( name )
-			return stat.S_ISREG( s.st_mode )
-		except OSError as err:
-			return False
-
-	def _file_size( self, name ):
-		try:
-			s = os.stat( name )
-			return s.st_size
-		except OSError as err:
-			return 0
-
 	def _file_remove( self, name ):
-		if self._file_exists( name ):
+		if _file_exists( name ):
 			try:
 				os.remove( name )
 				return True
@@ -470,11 +456,6 @@ class MediathekViewUpdater( object ):
 			self.film["geo"] = val
 		self.index = self.index + 1
 
-	def _make_search( self, val ):
-		cset = string.letters + string.digits + ' _-#'
-		search = ''.join( [ c for c in val if c in cset ] )
-		return search.upper().strip()
-
 	def _make_url( self, val ):
 		x = val.split( '|' )
 		if len( x ) == 2:
@@ -483,7 +464,23 @@ class MediathekViewUpdater( object ):
 		else:
 			return val
 
-# helper functions
+
+# -- Functions ----------------------------------------------
+
+def _file_exists( name ):
+	try:
+		s = os.stat( name )
+		return stat.S_ISREG( s.st_mode )
+	except OSError as err:
+		return False
+
+def _file_size( name ):
+	try:
+		s = os.stat( name )
+		return s.st_size
+	except OSError as err:
+		return 0
+
 def _url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
 	f = open( filename, 'wb' )
 	u = urllib2.urlopen( url )
