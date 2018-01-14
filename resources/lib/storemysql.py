@@ -3,7 +3,7 @@
 #
 
 # -- Imports ------------------------------------------------
-import string, time
+import time
 import mysql.connector
 
 import resources.lib.mvutils as mvutils
@@ -150,7 +150,7 @@ class StoreMySQL( object ):
 		if self.conn is None:
 			return
 		try:
-			self.logger.info( 'MySQL Query: {}', 
+			self.logger.info( 'MySQL Query: {}',
 				self.sql_query_films +
 				' WHERE ' +
 				condition +
@@ -535,10 +535,10 @@ class StoreMySQL( object ):
 			cursor = self.conn.cursor()
 			cursor.callproc( 'ftInsertShow', ( channelid, show, search, ) )
 			for result in cursor.stored_results():
-				for ( id, added ) in result:
+				for ( idd, added ) in result:
 					cursor.close()
 					self.conn.commit()
-					return ( id, added )
+					return ( idd, added )
 			# should never happen
 			cursor.close()
 			self.conn.commit()

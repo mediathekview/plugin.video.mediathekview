@@ -2,7 +2,7 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, stat, urllib2, subprocess, ijson, datetime, time
+import os, urllib2, subprocess, ijson, datetime, time
 import xml.etree.ElementTree as etree
 
 import resources.lib.mvutils as mvutils
@@ -106,7 +106,7 @@ class MediathekViewUpdater( object ):
 				self.Import( full )
 
 	def Import( self, full ):
-		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
+		( _, compfile, destfile, avgrecsize ) = self._get_update_info( full )
 		if not mvutils.file_exists( destfile ):
 			self.logger.error( 'File {} does not exists', destfile )
 			return False
@@ -117,60 +117,57 @@ class MediathekViewUpdater( object ):
 			return False
 		try:
 			self.logger.info( 'Starting import of approx. {} records from {}', records, destfile )
-			file = open( destfile, 'r' )
-			parser = ijson.parse( file )
-			flsm = 0
-			flts = 0
-			( self.tot_chn, self.tot_shw, self.tot_mov ) = self._update_start( full )
-			self.notifier.ShowUpdateProgress()
-			for prefix, event, value in parser:
-				if ( prefix, event ) == ( "X", "start_array" ):
-					self._init_record()
-				elif ( prefix, event ) == ( "X", "end_array" ):
-					self._end_record( records )
-					if self.count % 100 == 0 and self.monitor.abortRequested():
-						# kodi is shutting down. Close all
-						file.close()
-						self._update_end( full, 'ABORTED' )
-						self.notifier.CloseUpdateProgress()
-						return True
-				elif ( prefix, event ) == ( "X.item", "string" ):
-					if value is not None:
-#						self._add_value( value.strip().encode('utf-8') )
-						self._add_value( value.strip() )
-					else:
-						self._add_value( "" )
-				elif ( prefix, event ) == ( "Filmliste", "start_array" ):
-					flsm += 1
-				elif ( prefix, event ) == ( "Filmliste.item", "string" ):
-					flsm += 1
-					if flsm == 2 and value is not None:
-						# this is the timestmap of this database update
-						try:
-							fldt = datetime.datetime.strptime( value.strip(), "%d.%m.%Y, %H:%M" )
-							flts = int( time.mktime( fldt.timetuple() ) )
-							self.db.UpdateStatus( filmupdate = flts )
-							self.logger.info( 'Filmliste dated {}', value.strip() )
-						except TypeError:
-							# SEE: https://forum.kodi.tv/showthread.php?tid=112916&pid=1214507#pid1214507
-							# Wonderful. His name is also Leopold
+			with open( destfile, 'r' ) as file:
+				parser = ijson.parse( file )
+				flsm = 0
+				flts = 0
+				( self.tot_chn, self.tot_shw, self.tot_mov ) = self._update_start( full )
+				self.notifier.ShowUpdateProgress()
+				for prefix, event, value in parser:
+					if ( prefix, event ) == ( "X", "start_array" ):
+						self._init_record()
+					elif ( prefix, event ) == ( "X", "end_array" ):
+						self._end_record( records )
+						if self.count % 100 == 0 and self.monitor.abortRequested():
+							# kodi is shutting down. Close all
+							self._update_end( full, 'ABORTED' )
+							self.notifier.CloseUpdateProgress()
+							return True
+					elif ( prefix, event ) == ( "X.item", "string" ):
+						if value is not None:
+	#						self._add_value( value.strip().encode('utf-8') )
+							self._add_value( value.strip() )
+						else:
+							self._add_value( "" )
+					elif ( prefix, event ) == ( "Filmliste", "start_array" ):
+						flsm += 1
+					elif ( prefix, event ) == ( "Filmliste.item", "string" ):
+						flsm += 1
+						if flsm == 2 and value is not None:
+							# this is the timestmap of this database update
 							try:
-								flts = int( time.mktime( time.strptime( value.strip(), "%d.%m.%Y, %H:%M" ) ) )
+								fldt = datetime.datetime.strptime( value.strip(), "%d.%m.%Y, %H:%M" )
+								flts = int( time.mktime( fldt.timetuple() ) )
 								self.db.UpdateStatus( filmupdate = flts )
 								self.logger.info( 'Filmliste dated {}', value.strip() )
-							except Exception as err:
-								# If the universe hates us...
-								self.logger.debug( 'Could not determine date "{}" of filmliste: {}', value.strip(), err )
-						except ValueError as err:
-							pass
+							except TypeError:
+								# SEE: https://forum.kodi.tv/showthread.php?tid=112916&pid=1214507#pid1214507
+								# Wonderful. His name is also Leopold
+								try:
+									flts = int( time.mktime( time.strptime( value.strip(), "%d.%m.%Y, %H:%M" ) ) )
+									self.db.UpdateStatus( filmupdate = flts )
+									self.logger.info( 'Filmliste dated {}', value.strip() )
+								except Exception as err:
+									# If the universe hates us...
+									self.logger.debug( 'Could not determine date "{}" of filmliste: {}', value.strip(), err )
+							except ValueError as err:
+								pass
 
-			file.close()
 			self._update_end( full, 'IDLE' )
 			self.logger.info( 'Import of {} finished', destfile )
 			self.notifier.CloseUpdateProgress()
 			return True
 		except KeyboardInterrupt:
-			file.close()
 			self._update_end( full, 'ABORTED' )
 			self.logger.info( 'Interrupted by user' )
 			self.notifier.CloseUpdateProgress()
@@ -178,20 +175,14 @@ class MediathekViewUpdater( object ):
 		except DatabaseCorrupted as err:
 			self.logger.error( '{}', err )
 			self.notifier.CloseUpdateProgress()
-			file.close()
 		except DatabaseLost as err:
 			self.logger.error( '{}', err )
 			self.notifier.CloseUpdateProgress()
-			file.close()
 		except IOError as err:
 			self.logger.error( 'Error {} wile processing {}', err, destfile )
-			try:
-				self._update_end( full, 'ABORTED' )
-				self.notifier.CloseUpdateProgress()
-				file.close()
-			except Exception as err:
-				pass
-			return False
+			self._update_end( full, 'ABORTED' )
+			self.notifier.CloseUpdateProgress()
+		return False
 
 	def GetNewestList( self, full ):
 		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
@@ -277,7 +268,7 @@ class MediathekViewUpdater( object ):
 			ext = 'gz'
 		else:
 			return ( None, None, None, 0, )
-  
+
 		if full:
 			return (
 				FILMLISTE_AKT_URL,
@@ -395,10 +386,10 @@ class MediathekViewUpdater( object ):
 				tot_mov = self.tot_mov + self.add_mov
 			)
 			self.count = self.count + 1
-			( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film, True )
+			( _, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film, True )
 		else:
 			self.count = self.count + 1
-			( filmid, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film, False )
+			( _, cnt_chn, cnt_shw, cnt_mov ) = self.db.ftInsertFilm( self.film, False )
 		self.add_chn += cnt_chn
 		self.add_shw += cnt_shw
 		self.add_mov += cnt_mov

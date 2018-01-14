@@ -3,7 +3,7 @@
 #
 
 # -- Imports ------------------------------------------------
-import os, stat, string, time
+import os, time
 import sqlite3
 
 import resources.lib.mvutils as mvutils
@@ -199,7 +199,7 @@ class StoreSQLite( object ):
 			return None
 		try:
 			condition = '( film.id={} )'.format( filmid )
-			self.logger.info( 'SQLite Query: {}', 
+			self.logger.info( 'SQLite Query: {}',
 				self.sql_query_films +
 				' WHERE ' +
 				condition

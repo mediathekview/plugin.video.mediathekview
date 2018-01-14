@@ -27,7 +27,7 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # from future import standard_library
 # from builtins import *
 # standard_library.install_aliases()
-import os,re,sys,urlparse,datetime,string,urllib2
+import os,re,sys,urlparse,datetime
 import xbmcplugin,xbmcgui,xbmcvfs
 
 from contextlib import closing

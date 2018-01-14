@@ -22,14 +22,14 @@ def file_exists( name ):
 	try:
 		s = os.stat( name )
 		return stat.S_ISREG( s.st_mode )
-	except OSError as err:
+	except OSError:
 		return False
 
 def file_size( name ):
 	try:
 		s = os.stat( name )
 		return s.st_size
-	except OSError as err:
+	except OSError:
 		return 0
 
 def find_xz():
