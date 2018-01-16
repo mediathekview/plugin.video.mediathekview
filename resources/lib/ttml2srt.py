@@ -27,7 +27,7 @@
 import re
 import io
 from datetime import timedelta
-from xml.etree import ElementTree as ET
+from defusedxml import ElementTree as ET
 
 def ttml2srt( infile, outfile ):
 	tree = ET.parse( infile )

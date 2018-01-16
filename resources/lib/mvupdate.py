@@ -6,7 +6,7 @@ import os
 import sys
 import argparse
 import datetime
-import xml.etree.ElementTree as ET
+import defusedxml.ElementTree as ET
 
 from resources.lib.base.Logger import Logger
 from resources.lib.updater import MediathekViewUpdater

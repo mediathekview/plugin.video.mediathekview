@@ -3,7 +3,7 @@
 
 # -- Imports ------------------------------------------------
 import os, urllib2, subprocess, ijson, datetime, time
-import xml.etree.ElementTree as etree
+import defusedxml.ElementTree as etree
 
 import resources.lib.mvutils as mvutils
 

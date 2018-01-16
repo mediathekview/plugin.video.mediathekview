@@ -43,7 +43,7 @@ msgid "Group shows of different channel"
 msgstr "Sendungen verschiedener Sender zusammenfassen"
 
 msgctxt "#30114"
-msgid "Download directory"
+msgid "Limit search results"
 msgstr "Suchergebnisse eingrenzen"
 
 msgctxt "#30115"
