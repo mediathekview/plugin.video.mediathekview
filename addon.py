@@ -190,7 +190,7 @@ class MediathekView( KodiPlugin ):
 			dirname = self.settings.downloadpath + showname + '/'
 			episode = 1
 			if xbmcvfs.exists( dirname ):
-				( dirs, epfiles, ) = xbmcvfs.listdir( dirname )
+				( _, epfiles, ) = xbmcvfs.listdir( dirname )
 				for epfile in epfiles:
 					match = re.search( '^.* [eE][pP]([0-9]*)\.[^/]*$', epfile )
 					if match and len( match.groups() ) > 0:

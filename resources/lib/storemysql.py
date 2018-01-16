@@ -518,10 +518,10 @@ class StoreMySQL( object ):
 			cursor = self.conn.cursor()
 			cursor.callproc( 'ftInsertChannel', ( channel, ) )
 			for result in cursor.stored_results():
-				for ( id, added ) in result:
+				for ( idd, added ) in result:
 					cursor.close()
 					self.conn.commit()
-					return ( id, added )
+					return ( idd, added )
 			# should never happen
 			cursor.close()
 			self.conn.commit()

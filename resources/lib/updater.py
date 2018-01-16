@@ -106,7 +106,7 @@ class MediathekViewUpdater( object ):
 				self.Import( full )
 
 	def Import( self, full ):
-		( _, compfile, destfile, avgrecsize ) = self._get_update_info( full )
+		( _, _, destfile, avgrecsize ) = self._get_update_info( full )
 		if not mvutils.file_exists( destfile ):
 			self.logger.error( 'File {} does not exists', destfile )
 			return False
@@ -185,7 +185,7 @@ class MediathekViewUpdater( object ):
 		return False
 
 	def GetNewestList( self, full ):
-		( url, compfile, destfile, avgrecsize ) = self._get_update_info( full )
+		( url, compfile, destfile, _ ) = self._get_update_info( full )
 		if url is None:
 			self.logger.error( 'No suitable archive extractor available for this system' )
 			self.notifier.ShowMissingExtractorError()
@@ -199,7 +199,6 @@ class MediathekViewUpdater( object ):
 			self.logger.error( 'Failure opening {}', url )
 			self.notifier.ShowDownloadError( url, err )
 			return False
-
 		root = etree.fromstring ( data )
 		urls = []
 		for server in root.findall( 'Server' ):

@@ -59,7 +59,7 @@ def ttml2srt( infile, outfile ):
 	def parse_time_expression(expression, default_offset=timedelta(0)):
 		offset_time = re.match(r'^([0-9]+(\.[0-9]+)?)(h|m|s|ms|f|t)$', expression)
 		if offset_time:
-			time_value, fraction, metric = offset_time.groups()
+			time_value, _, metric = offset_time.groups()
 			time_value = float(time_value)
 			if metric == 'h':
 				return default_offset + timedelta(hours=time_value)
