@@ -211,7 +211,6 @@ class MediathekViewUpdater( object ):
 				pass
 		urls = sorted( urls, key = itemgetter( 1 ) )
 		urls = [ url[0] for url in urls ]
-		result = None
 
 		# cleanup downloads
 		self.logger.info( 'Cleaning up old downloads...' )

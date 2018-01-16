@@ -23,7 +23,7 @@ class StoreSQLite( object ):
 		# useful query fragments
 		self.sql_query_films	= "SELECT film.id,title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_sub,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
 		self.sql_query_filmcnt	= "SELECT COUNT(*) FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
-		self.sql_cond_recent	= "( ( UNIX_TIMESTAMP() - aired ) <= 86400 )"
+		self.sql_cond_recent	= "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format( "aired" if settings.recentmode == 0 else "film.dtCreated", settings.maxage )
 		self.sql_cond_nofuture	= " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( duration IS NULL ) OR ( duration >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
@@ -80,7 +80,7 @@ class StoreSQLite( object ):
 			channelid = int( channelid )
 			cursor = self.conn.cursor()
 			if channelid != 0:
-				self.logger.info( 'SQlite Query: {}',
+				self.logger.info( 'SQlite Query: ' +
 					'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
 					'WHERE ( channelid=' + str( channelid ) + ' ) ' +
 					'GROUP BY LEFT(search,1)'
@@ -92,7 +92,7 @@ class StoreSQLite( object ):
 					GROUP BY	SUBSTR(search,1,1)
 				""", ( channelid, ) )
 			else:
-				self.logger.info( 'SQlite Query: {}',
+				self.logger.info( 'SQlite Query: ' +
 					'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
 					'GROUP BY LEFT(search,1)'
 				)
@@ -139,7 +139,7 @@ class StoreSQLite( object ):
 						ON		( channel.id = show.channelid )
 					WHERE		( show LIKE ? )
 				""", ( initial + '%', ) )
-			else:
+			elif initial:
 				cursor.execute( """
 					SELECT		show.id,
 								show.channelid,
@@ -154,6 +154,17 @@ class StoreSQLite( object ):
 									( show LIKE ? )
 								)
 				""", ( channelid, initial + '%', ) )
+			else:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		show
+					LEFT JOIN	channel
+						ON		( channel.id = show.channelid )
+					WHERE		( channelid=? )
+				""", ( channelid, ) )
 			showui.Begin( channelid )
 			for ( showui.id, showui.channelid, showui.show, showui.channel ) in cursor:
 				showui.Add()

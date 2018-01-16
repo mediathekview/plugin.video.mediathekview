@@ -225,7 +225,7 @@ class MediathekView( KodiPlugin ):
 				bgd.Create( 30978, fileepi + u'.ttml' )
 				try:
 					bgd.Update( 0 )
-					result = mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
+					mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
 					try:
 						ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
 					except Exception as err:
@@ -297,7 +297,7 @@ class MediathekView( KodiPlugin ):
 		elif mode[0] == 'recentchannels':
 			self.db.GetRecentChannels( ChannelUI( self.addon_handle, nextdir = 'recent' ) )
 		elif mode[0] == 'channels':
-			self.db.GetChannels( ChannelUI( self.addon_handle ) )
+			self.db.GetChannels( ChannelUI( self.addon_handle, nextdir = 'shows' ) )
 		elif mode[0] == 'action-dbinfo':
 			self.showDbInfo()
 		elif mode[0] == 'initial':

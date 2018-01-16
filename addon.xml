@@ -27,6 +27,9 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.4.1 (2018-01-XX):
+- In "Alle Sendungen nach Sender" kommt man nun direkt nach der Auswahl des Senders in die Filmliste
+- Die Anzahl Tage die ein Film als "Vor kurzem hinzugefügt" gilt, ist nun einstellbar
+- Es ist einstellbar, ob "Vor kurzem hinzugefügt" das Sendedatum oder das Datum des Hinzufügens in der Datenbank berücksichtigt
 - Anzahl der neuen Filme in "Vor Kurzem hinzugefügt nach Sender" stimmt nun
 - Übersetzungsfehler korrigiert
 v0.4.0 (2018-01-14):

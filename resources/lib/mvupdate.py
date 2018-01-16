@@ -24,6 +24,8 @@ class Settings( object ):
 			self.database		= args.database
 		self.nofuture		= True
 		self.minlength		= 0
+		self.maxage			= 86400
+		self.recentmode		= 0
 		self.groupshows		= False
 		self.updenabled		= True
 		self.updinterval	= 3600
