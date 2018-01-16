@@ -3,7 +3,6 @@
 #
 
 # -- Imports ------------------------------------------------
-import sys
 import xbmcgui
 import xbmcplugin
 
