@@ -3,12 +3,16 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmc, xbmcgui
+import xbmc
+import xbmcgui
+import xbmcaddon
 
 # -- Classes ------------------------------------------------
 class KodiUI( object ):
 
 	def __init__( self ):
+		self.addon			= xbmcaddon.Addon()
+		self.language		= self.addon.getLocalizedString
 		self.bgdialog		= None
 
 	def GetEnteredText( self, deftext = '', heading = '', hidden = False ):
@@ -19,15 +23,19 @@ class KodiUI( object ):
 		return deftext
 
 	def ShowNotification( self, heading, message, icon = xbmcgui.NOTIFICATION_INFO, time = 5000, sound = True ):
+		heading = self.language( heading ) if isinstance( heading, int ) else heading
+		message = self.language( message ) if isinstance( message, int ) else message
 		xbmcgui.Dialog().notification( heading, message, icon, time, sound )
 
 	def ShowWarning( self, heading, message, time = 5000, sound = True ):
-		xbmcgui.Dialog().notification( heading, message, xbmcgui.NOTIFICATION_WARNING, time, sound )
+		self.ShowNotification( heading, message, xbmcgui.NOTIFICATION_WARNING, time, sound )
 
 	def ShowError( self, heading, message, time = 5000, sound = True ):
-		xbmcgui.Dialog().notification( heading, message, xbmcgui.NOTIFICATION_ERROR, time, sound )
+		self.ShowNotification( heading, message, xbmcgui.NOTIFICATION_WARNING,NOTIFICATION_ERRORtime, sound )
 
 	def ShowBGDialog( self, heading = None, message = None ):
+		heading = self.language( heading ) if isinstance( heading, int ) else heading
+		message = self.language( message ) if isinstance( message, int ) else message
 		if self.bgdialog is None:
 			self.bgdialog = xbmcgui.DialogProgressBG()
 			self.bgdialog.create( heading, message )
@@ -36,6 +44,8 @@ class KodiUI( object ):
 
 	def UpdateBGDialog( self, percent, heading = None, message = None ):
 		if self.bgdialog is not None:
+			heading = self.language( heading ) if isinstance( heading, int ) else heading
+			message = self.language( message ) if isinstance( message, int ) else message
 			self.bgdialog.update( percent, heading, message )
 
 	def CloseBGDialog( self ):
@@ -52,6 +62,8 @@ class KodiBGDialog( object ):
 		self.Close()
 
 	def Create( self, heading = None, message = None ):
+		heading = self.language( heading ) if isinstance( heading, int ) else heading
+		message = self.language( message ) if isinstance( message, int ) else message
 		if self.bgdialog is None:
 			self.bgdialog = xbmcgui.DialogProgressBG()
 			self.bgdialog.create( heading, message )
@@ -60,6 +72,8 @@ class KodiBGDialog( object ):
 
 	def Update( self, percent, heading = None, message = None ):
 		if self.bgdialog is not None:
+			heading = self.language( heading ) if isinstance( heading, int ) else heading
+			message = self.language( message ) if isinstance( message, int ) else message
 			self.bgdialog.update( percent, heading, message )
 
 	def UrlRetrieveHook( self, blockcount, blocksize, totalsize ):

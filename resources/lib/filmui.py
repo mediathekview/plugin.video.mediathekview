@@ -3,7 +3,8 @@
 #
 
 # -- Imports ------------------------------------------------
-import xbmcplugin, xbmcgui
+import xbmcgui
+import xbmcplugin
 
 from resources.lib.film import Film
 from resources.lib.settings import Settings

@@ -3,15 +3,18 @@
 #
 
 # -- Imports ------------------------------------------------
-import sys, urllib
-import xbmcplugin, xbmcgui
+import sys
+
+import xbmcgui
+import xbmcplugin
+
+import resources.lib.mvutils as mvutils
 
 from resources.lib.show import Show
 
 # -- Classes ------------------------------------------------
 class ShowUI( Show ):
 	def __init__( self, handle, sortmethods = None ):
-		self.base_url		= sys.argv[0]
 		self.handle			= handle
 		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
 		self.querychannelid	= 0
@@ -31,7 +34,7 @@ class ShowUI( Show ):
 		li = xbmcgui.ListItem( label = resultingname )
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
-			url		= self.build_url( {
+			url		= mvutils.build_url( {
 				'mode': "films",
 				'show': self.id
 			} ),
@@ -41,6 +44,3 @@ class ShowUI( Show ):
 
 	def End( self ):
 		xbmcplugin.endOfDirectory( self.handle )
-
-	def build_url( self, query ):
-		return self.base_url + '?' + urllib.urlencode( query )

@@ -3,8 +3,12 @@
 #
 
 # -- Imports ------------------------------------------------
-import sys, urllib
-import xbmcplugin, xbmcgui
+import sys
+
+import xbmcgui
+import xbmcplugin
+
+import resources.lib.mvutils as mvutils
 
 # -- Classes ------------------------------------------------
 class InitialUI( object ):
@@ -28,7 +32,7 @@ class InitialUI( object ):
 		li = xbmcgui.ListItem( label = resultingname )
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
-			url		= _build_url( {
+			url		= mvutils.build_url( {
 				'mode': "shows",
 				'channel': self.channelid,
 				'initial': self.initial,
@@ -40,8 +44,3 @@ class InitialUI( object ):
 
 	def End( self ):
 		xbmcplugin.endOfDirectory( self.handle )
-
-# -- Functions ----------------------------------------------
-
-def _build_url( query ):
-	return sys.argv[0] + '?' + urllib.urlencode( query )
