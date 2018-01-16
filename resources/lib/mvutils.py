@@ -62,11 +62,11 @@ def cleanup_filename( val ):
 
 def url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
 	with closing( urllib2.urlopen( url ) ) as u, closing( open( filename, 'wb' ) ) as f:
-		return _chunked_url_copier( u, f, reporthook, chunk_size )
+		_chunked_url_copier( u, f, reporthook, chunk_size )
 
 def url_retrieve_vfs( url, filename, reporthook, chunk_size = 8192 ):
 	with closing( urllib2.urlopen( url ) ) as u, closing( xbmcvfs.File( filename, 'wb' ) ) as f:
-		return _chunked_url_copier( u, f, reporthook, chunk_size )
+		_chunked_url_copier( u, f, reporthook, chunk_size )
 
 def build_url( query ):
 	return sys.argv[0] + '?' + urllib.urlencode( query )
@@ -82,4 +82,3 @@ def _chunked_url_copier( u, f, reporthook, chunk_size ):
 			break
 		f.write( chunk )
 		total_chunks += 1
-	return ( filename, [], )

@@ -226,17 +226,18 @@ class MediathekViewUpdater( object ):
 				lasturl = url
 				self.logger.info( 'Trying to download {} from {}...', os.path.basename( compfile ), url )
 				self.notifier.UpdateDownloadProgress( 0, url )
-				result = mvutils.url_retrieve( url, filename = compfile, reporthook = self._reporthook )
+				mvutils.url_retrieve( url, filename = compfile, reporthook = self.notifier.HookDownloadProgress )
 				break
 			except urllib2.URLError as err:
 				self.logger.error( 'Failure downloading {}', url )
+				self.notifier.CloseDownloadProgress()
+				self.notifier.ShowDownloadError( lasturl, err )
+				return False
 			except Exception as err:
 				self.logger.error( 'Failure writng {}', url )
-		if result is None:
-			self.logger.info( 'No file downloaded' )
-			self.notifier.CloseDownloadProgress()
-			self.notifier.ShowDownloadError( lasturl, err )
-			return False
+				self.notifier.CloseDownloadProgress()
+				self.notifier.ShowDownloadError( lasturl, err )
+				return False
 
 		# decompress filmliste
 		if self.use_xz is True:
@@ -302,13 +303,6 @@ class MediathekViewUpdater( object ):
 			except OSError as err:
 				self.logger.error( 'Failed to remove {}: error {}', name, err )
 		return False
-
-	def _reporthook( self, blockcount, blocksize, totalsize ):
-		downloaded = blockcount * blocksize
-		if totalsize > 0:
-			percent = int( (downloaded * 100) / totalsize )
-			self.notifier.UpdateDownloadProgress( percent )
-		self.logger.debug( 'Downloading blockcount={}, blocksize={}, totalsize={}', blockcount, blocksize, totalsize )
 
 	def _update_start( self, full ):
 		self.logger.info( 'Initializing update...' )

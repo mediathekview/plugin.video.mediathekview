@@ -79,7 +79,7 @@ def ttml2srt( infile, outfile ):
 		clock_time = re.match(
 			r'^([0-9]{2,}):([0-9]{2,}):([0-9]{2,}(\.[0-9]+)?)$', expression)
 		if clock_time:
-			hours, minutes, seconds, fraction = clock_time.groups()
+			hours, minutes, seconds, _ = clock_time.groups()
 			return timedelta(hours=int(hours), minutes=int(minutes), seconds=float(seconds))
 
 		clock_time_frames = re.match(

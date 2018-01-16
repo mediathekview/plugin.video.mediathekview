@@ -13,7 +13,7 @@ class KodiUI( object ):
 	def __init__( self ):
 		self.addon			= xbmcaddon.Addon()
 		self.language		= self.addon.getLocalizedString
-		self.bgdialog		= None
+		self.bgdialog		= KodiBGDialog()
 
 	def GetEnteredText( self, deftext = None, heading = None, hidden = False ):
 		heading = self.language( heading ) if isinstance( heading, int ) else heading if heading is not None else ''
@@ -33,31 +33,23 @@ class KodiUI( object ):
 		self.ShowNotification( heading, message, xbmcgui.NOTIFICATION_WARNING, time, sound )
 
 	def ShowError( self, heading, message, time = 5000, sound = True ):
-		self.ShowNotification( heading, message, xbmcgui.NOTIFICATION_WARNING,NOTIFICATION_ERRORtime, sound )
+		self.ShowNotification( heading, message, xbmcgui.NOTIFICATION_ERROR, time, sound )
 
 	def ShowBGDialog( self, heading = None, message = None ):
-		heading = self.language( heading ) if isinstance( heading, int ) else heading
-		message = self.language( message ) if isinstance( message, int ) else message
-		if self.bgdialog is None:
-			self.bgdialog = xbmcgui.DialogProgressBG()
-			self.bgdialog.create( heading, message )
-		else:
-			self.bgdialog.update( 0, heading, message )
+		self.bgdialog.Create( heading, message )
 
 	def UpdateBGDialog( self, percent, heading = None, message = None ):
-		if self.bgdialog is not None:
-			heading = self.language( heading ) if isinstance( heading, int ) else heading
-			message = self.language( message ) if isinstance( message, int ) else message
-			self.bgdialog.update( percent, heading, message )
+		self.bgdialog.Update( percent, heading, message )
+
+	def HookBGDialog( self, blockcount, blocksize, totalsize ):
+		self.bgdialog.UrlRetrieveHook( blockcount, blocksize, totalsize )
 
 	def CloseBGDialog( self ):
-		if self.bgdialog is not None:
-			self.bgdialog.close()
-			del self.bgdialog
-			self.bgdialog = None
+		self.bgdialog.Close()
 
 class KodiBGDialog( object ):
 	def __init__( self ):
+		self.language		= xbmcaddon.Addon().getLocalizedString
 		self.bgdialog= None
 
 	def __del__( self ):

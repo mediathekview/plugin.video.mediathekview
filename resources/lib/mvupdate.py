@@ -104,6 +104,8 @@ class Notifier( object ):
 		pass
 	def UpdateUpdateProgress( self, percent, count, channels, shows, movies ):
 		pass
+	def HookDownloadProgress( self, blockcount, blocksize, totalsize ):
+		pass
 	def CloseUpdateProgress( self ):
 		pass
 
