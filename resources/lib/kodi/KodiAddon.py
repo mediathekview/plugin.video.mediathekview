@@ -29,6 +29,7 @@ class KodiAddon( KodiLogger ):
 		return self.addon.setSetting( setting_id, value )
 
 	def doAction( self, action ):
+		self.debug( 'Triggered action {}', action )
 		xbmc.executebuiltin( 'Action({})'.format( action ) )
 
 class KodiService( KodiAddon ):

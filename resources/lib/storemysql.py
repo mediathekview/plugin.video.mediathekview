@@ -20,7 +20,7 @@ class StoreMySQL( object ):
 		# useful query fragments
 		self.sql_query_films	= "SELECT film.id,`title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_sub`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
 		self.sql_query_filmcnt	= "SELECT COUNT(*) FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
-		self.sql_cond_recent	= "( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) < 24 )"
+		self.sql_cond_recent	= "( TIMESTAMPDIFF(SECOND,{},CURRENT_TIMESTAMP()) <= {} )".format( "aired" if settings.recentmode == 0 else "film.dtCreated", settings.maxage )
 		self.sql_cond_nofuture	= " AND ( ( `aired` IS NULL ) OR ( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( `duration` IS NULL ) OR ( TIME_TO_SEC(`duration`) >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
@@ -70,18 +70,32 @@ class StoreMySQL( object ):
 		if self.conn is None:
 			return
 		try:
-			condition = 'WHERE ( `channelid`=' + str( channelid ) + ' ) ' if channelid != '0' else ''
-			self.logger.info( 'MySQL Query: {}',
-				'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
-				condition +
-				'GROUP BY LEFT(search,1)'
-			)
+			channelid = int( channelid )
 			cursor = self.conn.cursor()
-			cursor.execute(
-				'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
-				condition +
-				'GROUP BY LEFT(`search`,1)'
-			)
+			if channelid != 0:
+				self.logger.info( 'MySQL Query: ' +
+					'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
+					'WHERE ( `channelid`=' + str( channelid ) + ' ) ' +
+					'GROUP BY LEFT(search,1)'
+				)
+				cursor.execute( """
+					SELECT		LEFT(`search`,1)	AS `letter`,
+								COUNT(*)			AS `count`
+					FROM		`show`
+					WHERE		( `channelid`=%s )
+					GROUP BY	LEFT(`search`,1)
+				""", ( channelid, ) )
+			else:
+				self.logger.info( 'MySQL Query: ' +
+					'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
+					'GROUP BY LEFT(search,1)'
+				)
+				cursor.execute( """
+					SELECT		LEFT(`search`,1)	AS `letter`,
+								COUNT(*)			AS `count`
+					FROM		`show`
+					GROUP BY	LEFT(`search`,1)
+				""" )
 			initialui.Begin( channelid )
 			for ( initialui.initial, initialui.count ) in cursor:
 				initialui.Add()
@@ -95,15 +109,57 @@ class StoreMySQL( object ):
 		if self.conn is None:
 			return
 		try:
-			if channelid == '0' and self.settings.groupshows:
-				query = 'SELECT GROUP_CONCAT(show.id),GROUP_CONCAT(`channelid`),`show`,GROUP_CONCAT(`channel`) FROM `show` LEFT JOIN `channel` ON channel.id=show.channelid WHERE ( `show` LIKE "%s%%" ) GROUP BY `show`' % initial
-			elif channelid == '0':
-				query = 'SELECT show.id,show.channelid,show.show,channel.channel FROM `show` LEFT JOIN channel ON channel.id=show.channelid WHERE ( `show` LIKE "%s%%" )' % initial
-			else:
-				query = 'SELECT show.id,show.channelid,show.show,channel.channel FROM `show` LEFT JOIN channel ON channel.id=show.channelid WHERE ( `channelid`=%s ) AND ( `show` LIKE "%s%%" )' % ( channelid, initial )
-			self.logger.info( 'MySQL Query: {}', query )
+			channelid = int( channelid )
 			cursor = self.conn.cursor()
-			cursor.execute( query )
+			if channelid == 0 and self.settings.groupshows:
+				cursor.execute( """
+					SELECT		GROUP_CONCAT(show.id),
+								GROUP_CONCAT(`channelid`),
+								`show`,
+								GROUP_CONCAT(`channel`)
+					FROM		`show`
+					LEFT JOIN	`channel`
+						ON		( channel.id = show.channelid )
+					WHERE		( `show` LIKE %s )
+					GROUP BY	`show`
+				""", ( initial + '%', ) )
+			elif channelid == 0:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		`show`
+					LEFT JOIN	`channel`
+						ON		( channel.id = show.channelid )
+					WHERE		( `show` LIKE %s )
+				""", ( initial + '%', ) )
+			elif initial:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		`show`
+					LEFT JOIN	`channel`
+						ON		( channel.id = show.channelid )
+					WHERE		(
+									( `channelid` = %s )
+									AND
+									( `show` LIKE %s )
+								)
+				""", ( channelid, initial + '%', ) )
+			else:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		`show`
+					LEFT JOIN	`channel`
+						ON		( channel.id = show.channelid )
+					WHERE		( `channelid` = %s )
+				""", ( channelid, ) )
 			showui.Begin( channelid )
 			for ( showui.id, showui.channelid, showui.show, showui.channel ) in cursor:
 				showui.Add()
@@ -132,11 +188,14 @@ class StoreMySQL( object ):
 		try:
 			if condition is None:
 				query = 'SELECT `id`,`channel`,0 AS `count` FROM `channel`'
+				qtail = ''
 			else:
-				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel.id'
-			self.logger.info( 'MySQL Query: {}', query )
+				query = 'SELECT channel.id AS `id`,`channel`,COUNT(*) AS `count` FROM `film` LEFT JOIN `channel` ON channel.id=film.channelid'
+				qtail = ' WHERE ' + condition + self.sql_cond_nofuture + self.sql_cond_minlength + ' GROUP BY channel.id'
+			self.logger.info( 'MySQL Query: {}', query + qtail )
+
 			cursor = self.conn.cursor()
-			cursor.execute( query )
+			cursor.execute( query + qtail )
 			channelui.Begin()
 			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
 				channelui.Add()
@@ -518,10 +577,10 @@ class StoreMySQL( object ):
 			cursor = self.conn.cursor()
 			cursor.callproc( 'ftInsertChannel', ( channel, ) )
 			for result in cursor.stored_results():
-				for ( id, added ) in result:
+				for ( idd, added ) in result:
 					cursor.close()
 					self.conn.commit()
-					return ( id, added )
+					return ( idd, added )
 			# should never happen
 			cursor.close()
 			self.conn.commit()

@@ -23,7 +23,7 @@ class StoreSQLite( object ):
 		# useful query fragments
 		self.sql_query_films	= "SELECT film.id,title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_sub,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
 		self.sql_query_filmcnt	= "SELECT COUNT(*) FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
-		self.sql_cond_recent	= "( ( UNIX_TIMESTAMP() - aired ) <= 86400 )"
+		self.sql_cond_recent	= "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format( "aired" if settings.recentmode == 0 else "film.dtCreated", settings.maxage )
 		self.sql_cond_nofuture	= " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( duration IS NULL ) OR ( duration >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
@@ -77,18 +77,30 @@ class StoreSQLite( object ):
 		if self.conn is None:
 			return
 		try:
-			condition = 'WHERE ( channelid=' + str( channelid ) + ' ) ' if channelid != '0' else ''
-			self.logger.info( 'SQlite Query: {}',
-				'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
-				condition +
-				'GROUP BY LEFT(search,1)'
-			)
+			channelid = int( channelid )
 			cursor = self.conn.cursor()
-			cursor.execute(
-				'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
-				condition +
-				'GROUP BY SUBSTR(search,1,1)'
-			)
+			if channelid != 0:
+				self.logger.info( 'SQlite Query: ' +
+					'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
+					'WHERE ( channelid=' + str( channelid ) + ' ) ' +
+					'GROUP BY LEFT(search,1)'
+				)
+				cursor.execute( """
+					SELECT		SUBSTR(search,1,1),COUNT(*)
+					FROM		show
+					WHERE		( channelid=? )
+					GROUP BY	SUBSTR(search,1,1)
+				""", ( channelid, ) )
+			else:
+				self.logger.info( 'SQlite Query: ' +
+					'SELECT SUBSTR(search,1,1),COUNT(*) FROM show ' +
+					'GROUP BY LEFT(search,1)'
+				)
+				cursor.execute( """
+					SELECT		SUBSTR(search,1,1),COUNT(*)
+					FROM		show
+					GROUP BY	SUBSTR(search,1,1)
+				""" )
 			initialui.Begin( channelid )
 			for ( initialui.initial, initialui.count ) in cursor:
 				initialui.Add()
@@ -102,15 +114,57 @@ class StoreSQLite( object ):
 		if self.conn is None:
 			return
 		try:
-			if channelid == '0' and self.settings.groupshows:
-				query = 'SELECT GROUP_CONCAT(show.id),GROUP_CONCAT(channelid),show,GROUP_CONCAT(channel) FROM show LEFT JOIN channel ON channel.id=show.channelid WHERE ( show LIKE "%s%%" ) GROUP BY show' % initial
-			elif channelid == '0':
-				query = 'SELECT show.id,show.channelid,show.show,channel.channel FROM show LEFT JOIN channel ON channel.id=show.channelid WHERE ( show LIKE "%s%%" )' % initial
-			else:
-				query = 'SELECT show.id,show.channelid,show.show,channel.channel FROM show LEFT JOIN channel ON channel.id=show.channelid WHERE ( channelid=%s ) AND ( show LIKE "%s%%" )' % ( channelid, initial )
-			self.logger.info( 'SQLite Query: {}', query )
+			channelid = int( channelid )
 			cursor = self.conn.cursor()
-			cursor.execute( query )
+			if channelid == 0 and self.settings.groupshows:
+				cursor.execute( """
+					SELECT		GROUP_CONCAT(show.id),
+								GROUP_CONCAT(channelid),
+								show,
+								GROUP_CONCAT(channel)
+					FROM		show
+					LEFT JOIN	channel
+						ON		( channel.id = show.channelid )
+					WHERE		( show LIKE ? )
+					GROUP BY	show
+				""", ( initial + '%', ) )
+			elif channelid == 0:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		show
+					LEFT JOIN	channel
+						ON		( channel.id = show.channelid )
+					WHERE		( show LIKE ? )
+				""", ( initial + '%', ) )
+			elif initial:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		show
+					LEFT JOIN	channel
+						ON		( channel.id = show.channelid )
+					WHERE		(
+									( channelid=? )
+									AND
+									( show LIKE ? )
+								)
+				""", ( channelid, initial + '%', ) )
+			else:
+				cursor.execute( """
+					SELECT		show.id,
+								show.channelid,
+								show.show,
+								channel.channel
+					FROM		show
+					LEFT JOIN	channel
+						ON		( channel.id = show.channelid )
+					WHERE		( channelid=? )
+				""", ( channelid, ) )
 			showui.Begin( channelid )
 			for ( showui.id, showui.channelid, showui.show, showui.channel ) in cursor:
 				showui.Add()
@@ -139,11 +193,13 @@ class StoreSQLite( object ):
 		try:
 			if condition is None:
 				query = 'SELECT id,channel,0 AS `count` FROM channel'
+				qtail = ''
 			else:
-				query = 'SELECT channel.id AS `id`,channel,COUNT(*) AS `count` FROM film LEFT JOIN channel ON channel.id=film.channelid WHERE ' + condition + ' GROUP BY channel'
-			self.logger.info( 'SQLite Query: {}', query )
+				query = 'SELECT channel.id AS `id`,channel,COUNT(*) AS `count` FROM film LEFT JOIN channel ON channel.id=film.channelid'
+				qtail = ' WHERE ' + condition + ' GROUP BY channel'
+			self.logger.info( 'SQLite Query: {}', query + qtail )
 			cursor = self.conn.cursor()
-			cursor.execute( query )
+			cursor.execute( query + qtail )
 			channelui.Begin()
 			for ( channelui.id, channelui.channel, channelui.count ) in cursor:
 				channelui.Add()

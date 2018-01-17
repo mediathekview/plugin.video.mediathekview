@@ -3,15 +3,16 @@
 #
 
 # -- Imports ------------------------------------------------
-import sys, urllib
-import xbmcplugin, xbmcgui
+import xbmcgui
+import xbmcplugin
+
+import resources.lib.mvutils as mvutils
 
 from resources.lib.channel import Channel
 
 # -- Classes ------------------------------------------------
 class ChannelUI( Channel ):
 	def __init__( self, handle, sortmethods = None, nextdir = 'initial' ):
-		self.base_url		= sys.argv[0]
 		self.nextdir		= nextdir
 		self.handle			= handle
 		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
@@ -26,7 +27,7 @@ class ChannelUI( Channel ):
 		li = xbmcgui.ListItem( label = resultingname if altname is None else altname )
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
-			url		= self.build_url( {
+			url		= mvutils.build_url( {
 				'mode': self.nextdir,
 				'channel': self.id
 			} ),
@@ -36,6 +37,3 @@ class ChannelUI( Channel ):
 
 	def End( self ):
 		xbmcplugin.endOfDirectory( self.handle )
-
-	def build_url( self, query ):
-		return self.base_url + '?' + urllib.urlencode( query )

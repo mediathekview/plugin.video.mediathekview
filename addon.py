@@ -190,7 +190,7 @@ class MediathekView( KodiPlugin ):
 			dirname = self.settings.downloadpath + showname + '/'
 			episode = 1
 			if xbmcvfs.exists( dirname ):
-				( dirs, epfiles, ) = xbmcvfs.listdir( dirname )
+				( _, epfiles, ) = xbmcvfs.listdir( dirname )
 				for epfile in epfiles:
 					match = re.search( '^.* [eE][pP]([0-9]*)\.[^/]*$', epfile )
 					if match and len( match.groups() ) > 0:
@@ -211,22 +211,21 @@ class MediathekView( KodiPlugin ):
 			bgd.Create( self.language( 30974 ), fileepi + extension )
 			try:
 				bgd.Update( 0 )
-				result = mvutils.url_retrieve_vfs( videourl, movname, bgd.UrlRetrieveHook )
+				mvutils.url_retrieve_vfs( videourl, movname, bgd.UrlRetrieveHook )
 				bgd.Close()
-				if result is not None:
-					self.notifier.ShowNotification( self.language( 30960 ), self.language( 30976 ).format( videourl ) )
+				self.notifier.ShowNotification( 30960, self.language( 30976 ).format( videourl ) )
 			except Exception as err:
 				bgd.Close()
 				self.error( 'Failure downloading {}: {}', videourl, err )
-				self.notifier.ShowError( self.language( 30952 ), self.language( 30975 ).format( videourl, err ) )
+				self.notifier.ShowError( 30952, self.language( 30975 ).format( videourl, err ) )
 
 			# download subtitles
 			if film.url_sub:
 				bgd = KodiBGDialog()
-				bgd.Create( self.language( 30978 ), fileepi + u'.ttml' )
+				bgd.Create( 30978, fileepi + u'.ttml' )
 				try:
 					bgd.Update( 0 )
-					result = mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
+					mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
 					try:
 						ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
 					except Exception as err:
@@ -239,7 +238,7 @@ class MediathekView( KodiPlugin ):
 			# create NFO Files
 			self._make_nfo_files( film, episode, dirname, nfoname, videourl )
 		else:
-			self.notifier.ShowError( self.language( 30952 ), self.language( 30958 ) )
+			self.notifier.ShowError( 30952, 30958 )
 
 	def doEnqueueFilm( self, filmid ):
 		self.info( 'Enqueue {}', filmid )
@@ -298,7 +297,7 @@ class MediathekView( KodiPlugin ):
 		elif mode[0] == 'recentchannels':
 			self.db.GetRecentChannels( ChannelUI( self.addon_handle, nextdir = 'recent' ) )
 		elif mode[0] == 'channels':
-			self.db.GetChannels( ChannelUI( self.addon_handle ) )
+			self.db.GetChannels( ChannelUI( self.addon_handle, nextdir = 'shows' ) )
 		elif mode[0] == 'action-dbinfo':
 			self.showDbInfo()
 		elif mode[0] == 'initial':
