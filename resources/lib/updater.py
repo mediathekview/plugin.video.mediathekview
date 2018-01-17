@@ -233,13 +233,13 @@ class MediathekViewUpdater( object ):
 				self.notifier.CloseDownloadProgress()
 				self.notifier.ShowDownloadError( lasturl, err )
 				return False
-			except Exception as err:
-				self.logger.error( 'Failure writng {}', url )
+			except ExitRequested as err:
+				self.logger.error( 'Immediate exit requested. Aborting download of {}', url )
 				self.notifier.CloseDownloadProgress()
 				self.notifier.ShowDownloadError( lasturl, err )
 				return False
-			except ExitRequested as err:
-				self.logger.error( 'Immediate exit requested. Aborting download of {}', url )
+			except Exception as err:
+				self.logger.error( 'Failure writng {}', url )
 				self.notifier.CloseDownloadProgress()
 				self.notifier.ShowDownloadError( lasturl, err )
 				return False

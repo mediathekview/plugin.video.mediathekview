@@ -23,9 +23,7 @@
 # SOFTWARE.
 
 # -- Imports ------------------------------------------------
-from __future__ import unicode_literals  # ,absolute_import, division
-
-import xbmc
+from __future__ import unicode_literals
 
 from resources.lib.kodi.KodiAddon import KodiService
 from resources.lib.kodi.KodiAddon import KodiInterlockedMonitor

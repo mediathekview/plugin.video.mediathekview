@@ -16,7 +16,6 @@ from resources.lib.kodi.KodiLogger import KodiLogger
 
 # -- Classes ------------------------------------------------
 class KodiAddon( KodiLogger ):
-
 	def __init__( self ):
 		self.addon			= xbmcaddon.Addon()
 		self.addon_id		= self.addon.getAddonInfo( 'id' )
@@ -42,45 +41,6 @@ class KodiService( KodiAddon ):
 	def __init__( self ):
 		KodiAddon.__init__( self )
 
-class KodiInterlockedMonitor( xbmc.Monitor ):
-	def __init__( self, service, setting_id ):
-		super( KodiInterlockedMonitor, self ).__init__()
-		self.instance_id	= ''.join( format( x, '02x' ) for x in bytearray( os.urandom( 16 ) ) )
-		self.setting_id		= setting_id
-		self.service		= service
-
-	def RegisterInstance( self, waittime = 1 ):
-		if self.BadInstance():
-			self.service.info( 'Found other instance with id {}', self.instance_id )
-			self.service.info( 'Startup delayed by {} second(s) waiting the other instance to shut down', waittime )
-			self.service.setSetting( self.setting_id, self.instance_id )
-			xbmc.Monitor.waitForAbort( self, waittime )
-		else:
-			self.service.setSetting( self.setting_id, self.instance_id )
-
-	def UnregisterInstance( self ):
-		self.service.setSetting( self.setting_id, '' )
-
-	def BadInstance( self ):
-		instance_id = self.service.getSetting( self.setting_id )
-		return instance_id and self.instance_id != instance_id
-
-	def abortRequested( self ):
-		return self.BadInstance() or xbmc.Monitor.abortRequested( self )
-
-	def waitForAbort( self, timeout = None ):
-		if timeout is None:
-			# infinite wait
-			while not self.abortRequested():
-				if xbmc.Monitor.waitForAbort( self, 1 ):
-					return True
-			return True
-		else:
-			for i in range( timeout ):
-				if self.BadInstance() or xbmc.Monitor.waitForAbort( self, 1 ):
-					return True
-			return self.BadInstance()
-			
 class KodiPlugin( KodiAddon ):
 	def __init__( self ):
 		KodiAddon.__init__( self )
@@ -112,3 +72,43 @@ class KodiPlugin( KodiAddon ):
 
 	def endOfDirectory( self, succeeded = True, updateListing = False, cacheToDisc = True ):
 		xbmcplugin.endOfDirectory( self.addon_handle, succeeded, updateListing, cacheToDisc )
+
+
+class KodiInterlockedMonitor( xbmc.Monitor ):
+	def __init__( self, service, setting_id ):
+		super( KodiInterlockedMonitor, self ).__init__()
+		self.instance_id	= ''.join( format( x, '02x' ) for x in bytearray( os.urandom( 16 ) ) )
+		self.setting_id		= setting_id
+		self.service		= service
+
+	def RegisterInstance( self, waittime = 1 ):
+		if self.BadInstance():
+			self.service.info( 'Found other instance with id {}', self.instance_id )
+			self.service.info( 'Startup delayed by {} second(s) waiting the other instance to shut down', waittime )
+			self.service.setSetting( self.setting_id, self.instance_id )
+			xbmc.Monitor.waitForAbort( self, waittime )
+		else:
+			self.service.setSetting( self.setting_id, self.instance_id )
+
+	def UnregisterInstance( self ):
+		self.service.setSetting( self.setting_id, '' )
+
+	def BadInstance( self ):
+		instance_id = self.service.getSetting( self.setting_id )
+		return len( instance_id ) > 0 and self.instance_id != instance_id
+
+	def abortRequested( self ):
+		return self.BadInstance() or xbmc.Monitor.abortRequested( self )
+
+	def waitForAbort( self, timeout = None ):
+		if timeout is None:
+			# infinite wait
+			while not self.abortRequested():
+				if xbmc.Monitor.waitForAbort( self, 1 ):
+					return True
+			return True
+		else:
+			for _ in range( timeout ):
+				if self.BadInstance() or xbmc.Monitor.waitForAbort( self, 1 ):
+					return True
+			return self.BadInstance()
