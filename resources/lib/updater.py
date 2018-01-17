@@ -12,6 +12,7 @@ from operator import itemgetter
 from resources.lib.store import Store
 from resources.lib.exceptions import DatabaseCorrupted
 from resources.lib.exceptions import DatabaseLost
+from resources.lib.exceptions import ExitRequested
 
 # -- Unpacker support ---------------------------------------
 upd_can_bz2 = False
@@ -225,7 +226,7 @@ class MediathekViewUpdater( object ):
 				lasturl = url
 				self.logger.info( 'Trying to download {} from {}...', os.path.basename( compfile ), url )
 				self.notifier.UpdateDownloadProgress( 0, url )
-				mvutils.url_retrieve( url, filename = compfile, reporthook = self.notifier.HookDownloadProgress )
+				mvutils.url_retrieve( url, filename = compfile, reporthook = self.notifier.HookDownloadProgress, aborthook = self.monitor.abortRequested )
 				break
 			except urllib2.URLError as err:
 				self.logger.error( 'Failure downloading {}', url )
@@ -234,6 +235,11 @@ class MediathekViewUpdater( object ):
 				return False
 			except Exception as err:
 				self.logger.error( 'Failure writng {}', url )
+				self.notifier.CloseDownloadProgress()
+				self.notifier.ShowDownloadError( lasturl, err )
+				return False
+			except ExitRequested
+				self.logger.error( 'Immediate exit requested. Aborting download of {}', url )
 				self.notifier.CloseDownloadProgress()
 				self.notifier.ShowDownloadError( lasturl, err )
 				return False

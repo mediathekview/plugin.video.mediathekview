@@ -8,9 +8,16 @@ import stat
 import string
 import urllib
 import urllib2
-import xbmcvfs
 
 from contextlib import closing
+from resources.lib.exceptions import ExitRequested
+
+# -- Kodi Specific Imports ----------------------------------
+try:
+	import xbmcvfs
+	is_kodi = True
+except ImportError:
+	is_kodi = False
 
 # -- Functions ----------------------------------------------
 def dir_exists( name ):
@@ -60,25 +67,29 @@ def cleanup_filename( val ):
 	search = ''.join( [ c for c in val if c in cset ] )
 	return search.strip()
 
-def url_retrieve( url, filename, reporthook, chunk_size = 8192 ):
+def url_retrieve( url, filename, reporthook, chunk_size = 8192, aborthook = None ):
 	with closing( urllib2.urlopen( url ) ) as u, closing( open( filename, 'wb' ) ) as f:
-		_chunked_url_copier( u, f, reporthook, chunk_size )
+		_chunked_url_copier( u, f, reporthook, chunk_size, aborthook )
 
-def url_retrieve_vfs( url, filename, reporthook, chunk_size = 8192 ):
+def url_retrieve_vfs( url, filename, reporthook, chunk_size = 8192, aborthook = None ):
 	with closing( urllib2.urlopen( url ) ) as u, closing( xbmcvfs.File( filename, 'wb' ) ) as f:
-		_chunked_url_copier( u, f, reporthook, chunk_size )
+		_chunked_url_copier( u, f, reporthook, chunk_size, aborthook )
 
 def build_url( query ):
 	return sys.argv[0] + '?' + urllib.urlencode( query )
 
-def _chunked_url_copier( u, f, reporthook, chunk_size ):
+def _chunked_url_copier( u, f, reporthook, chunk_size, aborthook ):
+	aborthook = aborthook if aborthook is not None else lambda: False
 	total_size = int( u.info().getheader( 'Content-Length' ).strip() ) if u.info() and u.info().getheader( 'Content-Length' ) else 0
 	total_chunks = 0
 
-	while True:
+	while not aborthook():
 		reporthook( total_chunks, chunk_size, total_size )
 		chunk = u.read( chunk_size )
 		if not chunk:
-			break
+			# operation has finished
+			return
 		f.write( chunk )
 		total_chunks += 1
+	# abort requested
+	raise ExitRequested( 'Reception interrupted.' )
