@@ -238,7 +238,7 @@ class MediathekViewUpdater( object ):
 				self.notifier.CloseDownloadProgress()
 				self.notifier.ShowDownloadError( lasturl, err )
 				return False
-			except ExitRequested
+			except ExitRequested as err:
 				self.logger.error( 'Immediate exit requested. Aborting download of {}', url )
 				self.notifier.CloseDownloadProgress()
 				self.notifier.ShowDownloadError( lasturl, err )
