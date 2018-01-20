@@ -26,7 +26,9 @@
 		<description lang="de_DE">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
-		<news>v0.4.1 (2018-01-XX):
+		<news>v0.4.1 (2018-01-20):
+- "Suchen nach Titel und Beschreibung" mit MySQL funktioniert wieder
+- Freitextsuche kommt nun auch mit " und ' klar
 - In seltenen Fällen konnte es bei der Installation oder das Update des Addons zu einem Fehler kommen, der die Datenbank korrumpiert hat.
 - Das Programm mvupdate hat nicht funktioniert
 - In "Alle Sendungen nach Sender" kommt man nun direkt nach der Auswahl des Senders in die Filmliste
