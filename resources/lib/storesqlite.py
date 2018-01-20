@@ -184,7 +184,7 @@ class StoreSQLite( object ):
 			self._Search_Condition( '( showid=? )', ( int( showid ), ), filmui, False, False, 10000 )
 		else:
 			# multiple channel ids
-			self._Search_Condition( '( showid IN ( ? ) )', ( showid, ), filmui, False, True, 10000 )
+			self._Search_Condition( '( showid IN ( {} ) )'.format(  showid ), (), filmui, False, True, 10000 )
 
 	def _Channels_Condition( self, condition, channelui ):
 		if self.conn is None:
