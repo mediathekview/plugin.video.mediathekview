@@ -2,9 +2,15 @@
 # Copyright (c) 2017-2018, Leo Moll
 
 # -- Imports ------------------------------------------------
-import os, urllib2, subprocess, ijson, datetime, time
-import defusedxml.ElementTree as etree
+import os
+import time
+import ijson
+import random
+import urllib2
+import datetime
+import subprocess
 
+import defusedxml.ElementTree as etree
 import resources.lib.mvutils as mvutils
 
 from operator import itemgetter
@@ -206,7 +212,7 @@ class MediathekViewUpdater( object ):
 			try:
 				URL = server.find( 'URL' ).text
 				Prio = server.find( 'Prio' ).text
-				urls.append( ( self._get_update_url( URL ), Prio ) )
+				urls.append( ( self._get_update_url( URL ), float( Prio ) + random.random() * 1.2 ) )
 				self.logger.info( 'Found mirror {} (Priority {})', URL, Prio )
 			except AttributeError:
 				pass
