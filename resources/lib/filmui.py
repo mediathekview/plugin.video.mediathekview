@@ -46,7 +46,7 @@ class FilmUI( Film ):
 
 		infoLabels = {
 			'title' : resultingtitle + videohds,
-			'sorttitle' : resultingtitle,
+			'sorttitle' : resultingtitle.lower(),
 			'tvshowtitle' : self.show,
 			'plot' : self.description
 		}
@@ -64,7 +64,7 @@ class FilmUI( Film ):
 				infoLabels['aired']		= airedstring
 				infoLabels['dateadded']	= airedstring
 
-		li = xbmcgui.ListItem( resultingtitle, self.description )
+		li = xbmcgui.ListItem( resultingtitle )
 		li.setInfo( type = 'video', infoLabels = infoLabels )
 		li.setProperty( 'IsPlayable', 'true' )
 
