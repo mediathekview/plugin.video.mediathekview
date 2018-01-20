@@ -30,6 +30,8 @@ from __future__ import unicode_literals  # ,absolute_import, division
 import os,re,sys,urlparse,datetime
 import xbmcplugin,xbmcgui,xbmcvfs
 
+import resources.lib.mvutils as mvutils
+
 from contextlib import closing
 
 from resources.lib.kodi.KodiAddon import KodiPlugin
