@@ -297,18 +297,18 @@ class MediathekView( KodiPlugin ):
 			channel = self.args.get( 'channel', [0] )
 			self.db.GetRecents( channel[0], FilmUI( self ) )
 		elif mode[0] == 'recentchannels':
-			self.db.GetRecentChannels( ChannelUI( self.addon_handle, nextdir = 'recent' ) )
+			self.db.GetRecentChannels( ChannelUI( self, nextdir = 'recent' ) )
 		elif mode[0] == 'channels':
-			self.db.GetChannels( ChannelUI( self.addon_handle, nextdir = 'shows' ) )
+			self.db.GetChannels( ChannelUI( self, nextdir = 'shows' ) )
 		elif mode[0] == 'action-dbinfo':
 			self.showDbInfo()
 		elif mode[0] == 'initial':
 			channel = self.args.get( 'channel', [0] )
-			self.db.GetInitials( channel[0], InitialUI( self.addon_handle ) )
+			self.db.GetInitials( channel[0], InitialUI( self ) )
 		elif mode[0] == 'shows':
 			channel = self.args.get( 'channel', [0] )
 			initial = self.args.get( 'initial', [None] )
-			self.db.GetShows( channel[0], initial[0], ShowUI( self.addon_handle ) )
+			self.db.GetShows( channel[0], initial[0], ShowUI( self ) )
 		elif mode[0] == 'films':
 			show = self.args.get( 'show', [0] )
 			self.db.GetFilms( show[0], FilmUI( self ) )

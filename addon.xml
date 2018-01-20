@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.4.1.2"
+	version="0.4.1.3"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -27,6 +27,7 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.4.2 (2018-01-XX):
+- Senderlogos werden nun in verschiedenen Situationen angezeigt
 - Fehler bei Auflisten der Filme in "Alle Sendungen" aus 0.4.1 behoben
 - Fehler bei Datenbankaktualisierung behoben
 - Herunterladen von zufälligem Server
