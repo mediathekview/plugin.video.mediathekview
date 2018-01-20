@@ -48,11 +48,11 @@ class StoreMySQL( object ):
 			self.conn.close()
 
 	def Search( self, search, filmui ):
-		searchmask = '%' + search + '%'
+		searchmask = '%' + search.decode('utf-8') + '%'
 		self._Search_Condition( '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) )', ( searchmask, searchmask, ), filmui, True, True, self.settings.maxresults )
 
 	def SearchFull( self, search, filmui ):
-		searchmask = '%' + search + '%'
+		searchmask = '%' + search.decode('utf-8') + '%'
 		self._Search_Condition( '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) OR ( `description` LIKE %s ) )', ( searchmask, searchmask, searchmask ), filmui, True, True, self.settings.maxresults )
 
 	def GetRecents( self, channelid, filmui ):

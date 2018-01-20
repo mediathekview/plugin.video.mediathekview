@@ -55,11 +55,11 @@ class StoreSQLite( object ):
 			self.conn	= None
 
 	def Search( self, search, filmui ):
-		searchmask = '%' + search + '%'
+		searchmask = '%' + search.decode('utf-8') + '%'
 		self._Search_Condition( '( ( title LIKE ? ) OR ( show LIKE ? ) )', ( searchmask, searchmask, ), filmui, True, True, self.settings.maxresults )
 
 	def SearchFull( self, search, filmui ):
-		searchmask = '%' + search + '%'
+		searchmask = '%' + search.decode('utf-8') + '%'
 		self._Search_Condition( '( ( title LIKE ? ) OR ( show LIKE ? ) OR ( description LIKE ? ) )', ( searchmask, searchmask, searchmask ), filmui, True, True, self.settings.maxresults )
 
 	def GetRecents( self, channelid, filmui ):
