@@ -179,7 +179,7 @@ class MediathekViewUpdater( object ):
 		except DatabaseLost as err:
 			self.logger.error( '{}', err )
 			self.notifier.CloseUpdateProgress()
-		except IOError as err:
+		except Exception as err:
 			self.logger.error( 'Error {} wile processing {}', err, destfile )
 			self._update_end( full, 'ABORTED' )
 			self.notifier.CloseUpdateProgress()
