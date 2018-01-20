@@ -29,7 +29,15 @@ class ShowUI( Show ):
 			resultingname = self.show + ' [' + self.channel + ']'
 		else:
 			resultingname = self.show
+
+		infoLabels = {
+			'title' : resultingname,
+			'sorttitle' : resultingname.lower()
+		}
+
 		li = xbmcgui.ListItem( label = resultingname )
+		li.setInfo( type = 'video', infoLabels = infoLabels )
+
 		xbmcplugin.addDirectoryItem(
 			handle	= self.handle,
 			url		= mvutils.build_url( {
