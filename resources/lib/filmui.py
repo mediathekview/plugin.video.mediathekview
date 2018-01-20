@@ -64,9 +64,15 @@ class FilmUI( Film ):
 				infoLabels['aired']		= airedstring
 				infoLabels['dateadded']	= airedstring
 
+		icon = 'special://home/addons/' + self.plugin.addon_id + '/resources/icons/' + self.channel.lower() + '-m.png'
+
 		li = xbmcgui.ListItem( resultingtitle )
 		li.setInfo( type = 'video', infoLabels = infoLabels )
 		li.setProperty( 'IsPlayable', 'true' )
+		li.setArt( {
+			'thumb': icon,
+			'icon': icon
+		} )
 
 		# create context menu
 		contextmenu = []

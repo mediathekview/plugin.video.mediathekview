@@ -10,8 +10,9 @@ import resources.lib.mvutils as mvutils
 
 # -- Classes ------------------------------------------------
 class InitialUI( object ):
-	def __init__( self, handle, sortmethods = None ):
-		self.handle			= handle
+	def __init__( self, plugin, sortmethods = None ):
+		self.plugin			= plugin
+		self.handle			= plugin.addon_handle
 		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
 		self.channelid		= 0
 		self.initial		= ''
