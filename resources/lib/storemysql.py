@@ -48,17 +48,21 @@ class StoreMySQL( object ):
 			self.conn.close()
 
 	def Search( self, search, filmui ):
-		self._Search_Condition( '( ( `title` LIKE "%%%s%%" ) OR ( `show` LIKE "%%%s%%" ) )' % ( search, search, ), filmui, True, True, self.settings.maxresults )
+		searchmask = '%' + search + '%'
+		self._Search_Condition( '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) )', ( searchmask, searchmask, ), filmui, True, True, self.settings.maxresults )
 
 	def SearchFull( self, search, filmui ):
-		self._Search_Condition( '( ( `title` LIKE "%%%s%%" ) OR ( `show` LIKE "%%%s%%" ) ) OR ( `description` LIKE "%%%s%%") )' % ( search, search, search ), filmui, True, True, self.settings.maxresults )
+		searchmask = '%' + search + '%'
+		self._Search_Condition( '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) OR ( `description` LIKE %s ) )', ( searchmask, searchmask, searchmask ), filmui, True, True, self.settings.maxresults )
 
 	def GetRecents( self, channelid, filmui ):
-		sql_cond_channel = ' AND ( film.channelid=' + str( channelid ) + ' ) ' if channelid != '0' else ''
-		self._Search_Condition( self.sql_cond_recent + sql_cond_channel, filmui, True, False, 10000 )
+		if channelid != '0':
+			self._Search_Condition( self.sql_cond_recent + ' AND ( film.channelid=%s )', ( int( channelid ), ), filmui, True, False, 10000 )
+		else:
+			self._Search_Condition( self.sql_cond_recent, (), filmui, True, False, 10000 )
 
 	def GetLiveStreams( self, filmui ):
-		self._Search_Condition( '( show.search="LIVESTREAM" )', filmui, False, False, 10000 )
+		self._Search_Condition( '( show.search="LIVESTREAM" )', (), filmui, False, False, 10000 )
 
 	def GetChannels( self, channelui ):
 		self._Channels_Condition( None, channelui )
@@ -73,10 +77,9 @@ class StoreMySQL( object ):
 			channelid = int( channelid )
 			cursor = self.conn.cursor()
 			if channelid != 0:
-				self.logger.info( 'MySQL Query: ' +
-					'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
-					'WHERE ( `channelid`=' + str( channelid ) + ' ) ' +
-					'GROUP BY LEFT(search,1)'
+				self.logger.info(
+					'MySQL Query: SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` WHERE ( `channelid`={} ) GROUP BY LEFT(search,1)',
+					channelid
 				)
 				cursor.execute( """
 					SELECT		LEFT(`search`,1)	AS `letter`,
@@ -86,9 +89,8 @@ class StoreMySQL( object ):
 					GROUP BY	LEFT(`search`,1)
 				""", ( channelid, ) )
 			else:
-				self.logger.info( 'MySQL Query: ' +
-					'SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` ' +
-					'GROUP BY LEFT(search,1)'
+				self.logger.info(
+					'MySQL Query: SELECT LEFT(`search`,1) AS letter,COUNT(*) AS `count` FROM `show` GROUP BY LEFT(search,1)'
 				)
 				cursor.execute( """
 					SELECT		LEFT(`search`,1)	AS `letter`,
@@ -174,13 +176,10 @@ class StoreMySQL( object ):
 			return
 		if showid.find( ',' ) == -1:
 			# only one channel id
-			condition = '( `showid`=%s )' % showid
-			showchannels = False
+			self._Search_Condition( '( `showid` = %s )', ( int( showid ), ), filmui, False, False, 10000 )
 		else:
 			# multiple channel ids
-			condition = '( `showid` IN ( %s ) )' % showid
-			showchannels = True
-		self._Search_Condition( condition, filmui, False, showchannels, 10000 )
+			self._Search_Condition( '( `showid` IN ( %s ) )', ( showid, ), filmui, False, True, 10000 )
 
 	def _Channels_Condition( self, condition, channelui):
 		if self.conn is None:
@@ -205,7 +204,7 @@ class StoreMySQL( object ):
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
 
-	def _Search_Condition( self, condition, filmui, showshows, showchannels, maxresults ):
+	def _Search_Condition( self, condition, params, filmui, showshows, showchannels, maxresults ):
 		if self.conn is None:
 			return
 		try:
@@ -223,7 +222,8 @@ class StoreMySQL( object ):
 				condition +
 				self.sql_cond_nofuture +
 				self.sql_cond_minlength +
-				' LIMIT {}'.format( maxresults + 1 ) if maxresults else ''
+				' LIMIT {}'.format( maxresults + 1 ) if maxresults else '',
+				params
 			)
 			( results, ) = cursor.fetchone()
 			if maxresults and results > maxresults:
@@ -234,7 +234,8 @@ class StoreMySQL( object ):
 				condition +
 				self.sql_cond_nofuture +
 				self.sql_cond_minlength +
-				' LIMIT {}'.format( maxresults + 1 ) if maxresults else ''
+				' LIMIT {}'.format( maxresults + 1 ) if maxresults else '',
+				params
 			)
 			filmui.Begin( showshows, showchannels )
 			for ( filmui.id, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd ) in cursor:
