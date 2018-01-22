@@ -113,14 +113,14 @@ folgende zwei Bibliotheken zur Verfügung stehen, sowie das Entpackprogramm
 'xz' (optional):
 
 * ijson
-* defusexml
+* defusedxml
 * mysql-connector
 
 Die Installation dieser Bibliotheken erfolgt durch Eingabe folgender Befehle:
 
 ````
 pip install ijson
-pip install defusexml
+pip install defusedxml
 pip install mysql-connector==2.1.4
 ````
 
@@ -132,7 +132,7 @@ Dies kann entweder durch Herunterladen und Entpacken der Addon-ZIP-Datei
 erfolgen oder durch Klonen des Addon-Quellcode-Repositories mittels `git`
 
 ````
-git clone git@github.com:mediathekview/plugin.video.mediathekview.git
+git clone https://github.com/mediathekview/plugin.video.mediathekview.git
 ````
 
 Durch Angabe des Parameters `-h` bzw. `-h` hinter dem Datenbanktyp, gibt
@@ -255,14 +255,14 @@ target system in order to execute the commandline update process. Additionally
 the following python libraries are required:
 
 * ijson
-* defusexml
+* defusedxml
 * mysql-connector
 
 The required libraries can be installed via pip:
 
 ````
 pip install ijson
-pip install defusexml
+pip install defusedxml
 pip install mysql-connector==2.1.4
 ````
 
@@ -274,7 +274,7 @@ This can be either done by downloading and unpacking the addon archive or
 by cloning the source repository with `git`
 
 ````
-git clone git@github.com:mediathekview/plugin.video.mediathekview.git
+git clone https://github.com/mediathekview/plugin.video.mediathekview.git
 ````
 
 By specifying the option `-h` itself or after the requested database type,
@@ -390,14 +390,14 @@ interprete python2, il programma di decompressione 'xz' e le seguenti
 librerie python:
 
 * ijson
-* defusexml
+* defusedxml
 * mysql-connector
 
 QUeste potranno essere istallate mediante il programma pip:
 
 ````
 pip install ijson
-pip install defusexml
+pip install defusedxml
 pip install mysql-connector==2.1.4
 ````
 
@@ -409,7 +409,7 @@ Questo sarà possibile sia scaricando l'archivio dell'addon che dovrà essere
 spacchettato in loco o mediante clonaggio dai sorgenti mediante `git`
 
 ````
-git clone git@github.com:mediathekview/plugin.video.mediathekview.git
+git clone https://github.com/mediathekview/plugin.video.mediathekview.git
 ````
 
 Specificando l'opzione `-h` a se stante o a tergo del tipo di database da
