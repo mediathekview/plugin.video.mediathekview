@@ -31,21 +31,14 @@ class Store( object ):
 		if self.db is not None:
 			self.db.Exit()
 
-	def Search( self, search, filmui ):
-		if self.db is not None:
-			self.db.Search( search, filmui )
-
-	def SearchFull( self, search, filmui ):
-		if self.db is not None:
-			self.db.SearchFull( search, filmui )
+	def Search( self, search, filmui, extendedsearch = False ):
+		return self.db.Search( search, filmui, extendedsearch ) if self.db is not None else 0
 
 	def GetRecents( self, channelid, filmui ):
-		if self.db is not None:
-			self.db.GetRecents( channelid, filmui )
+		return self.db.GetRecents( channelid, filmui ) if self.db is not None else 0
 
 	def GetLiveStreams( self, filmui ):
-		if self.db is not None:
-			self.db.GetLiveStreams( filmui )
+		return self.db.GetLiveStreams( filmui ) if self.db is not None else 0
 
 	def GetChannels( self, channelui ):
 		if self.db is not None:
@@ -64,8 +57,7 @@ class Store( object ):
 			self.db.GetShows( channelid, initial, showui )
 
 	def GetFilms( self, showid, filmui ):
-		if self.db is not None:
-			self.db.GetFilms( showid, filmui )
+		return self.db.GetFilms( showid, filmui ) if self.db is not None else 0
 
 	def RetrieveFilmInfo( self, filmid ):
 		if self.db is not None:

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="30001">
-		<setting id="firstrun"			type="bool"						default="true"	visible="false"						/>
-		<setting id="instanceid"		type="text"						default=""		visible="false"						/>
 		<setting id="quality"			type="bool"		label="30110"	default="true"										/>
 		<setting id="nofuture"			type="bool"		label="30111"	default="true"										/>
 		<setting id="minlength"			type="slider"	label="30112"	default="0"		range="0,30"						/>
@@ -24,5 +22,12 @@
 		<setting id="updinterval"		type="slider"	label="30232"	default="2"	range="1,24"	visible="eq(-1,true)"	/>
 
 		<!-- setting						type="action"	label="30238"	action="RunScript(plugin.video.mediathekview, downloadreport)"/ -->
+
+		<!-- INTERNAL STUFF USED FOR STATE STORAGE -->
+		<setting id="firstrun"			type="bool"						default="true"	visible="false"						/>
+		<setting id="instanceid"		type="text"						default=""		visible="false"						/>
+		<setting id="lastactivity"		type="number"					default="0"		visible="false"						/>
+		<setting id="lastsearch1"		type="text"						default=""		visible="false"						/>
+		<setting id="lastsearch2"		type="text"						default=""		visible="false"						/>
 	</category>
 </settings>
