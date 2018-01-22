@@ -448,7 +448,8 @@ class StoreSQLite( object ):
 		cursor.close()
 		self.conn.commit()
 
-	def SupportsUpdate( self ):
+	@staticmethod
+	def SupportsUpdate():
 		return True
 
 	def ftInit( self ):
@@ -793,10 +794,8 @@ PRAGMA foreign_keys = true;
 				self.logger.error( 'Failed to remove {}: error {}', name, err )
 		return False
 
-def UNIX_TIMESTAMP():
-	return int( time.time() )
-
 class GROUP_CONCAT:
+
 	def __init__( self ):
 		self.value = ''
 
@@ -807,5 +806,8 @@ class GROUP_CONCAT:
 			else:
 				self.value = '{0},{1}'.format( self.value, value )
 
-	def finalize(self):
+	def finalize( self ):
 		return self.value
+
+def UNIX_TIMESTAMP():
+	return int( time.time() )

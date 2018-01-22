@@ -112,7 +112,8 @@ class Notifier( object ):
 		pass
 
 class MediathekViewMonitor( object ):
-	def abortRequested( self ):
+	@staticmethod
+	def abortRequested():
 		return False
 
 class UpdateApp( AppLogger ):

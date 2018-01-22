@@ -453,7 +453,8 @@ class StoreMySQL( object ):
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
 
-	def SupportsUpdate( self ):
+	@staticmethod
+	def SupportsUpdate():
 		return True
 
 	def ftInit( self ):
