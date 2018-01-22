@@ -13,6 +13,7 @@ from resources.lib.exceptions import DatabaseCorrupted
 
 # -- Classes ------------------------------------------------
 class StoreSQLite( object ):
+
 	def __init__( self, logger, notifier, settings ):
 		self.logger		= logger
 		self.notifier	= notifier
