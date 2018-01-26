@@ -264,12 +264,12 @@ class MediathekView( KodiPlugin ):
 			return
 		if self.db is None:
 			# should never happen
-			self.notifier.ShowOutdatedUnknown( status )
+			self.notifier.ShowOutdatedUnknown()
 			return
 		status = self.db.GetStatus()
 		if status['status'] == 'NONE' or status['status'] == 'UNINIT':
 			# should never happen
-			self.notifier.ShowOutdatedUnknown( status )
+			self.notifier.ShowOutdatedUnknown()
 			return
 		elif status['status'] == 'UPDATING':
 			# great... we are updating. nuthin to show

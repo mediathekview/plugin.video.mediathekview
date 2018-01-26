@@ -47,18 +47,22 @@ class Settings( object ):
 		# return change status
 		return dbchanged
 
+	@staticmethod
 	def IsUpdateTriggered( self ):
 		if xbmcaddon.Addon().getSetting( 'updatetrigger' ) == 'true':
 			xbmcaddon.Addon().setSetting( 'updatetrigger', 'false' )
 			return True
 		return False
 
+	@staticmethod
 	def IsUserAlive( self ):
 		return int( time.time() ) - int( float( xbmcaddon.Addon().getSetting( 'lastactivity' ) ) ) < 7200
 
+	@staticmethod
 	def TriggerUpdate( self ):
 		xbmcaddon.Addon().setSetting( 'updatetrigger', 'true' )
 
+	@staticmethod
 	def ResetUserActivity( self ):
 		xbmcaddon.Addon().setSetting( 'lastactivity', '{}'.format( time.time() ) )
 

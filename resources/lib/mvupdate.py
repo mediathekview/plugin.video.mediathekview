@@ -31,18 +31,23 @@ class Settings( object ):
 		self.updmode		= 2
 		self.updinterval	= 3600
 
+	@staticmethod
 	def Reload( self ):
 		return False
 
+	@staticmethod
 	def IsUpdateTriggered( self ):
 		return True
 
+	@staticmethod
 	def IsUserAlive( self ):
 		return True
 
+	@staticmethod
 	def TriggerUpdate( self ):
 		return True
 
+	@staticmethod
 	def ResetUserActivity( self ):
 		pass
 
