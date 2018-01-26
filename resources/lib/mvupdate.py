@@ -13,10 +13,11 @@ from resources.lib.updater import MediathekViewUpdater
 
 # -- Classes ------------------------------------------------
 class Settings( object ):
+
 	def __init__( self, args ):
 		self.datapath		= args.path if args.dbtype == 'sqlite' else './'
-		self.type			= { 'sqlite' : '0', 'mysql' : '1' }.get( args.dbtype, '0' )
-		if self.type == '1':
+		self.type			= { 'sqlite' : 0, 'mysql' : 1 }.get( args.dbtype, 0 )
+		if self.type == 1:
 			self.host			= args.host
 			self.port			= int( args.port )
 			self.user			= args.user
@@ -27,8 +28,23 @@ class Settings( object ):
 		self.maxage			= 86400
 		self.recentmode		= 0
 		self.groupshows		= False
-		self.updenabled		= True
+		self.updmode		= 2
 		self.updinterval	= 3600
+
+	def Reload( self ):
+		return False
+
+	def IsUpdateTriggered( self ):
+		return True
+
+	def IsUserAlive( self ):
+		return True
+
+	def TriggerUpdate( self ):
+		return True
+
+	def ResetUserActivity( self ):
+		pass
 
 class AppLogger( Logger ):
 
@@ -95,6 +111,12 @@ class Notifier( object ):
 	def ShowDownloadError( self, name, err ):
 		pass
 	def ShowMissingExtractorError( self ):
+		pass
+	def ShowLimitResults( self, maxresults ):
+		pass
+	def ShowOutdatedUnknown( self ):
+		pass
+	def ShowOutdatedKnown( self, status ):
 		pass
 	def ShowDownloadProgress( self ):
 		pass

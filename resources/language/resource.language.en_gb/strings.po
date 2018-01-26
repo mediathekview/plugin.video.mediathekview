@@ -100,12 +100,28 @@ msgid "External (mysql)"
 msgstr "External (mysql)"
 
 msgctxt "#30231"
-msgid "Database Updates"
-msgstr "Database Updates"
+msgid "Database Update Mode"
+msgstr "Database Update Mode"
 
 msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Update interval in hours"
+
+msgctxt "#30241"
+msgid "Disabled"
+msgstr "Disabled"
+
+msgctxt "#30242"
+msgid "Manual"
+msgstr "Manual"
+
+msgctxt "#30243"
+msgid "On Start"
+msgstr "On Start"
+
+msgctxt "#30244"
+msgid "Automatic"
+msgstr "Automatic"
 
 # Main Menu
 msgctxt "#30901"
@@ -139,6 +155,10 @@ msgstr "Browse Shows by Channel"
 msgctxt "#30908"
 msgid "Database Information"
 msgstr "Database Information"
+
+msgctxt "#30909"
+msgid "Update Database"
+msgstr "Update Database"
 
 # Context Menu
 msgctxt "#30921"
@@ -236,24 +256,12 @@ msgstr "This Kodi addon allows access to most video-platforms from German public
 "Please consider donating to this great project! Visit MediathekView at https://mediathekview.de/"
 
 msgctxt "#30963"
-msgid "No Decompressor Available"
-msgstr "No Decompressor Available"
+msgid "Update Database"
+msgstr "Update Database"
 
 msgctxt "#30964"
-msgid "The database updater needs the program 'xz' in order to process the database update files. "
-"This programm was not found on your Kodi system.\n\nIf you want to use the database updater on this "
-"system, you have to install 'xz' in one of the standard locations (/bin, /usr/bin, /usr/local/bin).\n\n"
-"Alternatively you can specify the location of the 'xz' program in the addon settings.\n\n"
-"Another possibilty would be the use of an external database updated either by another Kodi system "
-"or by the provided update script running on a server (see README file).\n\n"
-"The datebase updater has been disabled so you have to enable it again from the addon settings page."
-msgstr "The database updater needs the program 'xz' in order to process the database update files. "
-"This programm was not found on your Kodi system.\n\nIf you want to use the database updater on this "
-"system, you have to install 'xz' in one of the standard locations (/bin, /usr/bin, /usr/local/bin).\n\n"
-"Alternatively you can specify the location of the 'xz' program in the addon settings.\n\n"
-"Another possibilty would be the use of an external database updated either by another Kodi system "
-"or by the provided update script running on a server (see README file).\n\n"
-"The datebase updater has been disabled so you have to enable it again from the addon settings page."
+msgid "The database will be updated in the next few minutes..."
+msgstr "The database will be updated in the next few minutes..."
 
 msgctxt "#30965"
 msgid "Database Status: %s"
@@ -322,3 +330,11 @@ msgstr "Results Limited"
 msgctxt "#30981"
 msgid "Only the first {} results are shown."
 msgstr "Only the first {} results are shown."
+
+msgctxt "#30982"
+msgid "Database Outdated"
+msgstr "Database Outdated"
+
+msgctxt "#30983"
+msgid "Last {}: {}"
+msgstr "Last {}: {}"

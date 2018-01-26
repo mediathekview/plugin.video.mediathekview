@@ -80,7 +80,11 @@ class MediathekView( KodiPlugin ):
 		self.addFolderItem( 30907, { 'mode': "channels" } )
 		# Database Information
 		self.addActionItem( 30908, { 'mode': "action-dbinfo" } )
+		# Manual database update
+		if self.settings.updmode == 1 or self.settings.updmode == 2:
+			self.addActionItem( 30909, { 'mode': "action-dbupdate" } )
 		self.endOfDirectory()
+		self._check_outdate()
 
 	def showSearch( self, extendedsearch = False ):
 		settingid = 'lastsearch2' if extendedsearch is True else 'lastsearch1'
@@ -254,6 +258,28 @@ class MediathekView( KodiPlugin ):
 	def doEnqueueFilm( self, filmid ):
 		self.info( 'Enqueue {}', filmid )
 
+	def _check_outdate( self, maxage = 172800 ):
+		if self.settings.updmode != 1 and self.settings.updmode != 2:
+			# no check with update disabled or update automatic
+			return
+		if self.db is None:
+			# should never happen
+			self.notifier.ShowOutdatedUnknown( status )
+			return
+		status = self.db.GetStatus()
+		if status['status'] == 'NONE' or status['status'] == 'UNINIT':
+			# should never happen
+			self.notifier.ShowOutdatedUnknown( status )
+			return
+		elif status['status'] == 'UPDATING':
+			# great... we are updating. nuthin to show
+			return
+		# lets check how old we are
+		tsnow = int( time.time() )
+		tsold = int( status['lastupdate'] )
+		if tsnow - tsold > maxage:
+			self.notifier.ShowOutdatedKnown( status )
+
 	def _make_nfo_files( self, film, episode, dirname, filename, videourl ):
 		# create NFO files
 		if not xbmcvfs.exists( dirname + 'tvshow.nfo' ):
@@ -294,7 +320,7 @@ class MediathekView( KodiPlugin ):
 
 	def Do( self ):
 		# save last activity timestamp
-		self.addon.setSetting( 'lastactivity', '{}'.format( time.time() ) )
+		self.settings.ResetUserActivity()
 		# process operation
 		mode = self.args.get( 'mode', None )
 		if mode is None:
@@ -314,6 +340,9 @@ class MediathekView( KodiPlugin ):
 			self.db.GetChannels( ChannelUI( self, nextdir = 'shows' ) )
 		elif mode[0] == 'action-dbinfo':
 			self.showDbInfo()
+		elif mode[0] == 'action-dbupdate':
+			self.settings.TriggerUpdate()
+			self.notifier.ShowNotification( 30963, 30964, time = 10000 )
 		elif mode[0] == 'initial':
 			channel = self.args.get( 'channel', [0] )
 			self.db.GetInitials( channel[0], InitialUI( self ) )
@@ -331,7 +360,7 @@ class MediathekView( KodiPlugin ):
 		elif mode[0] == 'enqueue':
 			self.doEnqueueFilm( self.args.get( 'id', [0] )[0] )
 
-		# cleanup saved searches 
+		# cleanup saved searches
 		if mode is None or mode[0] != 'search':
 			self.addon.setSetting( 'lastsearch1', '' )
 		if mode is None or mode[0] != 'searchall':

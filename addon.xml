@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.4.2.1"
+	version="0.4.2.2"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -27,6 +27,7 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.4.3 (2018-01-XX):
+- Verschiedene Aktualisierungsmodi (Manuell, Beim Start, Automatisch) sparen Bandbreite und Energie
 - Abspielen eines Films aus den Suchergebnissen löscht nun die Liste nicht mehr
 v0.4.2 (2018-01-20):
 - Senderlogos werden nun in verschiedenen Situationen angezeigt
