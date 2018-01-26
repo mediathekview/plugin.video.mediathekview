@@ -55,15 +55,15 @@ class Settings( object ):
 		return False
 
 	@staticmethod
-	def IsUserAlive( self ):
+	def IsUserAlive():
 		return int( time.time() ) - int( float( xbmcaddon.Addon().getSetting( 'lastactivity' ) ) ) < 7200
 
 	@staticmethod
-	def TriggerUpdate( self ):
+	def TriggerUpdate():
 		xbmcaddon.Addon().setSetting( 'updatetrigger', 'true' )
 
 	@staticmethod
-	def ResetUserActivity( self ):
+	def ResetUserActivity():
 		xbmcaddon.Addon().setSetting( 'lastactivity', '{}'.format( time.time() ) )
 
 	def HandleFirstRun( self ):
