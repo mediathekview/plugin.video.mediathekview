@@ -27,8 +27,16 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # from future import standard_library
 # from builtins import *
 # standard_library.install_aliases()
-import os,re,sys,urlparse,datetime
-import xbmcplugin,xbmcgui,xbmcvfs
+import os
+import re
+import sys
+import time
+import urlparse
+import datetime
+
+import xbmcgui
+import xbmcvfs
+import xbmcplugin
 
 import resources.lib.mvutils as mvutils
 
@@ -72,25 +80,30 @@ class MediathekView( KodiPlugin ):
 		self.addFolderItem( 30907, { 'mode': "channels" } )
 		# Database Information
 		self.addActionItem( 30908, { 'mode': "action-dbinfo" } )
+		# Manual database update
+		if self.settings.updmode == 1 or self.settings.updmode == 2:
+			self.addActionItem( 30909, { 'mode': "action-dbupdate" } )
 		self.endOfDirectory()
+		self._check_outdate()
 
-	def showSearch( self ):
-		searchText = self.notifier.GetEnteredText( '', self.language( 30901 ).decode( 'UTF-8' ) )
-		if len( searchText ) > 2:
-			self.db.Search( searchText, FilmUI( self ) )
+	def showSearch( self, extendedsearch = False ):
+		settingid = 'lastsearch2' if extendedsearch is True else 'lastsearch1'
+		headingid = 30902 if extendedsearch is True else 30901
+		# are we returning from playback ?
+		searchText = self.addon.getSetting( settingid )
+		if len( searchText ) > 0:
+			# restore previous search
+			self.db.Search( searchText, FilmUI( self ), extendedsearch )
 		else:
-			self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
-			self.endOfDirectory( False, cacheToDisc = True )
-			# self.showMainMenu()
-
-	def showSearchAll( self ):
-		searchText = self.notifier.GetEnteredText( '', self.language( 30902 ).decode( 'UTF-8' ) )
-		if len( searchText ) > 2:
-			self.db.SearchFull( searchText, FilmUI( self ) )
-		else:
-			self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
-			self.endOfDirectory( False, cacheToDisc = True )
-			# self.showMainMenu()
+			# enter search term
+			searchText = self.notifier.GetEnteredText( '', headingid )
+			if len( searchText ) > 2:
+				if self.db.Search( searchText, FilmUI( self ), extendedsearch ) > 0:
+					self.addon.setSetting( settingid, searchText )
+			else:
+				self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
+				self.endOfDirectory( False, cacheToDisc = True )
+				# self.showMainMenu()
 
 	def showDbInfo( self ):
 		info = self.db.GetStatus()
@@ -245,6 +258,28 @@ class MediathekView( KodiPlugin ):
 	def doEnqueueFilm( self, filmid ):
 		self.info( 'Enqueue {}', filmid )
 
+	def _check_outdate( self, maxage = 172800 ):
+		if self.settings.updmode != 1 and self.settings.updmode != 2:
+			# no check with update disabled or update automatic
+			return
+		if self.db is None:
+			# should never happen
+			self.notifier.ShowOutdatedUnknown()
+			return
+		status = self.db.GetStatus()
+		if status['status'] == 'NONE' or status['status'] == 'UNINIT':
+			# should never happen
+			self.notifier.ShowOutdatedUnknown()
+			return
+		elif status['status'] == 'UPDATING':
+			# great... we are updating. nuthin to show
+			return
+		# lets check how old we are
+		tsnow = int( time.time() )
+		tsold = int( status['lastupdate'] )
+		if tsnow - tsold > maxage:
+			self.notifier.ShowOutdatedKnown( status )
+
 	def _make_nfo_files( self, film, episode, dirname, filename, videourl ):
 		# create NFO files
 		if not xbmcvfs.exists( dirname + 'tvshow.nfo' ):
@@ -284,13 +319,16 @@ class MediathekView( KodiPlugin ):
 			pass
 
 	def Do( self ):
+		# save last activity timestamp
+		self.settings.ResetUserActivity()
+		# process operation
 		mode = self.args.get( 'mode', None )
 		if mode is None:
 			self.showMainMenu()
 		elif mode[0] == 'search':
 			self.showSearch()
 		elif mode[0] == 'searchall':
-			self.showSearchAll()
+			self.showSearch( extendedsearch = True )
 		elif mode[0] == 'livestreams':
 			self.db.GetLiveStreams( FilmUI( self, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
 		elif mode[0] == 'recent':
@@ -302,6 +340,9 @@ class MediathekView( KodiPlugin ):
 			self.db.GetChannels( ChannelUI( self, nextdir = 'shows' ) )
 		elif mode[0] == 'action-dbinfo':
 			self.showDbInfo()
+		elif mode[0] == 'action-dbupdate':
+			self.settings.TriggerUpdate()
+			self.notifier.ShowNotification( 30963, 30964, time = 10000 )
 		elif mode[0] == 'initial':
 			channel = self.args.get( 'channel', [0] )
 			self.db.GetInitials( channel[0], InitialUI( self ) )
@@ -318,6 +359,12 @@ class MediathekView( KodiPlugin ):
 			self.doDownloadFilm( filmid[0], quality[0] )
 		elif mode[0] == 'enqueue':
 			self.doEnqueueFilm( self.args.get( 'id', [0] )[0] )
+
+		# cleanup saved searches
+		if mode is None or mode[0] != 'search':
+			self.addon.setSetting( 'lastsearch1', '' )
+		if mode is None or mode[0] != 'searchall':
+			self.addon.setSetting( 'lastsearch2', '' )
 
 	def Exit( self ):
 		self.db.Exit()

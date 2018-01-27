@@ -16,8 +16,8 @@ class KodiUI( object ):
 		self.bgdialog		= KodiBGDialog()
 
 	def GetEnteredText( self, deftext = None, heading = None, hidden = False ):
-		heading = self.language( heading ) if isinstance( heading, int ) else heading if heading is not None else ''
-		deftext = self.language( deftext ) if isinstance( deftext, int ) else deftext if deftext is not None else ''
+		heading = self.language( heading ).decode( 'utf-8' ) if isinstance( heading, int ) else heading if heading is not None else ''
+		deftext = self.language( deftext ).decode( 'utf-8' ) if isinstance( deftext, int ) else deftext if deftext is not None else ''
 		keyboard = xbmc.Keyboard( deftext, heading, 1 if hidden else 0 )
 		keyboard.doModal()
 		if keyboard.isConfirmed():

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
 	<category label="30001">
-		<setting id="firstrun"			type="bool"						default="true"	visible="false"						/>
-		<setting id="instanceid"		type="text"						default=""		visible="false"						/>
 		<setting id="quality"			type="bool"		label="30110"	default="true"										/>
 		<setting id="nofuture"			type="bool"		label="30111"	default="true"										/>
 		<setting id="minlength"			type="slider"	label="30112"	default="0"		range="0,30"						/>
@@ -20,9 +18,17 @@
 		<setting id="dbuser"			type="text"		label="30213"	default="mediathekview"		visible="eq(-3,1)"		/>
 		<setting id="dbpass"			type="text"		label="30214"	default=""	option="hidden"	visible="eq(-4,1)"		/>
 		<setting id="dbdata"			type="text"		label="30215"	default="mediathekview"		visible="eq(-5,1)"		/>
-		<setting id="updenabled"		type="bool"		label="30231"	default="true"										/>
+		<setting id="updmode"			type="enum"		label="30231"	default="3"		lvalues="30241|30242|30243|30244"	/>
 		<setting id="updinterval"		type="slider"	label="30232"	default="2"	range="1,24"	visible="eq(-1,true)"	/>
 
 		<!-- setting						type="action"	label="30238"	action="RunScript(plugin.video.mediathekview, downloadreport)"/ -->
+
+		<!-- INTERNAL STUFF USED FOR STATE STORAGE -->
+		<setting id="firstrun"			type="bool"						default="true"	visible="false"						/>
+		<setting id="instanceid"		type="text"						default=""		visible="false"						/>
+		<setting id="updatetrigger"		type="bool"						default="false"	visible="false"						/>
+		<setting id="lastactivity"		type="number"					default="0"		visible="false"						/>
+		<setting id="lastsearch1"		type="text"						default=""		visible="false"						/>
+		<setting id="lastsearch2"		type="text"						default=""		visible="false"						/>
 	</category>
 </settings>

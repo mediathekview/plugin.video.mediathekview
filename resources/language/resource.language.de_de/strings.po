@@ -100,12 +100,28 @@ msgid "External (mysql)"
 msgstr "Extern (mysql)"
 
 msgctxt "#30231"
-msgid "Database Updates"
-msgstr "Datenbankupdates"
+msgid "Database Update Mode"
+msgstr "Datenbankupdate-Modus"
 
 msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Aktualisierungsintervall in Stunden"
+
+msgctxt "#30241"
+msgid "Disabled"
+msgstr "Abgeschaltet"
+
+msgctxt "#30242"
+msgid "Manual"
+msgstr "Manuell"
+
+msgctxt "#30243"
+msgid "On Start"
+msgstr "Nur beim Start"
+
+msgctxt "#30244"
+msgid "Automatic"
+msgstr "Automatisch"
 
 # Main Menu
 msgctxt "#30901"
@@ -139,6 +155,10 @@ msgstr "Alle Sendungen nach Sender"
 msgctxt "#30908"
 msgid "Database Information"
 msgstr "Datenbank Informationen"
+
+msgctxt "#30909"
+msgid "Update Database"
+msgstr "Datenbank aktualisieren"
 
 # Context Menu
 msgctxt "#30921"
@@ -209,11 +229,11 @@ msgstr "Mediathek (%d): Sender:%d, Sendungen:%d, Filme:%d ..."
 
 msgctxt "#30958"
 msgid "Please set a download folder in the settings"
-msgstr "Bitte waehlen Sie ein Download-Verzeichnis in den Einstellungen"
+msgstr "Bitte wählen Sie ein Download-Verzeichnis in den Einstellungen"
 
 msgctxt "#30959"
 msgid "Download directory could not be created: {}"
-msgstr "Fehler beim Ertzeugen des Download-Verzeichnisses: {}"
+msgstr "Fehler beim Erzeugen des Download-Verzeichnisses: {}"
 
 msgctxt "#30960"
 msgid "Download Successful"
@@ -236,26 +256,12 @@ msgstr "Dieses Kodi Addon Ermöglicht den Zugriff auf fast alle deutschen Mediat
 "Spende zu hinterlassen."
 
 msgctxt "#30963"
-msgid "No Decompressor Available"
-msgstr "Kein Entpacker Verfügbar"
+msgid "Update Database"
+msgstr "Datenbank Aktualisierung"
 
 msgctxt "#30964"
-msgid "The database updater needs the program 'xz' in order to process the database update files. "
-"This programm was not found on your Kodi system.\n\nIf you want to use the database er on this "
-"system, you have to install 'xz' in one of the standard locations (/bin, /usr/bin, /usr/local/bin).\n\n"
-"Alternatively you can specify the location of the 'xz' program in the addon settings.\n\n"
-"Another possibilty would be the use of an external database updated either by another Kodi system "
-"or by the provided update script running on a server (see README file).\n\n"
-"The datebase er has been disabled so you have to enable it again from the addon settings page."
-msgstr "Der Datenbank-Aktualisierer benötigt den Entpacker 'xz' der auf diesem Kodi-System leider "
-"nicht gefunden wurde.\n\nUm den Datenbank-Aktualisierer zu benutzen, muss dieses Programm auf dem "
-"System in einem der Standard-Verzeichnisse (/bin, /usr/bin, /usr/local/bin) installiert werden.\n\n"
-"Unter Windows bzw. falls das Programm in einem anderen Verzeichnis installiert ist, muss der Pfad "
-"zum Programm in den Addon-Einstellungen angegeben werden.\n\n"
-"Eine andere Möglichkeit ist die Benutzung einer externen Datenbank die entweder über eine anderes "
-"Kodi-System oder über das mitgelieferte Update-Skript (siehe README) regelmäßig aktualisiert wird.\n\n"
-"Der Datenbank-Aktualisierer wurde deaktiviert. Er kann über die Addon-Einstellungen wieder aktiviert "
-"werden."
+msgid "The database will be updated in the next few minutes..."
+msgstr "Die Datenbank wird in kürze aktualisiert..."
 
 msgctxt "#30965"
 msgid "Database Status: %s"
@@ -324,3 +330,11 @@ msgstr "Ergebnisse Beschränkt"
 msgctxt "#30981"
 msgid "Only the first {} results are shown."
 msgstr "Es werden nur die ersten {} Ergebnisse angezeigt."
+
+msgctxt "#30982"
+msgid "Database Outdated"
+msgstr "Datenbank veraltet"
+
+msgctxt "#30983"
+msgid "Last {}: {}"
+msgstr "Letzte {}: {}"
