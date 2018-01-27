@@ -48,6 +48,7 @@ class MediathekViewUpdater( object ):
 		self.settings	= settings
 		self.monitor	= monitor
 		self.db			= None
+		self.cycle		= 0
 		self.use_xz     = mvutils.find_xz() is not None
 
 	def Init( self ):
@@ -62,47 +63,83 @@ class MediathekViewUpdater( object ):
 			del self.db
 			self.db = None
 
+	def Reload( self ):
+		self.Exit()
+		self.Init()
+
 	def IsEnabled( self ):
 		return self.settings.updenabled
 
 	def GetCurrentUpdateOperation( self ):
-		if not self.IsEnabled() or self.db is None:
-			# update disabled or not possible
-			self.logger.info( 'update disabled or not possible' )
+		if self.db is None:
+			# db not available - no update
+			self.logger.info( 'Update disabled since database not available' )
 			return 0
+
+		elif self.settings.updmode == 0:
+			# update disabled - no update
+			return 0
+
+		elif self.settings.updmode == 1:
+			# manual update
+			if self.settings.IsUpdateTriggered() is True:
+				return self._getNextUpdateOperation( True )
+			else:
+				# no update on all subsequent calls
+				return 0
+
+		elif self.settings.updmode == 2:
+			# update on start or manual
+			if self.cycle == 0:
+				return self._getNextUpdateOperation()
+			elif self.settings.IsUpdateTriggered() is True:
+				return self._getNextUpdateOperation( True )
+			else:
+				# no update on all subsequent calls
+				return 0
+
+		elif self.settings.updmode == 3:
+			# automatic update
+			if self.settings.IsUserAlive():
+				return self._getNextUpdateOperation()
+			else:
+				# no update of user is idle for more than 2 hours
+				return 0
+
+	def _getNextUpdateOperation( self, force = False ):
 		status = self.db.GetStatus()
 		tsnow = int( time.time() )
 		tsold = status['lastupdate']
 		dtnow = datetime.datetime.fromtimestamp( tsnow ).date()
 		dtold = datetime.datetime.fromtimestamp( tsold ).date()
 		if status['status'] == 'UNINIT':
-			# database not initialized
+			# database not initialized - no update
 			self.logger.debug( 'database not initialized' )
 			return 0
 		elif status['status'] == "UPDATING" and tsnow - tsold > 10800:
-			# process was probably killed during update
+			# process was probably killed during update - no update
 			self.logger.info( 'Stuck update pretending to run since epoch {} reset', tsold )
 			self.db.UpdateStatus( 'ABORTED' )
 			return 0
 		elif status['status'] == "UPDATING":
-			# already updating
-			self.logger.debug( 'already updating' )
+			# already updating - no update
+			self.logger.debug( 'Already updating' )
 			return 0
-		elif tsnow - tsold < self.settings.updinterval:
-			# last update less than the configured update interval. do nothing
-			self.logger.debug( 'last update less than the configured update interval. do nothing' )
+		elif not force and tsnow - tsold < self.settings.updinterval:
+			# last update less than the configured update interval - no update
+			self.logger.debug( 'Last update less than the configured update interval. do nothing' )
 			return 0
 		elif dtnow != dtold:
 			# last update was not today. do full update once a day
-			self.logger.debug( 'last update was not today. do full update once a day' )
+			self.logger.debug( 'Last update was not today. do full update once a day' )
 			return 1
 		elif status['status'] == "ABORTED" and status['fullupdate'] == 1:
 			# last full update was aborted - full update needed
-			self.logger.debug( 'last full update was aborted - full update needed' )
+			self.logger.debug( 'Last full update was aborted - full update needed' )
 			return 1
 		else:
 			# do differential update
-			self.logger.debug( 'do differential update' )
+			self.logger.debug( 'Do differential update' )
 			return 2
 
 	def Update( self, full ):
@@ -110,7 +147,8 @@ class MediathekViewUpdater( object ):
 			return
 		if self.db.SupportsUpdate():
 			if self.GetNewestList( full ):
-				self.Import( full )
+				if self.Import( full ):
+					self.cycle += 1
 
 	def Import( self, full ):
 		( _, _, destfile, avgrecsize ) = self._get_update_info( full )
@@ -171,22 +209,22 @@ class MediathekViewUpdater( object ):
 								pass
 
 			self._update_end( full, 'IDLE' )
-			self.logger.info( 'Import of {} finished', destfile )
+			self.logger.info( 'Import of {} in update cycle {} finished', destfile, self.cycle )
 			self.notifier.CloseUpdateProgress()
 			return True
 		except KeyboardInterrupt:
 			self._update_end( full, 'ABORTED' )
-			self.logger.info( 'Interrupted by user' )
+			self.logger.info( 'Update cycle {} interrupted by user', self.cycle )
 			self.notifier.CloseUpdateProgress()
-			return True
+			return False
 		except DatabaseCorrupted as err:
-			self.logger.error( '{}', err )
+			self.logger.error( '{} on update cycle {}', err, self.cycle )
 			self.notifier.CloseUpdateProgress()
 		except DatabaseLost as err:
-			self.logger.error( '{}', err )
+			self.logger.error( '{} on update cycle {}', err, self.cycle )
 			self.notifier.CloseUpdateProgress()
 		except Exception as err:
-			self.logger.error( 'Error {} wile processing {}', err, destfile )
+			self.logger.error( 'Error {} while processing {} on update cycle {}', err, destfile, self.cycle )
 			self._update_end( full, 'ABORTED' )
 			self.notifier.CloseUpdateProgress()
 		return False

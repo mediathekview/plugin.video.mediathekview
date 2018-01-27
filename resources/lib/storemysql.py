@@ -12,6 +12,7 @@ from resources.lib.film import Film
 
 # -- Classes ------------------------------------------------
 class StoreMySQL( object ):
+
 	def __init__( self, logger, notifier, settings ):
 		self.conn		= None
 		self.logger		= logger
@@ -47,22 +48,20 @@ class StoreMySQL( object ):
 		if self.conn is not None:
 			self.conn.close()
 
-	def Search( self, search, filmui ):
+	def Search( self, search, filmui, extendedsearch ):
 		searchmask = '%' + search.decode('utf-8') + '%'
-		self._Search_Condition( '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) )', ( searchmask, searchmask, ), filmui, True, True, self.settings.maxresults )
-
-	def SearchFull( self, search, filmui ):
-		searchmask = '%' + search.decode('utf-8') + '%'
-		self._Search_Condition( '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) OR ( `description` LIKE %s ) )', ( searchmask, searchmask, searchmask ), filmui, True, True, self.settings.maxresults )
+		searchcond = '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) OR ( `description` LIKE %s ) )' if extendedsearch is True else '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) )'
+		searchparm = ( searchmask, searchmask, searchmask ) if extendedsearch is True else ( searchmask, searchmask, )
+		return self._Search_Condition( searchcond, searchparm, filmui, True, True, self.settings.maxresults )
 
 	def GetRecents( self, channelid, filmui ):
 		if channelid != '0':
-			self._Search_Condition( self.sql_cond_recent + ' AND ( film.channelid=%s )', ( int( channelid ), ), filmui, True, False, 10000 )
+			return self._Search_Condition( self.sql_cond_recent + ' AND ( film.channelid=%s )', ( int( channelid ), ), filmui, True, False, 10000 )
 		else:
-			self._Search_Condition( self.sql_cond_recent, (), filmui, True, False, 10000 )
+			return self._Search_Condition( self.sql_cond_recent, (), filmui, True, False, 10000 )
 
 	def GetLiveStreams( self, filmui ):
-		self._Search_Condition( '( show.search="LIVESTREAM" )', (), filmui, False, False, 10000 )
+		return self._Search_Condition( '( show.search="LIVESTREAM" )', (), filmui, False, False, 10000 )
 
 	def GetChannels( self, channelui ):
 		self._Channels_Condition( None, channelui )
@@ -176,10 +175,10 @@ class StoreMySQL( object ):
 			return
 		if showid.find( ',' ) == -1:
 			# only one channel id
-			self._Search_Condition( '( `showid` = %s )', ( int( showid ), ), filmui, False, False, 10000 )
+			return self._Search_Condition( '( `showid` = %s )', ( int( showid ), ), filmui, False, False, 10000 )
 		else:
 			# multiple channel ids
-			self._Search_Condition( '( `showid` IN ( {} ) )'.format( showid ), (), filmui, False, True, 10000 )
+			return self._Search_Condition( '( `showid` IN ( {} ) )'.format( showid ), (), filmui, False, True, 10000 )
 
 	def _Channels_Condition( self, condition, channelui):
 		if self.conn is None:
@@ -206,7 +205,7 @@ class StoreMySQL( object ):
 
 	def _Search_Condition( self, condition, params, filmui, showshows, showchannels, maxresults ):
 		if self.conn is None:
-			return
+			return 0
 		try:
 			self.logger.info( 'MySQL Query: {}',
 				self.sql_query_films +
@@ -242,9 +241,11 @@ class StoreMySQL( object ):
 				filmui.Add( totalItems = results )
 			filmui.End()
 			cursor.close()
+			return results
 		except mysql.connector.Error as err:
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
+			return 0
 
 	def RetrieveFilmInfo( self, filmid ):
 		if self.conn is None:
@@ -452,7 +453,8 @@ class StoreMySQL( object ):
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
 
-	def SupportsUpdate( self ):
+	@staticmethod
+	def SupportsUpdate():
 		return True
 
 	def ftInit( self ):
