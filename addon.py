@@ -300,6 +300,7 @@ class MediathekView( KodiPlugin ):
 				file.write( b'<episodedetails>\n' )
 				file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
 				file.write( b'\t<season>1</season>\n' )
+				file.write( b'\t<autonumber>1</autonumber>\n' )
 				file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
 				file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
 				file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
