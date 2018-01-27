@@ -48,7 +48,7 @@ class Settings( object ):
 		return dbchanged
 
 	@staticmethod
-	def IsUpdateTriggered( self ):
+	def IsUpdateTriggered():
 		if xbmcaddon.Addon().getSetting( 'updatetrigger' ) == 'true':
 			xbmcaddon.Addon().setSetting( 'updatetrigger', 'false' )
 			return True
