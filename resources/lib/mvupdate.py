@@ -28,7 +28,7 @@ class Settings( object ):
 		self.maxage			= 86400
 		self.recentmode		= 0
 		self.groupshows		= False
-		self.updmode		= 2
+		self.updmode		= 3
 		self.updinterval	= 3600
 
 	@staticmethod
@@ -164,6 +164,12 @@ class UpdateApp( AppLogger ):
 			action = 'count',
 			help = 'Show progress messages'
 		)
+		parser.add_argument(
+			'-F', '--force',
+			default = False,
+			action = 'store_true',
+			help = 'Force the update also if the interval is higher'
+		)
 		subparsers = parser.add_subparsers(
 			dest = 'dbtype',
 			help = 'target database'
@@ -218,7 +224,7 @@ class UpdateApp( AppLogger ):
 
 	def Run( self ):
 		self.info( 'Starting up...' )
-		updateop = self.updater.GetCurrentUpdateOperation()
+		updateop = self.updater.GetCurrentUpdateOperation( self.args.force )
 		if updateop == 1:
 			# full update
 			self.info( 'Initiating full update...' )
