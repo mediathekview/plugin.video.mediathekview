@@ -29,7 +29,7 @@ class Settings( object ):
 		self.recentmode		= 0
 		self.groupshows		= False
 		self.updmode		= 3
-		self.updinterval	= 3600
+		self.updinterval	= args.intervall
 
 	@staticmethod
 	def Reload():
@@ -162,13 +162,7 @@ class UpdateApp( AppLogger ):
 			'-v', '--verbose',
 			default = 0,
 			action = 'count',
-			help = 'Show progress messages'
-		)
-		parser.add_argument(
-			'-F', '--force',
-			default = False,
-			action = 'store_true',
-			help = 'Force the update also if the interval is higher'
+			help = 'show progress messages'
 		)
 		subparsers = parser.add_subparsers(
 			dest = 'dbtype',
@@ -176,12 +170,50 @@ class UpdateApp( AppLogger ):
 		)
 		sqliteopts = subparsers.add_parser( 'sqlite', formatter_class = argparse.ArgumentDefaultsHelpFormatter )
 		sqliteopts.add_argument(
+			'-v', '--verbose',
+			default = 0,
+			action = 'count',
+			help = 'show progress messages'
+		)
+		sqliteopts.add_argument(
+			'-f', '--force',
+			default = False,
+			action = 'store_true',
+			help = 'ignore the minimum interval'
+		)
+		sqliteopts.add_argument(
+			'-i', '--intervall',
+			default = 3600,
+			type = int,
+			action = 'store',
+			help = 'minimum interval between updates'
+		)
+		sqliteopts.add_argument(
 			'-p', '--path',
 			dest = 'path',
 			help = 'alternative path for the sqlite database',
 			default = './'
 		)
 		mysqlopts = subparsers.add_parser( 'mysql', formatter_class = argparse.ArgumentDefaultsHelpFormatter )
+		mysqlopts.add_argument(
+			'-v', '--verbose',
+			default = 0,
+			action = 'count',
+			help = 'show progress messages'
+		)
+		mysqlopts.add_argument(
+			'-f', '--force',
+			default = False,
+			action = 'store_true',
+			help = 'ignore the minimum interval'
+		)
+		mysqlopts.add_argument(
+			'-i', '--intervall',
+			default = 3600,
+			type = int,
+			action = 'store',
+			help = 'minimum interval between updates'
+		)
 		mysqlopts.add_argument(
 			'-H', '--host',
 			dest = 'host',
