@@ -318,6 +318,7 @@ class MediathekView( KodiPlugin ):
 		if self.settings.HandleFirstRun():
 			# TODO: Implement Issue #16
 			pass
+		self.settings.HandleUpdateOnStart()
 
 	def Do( self ):
 		# save last activity timestamp

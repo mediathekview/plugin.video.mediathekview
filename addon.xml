@@ -27,6 +27,7 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.4.4 (2018-01-XX):
+- "Update bei Start" aktualisiert erst beim ersten Addon-Aufruf
 - Typ und Version der SQL Datenbank wird nun im Log angezeigt
 v0.4.3 (2018-01-27):
 - Verschiedene Aktualisierungsmodi (Manuell, Beim Start, Automatisch) sparen Bandbreite und Energie
