@@ -16,6 +16,7 @@ class Settings( object ):
 		addon = xbmcaddon.Addon()
 		self.datapath		= xbmc.translatePath( addon.getAddonInfo('profile').decode('utf-8') )
 		self.firstrun		= addon.getSetting( 'firstrun' ) == 'true'
+		# general
 		self.preferhd		= addon.getSetting( 'quality' ) == 'true'
 		self.nofuture		= addon.getSetting( 'nofuture' ) == 'true'
 		self.minlength		= int( float( addon.getSetting( 'minlength' ) ) ) * 60
@@ -23,7 +24,7 @@ class Settings( object ):
 		self.maxresults		= int( addon.getSetting( 'maxresults' ) )
 		self.maxage			= int( addon.getSetting( 'maxage' ) ) * 86400
 		self.recentmode		= int( addon.getSetting( 'recentmode' ) )
-		self.downloadpath	= addon.getSetting( 'downloadpath' )
+		# database
 		self.type			= int( addon.getSetting( 'dbtype' ) )
 		self.host			= addon.getSetting( 'dbhost' )
 		self.port			= int( addon.getSetting( 'dbport' ) )
@@ -32,6 +33,10 @@ class Settings( object ):
 		self.database		= addon.getSetting( 'dbdata' )
 		self.updmode		= int( addon.getSetting( 'updmode' ) )
 		self.updinterval	= int( float( addon.getSetting( 'updinterval' ) ) ) * 3600
+		# download
+		self.downloadpath	= addon.getSetting( 'downloadpath' )
+		self.downloadsrt	= addon.getSetting( 'downloadsrt' ) == 'true'
+		self.makenfo		= int( addon.getSetting( 'makenfo' ) )
 
 	def Reload( self ):
 		addon = xbmcaddon.Addon()

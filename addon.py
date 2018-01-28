@@ -179,7 +179,7 @@ class MediathekView( KodiPlugin ):
 
 			# check if the download path is reachable
 			if not xbmcvfs.exists( self.settings.downloadpath ):
-				self.notifier.ShowError( self.language( 30952 ), self.language( 30979 ) )
+				self.notifier.ShowError( 30952, 30979 )
 				return
 
 			# get the best url
@@ -201,21 +201,24 @@ class MediathekView( KodiPlugin ):
 			if not showname:
 				showname = filestem
 
-			# prepare download directory and determine episode number
+			# detect season and episode
+			( season, episode, fninfo, ) = self._SeasonAndEpisodeDetect( film )
+
+			# prepare download directory and determine sequence number
 			dirname = self.settings.downloadpath + showname + '/'
-			episode = 1
+			sequence = 1
 			if xbmcvfs.exists( dirname ):
 				( _, epfiles, ) = xbmcvfs.listdir( dirname )
 				for epfile in epfiles:
-					match = re.search( '^.* [eE][pP]([0-9]*)\.[^/]*$', epfile )
+					match = re.search( '^.* - SEQ([0-9]*)\.[^/]*$', epfile )
 					if match and len( match.groups() ) > 0:
-						if episode <= int( match.group(1) ):
-							episode = int( match.group(1) ) + 1
+						if sequence <= int( match.group(1) ):
+							sequence = int( match.group(1) ) + 1
 			else:
 				xbmcvfs.mkdir( dirname )
 
 			# prepare resulting filenames
-			fileepi = filestem + u' - EP%04d' % episode
+			fileepi = fninfo + filestem + u' - SEQ%04d' % sequence
 			movname = dirname + fileepi + extension
 			srtname = dirname + fileepi + u'.srt'
 			ttmname = dirname + fileepi + u'.ttml'
@@ -235,7 +238,7 @@ class MediathekView( KodiPlugin ):
 				self.notifier.ShowError( 30952, self.language( 30975 ).format( videourl, err ) )
 
 			# download subtitles
-			if film.url_sub:
+			if self.settings.downloadsrt and film.url_sub:
 				bgd = KodiBGDialog()
 				bgd.Create( 30978, fileepi + u'.ttml' )
 				try:
@@ -251,7 +254,8 @@ class MediathekView( KodiPlugin ):
 					self.error( 'Failure downloading {}: {}', film.url_sub, err )
 
 			# create NFO Files
-			self._make_nfo_files( film, episode, dirname, nfoname, videourl )
+			if self.settings.makenfo > 0:
+				self._make_nfo_files( self.settings.makenfo, film, season, episode, sequence, dirname, nfoname, videourl )
 		else:
 			self.notifier.ShowError( 30952, 30958 )
 
@@ -280,7 +284,36 @@ class MediathekView( KodiPlugin ):
 		if tsnow - tsold > maxage:
 			self.notifier.ShowOutdatedKnown( status )
 
-	def _make_nfo_files( self, film, episode, dirname, filename, videourl ):
+	@staticmethod
+	def _match( regex, test ):
+		match = re.search( regex, test, flags = re.IGNORECASE )
+		if match and len( match.groups() ) > 0:
+			return match.group(1)
+		return None
+
+	def _SeasonAndEpisodeDetect( self, film ):
+		# initial trivial implementation
+		season = self._match( 'staffel[\.:\- ]+([0-9]+)', film.title )
+		if season is None:
+			season = self._match( '([0-9]+)[\.:\- ]+staffel', film.title )
+		if season is None:
+			season = self._match( 'staffel[\.:\- ]+([0-9]+)', film.show )
+		if season is None:
+			season = self._match( '([0-9]+)[\.:\- ]+staffel', film.show )
+		episode = self._match( 'episode[\.:\- ]+([0-9]+)', film.title )
+		if episode is None:
+			episode = self._match( 'folge[\.:\- ]+([0-9]+)', film.title )
+		if episode is None:
+			episode = self._match( 'teil[\.:\- ]+([0-9]+)', film.title )
+		if episode is None:
+			episode = self._match( '([0-9]+)[\.:\- ]+teil', film.title )
+		# generate filename info
+		if season is not None and episode is not None:
+			return ( season, episode, 'S%02dE%02d - ' % ( int( season ), int( episode ) ), )
+		else:
+			return ( season, episode, '', )
+
+	def _make_nfo_files( self, nfomode, film, season, episode, sequence, dirname, filename, videourl ):
 		# create NFO files
 		if not xbmcvfs.exists( dirname + 'tvshow.nfo' ):
 			try:
@@ -289,7 +322,6 @@ class MediathekView( KodiPlugin ):
 					file.write( b'<id></id>\n' )
 					file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
 					file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
-# TODO:				file.write( bytearray( '\t<year>{}</year>\n'.format( 2018 ), 'utf-8' ) )
 					file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
 					file.write( b'</tvshow>\n' )
 			except Exception as err:
@@ -299,9 +331,13 @@ class MediathekView( KodiPlugin ):
 			with closing( xbmcvfs.File( filename, 'w' ) ) as file:
 				file.write( b'<episodedetails>\n' )
 				file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
-				file.write( b'\t<season>1</season>\n' )
-				file.write( b'\t<autonumber>1</autonumber>\n' )
-				file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
+				if nfomode == 2 and season is not None and episode is not None:
+					file.write( bytearray( '\t<season>{}}</season>\n'.format( season ), 'utf-8' ) )
+					file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
+				elif nfomode == 2:
+					file.write( b'\t<season>999</season>\n' )
+					file.write( bytearray( '\t<episode>{}</episode>\n'.format( sequence ), 'utf-8' ) )
+					file.write( b'\t<autonumber>1</autonumber>\n' )
 				file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
 				file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
 				file.write( bytearray( '\t<aired>{}</aired>\n'.format( film.aired ), 'utf-8' ) )

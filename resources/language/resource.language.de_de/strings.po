@@ -22,8 +22,12 @@ msgid "General"
 msgstr "Allgemein"
 
 msgctxt "#30002"
-msgid "Database Settings"
-msgstr "Datenbank Einstellungen"
+msgid "Database"
+msgstr "Datenbank"
+
+msgctxt "#30003"
+msgid "Downloads"
+msgstr "Downloads"
 
 # Settings Page 1
 msgctxt "#30110"
@@ -53,10 +57,6 @@ msgstr "Maximales Alter der Neuigkeiten in Tagen"
 msgctxt "#30116"
 msgid "Recent calculated by"
 msgstr "Neuigkeit berechnet ab"
-
-msgctxt "#30118"
-msgid "Download directory"
-msgstr "Download-Verzeichnis"
 
 msgctxt "#30161"
 msgid "Aired Date"
@@ -101,7 +101,7 @@ msgstr "Extern (mysql)"
 
 msgctxt "#30231"
 msgid "Database Update Mode"
-msgstr "Datenbankupdate-Modus"
+msgstr "Datenbank-Aktualisierung"
 
 msgctxt "#30232"
 msgid "Update interval in hours"
@@ -122,6 +122,31 @@ msgstr "Nur beim Start"
 msgctxt "#30244"
 msgid "Automatic"
 msgstr "Automatisch"
+
+# Settings Page 3
+msgctxt "#30310"
+msgid "Download directory"
+msgstr "Download-Verzeichnis"
+
+msgctxt "#30311"
+msgid "Download Subtitles"
+msgstr "Untertitel herunterladen"
+
+msgctxt "#30312"
+msgid "Generate Metadata"
+msgstr "Metadaten generieren"
+
+msgctxt "#30340"
+msgid "No NFO File"
+msgstr "Keine NFO Datei"
+
+msgctxt "#30341"
+msgid "Basic NFO File"
+msgstr "Einfache NFO Datei"
+
+msgctxt "#30342"
+msgid "Enriched NFO File"
+msgstr "Angereicherte  NFO Datei"
 
 # Main Menu
 msgctxt "#30901"
