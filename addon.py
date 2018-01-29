@@ -343,7 +343,7 @@ class MediathekView( KodiPlugin ):
 				file.write( bytearray( '\t<aired>{}</aired>\n'.format( film.aired ), 'utf-8' ) )
 				if film.seconds > 60:
 					file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
-				file.write( bytearray( '\t<studio>{}</studio\n'.format( film.channel ), 'utf-8' ) )
+				file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
 				file.write( b'</episodedetails>\n' )
 		except Exception as err:
 			self.error( 'Failure creating episode NFO file for {}: {}', videourl, err )
