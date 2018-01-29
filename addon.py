@@ -332,7 +332,7 @@ class MediathekView( KodiPlugin ):
 				file.write( b'<episodedetails>\n' )
 				file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
 				if nfomode == 2 and season is not None and episode is not None:
-					file.write( bytearray( '\t<season>{}}</season>\n'.format( season ), 'utf-8' ) )
+					file.write( bytearray( '\t<season>{}</season>\n'.format( season ), 'utf-8' ) )
 					file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
 				elif nfomode == 2:
 					file.write( b'\t<season>999</season>\n' )
