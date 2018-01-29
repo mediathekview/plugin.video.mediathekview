@@ -26,6 +26,7 @@
 		<!-- INTERNAL STUFF USED FOR STATE STORAGE -->
 		<setting id="firstrun"			type="bool"						default="true"	visible="false"						/>
 		<setting id="instanceid"		type="text"						default=""		visible="false"						/>
+		<setting id="updateinid"		type="text"						default=""		visible="false"						/>
 		<setting id="updatetrigger"		type="bool"						default="false"	visible="false"						/>
 		<setting id="lastactivity"		type="number"					default="0"		visible="false"						/>
 		<setting id="lastsearch1"		type="text"						default=""		visible="false"						/>

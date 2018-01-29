@@ -34,6 +34,13 @@ class StoreMySQL( object ):
 				user		= self.settings.user,
 				password	= self.settings.password
 			)
+			try:
+				cursor = self.conn.cursor()
+				cursor.execute( 'SELECT VERSION()' )
+				( version, ) = cursor.fetchone()
+				self.logger.info( 'Connected to server {} running {}', self.settings.host, version )
+			except Exception:
+				self.logger.info( 'Connected to server {}', self.settings.host )
 			self.conn.database = self.settings.database
 		except mysql.connector.Error as err:
 			if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:

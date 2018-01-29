@@ -66,6 +66,15 @@ class Settings( object ):
 	def ResetUserActivity():
 		xbmcaddon.Addon().setSetting( 'lastactivity', '{}'.format( time.time() ) )
 
+	@staticmethod
+	def SaveUpdateInstance( instanceid ):
+		xbmcaddon.Addon().setSetting( 'updateinid', instanceid )
+
+	def HandleUpdateOnStart( self ):
+		if self.updmode == 2:
+			if xbmcaddon.Addon().getSetting( 'instanceid' ) != xbmcaddon.Addon().getSetting( 'updateinid' ):
+				self.TriggerUpdate()
+
 	def HandleFirstRun( self ):
 		if self.firstrun:
 			self.firstrun = False

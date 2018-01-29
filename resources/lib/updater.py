@@ -80,19 +80,9 @@ class MediathekViewUpdater( object ):
 			# update disabled - no update
 			return 0
 
-		elif self.settings.updmode == 1:
-			# manual update
+		elif self.settings.updmode == 1 or self.settings.updmode == 2:
+			# manual update or update on first start
 			if self.settings.IsUpdateTriggered() is True:
-				return self._getNextUpdateOperation( True )
-			else:
-				# no update on all subsequent calls
-				return 0
-
-		elif self.settings.updmode == 2:
-			# update on start or manual
-			if self.cycle == 0:
-				return self._getNextUpdateOperation()
-			elif self.settings.IsUpdateTriggered() is True:
 				return self._getNextUpdateOperation( True )
 			else:
 				# no update on all subsequent calls

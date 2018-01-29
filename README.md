@@ -87,7 +87,7 @@ Aktualisierung eines Kalendertages ist eine vollstöndige Aktualisierung, alle
 weiteren sind Differenz-Aktualisierungen. Die automatische Aktualisierung
 pausiert, wenn das Addon länger als 2 Stunden nicht bedient wurde, um
 Bandbreite und bei mobilen Geräten Strom zu sparen.
-# **Nur beim Start:**: Eine Aktualisierung erfolgt nur beim Start von Kodi.
+# **Nur beim Start:**: Eine Aktualisierung erfolgt nur beim Start des Addons.
 Handelt es sich hierbei um die erste Aktualisierung des Kalendertages, ist
 dies eine vollständige Aktualisierung, ansonsten eine differentielle. Alle
 weiteren Aktualisierungen müssen manuell über das Hauptmenü vom Benutzer
@@ -256,10 +256,10 @@ The update takes place once per set update interval (default: 2 hours). The
 first update of a calendar day is a full update, all others are differential
 updates. The auto-update pauses if the addon has not been used for more than
 2 hours to save bandwidth and power on mobile devices.
-# **On Start:** An update will only take place when Kodi is started. If this
-is the first update of the calendar day, it is a complete update, otherwise a
-differential one. All further updates must be manually initiated by the user
-via the main menu.
+# **On Start:** An update will only take place on the first invocation of the
+addon during the Kodi runtime. If this is the first update of the day, it is a
+complete update, otherwise a differential one. All further updates must be
+manually initiated by the user via the main menu.
 # **Manual:** There is no automatic update. The user has the possibility to
 initiate updates via the main menu. If this is the first update of the day,
 it is a complete update, otherwise a differential one.
@@ -411,10 +411,11 @@ aggiornamento di un giorno è un aggiornamento completo, tutti gli altri sono
 aggiornamenti differenziali. L'aggiornamento automatico si interrompe se
 l'addon non è stato utilizzato per più di 2 ore al fine di salvare larghezza
 di banda e corrente sui dispositivi mobili.
-# **Solo all'avvio:** L'aggiornamento avviene solo all'avvio di Kodi. Se questo
-è il primo aggiornamento del giorno, avverrà un aggiornamento completo,
-altrimenti differenziale. Tutti gli ulteriori aggiornamenti devono essere
-avviati manualmente dall'utente attraverso il menu principale.
+# **Solo all'avvio:** L'aggiornamento avviene non appena l'addon viene
+invocato. Se questo è il primo aggiornamento del giorno, avverrà un
+aggiornamento completo, altrimenti differenziale. Tutti gli ulteriori
+aggiornamenti dovranno essere avviati manualmente dall'utente attraverso il
+menu principale.
 # **Manuale:** Non vi è alcun aggiornamento automatico. L'utente ha la
 possibilità di avviare gli aggiornamenti tramite il menu principale. Se questo
 è il primo aggiornamento del giorno, avverrà un aggiornamento completo,
