@@ -22,8 +22,12 @@ msgid "General"
 msgstr "Visualizzazione"
 
 msgctxt "#30002"
-msgid "Database Settings"
-msgstr "Impostazioni Banca Dati"
+msgid "Database"
+msgstr "Banca Dati"
+
+msgctxt "#30003"
+msgid "Downloads"
+msgstr "Scaricamento"
 
 # Settings Page 1
 msgctxt "#30110"
@@ -53,10 +57,6 @@ msgstr "Età massima delle novità in giorni"
 msgctxt "#30116"
 msgid "Recent calculated by"
 msgstr "Novità calcolate con"
-
-msgctxt "#30118"
-msgid "Download directory"
-msgstr "Directory di download"
 
 msgctxt "#30161"
 msgid "Aired Date"
@@ -122,6 +122,31 @@ msgstr "Solo all'avvio"
 msgctxt "#30244"
 msgid "Automatic"
 msgstr "Automatico"
+
+# Settings Page 3
+msgctxt "#30310"
+msgid "Download directory"
+msgstr "Directory di download"
+
+msgctxt "#30311"
+msgid "Download Subtitles"
+msgstr "Scarica Sottotitoli"
+
+msgctxt "#30312"
+msgid "Generate Metadata"
+msgstr "Genera Metadati"
+
+msgctxt "#30340"
+msgid "No NFO File"
+msgstr "No"
+
+msgctxt "#30341"
+msgid "Basic NFO File"
+msgstr "File NFO Semplice"
+
+msgctxt "#30342"
+msgid "Enriched NFO File"
+msgstr "File NFO arricchito"
 
 # Main Menu
 msgctxt "#30901"

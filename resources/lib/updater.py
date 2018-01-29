@@ -70,7 +70,7 @@ class MediathekViewUpdater( object ):
 	def IsEnabled( self ):
 		return self.settings.updenabled
 
-	def GetCurrentUpdateOperation( self ):
+	def GetCurrentUpdateOperation( self, force = False ):
 		if self.db is None:
 			# db not available - no update
 			self.logger.info( 'Update disabled since database not available' )
@@ -91,7 +91,7 @@ class MediathekViewUpdater( object ):
 		elif self.settings.updmode == 3:
 			# automatic update
 			if self.settings.IsUserAlive():
-				return self._getNextUpdateOperation()
+				return self._getNextUpdateOperation( force )
 			else:
 				# no update of user is idle for more than 2 hours
 				return 0
