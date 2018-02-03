@@ -25,7 +25,7 @@ class StoreMySQL( object ):
 		self.sql_cond_nofuture	= " AND ( ( `aired` IS NULL ) OR ( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) > 0 ) )" if settings.nofuture else ""
 		self.sql_cond_minlength	= " AND ( ( `duration` IS NULL ) OR ( TIME_TO_SEC(`duration`) >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
 
-	def Init( self, reset = False ):
+	def Init( self, reset, convert ):
 		self.logger.info( 'Using MySQL connector version {}', mysql.connector.__version__ )
 		try:
 			self.conn		= mysql.connector.connect(
@@ -45,11 +45,14 @@ class StoreMySQL( object ):
 		except mysql.connector.Error as err:
 			if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
 				self.logger.info( '=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database )
-				self._handle_database_initialization()
-				return
+				return self._handle_database_initialization()
 			self.conn = None
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
+			return False
+
+		# handle schema versioning
+		return self._handle_database_update( convert )
 
 	def Exit( self ):
 		if self.conn is not None:
@@ -530,20 +533,23 @@ class StoreMySQL( object ):
 		inschn = 0
 		insshw = 0
 		insmov = 0
+		channel = film['channel'][:64]
+		show	= film['show'][:128]
+		title	= film['title'][:128]
 
 		# handle channel
-		if self.ft_channel != film['channel']:
+		if self.ft_channel != channel:
 			# process changed channel
 			newchn = True
-			self.ft_channel = film['channel']
+			self.ft_channel = channel
 			( self.ft_channelid, inschn ) = self._insert_channel( self.ft_channel )
 			if self.ft_channelid == 0:
 				self.logger.info( 'Undefined error adding channel "{}"', self.ft_channel )
 				return ( 0, 0, 0, 0, )
 
-		if newchn or self.ft_show != film['show']:
+		if newchn or self.ft_show != show:
 			# process changed show
-			self.ft_show = film['show']
+			self.ft_show = show
 			( self.ft_showid, insshw ) = self._insert_show( self.ft_channelid, self.ft_show, mvutils.make_search_string( self.ft_show ) )
 			if self.ft_showid == 0:
 				self.logger.info( 'Undefined error adding show "{}"', self.ft_show )
@@ -554,8 +560,8 @@ class StoreMySQL( object ):
 			cursor.callproc( 'ftInsertFilm', (
 				self.ft_channelid,
 				self.ft_showid,
-				film["title"],
-				mvutils.make_search_string( film['title'] ),
+				title,
+				mvutils.make_search_string( title ),
 				film["aired"],
 				film["duration"],
 				film["size"],
@@ -616,6 +622,84 @@ class StoreMySQL( object ):
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, )
 
+	def _get_schema_version( self ):
+		if self.conn is None:
+			return 0
+		cursor = self.conn.cursor()
+		try:
+			cursor.execute( 'SELECT `version` FROM `status` LIMIT 1' )
+			( version, ) = cursor.fetchone()
+			del cursor
+			return version
+		except mysql.connector.errors.ProgrammingError:
+			return 1
+		except sqlite3.Error as err:
+			self.logger.error( 'Database error: {}', err )
+			self.notifier.ShowDatabaseError( err )
+			return 0
+
+	def _handle_database_update( self, convert, version = None ):
+		if version is None:
+			return self._handle_database_update( convert, self._get_schema_version() )
+		if version == 0:
+			# should never happen - something went wrong...
+			self.Exit()
+			return False
+		elif version == 2:
+			# current version
+			return True
+		elif convert is False:
+			# do not convert (Addon threads)
+			self.Exit()
+			self.notifier.ShowUpdatingScheme()
+			return False
+		elif version == 1:
+			# convert from 1 to 2
+			self.logger.info( 'Converting database to version 2' )
+			self.notifier.ShowUpdateSchemeProgress()
+			try:
+				cursor = self.conn.cursor()
+				cursor.execute( 'SELECT @@SESSION.sql_mode' )
+				( sql_mode, ) = cursor.fetchone()
+				self.logger.info( 'Current SQL mode is {}', sql_mode )
+				cursor.execute( 'SET SESSION sql_mode = ""' )
+
+				self.logger.info( 'Reducing channel name length...' )
+				cursor.execute( 'ALTER TABLE `channel` CHANGE COLUMN `channel` `channel` varchar(64) NOT NULL')
+				self.notifier.UpdateUpdateSchemeProgress( 5 )
+				self.logger.info( 'Reducing show name length...' )
+				cursor.execute( 'ALTER TABLE `show` CHANGE COLUMN `show` `show` varchar(128) NOT NULL')
+				self.notifier.UpdateUpdateSchemeProgress( 10 )
+				cursor.execute( 'ALTER TABLE `show` CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
+				self.notifier.UpdateUpdateSchemeProgress( 15 )
+				self.logger.info( 'Reducing film title length...' )
+				cursor.execute( 'ALTER TABLE `film` CHANGE COLUMN `title` `title` varchar(128) NOT NULL')
+				self.notifier.UpdateUpdateSchemeProgress( 50 )
+				cursor.execute( 'ALTER TABLE `film` CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
+				self.notifier.UpdateUpdateSchemeProgress( 80 )
+				self.logger.info( 'Deleting old dupecheck index...' )
+				cursor.execute( 'ALTER TABLE `film` DROP KEY `dupecheck`')
+				self.logger.info( 'Creating and filling new column idhash...' )
+				cursor.execute( 'ALTER TABLE `film` ADD COLUMN `idhash` varchar(32) NULL AFTER `id`')
+				self.notifier.UpdateUpdateSchemeProgress( 82 )
+				cursor.execute( 'UPDATE `film` SET `idhash`= MD5( CONCAT( `channelid`, ":", `showid`, ":", `url_video` ) )')
+				self.notifier.UpdateUpdateSchemeProgress( 99 )
+				self.logger.info( 'Creating new dupecheck index...' )
+				cursor.execute( 'ALTER TABLE `film` ADD KEY `dupecheck` (`idhash`)' )
+				self.logger.info( 'Adding version info to status table...' )
+				cursor.execute( 'ALTER TABLE `status` ADD COLUMN `version` INT(11) NOT NULL DEFAULT 2')
+				self.logger.info( 'Resetting SQL mode to {}', sql_mode )
+				cursor.execute( 'SET SESSION sql_mode = %s', ( sql_mode, ) )
+				self.logger.info( 'Scheme successfully updated to version 2' )
+				self.notifier.CloseUpdateSchemeProgress()
+			except mysql.connector.Error as err:
+				self.logger.error( '=== DATABASE SCHEME UPDATE ERROR: {} ===', err )
+				self.Exit()
+				self.notifier.CloseUpdateSchemeProgress()
+				self.notifier.ShowDatabaseError( err )
+				return False
+		return True
+
 	def _handle_database_initialization( self ):
 		cursor = None
 		dbcreated = False
@@ -632,7 +716,7 @@ CREATE TABLE `channel` (
 	`id`			int(11)			NOT NULL AUTO_INCREMENT,
 	`dtCreated`		timestamp		NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`touched`		smallint(1)		NOT NULL DEFAULT '1',
-	`channel`		varchar(255)	NOT NULL,
+	`channel`		varchar(64)		NOT NULL,
 	PRIMARY KEY						(`id`),
 	KEY				`channel`		(`channel`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -643,12 +727,13 @@ CREATE TABLE `channel` (
 			cursor.execute( """
 CREATE TABLE `film` (
 	`id`			int(11)			NOT NULL AUTO_INCREMENT,
+	`idhash`		varchar(32)		DEFAULT NULL,
 	`dtCreated`		timestamp		NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`touched`		smallint(1)		NOT NULL DEFAULT '1',
 	`channelid`		int(11)			NOT NULL,
 	`showid`		int(11)			NOT NULL,
-	`title`			varchar(255)	NOT NULL,
-	`search`		varchar(255)	NOT NULL,
+	`title`			varchar(128)	NOT NULL,
+	`search`		varchar(128)	NOT NULL,
 	`aired`			timestamp		NULL DEFAULT NULL,
 	`duration`		time			DEFAULT NULL,
 	`size`			int(11)			DEFAULT NULL,
@@ -662,7 +747,7 @@ CREATE TABLE `film` (
 	PRIMARY KEY						(`id`),
 	KEY				`index_1`		(`showid`,`title`),
 	KEY				`index_2`		(`channelid`,`title`),
-	KEY				`dupecheck`		(`channelid`,`showid`,`url_video`),
+	KEY				`dupecheck`		(`idhash`),
 	CONSTRAINT `FK_FilmChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT `FK_FilmShow` FOREIGN KEY (`showid`) REFERENCES `show` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -675,8 +760,8 @@ CREATE TABLE `show` (
 	`dtCreated`		timestamp		NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	`touched`		smallint(1)		NOT NULL DEFAULT '1',
 	`channelid`		int(11)			NOT NULL,
-	`show`			varchar(255)	NOT NULL,
-	`search`		varchar(255)	NOT NULL,
+	`show`			varchar(128)	NOT NULL,
+	`search`		varchar(128)	NOT NULL,
 	PRIMARY KEY						(`id`),
 	KEY				`show`			(`show`),
 	KEY				`search`		(`search`),
@@ -770,18 +855,18 @@ CREATE PROCEDURE `ftInsertFilm`(
 BEGIN
 	DECLARE		id_			INT;
 	DECLARE		added_		INT DEFAULT 0;
+	DECLARE		idhash_		VARCHAR(32);
+
+	SET idhash_ = MD5( CONCAT( _channelid, ':', _showid, ':', _url_video ) );
 
 	SELECT		`id`
 	INTO		id_
 	FROM		`film` AS f
-	WHERE		( f.channelid = _channelid )
-				AND
-				( f.showid = _showid )
-				AND
-				( f.url_video = _url_video );
+	WHERE		( f.idhash = idhash_ );
 
 	IF ( id_ IS NULL ) THEN
 		INSERT INTO `film` (
+			`idhash`,
 			`channelid`,
 			`showid`,
 			`title`,
@@ -798,6 +883,7 @@ BEGIN
 			`airedepoch`
 		)
 		VALUES (
+			idhash_,
 			_channelid,
 			_showid,
 			_title,
@@ -964,6 +1050,7 @@ END
 
 			cursor.close()
 			self.logger.info( 'Database creation successfully completed' )
+			return True
 		except mysql.connector.Error as err:
 			self.logger.error( '=== DATABASE CREATION ERROR: {} ===', err )
 			self.notifier.ShowDatabaseError( err )
@@ -980,3 +1067,4 @@ END
 			except mysql.connector.Error as err:
 				# should never happen
 				self.conn = None
+		return False

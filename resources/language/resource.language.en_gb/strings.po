@@ -363,3 +363,11 @@ msgstr "Database Outdated"
 msgctxt "#30983"
 msgid "Last {}: {}"
 msgstr "Last {}: {}"
+
+msgctxt "#30984"
+msgid "Database Schema Upgrade"
+msgstr "Database Schema Upgrade"
+
+msgctxt "#30985"
+msgid "Please wait while the system upgrades the database schema."
+msgstr "Please wait while the system upgrades the database schema."

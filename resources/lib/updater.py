@@ -51,11 +51,11 @@ class MediathekViewUpdater( object ):
 		self.cycle		= 0
 		self.use_xz     = mvutils.find_xz() is not None
 
-	def Init( self ):
+	def Init( self, convert = False ):
 		if self.db is not None:
 			self.Exit()
 		self.db = Store( self.logger, self.notifier, self.settings )
-		self.db.Init()
+		self.db.Init( convert = convert )
 
 	def Exit( self ):
 		if self.db is not None:

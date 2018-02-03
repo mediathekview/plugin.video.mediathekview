@@ -210,7 +210,7 @@ class MediathekView( KodiPlugin ):
 			if xbmcvfs.exists( dirname ):
 				( _, epfiles, ) = xbmcvfs.listdir( dirname )
 				for epfile in epfiles:
-					match = re.search( '^.* - SEQ([0-9]*)\.[^/]*$', epfile )
+					match = re.search( '^.* - \(([0-9]*)\)\.[^/]*$', epfile )
 					if match and len( match.groups() ) > 0:
 						if sequence <= int( match.group(1) ):
 							sequence = int( match.group(1) ) + 1
@@ -218,7 +218,7 @@ class MediathekView( KodiPlugin ):
 				xbmcvfs.mkdir( dirname )
 
 			# prepare resulting filenames
-			fileepi = fninfo + filestem + u' - SEQ%04d' % sequence
+			fileepi = fninfo + filestem + u' - (%04d)' % sequence
 			movname = dirname + fileepi + extension
 			srtname = dirname + fileepi + u'.srt'
 			ttmname = dirname + fileepi + u'.ttml'
@@ -350,11 +350,11 @@ class MediathekView( KodiPlugin ):
 
 	def Init( self ):
 		self.args = urlparse.parse_qs( sys.argv[2][1:] )
-		self.db.Init()
-		if self.settings.HandleFirstRun():
-			# TODO: Implement Issue #16
-			pass
-		self.settings.HandleUpdateOnStart()
+		if self.db.Init():
+			if self.settings.HandleFirstRun():
+				# TODO: Implement Issue #16
+				pass
+			self.settings.HandleUpdateOnStart()
 
 	def Do( self ):
 		# save last activity timestamp

@@ -23,9 +23,10 @@ class Store( object ):
 			self.logger.warn( 'Unknown Database driver selected' )
 			self.db = None
 
-	def Init( self, reset = False ):
+	def Init( self, reset = False, convert = False ):
 		if self.db is not None:
-			self.db.Init( reset )
+			return self.db.Init( reset, convert )
+		return False
 
 	def Exit( self ):
 		if self.db is not None:

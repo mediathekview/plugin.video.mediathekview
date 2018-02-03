@@ -286,7 +286,7 @@ msgstr "Datenbank Aktualisierung"
 
 msgctxt "#30964"
 msgid "The database will be updated in the next few minutes..."
-msgstr "Die Datenbank wird in kürze aktualisiert..."
+msgstr "Die Datenbank wird in Kürze aktualisiert..."
 
 msgctxt "#30965"
 msgid "Database Status: %s"
@@ -363,3 +363,11 @@ msgstr "Datenbank veraltet"
 msgctxt "#30983"
 msgid "Last {}: {}"
 msgstr "Letzte {}: {}"
+
+msgctxt "#30984"
+msgid "Database Schema Upgrade"
+msgstr "Datenbank-Schema-Aktualisierung"
+
+msgctxt "#30985"
+msgid "Please wait while the system upgrades the database schema."
+msgstr "Bitte warten Sie, bis das Schema der Datenbank aktualisiert wurde."
