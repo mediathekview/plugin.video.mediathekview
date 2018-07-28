@@ -776,7 +776,6 @@ CREATE INDEX "index_2" ON film ("showid", "title" COLLATE NOCASE);
 -- ----------------------------
 --  Indexes structure for table show
 -- ----------------------------
-CREATE INDEX "category" ON show ("category");
 CREATE INDEX "search" ON show ("search");
 CREATE INDEX "combined_1" ON show ("channelid", "search");
 CREATE INDEX "combined_2" ON show ("channelid", "show");
