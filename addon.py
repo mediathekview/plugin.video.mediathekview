@@ -121,21 +121,21 @@ class MediathekView( KodiPlugin ):
 	def _sp_load( self ):
 		try:
 			datafile = os.path.join( self.settings.datapath, 'lastsearches.json' )
-			with open( datafile ) as json_file:  
+			with open( datafile ) as json_file:
 				data = json.load( json_file )
 				if isinstance( data, list ):
 					self.sp = sorted( data, key = itemgetter( 'when' ), reverse = True )
 		except Exception as err:
-			self.error( 'Failed to load last searches file' )
+			self.error( 'Failed to load last searches file: {}'.format( err ) )
 
 	def _sp_save( self ):
 		datafile = os.path.join( self.settings.datapath, 'lastsearches.json' )
 		data = sorted( self.sp, key = itemgetter( 'when' ), reverse = True )
 		try:
-			with open( datafile, 'w' ) as json_file:  
+			with open( datafile, 'w' ) as json_file:
 				json.dump( data, json_file )
 		except Exception as err:
-			self.error( 'Failed to write last searches file: ' + err )
+			self.error( 'Failed to write last searches file: {}'.format( err ) )
 
 	def _sp_add( self, search, extendedsearch ):
 		self._sp_load()
