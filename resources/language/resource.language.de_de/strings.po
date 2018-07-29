@@ -174,30 +174,34 @@ msgid "Search in Title and Description"
 msgstr "Suchen in Titel und Beschreibung"
 
 msgctxt "#30903"
+msgid "Recent Searches"
+msgstr "Letzte Suchvorgänge"
+
+msgctxt "#30904"
 msgid "Livestreams"
 msgstr "Livestreams"
 
-msgctxt "#30904"
+msgctxt "#30905"
 msgid "Recently Added"
 msgstr "Vor Kurzem hinzugefügt"
 
-msgctxt "#30905"
+msgctxt "#30906"
 msgid "Recently Added by Channel"
 msgstr "Vor Kurzem hinzugefügt nach Sender"
 
-msgctxt "#30906"
+msgctxt "#30907"
 msgid "Browse by Show in all Channels"
 msgstr "Alle Sendungen"
 
-msgctxt "#30907"
+msgctxt "#30908"
 msgid "Browse Shows by Channel"
 msgstr "Alle Sendungen nach Sender"
 
-msgctxt "#30908"
+msgctxt "#30909"
 msgid "Database Information"
 msgstr "Datenbank Informationen"
 
-msgctxt "#30909"
+msgctxt "#30910"
 msgid "Update Database"
 msgstr "Datenbank aktualisieren"
 

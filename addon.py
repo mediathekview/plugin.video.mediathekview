@@ -30,6 +30,7 @@ from __future__ import unicode_literals  # ,absolute_import, division
 import os
 import re
 import sys
+import json
 import time
 import urlparse
 import datetime
@@ -41,6 +42,7 @@ import xbmcplugin
 import resources.lib.mvutils as mvutils
 
 from contextlib import closing
+from operator import itemgetter
 
 from resources.lib.kodi.KodiAddon import KodiPlugin
 from resources.lib.kodi.KodiUI import KodiBGDialog
@@ -62,24 +64,28 @@ class MediathekView( KodiPlugin ):
 		self.settings	= Settings()
 		self.notifier	= Notifier()
 		self.db			= Store( self.getNewLogger( 'Store' ), self.notifier, self.settings )
+		self.sp			= []
 
 	def show_main_menu( self ):
 		# Search
 		self.addFolderItem( 30901, { 'mode': "search" } )
 		# Search all
 		self.addFolderItem( 30902, { 'mode': "searchall" } )
+		# Recent searches
+		if len( self.sp ) > 0:
+			self.addFolderItem( 30903, { 'mode': "recentsearch" } )
 		# Browse livestreams
-		self.addFolderItem( 30903, { 'mode': "livestreams" } )
+		self.addFolderItem( 30904, { 'mode': "livestreams" } )
 		# Browse recently added
-		self.addFolderItem( 30904, { 'mode': "recent", 'channel': 0 } )
+		self.addFolderItem( 30905, { 'mode': "recent", 'channel': 0 } )
 		# Browse recently added by channel
-		self.addFolderItem( 30905, { 'mode': "recentchannels" } )
+		self.addFolderItem( 30906, { 'mode': "recentchannels" } )
 		# Browse by Initial->Show
-		self.addFolderItem( 30906, { 'mode': "initial", 'channel': 0 } )
+		self.addFolderItem( 30907, { 'mode': "initial", 'channel': 0 } )
 		# Browse by Channel->Initial->Shows
-		self.addFolderItem( 30907, { 'mode': "channels" } )
+		self.addFolderItem( 30908, { 'mode': "channels" } )
 		# Database Information
-		self.addActionItem( 30908, { 'mode': "action-dbinfo" } )
+		self.addActionItem( 30909, { 'mode': "action-dbinfo" } )
 		# Manual database update
 		if self.settings.updmode == 1 or self.settings.updmode == 2:
 			self.addActionItem( 30909, { 'mode': "action-dbupdate" } )
@@ -96,14 +102,58 @@ class MediathekView( KodiPlugin ):
 			self.db.Search( searchText, FilmUI( self ), extendedsearch )
 		else:
 			# enter search term
-			( searchText, _ ) = self.notifier.GetEnteredText( '', headingid )
-			if len( searchText ) > 2:
+			( searchText, confirmed ) = self.notifier.GetEnteredText( '', headingid )
+			if len( searchText ) > 2 and confirmed is True:
+				self._sp_add( searchText, extendedsearch )
 				if self.db.Search( searchText, FilmUI( self ), extendedsearch ) > 0:
 					self.addon.setSetting( settingid, searchText )
 			else:
 				self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
 				self.endOfDirectory( False, cacheToDisc = True )
 				# self.show_main_menu()
+
+	def show_recentsearch( self ):
+		self._sp_load()
+		for entry in self.sp:
+			self.addFolderItem( entry['search'], { 'mode': "research", 'search': entry['search'], 'extendedsearch': entry['extendedsearch'] } )
+		self.endOfDirectory()
+
+	def _sp_load( self ):
+		try:
+			datafile = os.path.join( self.settings.datapath, 'lastsearches.json' )
+			with open( datafile ) as json_file:  
+				data = json.load( json_file )
+				if isinstance( data, list ):
+					self.sp = sorted( data, key = itemgetter( 'when' ), reverse = True )
+		except Exception as err:
+			self.error( 'Failed to load last searches file' )
+
+	def _sp_save( self ):
+		datafile = os.path.join( self.settings.datapath, 'lastsearches.json' )
+		data = sorted( self.sp, key = itemgetter( 'when' ), reverse = True )
+		try:
+			with open( datafile, 'w' ) as json_file:  
+				json.dump( data, json_file )
+		except Exception as err:
+			self.error( 'Failed to write last searches file: ' + err )
+
+	def _sp_add( self, search, extendedsearch ):
+		self._sp_load()
+		slow = search.lower()
+		try:
+			for entry in self.sp:
+				if entry['search'].lower() == slow and entry['extendedsearch'] == extendedsearch:
+					entry['when'] = int( time.time() )
+					self._sp_save()
+					return
+		except Exception:
+			self.sp = []
+		self.sp.append( {
+			'extendedsearch':	extendedsearch,
+			'search':			search,
+			'when':				int( time.time() )
+		} )
+		self._sp_save()
 
 	def show_db_info( self ):
 		info = self.db.GetStatus()
@@ -470,6 +520,7 @@ class MediathekView( KodiPlugin ):
 	def run( self ):
 		# save last activity timestamp
 		self.settings.ResetUserActivity()
+		self._sp_load()
 		# process operation
 		mode = self.args.get( 'mode', None )
 		if mode is None:
@@ -478,6 +529,13 @@ class MediathekView( KodiPlugin ):
 			self.show_search()
 		elif mode[0] == 'searchall':
 			self.show_search( extendedsearch = True )
+		elif mode[0] == 'research':
+			search			= self.args.get( 'search', [''] )
+			extendedsearch	= self.args.get( 'extendedsearch', ['False'] )
+			self.db.Search( search[0], FilmUI( self ), extendedsearch[0] == 'True' )
+			self._sp_add( search[0], extendedsearch[0] == 'True' )
+		elif mode[0] == 'recentsearch':
+			self.show_recentsearch()
 		elif mode[0] == 'livestreams':
 			self.db.GetLiveStreams( FilmUI( self, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
 		elif mode[0] == 'recent':

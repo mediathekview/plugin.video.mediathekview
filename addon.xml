@@ -27,6 +27,7 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.5.0 (2018-XX-XX):
+- Letzte Suchvorgänge
 - Möglichkeit eine Sendung als Film oder als Episode einer Serie herunterzuladen
 - Auf gewissen Systemen ist die Erzeugung der SQLite Datenbank fehlgeschlagen
 - Effizientere Datenbankstruktur
