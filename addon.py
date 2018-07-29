@@ -96,7 +96,7 @@ class MediathekView( KodiPlugin ):
 			self.db.Search( searchText, FilmUI( self ), extendedsearch )
 		else:
 			# enter search term
-			( searchText, confirmed ) = self.notifier.GetEnteredText( '', headingid )
+			( searchText, _ ) = self.notifier.GetEnteredText( '', headingid )
 			if len( searchText ) > 2:
 				if self.db.Search( searchText, FilmUI( self ), extendedsearch ) > 0:
 					self.addon.setSetting( settingid, searchText )
@@ -259,7 +259,7 @@ class MediathekView( KodiPlugin ):
 		else:
 			xbmcvfs.mkdir( pathname )
 
-		filename = showname + ' - ' + fninfo + namestem + u' - (%04d)' % sequence
+		filename = showname + ' - ' + fninfo + namestem + ( u' - (%04d)' % sequence ) + suffix
 		# download the stuff
 		if self.download_files( film, filmurl, pathname, filename, extension ):
 			self._make_series_nfo_files( film, filmurl, pathname, filename, season, episode, sequence )

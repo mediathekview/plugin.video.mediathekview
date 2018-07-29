@@ -697,7 +697,7 @@ class StoreSQLite( object ):
 		self.logger.error( 'Database error during critical operation: {} - Database will be rebuilt from scratch.', err )
 		self.notifier.ShowDatabaseError( err )
 		self.Exit()
-		self.Init( reset = True )
+		self.Init( reset = True, convert = False )
 
 	def _handle_database_initialization( self ):
 		self.conn.executescript( """

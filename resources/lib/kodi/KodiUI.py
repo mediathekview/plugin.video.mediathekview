@@ -32,6 +32,7 @@ class KodiUI( object ):
 		dialog = xbmcgui.Dialog()
 		ok = dialog.ok( heading, line1, line2, line3 )
 		del dialog
+		return ok
 
 	def ShowNotification( self, heading, message, icon = xbmcgui.NOTIFICATION_INFO, time = 5000, sound = True ):
 		heading = self.language( heading ) if isinstance( heading, int ) else heading
