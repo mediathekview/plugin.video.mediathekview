@@ -125,16 +125,32 @@ msgstr "Automatico"
 
 # Settings Page 3
 msgctxt "#30310"
-msgid "Download directory"
-msgstr "Directory di download"
+msgid "Series download directory"
+msgstr "Cartella di download telefilm"
 
 msgctxt "#30311"
-msgid "Download Subtitles"
-msgstr "Scarica Sottotitoli"
+msgid "Movie download directory"
+msgstr "Cartella di download film"
 
 msgctxt "#30312"
+msgid "Download movies in separate folders"
+msgstr "Scarica film in cartelle separate"
+
+msgctxt "#30313"
+msgid "Include show name in movie name"
+msgstr "Includi mome trasmissione in nome film"
+
+msgctxt "#30314"
+msgid "Review filename before download"
+msgstr "Verficare il nome del file da scaricare"
+
+msgctxt "#30315"
+msgid "Download Subtitles"
+msgstr "Scarica sottotitoli"
+
+msgctxt "#30316"
 msgid "Generate Metadata"
-msgstr "Genera Metadati"
+msgstr "Genera metadati"
 
 msgctxt "#30340"
 msgid "No NFO File"
@@ -142,7 +158,7 @@ msgstr "No"
 
 msgctxt "#30341"
 msgid "Basic NFO File"
-msgstr "File NFO Semplice"
+msgstr "File NFO semplice"
 
 msgctxt "#30342"
 msgid "Enriched NFO File"
@@ -187,20 +203,20 @@ msgstr "Attualizzazione del Database"
 
 # Context Menu
 msgctxt "#30921"
-msgid "Download Video"
-msgstr "Scarica video"
+msgid "Download as TV episode"
+msgstr "Scarica come episodio"
 
 msgctxt "#30922"
-msgid "Download LoRes Video"
-msgstr "Scarica video SD"
+msgid "Download as HD TV episode"
+msgstr "Scarica come episodio HD"
 
 msgctxt "#30923"
-msgid "Download HD Video"
-msgstr "Scarica video HD"
+msgid "Download as Movie"
+msgstr "Scarica come film"
 
 msgctxt "#30924"
-msgid "Add to queue"
-msgstr "Metti in coda"
+msgid "Download as HD Movie"
+msgstr "Scarica come film HD"
 
 # Database status
 msgctxt "#30941"
@@ -372,3 +388,11 @@ msgstr "Aggiornamento Schema DB"
 msgctxt "#30985"
 msgid "Please wait while the system upgrades the database schema."
 msgstr "Prego attendere mentre lo schema del database viene aggiornato."
+
+msgctxt "#30986"
+msgid "Please Review Your Download Name"
+msgstr "Prego controllare il nome del file"
+
+msgctxt "#30987"
+msgid "File already exists! Please change the filename"
+msgstr "File esistente! Si prega di cambiare il nome file"

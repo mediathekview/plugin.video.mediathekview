@@ -34,9 +34,19 @@ class Settings( object ):
 		self.updmode		= int( addon.getSetting( 'updmode' ) )
 		self.updinterval	= int( float( addon.getSetting( 'updinterval' ) ) ) * 3600
 		# download
-		self.downloadpath	= addon.getSetting( 'downloadpath' )
-		self.downloadsrt	= addon.getSetting( 'downloadsrt' ) == 'true'
-		self.makenfo		= int( addon.getSetting( 'makenfo' ) )
+		self.downloadpathep		= addon.getSetting( 'downloadpathep' )
+		self.downloadpathmv		= addon.getSetting( 'downloadpathmv' )
+		self.moviefolders		= addon.getSetting( 'moviefolders' ) == 'true'
+		self.movienamewithshow	= addon.getSetting( 'movienamewithshow' ) == 'true'
+		self.reviewname			= addon.getSetting( 'reviewname' ) == 'true'
+		self.downloadsrt		= addon.getSetting( 'downloadsrt' ) == 'true'
+		self.makenfo			= int( addon.getSetting( 'makenfo' ) )
+		# update stuff
+		if len( self.downloadpathep ) == 0:
+			self.downloadpathep = addon.getSetting( 'downloadpath' )
+			if len( self.downloadpathep ) > 0:
+				addon.setSetting( 'downloadpathep', self.downloadpathep )
+
 
 	def Reload( self ):
 		addon = xbmcaddon.Addon()

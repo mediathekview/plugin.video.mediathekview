@@ -63,7 +63,7 @@ class MediathekView( KodiPlugin ):
 		self.notifier	= Notifier()
 		self.db			= Store( self.getNewLogger( 'Store' ), self.notifier, self.settings )
 
-	def showMainMenu( self ):
+	def show_main_menu( self ):
 		# Search
 		self.addFolderItem( 30901, { 'mode': "search" } )
 		# Search all
@@ -86,7 +86,7 @@ class MediathekView( KodiPlugin ):
 		self.endOfDirectory()
 		self._check_outdate()
 
-	def showSearch( self, extendedsearch = False ):
+	def show_search( self, extendedsearch = False ):
 		settingid = 'lastsearch2' if extendedsearch is True else 'lastsearch1'
 		headingid = 30902 if extendedsearch is True else 30901
 		# are we returning from playback ?
@@ -96,16 +96,16 @@ class MediathekView( KodiPlugin ):
 			self.db.Search( searchText, FilmUI( self ), extendedsearch )
 		else:
 			# enter search term
-			searchText = self.notifier.GetEnteredText( '', headingid )
+			( searchText, confirmed ) = self.notifier.GetEnteredText( '', headingid )
 			if len( searchText ) > 2:
 				if self.db.Search( searchText, FilmUI( self ), extendedsearch ) > 0:
 					self.addon.setSetting( settingid, searchText )
 			else:
 				self.info( 'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine' )
 				self.endOfDirectory( False, cacheToDisc = True )
-				# self.showMainMenu()
+				# self.show_main_menu()
 
-	def showDbInfo( self ):
+	def show_db_info( self ):
 		info = self.db.GetStatus()
 		heading = self.language( 30907 )
 		infostr = self.language( {
@@ -170,97 +170,168 @@ class MediathekView( KodiPlugin ):
 			updinfo
 		)
 
-	def doDownloadFilm( self, filmid, quality ):
-		if self.settings.downloadpath:
-			film = self.db.RetrieveFilmInfo( filmid )
-			if film is None:
-				# film not found - should never happen
+	def download_movie( self, filmid, quality ):
+		if not self._test_download_path( self.settings.downloadpathmv ):
+			return
+		film = self.db.RetrieveFilmInfo( filmid )
+		if film is None:
+			return
+		( filmurl, suffix, extension, ) = self._get_film_url_and_extension( film, quality )
+		# try to create a good name for the downloaded file
+		namestem = mvutils.cleanup_filename( film.title )[:80]
+		if not namestem:
+			# try to take the show name instead...
+			namestem = mvutils.cleanup_filename( film.show )[:64]
+			if not namestem:
+				namestem = u'Film'
+			namestem = namestem + '-{}'.format( film.id )
+		elif self.settings.movienamewithshow:
+			showname = mvutils.cleanup_filename( film.show )[:64]
+			if showname:
+				namestem = showname + ' - ' + namestem
+		# review name
+		if self.settings.reviewname:
+			( namestem, confirmed ) = self.notifier.GetEnteredText( namestem, 30986 )
+			namestem = mvutils.cleanup_filename( namestem )
+			if len( namestem ) < 1 or confirmed is False:
+				return
+		# build year postfix
+		year = self._match( '([12][0-9][0-9][0-9])', film.aired )
+		if year is not None:
+			postfix = ' (%s)' % year
+		else:
+			postfix = ''
+		# determine destination path and film filename
+		if self.settings.moviefolders:
+			pathname = self.settings.downloadpathmv + namestem + postfix + '/'
+			filename = namestem + suffix
+		else:
+			pathname = self.settings.downloadpathmv
+			filename = namestem + postfix + suffix
+		# check for duplicate
+		while xbmcvfs.exists( pathname + filename + extension ):
+			( filename, confirmed ) = self.notifier.GetEnteredText( filename, 30987 )
+			filename = mvutils.cleanup_filename( filename )
+			if len( filename ) < 1 or confirmed is False:
 				return
 
-			# check if the download path is reachable
-			if not xbmcvfs.exists( self.settings.downloadpath ):
-				self.notifier.ShowError( 30952, 30979 )
+		# download the stuff
+		if self.download_files( film, filmurl, pathname, filename, extension ):
+			self._make_movie_nfo_file( film, filmurl, pathname, filename )
+
+	def download_episode( self, filmid, quality ):
+		if not self._test_download_path( self.settings.downloadpathep ):
+			return
+		film = self.db.RetrieveFilmInfo( filmid )
+		if film is None:
+			return
+
+		( filmurl, suffix, extension, ) = self._get_film_url_and_extension( film, quality )
+
+		# detect season and episode
+		( season, episode, fninfo, ) = self._season_and_episode_detect( film )
+
+		# determine names
+		showname = mvutils.cleanup_filename( film.show )[:64]
+		namestem = mvutils.cleanup_filename( film.title )[:80]
+		if not namestem:
+			namestem = u'Episode-{}'.format( film.id )
+		if not showname:
+			showname = filestem
+
+		# review name
+		if self.settings.reviewname:
+			( namestem, confirmed ) = self.notifier.GetEnteredText( namestem, 30986 )
+			namestem = mvutils.cleanup_filename( namestem )
+			if len( namestem ) < 1 or confirmed is False:
 				return
 
-			# get the best url
-			if quality == '0' and film.url_video_sd:
-				videourl = film.url_video_sd
-			elif quality == '2' and film.url_video_hd:
-				videourl = film.url_video_hd
-			else:
-				videourl = film.url_video
+		# prepare download directory and determine sequence number
+		pathname = self.settings.downloadpathep + showname + '/'
+		sequence = 1
+		if xbmcvfs.exists( pathname ):
+			( _, epfiles, ) = xbmcvfs.listdir( pathname )
+			for epfile in epfiles:
+				match = re.search( '^.* - \(([0-9]*)\)\.[^/]*$', epfile )
+				if match and len( match.groups() ) > 0:
+					if sequence <= int( match.group(1) ):
+						sequence = int( match.group(1) ) + 1
+		else:
+			xbmcvfs.mkdir( pathname )
 
-			# prepare names
-			showname	= mvutils.cleanup_filename( film.show )[:64]
-			filestem	= mvutils.cleanup_filename( film.title )[:64]
-			extension	= os.path.splitext( videourl )[1]
-			if not extension:
-				extension = u'.mp4'
-			if not filestem:
-				filestem = u'Film-{}'.format( film.id )
-			if not showname:
-				showname = filestem
+		filename = showname + ' - ' + fninfo + namestem + u' - (%04d)' % sequence
+		# download the stuff
+		if self.download_files( film, filmurl, pathname, filename, extension ):
+			self._make_series_nfo_files( film, filmurl, pathname, filename, season, episode, sequence )
 
-			# detect season and episode
-			( season, episode, fninfo, ) = self._SeasonAndEpisodeDetect( film )
+	def download_files( self, film, filmurl, pathname, filename, extension ):
+		# make sure the destination directory exists
+		if not xbmcvfs.exists( pathname ):
+			xbmcvfs.mkdir( pathname )
+		# prepare resulting filenames
+		movname = pathname + filename + extension
+		srtname = pathname + filename + u'.srt'
+		ttmname = pathname + filename + u'.ttml'
 
-			# prepare download directory and determine sequence number
-			dirname = self.settings.downloadpath + showname + '/'
-			sequence = 1
-			if xbmcvfs.exists( dirname ):
-				( _, epfiles, ) = xbmcvfs.listdir( dirname )
-				for epfile in epfiles:
-					match = re.search( '^.* - \(([0-9]*)\)\.[^/]*$', epfile )
-					if match and len( match.groups() ) > 0:
-						if sequence <= int( match.group(1) ):
-							sequence = int( match.group(1) ) + 1
-			else:
-				xbmcvfs.mkdir( dirname )
+		# download video
+		bgd = KodiBGDialog()
+		bgd.Create( self.language( 30974 ), filename + extension )
+		try:
+			bgd.Update( 0 )
+			mvutils.url_retrieve_vfs( filmurl, movname, bgd.UrlRetrieveHook )
+			bgd.Close()
+			self.notifier.ShowNotification( 30960, self.language( 30976 ).format( filmurl ) )
+		except Exception as err:
+			bgd.Close()
+			self.error( 'Failure downloading {}: {}', filmurl, err )
+			self.notifier.ShowError( 30952, self.language( 30975 ).format( filmurl, err ) )
+			return False
 
-			# prepare resulting filenames
-			fileepi = fninfo + filestem + u' - (%04d)' % sequence
-			movname = dirname + fileepi + extension
-			srtname = dirname + fileepi + u'.srt'
-			ttmname = dirname + fileepi + u'.ttml'
-			nfoname = dirname + fileepi + u'.nfo'
-
-			# download video
+		# download subtitles
+		if self.settings.downloadsrt and film.url_sub:
 			bgd = KodiBGDialog()
-			bgd.Create( self.language( 30974 ), fileepi + extension )
+			bgd.Create( 30978, filename + u'.ttml' )
 			try:
 				bgd.Update( 0 )
-				mvutils.url_retrieve_vfs( videourl, movname, bgd.UrlRetrieveHook )
+				mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
+				try:
+					ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
+				except Exception as err:
+					self.info( 'Failed to convert to srt: {}', err )
 				bgd.Close()
-				self.notifier.ShowNotification( 30960, self.language( 30976 ).format( videourl ) )
 			except Exception as err:
 				bgd.Close()
-				self.error( 'Failure downloading {}: {}', videourl, err )
-				self.notifier.ShowError( 30952, self.language( 30975 ).format( videourl, err ) )
+				self.error( 'Failure downloading {}: {}', film.url_sub, err )
 
-			# download subtitles
-			if self.settings.downloadsrt and film.url_sub:
-				bgd = KodiBGDialog()
-				bgd.Create( 30978, fileepi + u'.ttml' )
-				try:
-					bgd.Update( 0 )
-					mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
-					try:
-						ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
-					except Exception as err:
-						self.info( 'Failed to convert to srt: {}', err )
-					bgd.Close()
-				except Exception as err:
-					bgd.Close()
-					self.error( 'Failure downloading {}: {}', film.url_sub, err )
+		return True
 
-			# create NFO Files
-			if self.settings.makenfo > 0:
-				self._make_nfo_files( self.settings.makenfo, film, season, episode, sequence, dirname, nfoname, videourl )
-		else:
+	def _test_download_path( self, downloadpath ):
+		if len( downloadpath ) == 0:
 			self.notifier.ShowError( 30952, 30958 )
+			return False
+		# check if the download path is reachable
+		if not xbmcvfs.exists( downloadpath ):
+			self.notifier.ShowError( 30952, 30979 )
+			return False
+		return True
 
-	def doEnqueueFilm( self, filmid ):
-		self.info( 'Enqueue {}', filmid )
+	@staticmethod
+	def _get_film_url_and_extension( film, quality ):
+		# get the best url
+		if quality == '0' and film.url_video_sd:
+			suffix	= ''
+			filmurl	= film.url_video_sd
+		elif quality == '2' and film.url_video_hd:
+			suffix	= '.720p'
+			filmurl	= film.url_video_hd
+		else:
+			suffix	= ''
+			filmurl	= film.url_video
+		extension = os.path.splitext( filmurl )[1]
+		if extension:
+			return ( filmurl, suffix, extension, )
+		else:
+			return ( filmurl, suffix, u'.mp4', )
 
 	def _check_outdate( self, maxage = 172800 ):
 		if self.settings.updmode != 1 and self.settings.updmode != 2:
@@ -286,12 +357,13 @@ class MediathekView( KodiPlugin ):
 
 	@staticmethod
 	def _match( regex, test ):
-		match = re.search( regex, test, flags = re.IGNORECASE )
-		if match and len( match.groups() ) > 0:
-			return match.group(1)
+		if test is not None:
+			match = re.search( regex, test, flags = re.IGNORECASE )
+			if match and len( match.groups() ) > 0:
+				return match.group(1)
 		return None
 
-	def _SeasonAndEpisodeDetect( self, film ):
+	def _season_and_episode_detect( self, film ):
 		# initial trivial implementation
 		season = self._match( 'staffel[\.:\- ]+([0-9]+)', film.title )
 		if season is None:
@@ -307,48 +379,87 @@ class MediathekView( KodiPlugin ):
 			episode = self._match( 'teil[\.:\- ]+([0-9]+)', film.title )
 		if episode is None:
 			episode = self._match( '([0-9]+)[\.:\- ]+teil', film.title )
+		if episode is None:
+			episode = self._match( '\(([0-9]+)\/[0-9]', film.title )
 		# generate filename info
 		if season is not None and episode is not None:
 			return ( season, episode, 'S%02dE%02d - ' % ( int( season ), int( episode ) ), )
+		elif episode is not None:
+			return ( None, episode, 'EP%03d - ' % int( episode ) )
 		else:
-			return ( season, episode, '', )
+			return ( None, None, '', )
 
-	def _make_nfo_files( self, nfomode, film, season, episode, sequence, dirname, filename, videourl ):
-		# create NFO files
-		if not xbmcvfs.exists( dirname + 'tvshow.nfo' ):
+	def _make_movie_nfo_file( self, film, filmurl, pathname, filename ):
+		# create movie NFO file
+		# See: https://kodi.wiki/view/NFO_files/Movies
+		if self.settings.makenfo > 0:
 			try:
-				with closing( xbmcvfs.File( dirname + 'tvshow.nfo', 'w' ) ) as file:
-					file.write( b'<tvshow>\n' )
-					file.write( b'<id></id>\n' )
-					file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
-					file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
+				with closing( xbmcvfs.File( pathname + filename + u'.nfo', 'w' ) ) as file:
+					file.write( bytearray( '<movie>\n', 'utf-8' ) )
+					file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
+					file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
 					file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
-					file.write( b'</tvshow>\n' )
+					aired = self._match( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', film.aired )
+					if aired is not None:
+						file.write( bytearray( '\t<aired>{}</aired>\n'.format( aired ), 'utf-8' ) )
+					year = self._match( '([12][0-9][0-9][0-9])', film.aired )
+					if year is not None:
+						file.write( bytearray( '\t<year>{}</year>\n'.format( year ), 'utf-8' ) )
+					if film.seconds > 60:
+						file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
+					file.write( bytearray( '</movie>\n', 'utf-8' ) )
 			except Exception as err:
-				self.error( 'Failure creating show NFO file for {}: {}', videourl, err )
+				self.error( 'Failure creating episode NFO file for {}: {}', filmurl, err )
 
-		try:
-			with closing( xbmcvfs.File( filename, 'w' ) ) as file:
-				file.write( b'<episodedetails>\n' )
-				file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
-				if nfomode == 2 and season is not None and episode is not None:
-					file.write( bytearray( '\t<season>{}</season>\n'.format( season ), 'utf-8' ) )
-					file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
-				elif nfomode == 2:
-					file.write( b'\t<season>999</season>\n' )
-					file.write( bytearray( '\t<episode>{}</episode>\n'.format( sequence ), 'utf-8' ) )
-					file.write( b'\t<autonumber>1</autonumber>\n' )
-				file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
-				file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
-				file.write( bytearray( '\t<aired>{}</aired>\n'.format( film.aired ), 'utf-8' ) )
-				if film.seconds > 60:
-					file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
-				file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
-				file.write( b'</episodedetails>\n' )
-		except Exception as err:
-			self.error( 'Failure creating episode NFO file for {}: {}', videourl, err )
 
-	def Init( self ):
+	def _make_series_nfo_files( self, film, filmurl, pathname, filename, season, episode, sequence ):
+		# create series NFO files
+		# See: https://kodi.wiki/view/NFO_files/TV_shows
+		if self.settings.makenfo > 0:
+			aired = self._match( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', film.aired )
+			year = self._match( '([12][0-9][0-9][0-9])', film.aired )
+			if not xbmcvfs.exists( pathname + 'tvshow.nfo' ):
+				try:
+					with closing( xbmcvfs.File( pathname + 'tvshow.nfo', 'w' ) ) as file:
+						file.write( bytearray( '<tvshow>\n', 'utf-8' ) )
+						file.write( bytearray( '\t<id></id>\n', 'utf-8' ) )
+						file.write( bytearray( '\t<title>{}</title>\n'.format( film.show ), 'utf-8' ) )
+						file.write( bytearray( '\t<sorttitle>{}</sorttitle>\n'.format( film.show ), 'utf-8' ) )
+						file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
+						if year is not None:
+							file.write( bytearray( '\t<year>{}</year>\n'.format( year ), 'utf-8' ) )
+						file.write( bytearray( '</tvshow>\n', 'utf-8' ) )
+				except Exception as err:
+					self.error( 'Failure creating show NFO file for {}: {}', filmurl, err )
+
+			try:
+				with closing( xbmcvfs.File( pathname + filename + u'.nfo', 'w' ) ) as file:
+					file.write( bytearray( '<episodedetails>\n', 'utf-8' ) )
+					file.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
+					if self.settings.makenfo == 2 and season is not None and episode is not None:
+						file.write( bytearray( '\t<season>{}</season>\n'.format( season ), 'utf-8' ) )
+						file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
+					if self.settings.makenfo == 2 and episode is not None:
+						file.write( bytearray( '\t<season>1</season>\n', 'utf-8' ) )
+						file.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
+					elif self.settings.makenfo == 2:
+						file.write( bytearray( '\t<season>999</season>\n', 'utf-8' ) )
+						file.write( bytearray( '\t<episode>{}</episode>\n'.format( sequence ), 'utf-8' ) )
+						file.write( bytearray( '\t<autonumber>1</autonumber>\n', 'utf-8' ) )
+					file.write( bytearray( '\t<showtitle>{}</showtitle>\n'.format( film.show ), 'utf-8' ) )
+					file.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
+					if aired is not None:
+						file.write( bytearray( '\t<aired>{}</aired>\n'.format( aired ), 'utf-8' ) )
+					if year is not None:
+						file.write( bytearray( '\t<year>{}</year>\n'.format( year ), 'utf-8' ) )
+					if film.seconds > 60:
+						file.write( bytearray( '\t<runtime>{}</runtime>\n'.format( int( film.seconds / 60 ) ), 'utf-8' ) )
+					file.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
+					file.write( bytearray( '</episodedetails>\n', 'utf-8' ) )
+			except Exception as err:
+				self.error( 'Failure creating episode NFO file for {}: {}', filmurl, err )
+
+	def init( self ):
 		self.args = urlparse.parse_qs( sys.argv[2][1:] )
 		if self.db.Init():
 			if self.settings.HandleFirstRun():
@@ -356,17 +467,17 @@ class MediathekView( KodiPlugin ):
 				pass
 			self.settings.HandleUpdateOnStart()
 
-	def Do( self ):
+	def run( self ):
 		# save last activity timestamp
 		self.settings.ResetUserActivity()
 		# process operation
 		mode = self.args.get( 'mode', None )
 		if mode is None:
-			self.showMainMenu()
+			self.show_main_menu()
 		elif mode[0] == 'search':
-			self.showSearch()
+			self.show_search()
 		elif mode[0] == 'searchall':
-			self.showSearch( extendedsearch = True )
+			self.show_search( extendedsearch = True )
 		elif mode[0] == 'livestreams':
 			self.db.GetLiveStreams( FilmUI( self, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
 		elif mode[0] == 'recent':
@@ -377,7 +488,7 @@ class MediathekView( KodiPlugin ):
 		elif mode[0] == 'channels':
 			self.db.GetChannels( ChannelUI( self, nextdir = 'shows' ) )
 		elif mode[0] == 'action-dbinfo':
-			self.showDbInfo()
+			self.show_db_info()
 		elif mode[0] == 'action-dbupdate':
 			self.settings.TriggerUpdate()
 			self.notifier.ShowNotification( 30963, 30964, time = 10000 )
@@ -391,12 +502,16 @@ class MediathekView( KodiPlugin ):
 		elif mode[0] == 'films':
 			show = self.args.get( 'show', [0] )
 			self.db.GetFilms( show[0], FilmUI( self ) )
-		elif mode[0] == 'download':
+		elif mode[0] == 'downloadmv':
 			filmid	= self.args.get( 'id', [0] )
 			quality	= self.args.get( 'quality', [1] )
-			self.doDownloadFilm( filmid[0], quality[0] )
+			self.download_movie( filmid[0], quality[0] )
+		elif mode[0] == 'downloadep':
+			filmid	= self.args.get( 'id', [0] )
+			quality	= self.args.get( 'quality', [1] )
+			self.download_episode( filmid[0], quality[0] )
 		elif mode[0] == 'enqueue':
-			self.doEnqueueFilm( self.args.get( 'id', [0] )[0] )
+			self.enqueue_film( self.args.get( 'id', [0] )[0] )
 
 		# cleanup saved searches
 		if mode is None or mode[0] != 'search':
@@ -404,14 +519,14 @@ class MediathekView( KodiPlugin ):
 		if mode is None or mode[0] != 'searchall':
 			self.addon.setSetting( 'lastsearch2', '' )
 
-	def Exit( self ):
+	def exit( self ):
 		self.db.Exit()
 
 
 # -- Main Code ----------------------------------------------
 if __name__ == '__main__':
 	addon = MediathekView()
-	addon.Init()
-	addon.Do()
-	addon.Exit()
+	addon.init()
+	addon.run()
+	addon.exit()
 	del addon
