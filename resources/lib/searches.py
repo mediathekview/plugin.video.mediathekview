@@ -48,7 +48,7 @@ class RecentSearches( object ):
 		return self
 
 	def add( self, search ):
-		slow = search.lower()
+		slow = search.decode('utf-8').lower()
 		try:
 			for entry in self.recents:
 				if entry['search'].lower() == slow:
@@ -58,9 +58,21 @@ class RecentSearches( object ):
 			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up'.format( err ) )
 			self.recents = []
 		self.recents.append( {
-			'search':			search,
+			'search':			search.decode('utf-8'),
 			'when':				int( time.time() )
 		} )
+		return self
+
+	def delete( self, search ):
+		slow = search.decode('utf-8').lower()
+		try:
+			for entry in self.recents:
+				if entry['search'].lower() == slow:
+					self.recents.remove(entry)
+					return self
+		except Exception as err:
+			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up'.format( err ) )
+			self.recents = []
 		return self
 
 	def populate( self ):
@@ -69,7 +81,17 @@ class RecentSearches( object ):
 				entry['search'],
 				{
 					'mode': "research",
-					'search': entry['search'],
+					'search': entry['search'].encode('utf-8'),
 					'extendedsearch': self.extendedsearch
-				}
+				},
+				[(
+					self.plugin.language( 30989 ),
+					'RunPlugin({})'.format(
+						self.plugin.build_url( {
+							'mode': "delsearch",
+							'search': entry['search'].encode('utf-8'),
+							'extendedsearch': self.extendedsearch
+						} )
+					)
+				)]
 			)

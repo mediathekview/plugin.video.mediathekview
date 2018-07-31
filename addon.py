@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 The main addon module
 
@@ -61,9 +62,9 @@ class MediathekView( KodiPlugin ):
 
 	def show_main_menu( self ):
 		# Search
-		self.addFolderItem( 30901, { 'mode': "search" } )
+		self.addFolderItem( 30901, { 'mode': "search", 'extendedsearch': False } )
 		# Search all
-		self.addFolderItem( 30902, { 'mode': "searchall" } )
+		self.addFolderItem( 30902, { 'mode': "search", 'extendedsearch': True } )
 		# Browse livestreams
 		self.addFolderItem( 30903, { 'mode': "livestreams" } )
 		# Browse recently added
@@ -209,9 +210,8 @@ class MediathekView( KodiPlugin ):
 		if mode is None:
 			self.show_main_menu()
 		elif mode == 'search':
-			self.show_searches()
-		elif mode == 'searchall':
-			self.show_searches( True )
+			extendedsearch = self.get_arg( 'extendedsearch', 'False' ) == 'True'
+			self.show_searches( extendedsearch )
 		elif mode == 'newsearch':
 			self.new_search( self.get_arg( 'extendedsearch', 'False' ) == 'True' )
 		elif mode == 'research':
@@ -219,6 +219,11 @@ class MediathekView( KodiPlugin ):
 			extendedsearch	= self.get_arg( 'extendedsearch', 'False' ) == 'True'
 			self.database.Search( search, FilmUI( self ), extendedsearch )
 			RecentSearches( self, extendedsearch ).load().add( search ).save()
+		elif mode == 'delsearch':
+			search			= self.get_arg( 'search', '' )
+			extendedsearch	= self.get_arg( 'extendedsearch', 'False' ) == 'True'
+			RecentSearches( self, extendedsearch ).load().delete( search ).save().populate()
+			self.runBuiltin( 'Container.Refresh' )
 		elif mode == 'livestreams':
 			self.database.GetLiveStreams( FilmUI( self, [ xbmcplugin.SORT_METHOD_LABEL ] ) )
 		elif mode == 'recent':

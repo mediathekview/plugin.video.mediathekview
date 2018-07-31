@@ -402,3 +402,7 @@ msgstr "File esistente! Si prega di cambiare il nome file"
 msgctxt "#30988"
 msgid "New Search..."
 msgstr "Nuova ricerca..."
+
+msgctxt "#30989"
+msgid "Remove"
+msgstr "Elimina"

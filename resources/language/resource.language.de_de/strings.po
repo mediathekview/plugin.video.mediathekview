@@ -401,3 +401,7 @@ msgstr "Datei existiert bereits. Bitte ändern Sie den Dateinamen"
 msgctxt "#30988"
 msgid "New Search..."
 msgstr "Neuer Suchvorgang..."
+
+msgctxt "#30989"
+msgid "Remove"
+msgstr "Löschen"

@@ -1,8 +1,8 @@
+# -*- coding: utf-8 -*-
 """
-Management of downloads
+Download handler module
 
 Copyright (c) 2018, Leo Moll
-
 Licensed under MIT License
 """
 
@@ -10,6 +10,8 @@ Licensed under MIT License
 # pylint: disable=mixed-indentation, bad-whitespace, bad-continuation, missing-docstring
 
 # -- Imports ------------------------------------------------
+from __future__ import unicode_literals
+
 import os
 import re
 
@@ -19,7 +21,6 @@ import xbmcvfs
 
 import resources.lib.mvutils as mvutils
 
-
 from resources.lib.kodi.KodiUI import KodiBGDialog
 from resources.lib.ttml2srt import ttml2srt
 
@@ -27,7 +28,7 @@ from resources.lib.ttml2srt import ttml2srt
 class Downloader( object ):
 	def __init__( self, plugin ):
 		self.plugin		= plugin
-		self.database	= plugin.db
+		self.database	= plugin.database
 		self.settings	= plugin.settings
 		self.notifier	= plugin.notifier
 
@@ -53,7 +54,7 @@ class Downloader( object ):
 		# review name
 		if self.settings.reviewname:
 			( namestem, confirmed ) = self.notifier.GetEnteredText( namestem, 30986 )
-			namestem = mvutils.cleanup_filename( namestem )
+			namestem = mvutils.cleanup_filename( namestem.decode('utf-8') )
 			if len( namestem ) < 1 or confirmed is False:
 				return
 		# build year postfix
@@ -72,7 +73,7 @@ class Downloader( object ):
 		# check for duplicate
 		while xbmcvfs.exists( pathname + filename + extension ):
 			( filename, confirmed ) = self.notifier.GetEnteredText( filename, 30987 )
-			filename = mvutils.cleanup_filename( filename )
+			filename = mvutils.cleanup_filename( filename.decode('utf-8') )
 			if len( filename ) < 1 or confirmed is False:
 				return
 
@@ -103,7 +104,7 @@ class Downloader( object ):
 		# review name
 		if self.settings.reviewname:
 			( namestem, confirmed ) = self.notifier.GetEnteredText( namestem, 30986 )
-			namestem = mvutils.cleanup_filename( namestem )
+			namestem = mvutils.cleanup_filename( namestem.decode('utf-8') )
 			if len( namestem ) < 1 or confirmed is False:
 				return
 

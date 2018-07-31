@@ -69,16 +69,22 @@ class KodiPlugin( KodiAddon ):
 	def runPlugin( self, params ):
 		xbmc.executebuiltin( 'RunPlugin({})'.format( self.build_url( params ) ) )
 
-	def addActionItem( self, name, params ):
-		self.addDirectoryItem( name, params, False )
 
-	def addFolderItem( self, name, params ):
-		self.addDirectoryItem( name, params, True )
+	def runBuiltin( self, builtin ):
+		xbmc.executebuiltin( builtin )
 
-	def addDirectoryItem( self, name, params, isFolder ):
+	def addActionItem( self, name, params, contextmenu = None ):
+		self.addDirectoryItem( name, params, False, contextmenu )
+
+	def addFolderItem( self, name, params, contextmenu = None ):
+		self.addDirectoryItem( name, params, True, contextmenu )
+
+	def addDirectoryItem( self, name, params, isFolder, contextmenu = None ):
 		if isinstance( name, int ):
 			name = self.language( name )
 		li = xbmcgui.ListItem( name )
+		if contextmenu is not None:
+			li.addContextMenuItems( contextmenu )
 		xbmcplugin.addDirectoryItem(
 			handle		= self.addon_handle,
 			url			= self.build_url( params ),
