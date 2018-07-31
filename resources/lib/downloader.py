@@ -193,20 +193,7 @@ class Downloader( object ):
 
 		# download subtitles
 		if self.settings.downloadsrt and film.url_sub:
-			bgd = KodiBGDialog()
-			bgd.Create( 30978, filename + u'.ttml' )
-			# pylint: disable=broad-except
-			try:
-				bgd.Update( 0 )
-				mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
-				try:
-					ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
-				except Exception as err:
-					self.plugin.info( 'Failed to convert to srt: {}', err )
-				bgd.Close()
-			except Exception as err:
-				bgd.Close()
-				self.plugin.error( 'Failure downloading {}: {}', film.url_sub, err )
+			self.download_subtitle( film, ttmname, srtname, filename )
 
 		return True
 
