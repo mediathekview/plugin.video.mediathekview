@@ -73,7 +73,7 @@ class StoreSQLite( object ):
 			return self._Search_Condition( self.sql_cond_recent, (), filmui, True, False, 10000 )
 
 	def GetLiveStreams( self, filmui ):
-		return self._Search_Condition( '( show.search="LIVESTREAM" )', (), filmui, False, False, 10000 )
+		return self._Search_Condition( '( show.search="LIVESTREAM" )', (), filmui, False, False, 0, False )
 
 	def GetChannels( self, channelui ):
 		self._Channels_Condition( None, channelui )
@@ -212,26 +212,28 @@ class StoreSQLite( object ):
 			self.logger.error( 'Database error: {}', err )
 			self.notifier.ShowDatabaseError( err )
 
-	def _Search_Condition( self, condition, params, filmui, showshows, showchannels, maxresults ):
+	def _Search_Condition( self, condition, params, filmui, showshows, showchannels, maxresults, limiting = True ):
 		if self.conn is None:
 			return 0
 		try:
 			maxresults = int( maxresults )
+			if limiting:
+				sql_cond_limit = self.sql_cond_nofuture + self.sql_cond_minlength
+			else:
+				sql_cond_limit = ''
 			self.logger.info( 'SQLite Query: {}',
 				self.sql_query_films +
 				' WHERE ' +
 				condition +
-				self.sql_cond_nofuture +
-				self.sql_cond_minlength
+				sql_cond_limit
 			)
 			cursor = self.conn.cursor()
 			cursor.execute(
 				self.sql_query_filmcnt +
 				' WHERE ' +
 				condition +
-				self.sql_cond_nofuture +
-				self.sql_cond_minlength +
-				' LIMIT {}'.format( maxresults + 1 ) if maxresults else '',
+				sql_cond_limit +
+				( ' LIMIT {}'.format( maxresults + 1 ) if maxresults else '' ),
 				params
 			)
 			( results, ) = cursor.fetchone()
@@ -241,9 +243,8 @@ class StoreSQLite( object ):
 				self.sql_query_films +
 				' WHERE ' +
 				condition +
-				self.sql_cond_nofuture +
-				self.sql_cond_minlength +
-				' LIMIT {}'.format( maxresults ) if maxresults else '',
+				sql_cond_limit +
+				( ' LIMIT {}'.format( maxresults + 1 ) if maxresults else '' ),
 				params
 			)
 			filmui.Begin( showshows, showchannels )

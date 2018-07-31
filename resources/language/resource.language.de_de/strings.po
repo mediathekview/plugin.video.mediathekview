@@ -174,38 +174,34 @@ msgid "Search in Title and Description"
 msgstr "Suchen in Titel und Beschreibung"
 
 msgctxt "#30903"
-msgid "Recent Searches"
-msgstr "Letzte Suchvorgänge"
-
-msgctxt "#30904"
 msgid "Livestreams"
 msgstr "Livestreams"
 
-msgctxt "#30905"
+msgctxt "#30904"
 msgid "Recently Added"
 msgstr "Vor Kurzem hinzugefügt"
 
-msgctxt "#30906"
+msgctxt "#30905"
 msgid "Recently Added by Channel"
 msgstr "Vor Kurzem hinzugefügt nach Sender"
 
-msgctxt "#30907"
+msgctxt "#30906"
 msgid "Browse by Show in all Channels"
 msgstr "Alle Sendungen"
 
-msgctxt "#30908"
+msgctxt "#30907"
 msgid "Browse Shows by Channel"
 msgstr "Alle Sendungen nach Sender"
 
-msgctxt "#30909"
+msgctxt "#30908"
 msgid "Database Information"
 msgstr "Datenbank Informationen"
 
-msgctxt "#30910"
+msgctxt "#30909"
 msgid "Update Database"
 msgstr "Datenbank aktualisieren"
 
-# Context Menu
+# Film Context Menu
 msgctxt "#30921"
 msgid "Download as TV episode"
 msgstr "Als Episode herunterladen"
@@ -221,6 +217,8 @@ msgstr "Als Film herunterladen"
 msgctxt "#30924"
 msgid "Download as HD Movie"
 msgstr "Als HD Film herunterladen"
+
+# Search Context Menu
 
 # Database status
 msgctxt "#30941"
@@ -399,3 +397,11 @@ msgstr "Bitte prüfen Sie den Dateinamen"
 msgctxt "#30987"
 msgid "File already exists! Please change the filename"
 msgstr "Datei existiert bereits. Bitte ändern Sie den Dateinamen"
+
+msgctxt "#30988"
+msgid "New Search..."
+msgstr "Neuer Suchvorgang..."
+
+msgctxt "#30989"
+msgid "Remove"
+msgstr "Löschen"
