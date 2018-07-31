@@ -6,17 +6,18 @@ Copyright (c) 2018, Leo Moll
 Licensed under MIT License
 """
 
+# pylint: disable=import-error
+# pylint: disable=mixed-indentation, bad-whitespace, bad-continuation, missing-docstring
+
 # -- Imports ------------------------------------------------
 import os
 import json
 import time
 
-import xbmcplugin
-
 from contextlib import closing
 from operator import itemgetter
 
-from resources.lib.kodi.KodiAddon import KodiPlugin
+import xbmcplugin
 
 # -- Classes ------------------------------------------------
 class RecentSearches( object ):
@@ -24,9 +25,12 @@ class RecentSearches( object ):
 		self.plugin			= plugin
 		self.handle			= plugin.addon_handle
 		self.sortmethods	= sortmethods if sortmethods is not None else [ xbmcplugin.SORT_METHOD_TITLE ]
-		self.datafile		= os.path.join( self.plugin.settings.datapath, 'recent_ext_searches.json' if extendedsearch else 'recent_std_searches.json' )
 		self.extendedsearch	= extendedsearch
 		self.recents		= []
+		self.datafile		= os.path.join(
+			self.plugin.settings.datapath,
+			'recent_ext_searches.json' if extendedsearch else 'recent_std_searches.json'
+		)
 
 	def load( self ):
 		try:
@@ -34,6 +38,7 @@ class RecentSearches( object ):
 				data = json.load( json_file )
 				if isinstance( data, list ):
 					self.recents = sorted( data, key = itemgetter( 'when' ), reverse = True )
+		# pylint: disable=broad-except
 		except Exception as err:
 			self.plugin.error( 'Failed to load last searches file {}: {}'.format( self.datafile, err ) )
 		return self
@@ -43,6 +48,7 @@ class RecentSearches( object ):
 		try:
 			with closing( open( self.datafile, 'w' ) ) as json_file:
 				json.dump( data, json_file )
+		# pylint: disable=broad-except
 		except Exception as err:
 			self.plugin.error( 'Failed to write last searches file {}: {}'.format( self.datafile, err ) )
 		return self
@@ -54,6 +60,7 @@ class RecentSearches( object ):
 				if entry['search'].lower() == slow:
 					entry['when'] = int( time.time() )
 					return self
+		# pylint: disable=broad-except
 		except Exception as err:
 			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up'.format( err ) )
 			self.recents = []
@@ -70,6 +77,7 @@ class RecentSearches( object ):
 				if entry['search'].lower() == slow:
 					self.recents.remove(entry)
 					return self
+		# pylint: disable=broad-except
 		except Exception as err:
 			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up'.format( err ) )
 			self.recents = []
@@ -77,6 +85,7 @@ class RecentSearches( object ):
 
 	def populate( self ):
 		for entry in self.recents:
+			# pylint: disable=C0330
 			self.plugin.addFolderItem(
 				entry['search'],
 				{
@@ -84,14 +93,16 @@ class RecentSearches( object ):
 					'search': entry['search'].encode('utf-8'),
 					'extendedsearch': self.extendedsearch
 				},
-				[(
-					self.plugin.language( 30989 ),
-					'RunPlugin({})'.format(
-						self.plugin.build_url( {
-							'mode': "delsearch",
-							'search': entry['search'].encode('utf-8'),
-							'extendedsearch': self.extendedsearch
-						} )
+				[
+					(
+						self.plugin.language( 30989 ),
+						'RunPlugin({})'.format(
+							{
+								'mode': "delsearch",
+								'search': entry['search'].encode('utf-8'),
+								'extendedsearch': self.extendedsearch
+							}
+						)
 					)
-				)]
+				]
 			)
