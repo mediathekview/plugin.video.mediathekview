@@ -20,9 +20,13 @@
 		<setting id="updinterval"		type="slider"	label="30232"	default="2"	range="1,24"	visible="eq(-1,true)"	/>
 	</category>
 	<category label="30003">
-		<setting id="downloadpath"		type="folder"	label="30310"	source="auto"	option="writeable"					/>
-		<setting id="downloadsrt"		type="bool"		label="30311"	default="true"										/>
-		<setting id="makenfo"			type="enum"		label="30312"	default="2"		lvalues="30340|30341|30342"			/>
+		<setting id="downloadpathep"	type="folder"	label="30310"	source="auto"	option="writeable"					/>
+		<setting id="downloadpathmv"	type="folder"	label="30311"	source="auto"	option="writeable"					/>
+		<setting id="moviefolders"		type="bool"		label="30312"	default="true"										/>
+		<setting id="movienamewithshow"	type="bool"		label="30313"	default="true"										/>
+		<setting id="reviewname"		type="bool"		label="30314"	default="false"										/>
+		<setting id="downloadsrt"		type="bool"		label="30315"	default="true"										/>
+		<setting id="makenfo"			type="enum"		label="30316"	default="2"		lvalues="30340|30341|30342"			/>
 
 		<!-- setting						type="action"	label="30238"	action="RunScript(plugin.video.mediathekview, downloadreport)"/ -->
 

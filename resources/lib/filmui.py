@@ -77,30 +77,29 @@ class FilmUI( Film ):
 		# create context menu
 		contextmenu = []
 		if self.size > 0:
-			# Download video
+			# Download movie
 			contextmenu.append( (
-				self.plugin.language( 30921 ),
-				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id, 'quality': 1 } ) )
+				self.plugin.language( 30923 ),
+				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "downloadmv", 'id': self.id, 'quality': 1 } ) )
 			) )
 			if self.url_video_hd:
-				# Download SD video
+				# Download HD movie
 				contextmenu.append( (
-					self.plugin.language( 30923 ),
-					'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id, 'quality': 2 } ) )
+					self.plugin.language( 30924 ),
+					'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "downloadmv", 'id': self.id, 'quality': 2 } ) )
 				) )
-			if self.url_video_sd:
-				# Download SD video
+			# Download TV episode
+			contextmenu.append( (
+				self.plugin.language( 30921 ),
+				'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "downloadep", 'id': self.id, 'quality': 1 } ) )
+			) )
+			if self.url_video_hd:
+				# Download HD TV episode
 				contextmenu.append( (
 					self.plugin.language( 30922 ),
-					'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "download", 'id': self.id, 'quality': 0 } ) )
+					'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "downloadep", 'id': self.id, 'quality': 2 } ) )
 				) )
-		# Add to queue
-		# TODO: Enable later
-#		contextmenu.append( (
-#			self.plugin.language( 30924 ),
-#			'RunPlugin({})'.format( self.plugin.build_url( { 'mode': "enqueue", 'id': self.id } ) )
-#		) )
-		li.addContextMenuItems( contextmenu )
+			li.addContextMenuItems( contextmenu )
 
 		if totalItems is not None:
 			xbmcplugin.addDirectoryItem(

@@ -21,8 +21,18 @@ class KodiUI( object ):
 		keyboard = xbmc.Keyboard( deftext, heading, 1 if hidden else 0 )
 		keyboard.doModal()
 		if keyboard.isConfirmed():
-			return keyboard.getText()
-		return deftext
+			return ( keyboard.getText(), True, )
+		return ( deftext, False, )
+
+	def ShowOkDialog( self, heading = None, line1 = None, line2 = None, line3 = None  ):
+		heading = self.language( heading ).decode( 'utf-8' ) if isinstance( heading, int ) else heading if heading is not None else ''
+		line1 = self.language( line1 ).decode( 'utf-8' ) if isinstance( line1, int ) else line1 if line1 is not None else ''
+		line2 = self.language( line2 ).decode( 'utf-8' ) if isinstance( line2, int ) else line2 if line2 is not None else ''
+		line3 = self.language( line3 ).decode( 'utf-8' ) if isinstance( line3, int ) else line3 if line3 is not None else ''
+		dialog = xbmcgui.Dialog()
+		ok = dialog.ok( heading, line1, line2, line3 )
+		del dialog
+		return ok
 
 	def ShowNotification( self, heading, message, icon = xbmcgui.NOTIFICATION_INFO, time = 5000, sound = True ):
 		heading = self.language( heading ) if isinstance( heading, int ) else heading

@@ -56,3 +56,15 @@ class Notifier( KodiUI ):
 
 	def CloseUpdateProgress( self ):
 		self.CloseBGDialog()
+
+	def ShowUpdatingScheme( self ):
+		self.ShowOkDialog( 30984, 30985 )
+
+	def ShowUpdateSchemeProgress( self ):
+		self.ShowBGDialog( 30984 )
+
+	def UpdateUpdateSchemeProgress( self, percent ):
+		self.UpdateBGDialog( percent, message = '' )
+
+	def CloseUpdateSchemeProgress( self ):
+		self.CloseBGDialog()

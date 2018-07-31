@@ -125,14 +125,30 @@ msgstr "Automatic"
 
 # Settings Page 3
 msgctxt "#30310"
-msgid "Download directory"
-msgstr "Download directory"
+msgid "Series download directory"
+msgstr "Series download directory"
 
 msgctxt "#30311"
+msgid "Movie download directory"
+msgstr "Movie download directory"
+
+msgctxt "#30312"
+msgid "Download movies in separate folders"
+msgstr "Download movies in separate folders"
+
+msgctxt "#30313"
+msgid "Include show name in movie name"
+msgstr "Include show name in movie name"
+
+msgctxt "#30314"
+msgid "Review filename before download"
+msgstr "Review filename before download"
+
+msgctxt "#30315"
 msgid "Download Subtitles"
 msgstr "Download Subtitles"
 
-msgctxt "#30312"
+msgctxt "#30316"
 msgid "Generate Metadata"
 msgstr "Generate Metadata"
 
@@ -158,49 +174,53 @@ msgid "Search in Title and Description"
 msgstr "Search in Title and Description"
 
 msgctxt "#30903"
+msgid "Recent Searches"
+msgstr "Recent Searches"
+
+msgctxt "#30904"
 msgid "Livestreams"
 msgstr "Livestreams"
 
-msgctxt "#30904"
+msgctxt "#30905"
 msgid "Recently Added"
 msgstr "Recently Added"
 
-msgctxt "#30905"
+msgctxt "#30906"
 msgid "Recently Added by Channel"
 msgstr "Recently Added by Channel"
 
-msgctxt "#30906"
+msgctxt "#30907"
 msgid "Browse by Show in all Channels"
 msgstr "Browse by Show in all Channels"
 
-msgctxt "#30907"
+msgctxt "#30908"
 msgid "Browse Shows by Channel"
 msgstr "Browse Shows by Channel"
 
-msgctxt "#30908"
+msgctxt "#30909"
 msgid "Database Information"
 msgstr "Database Information"
 
-msgctxt "#30909"
+msgctxt "#30910"
 msgid "Update Database"
 msgstr "Update Database"
 
 # Context Menu
 msgctxt "#30921"
-msgid "Download Video"
-msgstr "Download Video"
+msgid "Download as TV episode"
+msgstr "Download as TV episode"
 
 msgctxt "#30922"
-msgid "Download LoRes Video"
-msgstr "Download LoRes Video"
+msgid "Download as HD TV episode"
+msgstr "Download as HD TV episode"
 
 msgctxt "#30923"
-msgid "Download HD Video"
-msgstr "Download HD Video"
+msgid "Download as Movie"
+msgstr "Download as Movie"
 
 msgctxt "#30924"
-msgid "Add to queue"
-msgstr "Add to queue"
+msgid "Download as HD Movie"
+msgstr "Download as HD Movie"
 
 # Database status
 msgctxt "#30941"
@@ -363,3 +383,19 @@ msgstr "Database Outdated"
 msgctxt "#30983"
 msgid "Last {}: {}"
 msgstr "Last {}: {}"
+
+msgctxt "#30984"
+msgid "Database Schema Upgrade"
+msgstr "Database Schema Upgrade"
+
+msgctxt "#30985"
+msgid "Please wait while the system upgrades the database schema."
+msgstr "Please wait while the system upgrades the database schema."
+
+msgctxt "#30986"
+msgid "Please Review Your Download Name"
+msgstr "Please Review Your Download Name"
+
+msgctxt "#30987"
+msgid "File already exists! Please change the filename"
+msgstr "File already exists! Please change the filename"

@@ -53,7 +53,7 @@ class MediathekViewService( KodiService ):
 	def Init( self ):
 		self.info( 'Init (instance id: {})', self.monitor.instance_id )
 		self.monitor.RegisterInstance()
-		self.updater.Init()
+		self.updater.Init( convert = True )
 		self.settings.ResetUserActivity()
 
 	def Run( self ):

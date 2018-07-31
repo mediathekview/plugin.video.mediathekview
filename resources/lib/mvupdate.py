@@ -137,6 +137,14 @@ class Notifier( object ):
 		pass
 	def CloseUpdateProgress( self ):
 		pass
+	def ShowUpdatingScheme( self ):
+		pass
+	def ShowUpdateSchemeProgress( self ):
+		pass
+	def UpdateUpdateSchemeProgress( self, percent ):
+		pass
+	def CloseUpdateSchemeProgress( self ):
+		pass
 
 class MediathekViewMonitor( object ):
 	@staticmethod
@@ -252,7 +260,7 @@ class UpdateApp( AppLogger ):
 		self.notifier	= Notifier()
 		self.monitor	= MediathekViewMonitor()
 		self.updater	= MediathekViewUpdater( self.getNewLogger( 'MediathekViewUpdater' ), self.notifier, self.settings, self.monitor )
-		self.updater.Init()
+		return self.updater.Init( convert = True )
 
 	def Run( self ):
 		self.info( 'Starting up...' )
