@@ -35,34 +35,38 @@ msgid "Prefer HD streams"
 msgstr "HD Streams bevorzugen"
 
 msgctxt "#30111"
+msgid "Autoplay Subtitles"
+msgstr "Untertitel automatisch abspielen"
+
+msgctxt "#30112"
 msgid "No future videos (usually trailers)"
 msgstr "Keine Filme aus der Zukunft (üblicherweise Trailer)"
 
-msgctxt "#30112"
+msgctxt "#30113"
 msgid "Minimum duration in minutes"
 msgstr "Minimale Länge in Minuten"
 
-msgctxt "#30113"
+msgctxt "#30114"
 msgid "Group shows of different channel"
 msgstr "Sendungen verschiedener Sender zusammenfassen"
 
-msgctxt "#30114"
+msgctxt "#30115"
 msgid "Limit search results"
 msgstr "Suchergebnisse eingrenzen"
 
-msgctxt "#30115"
+msgctxt "#30116"
 msgid "Max age of recents in days"
 msgstr "Maximales Alter der Neuigkeiten in Tagen"
 
-msgctxt "#30116"
+msgctxt "#30117"
 msgid "Recent calculated by"
 msgstr "Neuigkeit berechnet ab"
 
-msgctxt "#30161"
+msgctxt "#30171"
 msgid "Aired Date"
 msgstr "Sendedatum"
 
-msgctxt "#30162"
+msgctxt "#30172"
 msgid "Added to Database"
 msgstr "Hinzugefügt zur Datenbank"
 
@@ -203,22 +207,33 @@ msgstr "Datenbank aktualisieren"
 
 # Film Context Menu
 msgctxt "#30921"
-msgid "Download as TV episode"
-msgstr "Als Episode herunterladen"
+msgid "Play with Subtitles"
+msgstr "Abspielen mit Untertiteln"
 
 msgctxt "#30922"
-msgid "Download as HD TV episode"
-msgstr "Als HD Episode herunterladen"
-
-msgctxt "#30923"
 msgid "Download as Movie"
 msgstr "Als Film herunterladen"
 
-msgctxt "#30924"
+msgctxt "#30923"
 msgid "Download as HD Movie"
 msgstr "Als HD Film herunterladen"
 
+msgctxt "#30924"
+msgid "Download as TV episode"
+msgstr "Als Episode herunterladen"
+
+msgctxt "#30925"
+msgid "Download as HD TV episode"
+msgstr "Als HD Episode herunterladen"
+
 # Search Context Menu
+msgctxt "#30931"
+msgid "New Search..."
+msgstr "Neuer Suchvorgang..."
+
+msgctxt "#30932"
+msgid "Remove Search"
+msgstr "Suchvorgang Löschen"
 
 # Database status
 msgctxt "#30941"
@@ -399,9 +414,9 @@ msgid "File already exists! Please change the filename"
 msgstr "Datei existiert bereits. Bitte ändern Sie den Dateinamen"
 
 msgctxt "#30988"
-msgid "New Search..."
-msgstr "Neuer Suchvorgang..."
+msgid "Play Error"
+msgstr "Fehler beim Abspielen"
 
 msgctxt "#30989"
-msgid "Remove"
-msgstr "Löschen"
+msgid "Cannot retrieve Movie Information"
+msgstr "Es war nicht möglich die Sendung zu finden"

@@ -40,7 +40,7 @@ class RecentSearches( object ):
 					self.recents = sorted( data, key = itemgetter( 'when' ), reverse = True )
 		# pylint: disable=broad-except
 		except Exception as err:
-			self.plugin.error( 'Failed to load last searches file {}: {}'.format( self.datafile, err ) )
+			self.plugin.error( 'Failed to load last searches file {}: {}', self.datafile, err )
 		return self
 
 	def save( self ):
@@ -50,7 +50,7 @@ class RecentSearches( object ):
 				json.dump( data, json_file )
 		# pylint: disable=broad-except
 		except Exception as err:
-			self.plugin.error( 'Failed to write last searches file {}: {}'.format( self.datafile, err ) )
+			self.plugin.error( 'Failed to write last searches file {}: {}', self.datafile, err )
 		return self
 
 	def add( self, search ):
@@ -62,7 +62,7 @@ class RecentSearches( object ):
 					return self
 		# pylint: disable=broad-except
 		except Exception as err:
-			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up'.format( err ) )
+			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up', err )
 			self.recents = []
 		self.recents.append( {
 			'search':			search.decode('utf-8'),
@@ -79,13 +79,12 @@ class RecentSearches( object ):
 					return self
 		# pylint: disable=broad-except
 		except Exception as err:
-			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up'.format( err ) )
+			self.plugin.error( 'Recent searches list is broken (error {}) - cleaning up', err )
 			self.recents = []
 		return self
 
 	def populate( self ):
 		for entry in self.recents:
-			# pylint: disable=C0330
 			self.plugin.addFolderItem(
 				entry['search'],
 				{
@@ -95,7 +94,7 @@ class RecentSearches( object ):
 				},
 				[
 					(
-						self.plugin.language( 30989 ),
+						self.plugin.language( 30932 ),
 						'RunPlugin({})'.format(
 							self.plugin.build_url( {
 								'mode': "delsearch",

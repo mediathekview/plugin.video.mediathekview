@@ -84,7 +84,7 @@ class MediathekView( KodiPlugin ):
 		self._check_outdate()
 
 	def show_searches( self, extendedsearch = False ):
-		self.addFolderItem( 30988, { 'mode': "newsearch", 'extendedsearch': extendedsearch } )
+		self.addFolderItem( 30931, { 'mode': "newsearch", 'extendedsearch': extendedsearch } )
 		RecentSearches( self, extendedsearch ).load().populate()
 		self.endOfDirectory()
 
@@ -256,6 +256,10 @@ class MediathekView( KodiPlugin ):
 			filmid	= self.get_arg( 'id', 0 )
 			quality	= self.get_arg( 'quality', 1 )
 			Downloader( self ).download_episode( filmid, quality )
+		elif mode == 'playwithsrt':
+			filmid		= self.get_arg( 'id', 0 )
+			external	= self.get_arg( 'external', 'False' ) == 'True'
+			Downloader( self ).play_movie_with_subs( filmid, external )
 #		elif mode == 'enqueue':
 #			self.enqueue_film( self.get_arg( 'id', 0 ) )
 
