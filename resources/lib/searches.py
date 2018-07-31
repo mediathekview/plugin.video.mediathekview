@@ -95,7 +95,7 @@ class RecentSearches( object ):
 				},
 				[
 					(
-						self.plugin.language( 30989 ),
+						self.plugin.language( 30932 ),
 						'RunPlugin({})'.format(
 							self.plugin.build_url( {
 								'mode': "delsearch",

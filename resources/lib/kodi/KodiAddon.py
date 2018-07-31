@@ -73,6 +73,9 @@ class KodiPlugin( KodiAddon ):
 	def runBuiltin( builtin ):
 		xbmc.executebuiltin( builtin )
 
+	def setResolvedUrl( self, succeeded, listitem ):
+		xbmcplugin.setResolvedUrl( self.addon_handle, succeeded, listitem )
+
 	def addActionItem( self, name, params, contextmenu = None ):
 		self.addDirectoryItem( name, params, False, contextmenu )
 

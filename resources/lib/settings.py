@@ -18,6 +18,7 @@ class Settings( object ):
 		self.firstrun		= addon.getSetting( 'firstrun' ) == 'true'
 		# general
 		self.preferhd		= addon.getSetting( 'quality' ) == 'true'
+		self.autosub		= addon.getSetting( 'autosub' ) == 'true'
 		self.nofuture		= addon.getSetting( 'nofuture' ) == 'true'
 		self.minlength		= int( float( addon.getSetting( 'minlength' ) ) ) * 60
 		self.groupshows		= addon.getSetting( 'groupshows' ) == 'true'

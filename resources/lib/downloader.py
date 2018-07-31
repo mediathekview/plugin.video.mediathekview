@@ -17,11 +17,13 @@ import re
 
 from contextlib import closing
 
+import xbmc
 import xbmcvfs
 
 import resources.lib.mvutils as mvutils
 
 from resources.lib.kodi.KodiUI import KodiBGDialog
+from resources.lib.filmui import FilmUI
 from resources.lib.ttml2srt import ttml2srt
 
 # -- Classes ------------------------------------------------
@@ -31,6 +33,45 @@ class Downloader( object ):
 		self.database	= plugin.database
 		self.settings	= plugin.settings
 		self.notifier	= plugin.notifier
+
+	def play_movie_with_subs( self, filmid, external ):
+		film = self.database.RetrieveFilmInfo( filmid )
+		if film is None:
+			self.notifier.ShowError( 30990, self.plugin.language( 30991 ) )
+			return
+		ttmname = self.plugin.datapath + '/subtitle.ttml'
+		srtname = self.plugin.datapath + '/subtitle.srt'
+		subs = []
+		if self.download_subtitle( film, ttmname, srtname, 'subtitle' ):
+			subs.append( srtname )
+		( videourl, listitem ) = FilmUI( self.plugin ).get_list_item( None, film )
+		if listitem:
+			if subs:
+				listitem.setSubtitles( subs )
+			if external:
+				xbmc.Player().play( videourl, listitem )
+			else:
+				self.plugin.setResolvedUrl( True, listitem )
+
+	def download_subtitle( self, film, ttmname, srtname, filename ):
+		ret = False
+		if film.url_sub:
+			bgd = KodiBGDialog()
+			bgd.Create( 30978, filename + u'.ttml' )
+			# pylint: disable=broad-except
+			try:
+				bgd.Update( 0 )
+				mvutils.url_retrieve_vfs( film.url_sub, ttmname, bgd.UrlRetrieveHook )
+				try:
+					ttml2srt( xbmcvfs.File( ttmname, 'r' ), xbmcvfs.File( srtname, 'w' ) )
+					ret = True
+				except Exception as err:
+					self.plugin.info( 'Failed to convert to srt: {}', err )
+				bgd.Close()
+			except Exception as err:
+				bgd.Close()
+				self.plugin.error( 'Failure downloading {}: {}', film.url_sub, err )
+		return ret
 
 	def download_movie( self, filmid, quality ):
 		if not self.test_download_path( self.settings.downloadpathmv ):

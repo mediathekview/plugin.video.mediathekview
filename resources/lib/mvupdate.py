@@ -23,6 +23,7 @@ class Settings( object ):
 			self.user			= args.user
 			self.password		= args.password
 			self.database		= args.database
+		self.autosub		= False
 		self.nofuture		= True
 		self.minlength		= 0
 		self.maxage			= 86400
