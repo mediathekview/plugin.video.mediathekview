@@ -70,7 +70,7 @@ class KodiPlugin( KodiAddon ):
 		xbmc.executebuiltin( 'RunPlugin({})'.format( self.build_url( params ) ) )
 
 	@staticmethod
-	def runBuiltin( self, builtin ):
+	def runBuiltin( builtin ):
 		xbmc.executebuiltin( builtin )
 
 	def addActionItem( self, name, params, contextmenu = None ):
