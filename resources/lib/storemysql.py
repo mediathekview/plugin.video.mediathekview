@@ -243,7 +243,7 @@ class StoreMySQL( object ):
 				self.sql_query_films +
 				' WHERE ' +
 				condition +
-				sql_cond_limit + 
+				sql_cond_limit +
 				( ' LIMIT {}'.format( maxresults + 1 ) if maxresults else '' ),
 				params
 			)

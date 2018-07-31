@@ -69,7 +69,7 @@ class KodiPlugin( KodiAddon ):
 	def runPlugin( self, params ):
 		xbmc.executebuiltin( 'RunPlugin({})'.format( self.build_url( params ) ) )
 
-
+	@staticmethod
 	def runBuiltin( self, builtin ):
 		xbmc.executebuiltin( builtin )
 
