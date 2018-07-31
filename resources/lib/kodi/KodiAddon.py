@@ -6,6 +6,7 @@
 import os
 import sys
 import urllib
+import urlparse
 
 import xbmc
 import xbmcgui
@@ -44,8 +45,23 @@ class KodiService( KodiAddon ):
 class KodiPlugin( KodiAddon ):
 	def __init__( self ):
 		KodiAddon.__init__( self )
+		self.args			= urlparse.parse_qs( sys.argv[2][1:] )
 		self.base_url		= sys.argv[0]
 		self.addon_handle	= int( sys.argv[1] )
+
+	def get_arg( self, argname, default ):
+		try:
+			return self.args[argname][0]
+		except TypeError:
+			return default
+		except KeyError:
+			return default
+
+	def get_args( self, argname, default ):
+		try:
+			return self.args[argname]
+		except KeyError:
+			return default
 
 	def build_url( self, query ):
 		return self.base_url + '?' + urllib.urlencode( query )

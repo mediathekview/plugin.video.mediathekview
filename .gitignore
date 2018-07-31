@@ -5,3 +5,4 @@
 *.db
 /Filmliste-*
 /.vscode
+/venv
