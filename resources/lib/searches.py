@@ -97,11 +97,11 @@ class RecentSearches( object ):
 					(
 						self.plugin.language( 30989 ),
 						'RunPlugin({})'.format(
-							{
+							self.plugin.build_url( {
 								'mode': "delsearch",
 								'search': entry['search'].encode('utf-8'),
 								'extendedsearch': self.extendedsearch
-							}
+							} )
 						)
 					)
 				]
