@@ -35,11 +35,11 @@ class StoreSQLite( object ):
 			os.mkdir( self.settings.datapath )
 
 		# remove old versions
-		self._file_remove( os.path.join( self.settings.datapath, 'filmliste-v1.db' ) )
+		mvutils.file_remove( os.path.join( self.settings.datapath, 'filmliste-v1.db' ) )
 
 		if reset == True or not mvutils.file_exists( self.dbfile ):
 			self.logger.info( '===== RESET: Database will be deleted and regenerated =====' )
-			self._file_remove( self.dbfile )
+			mvutils.file_remove( self.dbfile )
 			self.conn = sqlite3.connect( self.dbfile, timeout = 60 )
 			self._handle_database_initialization()
 		else:
@@ -793,15 +793,6 @@ CREATE INDEX "combined_2" ON show ("channelid", "show");
 PRAGMA foreign_keys = true;
 		""" )
 		self.UpdateStatus( 'IDLE' )
-
-	def _file_remove( self, name ):
-		if mvutils.file_exists( name ):
-			try:
-				os.remove( name )
-				return True
-			except OSError as err:
-				self.logger.error( 'Failed to remove {}: error {}', name, err )
-		return False
 
 class GROUP_CONCAT:
 

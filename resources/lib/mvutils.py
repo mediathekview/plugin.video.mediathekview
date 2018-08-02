@@ -51,6 +51,15 @@ def file_size( name ):
 	except OSError:
 		return 0
 
+def file_remove( name ):
+	if file_exists( name ):
+		try:
+			os.remove( name )
+			return True
+		except OSError:
+			pass
+	return False
+
 def find_xz():
 	for xzbin in [ '/bin/xz', '/usr/bin/xz', '/usr/local/bin/xz' ]:
 		if file_exists( xzbin ):

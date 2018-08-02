@@ -139,6 +139,7 @@ class MediathekViewUpdater( object ):
 			if self.GetNewestList( full ):
 				if self.Import( full ):
 					self.cycle += 1
+			self.DeleteList( full )
 
 	def Import( self, full ):
 		( _, _, destfile, avgrecsize ) = self._get_update_info( full )
@@ -249,8 +250,8 @@ class MediathekViewUpdater( object ):
 
 		# cleanup downloads
 		self.logger.info( 'Cleaning up old downloads...' )
-		self._file_remove( compfile )
-		self._file_remove( destfile )
+		mvutils.file_remove( compfile )
+		mvutils.file_remove( destfile )
 
 		# download filmliste
 		self.notifier.ShowDownloadProgress()
@@ -298,6 +299,12 @@ class MediathekViewUpdater( object ):
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and mvutils.file_exists( destfile )
 
+	def DeleteList( self, full ):
+		( _, compfile, destfile, _ ) = self._get_update_info( full )
+		self.logger.info( 'Cleaning up downloads...' )
+		mvutils.file_remove( compfile )
+		mvutils.file_remove( destfile )
+
 	def _get_update_info( self, full ):
 		if self.use_xz is True:
 			ext = 'xz'
@@ -333,15 +340,6 @@ class MediathekViewUpdater( object ):
 		else:
 			# should never happen since it will not be called
 			return None
-
-	def _file_remove( self, name ):
-		if mvutils.file_exists( name ):
-			try:
-				os.remove( name )
-				return True
-			except OSError as err:
-				self.logger.error( 'Failed to remove {}: error {}', name, err )
-		return False
 
 	def _update_start( self, full ):
 		self.logger.info( 'Initializing update...' )
