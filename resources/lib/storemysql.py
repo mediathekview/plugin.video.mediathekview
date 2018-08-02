@@ -720,7 +720,7 @@ CREATE TABLE `channel` (
 	`channel`		varchar(64)		NOT NULL,
 	PRIMARY KEY						(`id`),
 	KEY				`channel`		(`channel`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
 				"""
 			)
 			self.conn.commit()
@@ -751,7 +751,7 @@ CREATE TABLE `film` (
 	KEY				`dupecheck`		(`idhash`),
 	CONSTRAINT `FK_FilmChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
 	CONSTRAINT `FK_FilmShow` FOREIGN KEY (`showid`) REFERENCES `show` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
 			""" )
 			self.conn.commit()
 
@@ -769,7 +769,7 @@ CREATE TABLE `show` (
 	KEY				`combined_1`	(`channelid`,`search`),
 	KEY				`combined_2`	(`channelid`,`show`),
 	CONSTRAINT `FK_ShowChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
 			""" )
 			self.conn.commit()
 
@@ -788,12 +788,13 @@ CREATE TABLE `status` (
 	`del_mov`		int(11)			NOT NULL,
 	`tot_chn`		int(11)			NOT NULL,
 	`tot_shw`		int(11)			NOT NULL,
-	`tot_mov`		int(11)			NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+	`tot_mov`		int(11)			NOT NULL,
+	`version`		int(11)			NOT NULL DEFAULT 2
+) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
 			""" )
 			self.conn.commit()
 
-			cursor.execute( 'INSERT INTO `status` VALUES (0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0);' )
+			cursor.execute( 'INSERT INTO `status` VALUES (0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0,2);' )
 			self.conn.commit()
 
 			cursor.execute( 'SET FOREIGN_KEY_CHECKS=1' )
