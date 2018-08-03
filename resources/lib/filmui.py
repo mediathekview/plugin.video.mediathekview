@@ -43,7 +43,7 @@ class FilmUI( Film ):
 
 		# create context menu
 		contextmenu = []
-		if self.size > 0:
+		if self.url_video or self.url_video_sd or self.url_video_hd:
 			# play with subtitles
 			if not self.settings.autosub and self.url_sub:
 				contextmenu.append( (

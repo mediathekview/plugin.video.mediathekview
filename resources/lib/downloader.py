@@ -240,7 +240,7 @@ class Downloader( object ):
 					nfofile.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
 					aired = self.matches( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', film.aired )
 					if aired is not None:
-						file.write( bytearray( '\t<aired>{}</aired>\n'.format( aired ), 'utf-8' ) )
+						nfofile.write( bytearray( '\t<aired>{}</aired>\n'.format( aired ), 'utf-8' ) )
 					year = self.matches( '([12][0-9][0-9][0-9])', film.aired )
 					if year is not None:
 						nfofile.write( bytearray( '\t<year>{}</year>\n'.format( year ), 'utf-8' ) )
@@ -290,7 +290,7 @@ class Downloader( object ):
 					if self.settings.makenfo == 2 and season is not None and episode is not None:
 						nfofile.write( bytearray( '\t<season>{}</season>\n'.format( season ), 'utf-8' ) )
 						nfofile.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
-					if self.settings.makenfo == 2 and episode is not None:
+					elif self.settings.makenfo == 2 and episode is not None:
 						nfofile.write( bytearray( '\t<season>1</season>\n', 'utf-8' ) )
 						nfofile.write( bytearray( '\t<episode>{}</episode>\n'.format( episode ), 'utf-8' ) )
 					elif self.settings.makenfo == 2:
@@ -343,10 +343,17 @@ class Downloader( object ):
 		else:
 			return ( None, None, '', )
 
+#	@staticmethod
+#	def get_year( dtinfo ):
+#		if isinstance( dtinfo, datetime.datetime ):
+#			return str( dtinfo.year )
+#		else:
+#			return Downloader.matches( '([12][0-9][0-9][0-9])', dtinfo )
+
 	@staticmethod
 	def matches( regex, test ):
 		if test is not None:
-			match = re.search( regex, test, flags = re.IGNORECASE )
+			match = re.search( regex, str( test ), flags = re.IGNORECASE )
 			if match and match.groups():
 				return match.group(1)
 		return None
