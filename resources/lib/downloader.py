@@ -99,7 +99,7 @@ class Downloader( object ):
 			if len( namestem ) < 1 or confirmed is False:
 				return
 		# build year postfix
-		year = self.matches( '([12][0-9][0-9][0-9])', film.aired )
+		year = self.matches( '([12][0-9][0-9][0-9])', str( film.aired ) )
 		if year is not None:
 			postfix = ' (%s)' % year
 		else:
@@ -238,10 +238,10 @@ class Downloader( object ):
 					nfofile.write( bytearray( '\t<title>{}</title>\n'.format( film.title ), 'utf-8' ) )
 					nfofile.write( bytearray( '\t<plot>{}</plot>\n'.format( film.description ), 'utf-8' ) )
 					nfofile.write( bytearray( '\t<studio>{}</studio>\n'.format( film.channel ), 'utf-8' ) )
-					aired = self.matches( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', film.aired )
+					aired = self.matches( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', str( film.aired ) )
 					if aired is not None:
 						nfofile.write( bytearray( '\t<aired>{}</aired>\n'.format( aired ), 'utf-8' ) )
-					year = self.matches( '([12][0-9][0-9][0-9])', film.aired )
+					year = self.matches( '([12][0-9][0-9][0-9])', str( film.aired ) )
 					if year is not None:
 						nfofile.write( bytearray( '\t<year>{}</year>\n'.format( year ), 'utf-8' ) )
 					if film.seconds > 60:
@@ -263,8 +263,8 @@ class Downloader( object ):
 		# See: https://kodi.wiki/view/NFO_files/TV_shows
 		# pylint: disable=broad-except
 		if self.settings.makenfo > 0:
-			aired = self.matches( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', film.aired )
-			year = self.matches( '([12][0-9][0-9][0-9])', film.aired )
+			aired = self.matches( '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', str( film.aired ) )
+			year = self.matches( '([12][0-9][0-9][0-9])', str( film.aired ) )
 			if not xbmcvfs.exists( pathname + 'tvshow.nfo' ):
 				try:
 					# bug of pylint 1.7.1 - See https://github.com/PyCQA/pylint/issues/1444
@@ -319,6 +319,8 @@ class Downloader( object ):
 
 	def season_and_episode_detect( self, film ):
 		# initial trivial implementation
+		self.plugin.error( 'film.show is type {}', type( film.show ) )
+		self.plugin.error( 'film.title is type {}', type( film.title ) )
 		season = self.matches( r'staffel[\.:\- ]+([0-9]+)', film.title )
 		if season is None:
 			season = self.matches( r'([0-9]+)[\.:\- ]+staffel', film.title )
@@ -353,7 +355,7 @@ class Downloader( object ):
 	@staticmethod
 	def matches( regex, test ):
 		if test is not None:
-			match = re.search( regex, str( test ), flags = re.IGNORECASE )
+			match = re.search( regex, test, flags = re.IGNORECASE )
 			if match and match.groups():
 				return match.group(1)
 		return None
