@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Leo Moll
-#
+"""
+The MySQL database support module
+
+Copyright 2017-20180 Leo Moll and Dominik Schlösser
+"""
+# pylint: disable=import-error
+# pylint: disable=mixed-indentation, bad-whitespace, bad-continuation, missing-docstring
 
 # -- Imports ------------------------------------------------
 import time
@@ -12,13 +17,20 @@ from resources.lib.film import Film
 
 # -- Classes ------------------------------------------------
 class StoreMySQL( object ):
+	"""The MySQL database support class"""
 
 	def __init__( self, logger, notifier, settings ):
 		self.conn		= None
 		self.logger		= logger
 		self.notifier	= notifier
 		self.settings	= settings
+		# updater state variables
+		self.ft_channel = None
+		self.ft_channelid = None
+		self.ft_show = None
+		self.ft_showid = None
 		# useful query fragments
+		# pylint: disable=line-too-long
 		self.sql_query_films	= "SELECT film.id,`title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_sub`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
 		self.sql_query_filmcnt	= "SELECT COUNT(*) FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
 		self.sql_cond_recent	= "( TIMESTAMPDIFF(SECOND,{},CURRENT_TIMESTAMP()) <= {} )".format( "aired" if settings.recentmode == 0 else "film.dtCreated", settings.maxage )
@@ -39,6 +51,7 @@ class StoreMySQL( object ):
 				cursor.execute( 'SELECT VERSION()' )
 				( version, ) = cursor.fetchone()
 				self.logger.info( 'Connected to server {} running {}', self.settings.host, version )
+			# pylint: disable=broad-except
 			except Exception:
 				self.logger.info( 'Connected to server {}', self.settings.host )
 			self.conn.database = self.settings.database
@@ -47,7 +60,7 @@ class StoreMySQL( object ):
 				self.logger.info( '=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database )
 				return self._handle_database_initialization()
 			self.conn = None
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 			return False
 
@@ -57,6 +70,7 @@ class StoreMySQL( object ):
 	def Exit( self ):
 		if self.conn is not None:
 			self.conn.close()
+			self.conn = None
 
 	def Search( self, search, filmui, extendedsearch ):
 		searchmask = '%' + search.decode('utf-8') + '%'
@@ -113,7 +127,7 @@ class StoreMySQL( object ):
 			initialui.End()
 			cursor.close()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 
 	def GetShows( self, channelid, initial, showui ):
@@ -177,7 +191,7 @@ class StoreMySQL( object ):
 			showui.End()
 			cursor.close()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 
 	def GetFilms( self, showid, filmui ):
@@ -210,7 +224,7 @@ class StoreMySQL( object ):
 			channelui.End()
 			cursor.close()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 
 	def _Search_Condition( self, condition, params, filmui, showshows, showchannels, maxresults, limiting = True ):
@@ -254,7 +268,7 @@ class StoreMySQL( object ):
 			cursor.close()
 			return results
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 			return 0
 
@@ -280,11 +294,11 @@ class StoreMySQL( object ):
 				return film
 			cursor.close()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 		return None
 
-	def GetStatus( self ):
+	def GetStatus( self, reconnect = True ):
 		status = {
 			'modified': int( time.time() ),
 			'status': '',
@@ -329,7 +343,13 @@ class StoreMySQL( object ):
 			status['tot_mov']		= r[0][13]
 			return status
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			if err.errno == -1:
+				# connection lost. Retry:
+				self.logger.warn( 'Database connection lost. Trying to reconnect...' )
+				if self.reinit():
+					self.logger.info( 'Reconnection successful' )
+					return self.GetStatus( False )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 			status['status'] = "UNINIT"
 			return status
@@ -461,12 +481,16 @@ class StoreMySQL( object ):
 			cursor.close()
 			self.conn.commit()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 
 	@staticmethod
 	def SupportsUpdate():
 		return True
+
+	def reinit( self ):
+		self.Exit()
+		return self.Init( False, False )
 
 	def ftInit( self ):
 		# prevent concurrent updating
@@ -507,7 +531,7 @@ class StoreMySQL( object ):
 			cursor.close()
 			self.conn.commit()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, 0, )
 
@@ -525,7 +549,7 @@ class StoreMySQL( object ):
 			cursor.close()
 			self.conn.commit()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, 0, 0, 0, 0, )
 
@@ -585,7 +609,7 @@ class StoreMySQL( object ):
 				if commit:
 					self.conn.commit()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, 0, 0, )
 
@@ -602,7 +626,7 @@ class StoreMySQL( object ):
 			cursor.close()
 			self.conn.commit()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, )
 
@@ -619,7 +643,7 @@ class StoreMySQL( object ):
 			cursor.close()
 			self.conn.commit()
 		except mysql.connector.Error as err:
-			self.logger.error( 'Database error: {}', err )
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 		return ( 0, 0, )
 
@@ -634,8 +658,8 @@ class StoreMySQL( object ):
 			return version
 		except mysql.connector.errors.ProgrammingError:
 			return 1
-		except sqlite3.Error as err:
-			self.logger.error( 'Database error: {}', err )
+		except mysql.connector.Error as err:
+			self.logger.error( 'Database error: {}, {}', err.errno, err )
 			self.notifier.ShowDatabaseError( err )
 			return 0
 
