@@ -51,11 +51,11 @@ class MediathekViewUpdater( object ):
 		self.cycle		= 0
 		self.use_xz     = mvutils.find_xz() is not None
 
-	def Init( self ):
+	def Init( self, convert = False ):
 		if self.db is not None:
 			self.Exit()
 		self.db = Store( self.logger, self.notifier, self.settings )
-		self.db.Init()
+		self.db.Init( convert = convert )
 
 	def Exit( self ):
 		if self.db is not None:
@@ -70,7 +70,7 @@ class MediathekViewUpdater( object ):
 	def IsEnabled( self ):
 		return self.settings.updenabled
 
-	def GetCurrentUpdateOperation( self ):
+	def GetCurrentUpdateOperation( self, force = False ):
 		if self.db is None:
 			# db not available - no update
 			self.logger.info( 'Update disabled since database not available' )
@@ -80,19 +80,9 @@ class MediathekViewUpdater( object ):
 			# update disabled - no update
 			return 0
 
-		elif self.settings.updmode == 1:
-			# manual update
+		elif self.settings.updmode == 1 or self.settings.updmode == 2:
+			# manual update or update on first start
 			if self.settings.IsUpdateTriggered() is True:
-				return self._getNextUpdateOperation( True )
-			else:
-				# no update on all subsequent calls
-				return 0
-
-		elif self.settings.updmode == 2:
-			# update on start or manual
-			if self.cycle == 0:
-				return self._getNextUpdateOperation()
-			elif self.settings.IsUpdateTriggered() is True:
 				return self._getNextUpdateOperation( True )
 			else:
 				# no update on all subsequent calls
@@ -101,7 +91,7 @@ class MediathekViewUpdater( object ):
 		elif self.settings.updmode == 3:
 			# automatic update
 			if self.settings.IsUserAlive():
-				return self._getNextUpdateOperation()
+				return self._getNextUpdateOperation( force )
 			else:
 				# no update of user is idle for more than 2 hours
 				return 0
@@ -149,6 +139,7 @@ class MediathekViewUpdater( object ):
 			if self.GetNewestList( full ):
 				if self.Import( full ):
 					self.cycle += 1
+			self.DeleteList( full )
 
 	def Import( self, full ):
 		( _, _, destfile, avgrecsize ) = self._get_update_info( full )
@@ -259,8 +250,8 @@ class MediathekViewUpdater( object ):
 
 		# cleanup downloads
 		self.logger.info( 'Cleaning up old downloads...' )
-		self._file_remove( compfile )
-		self._file_remove( destfile )
+		mvutils.file_remove( compfile )
+		mvutils.file_remove( destfile )
 
 		# download filmliste
 		self.notifier.ShowDownloadProgress()
@@ -308,6 +299,12 @@ class MediathekViewUpdater( object ):
 		self.notifier.CloseDownloadProgress()
 		return retval == 0 and mvutils.file_exists( destfile )
 
+	def DeleteList( self, full ):
+		( _, compfile, destfile, _ ) = self._get_update_info( full )
+		self.logger.info( 'Cleaning up downloads...' )
+		mvutils.file_remove( compfile )
+		mvutils.file_remove( destfile )
+
 	def _get_update_info( self, full ):
 		if self.use_xz is True:
 			ext = 'xz'
@@ -343,15 +340,6 @@ class MediathekViewUpdater( object ):
 		else:
 			# should never happen since it will not be called
 			return None
-
-	def _file_remove( self, name ):
-		if mvutils.file_exists( name ):
-			try:
-				os.remove( name )
-				return True
-			except OSError as err:
-				self.logger.error( 'Failed to remove {}: error {}', name, err )
-		return False
 
 	def _update_start( self, full ):
 		self.logger.info( 'Initializing update...' )

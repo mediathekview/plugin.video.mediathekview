@@ -53,7 +53,7 @@ class MediathekViewService( KodiService ):
 	def Init( self ):
 		self.info( 'Init (instance id: {})', self.monitor.instance_id )
 		self.monitor.RegisterInstance()
-		self.updater.Init()
+		self.updater.Init( convert = True )
 		self.settings.ResetUserActivity()
 
 	def Run( self ):
@@ -68,10 +68,12 @@ class MediathekViewService( KodiService ):
 			if updateop == 1:
 				# full update
 				self.info( 'Initiating full update...' )
+				self.settings.SaveUpdateInstance( self.monitor.instance_id )
 				self.updater.Update( True )
 			elif updateop == 2:
 				# differential update
 				self.info( 'Initiating differential update...' )
+				self.settings.SaveUpdateInstance( self.monitor.instance_id )
 				self.updater.Update( False )
 			# Sleep/wait for abort for 60 seconds
 			if self.monitor.waitForAbort( 15 ):
