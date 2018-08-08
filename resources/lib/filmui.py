@@ -52,7 +52,7 @@ class FilmUI( Film ):
 						self.plugin.build_url( {
 							'mode': "playwithsrt",
 							'id': self.id,
-							'external': True
+							'only_set_resolved_url': False
 						} )
 					)
 				) )
@@ -110,7 +110,7 @@ class FilmUI( Film ):
 			videourl = self.plugin.build_url( {
 				'mode': "playwithsrt",
 				'id': self.id,
-				'external': False
+				'only_set_resolved_url': True
 			} )
 
 		if totalItems is not None:

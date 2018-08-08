@@ -34,13 +34,13 @@ class Downloader( object ):
 		self.settings	= plugin.settings
 		self.notifier	= plugin.notifier
 
-	def play_movie_with_subs( self, filmid, external ):
+	def play_movie_with_subs( self, filmid, only_set_resolved_url ):
 		film = self.database.RetrieveFilmInfo( filmid )
 		if film is None:
 			self.notifier.ShowError( 30990, self.plugin.language( 30991 ) )
 			return
-		ttmname = self.plugin.datapath + '/subtitle.ttml'
-		srtname = self.plugin.datapath + '/subtitle.srt'
+		ttmname = os.path.join( self.plugin.datapath, 'subtitle.ttml' )
+		srtname = os.path.join( self.plugin.datapath, 'subtitle.srt' )
 		subs = []
 		if self.download_subtitle( film, ttmname, srtname, 'subtitle' ):
 			subs.append( srtname )
@@ -48,10 +48,10 @@ class Downloader( object ):
 		if listitem:
 			if subs:
 				listitem.setSubtitles( subs )
-			if external:
-				xbmc.Player().play( videourl, listitem )
-			else:
+			if only_set_resolved_url:
 				self.plugin.setResolvedUrl( True, listitem )
+			else:
+				xbmc.Player().play( videourl, listitem )
 
 	def download_subtitle( self, film, ttmname, srtname, filename ):
 		ret = False
