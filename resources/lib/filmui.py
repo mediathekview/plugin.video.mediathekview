@@ -9,6 +9,8 @@ Copyright 2017-20180 Leo Moll and Dominik Schlösser
 # pylint: disable=mixed-indentation, bad-whitespace, bad-continuation, missing-docstring
 
 # -- Imports ------------------------------------------------
+import os
+
 import xbmcgui
 import xbmcplugin
 
@@ -52,7 +54,7 @@ class FilmUI( Film ):
 						self.plugin.build_url( {
 							'mode': "playwithsrt",
 							'id': self.id,
-							'external': True
+							'only_set_resolved_url': False
 						} )
 					)
 				) )
@@ -110,7 +112,7 @@ class FilmUI( Film ):
 			videourl = self.plugin.build_url( {
 				'mode': "playwithsrt",
 				'id': self.id,
-				'external': False
+				'only_set_resolved_url': True
 			} )
 
 		if totalItems is not None:
@@ -172,7 +174,7 @@ class FilmUI( Film ):
 				info_labels['aired']		= airedstring
 				info_labels['dateadded']	= airedstring
 
-		icon = 'special://home/addons/' + self.plugin.addon_id + '/resources/icons/' + film.channel.lower() + '-m.png'
+		icon = os.path.join( self.plugin.addon.getAddonInfo( 'path' ), 'resources', 'icons', film.channel.lower() + '-m.png' )
 
 		listitem = xbmcgui.ListItem( resultingtitle, path = videourl )
 		listitem.setInfo( type = 'video', infoLabels = info_labels )

@@ -36,7 +36,7 @@ msgstr "Preferisci alta definizione"
 
 msgctxt "#30111"
 msgid "Autoplay Subtitles"
-msgstr "Mostra Sottotitoli"
+msgstr "Riproduci sempre con sottotitoli"
 
 msgctxt "#30112"
 msgid "No future videos (usually trailers)"
