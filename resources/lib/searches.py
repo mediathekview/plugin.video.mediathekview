@@ -134,5 +134,11 @@ class RecentSearches(object):
                             })
                         )
                     )
-                ]
+                ],
+                icon=os.path.join(
+                    self.plugin.path,
+                    'resources',
+                    'icons',
+                    'results-m.png'
+                )
             )

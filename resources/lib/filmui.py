@@ -215,8 +215,12 @@ class FilmUI(Film):
                 info_labels['aired'] = airedstring
                 info_labels['dateadded'] = airedstring
 
-        icon = os.path.join(self.plugin.addon.getAddonInfo(
-            'path'), 'resources', 'icons', film.channel.lower() + '-m.png')
+        icon = os.path.join(
+            self.plugin.path,
+            'resources',
+            'icons',
+            film.channel.lower() + '-m.png'
+        )
 
         listitem = xbmcgui.ListItem(resultingtitle, path=videourl)
         listitem.setInfo(type='video', infoLabels=info_labels)

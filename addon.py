@@ -30,6 +30,7 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # from future import standard_library
 # from builtins import *
 # standard_library.install_aliases()
+import os
 import time
 import datetime
 
@@ -69,21 +70,52 @@ class MediathekView(KodiPlugin):
         """ Creates the main menu of the plugin """
         # Search
         self.add_folder_item(
-            30901, {'mode': "search", 'extendedsearch': False})
+            30901,
+            {'mode': "search", 'extendedsearch': False},
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+        )
         # Search all
-        self.add_folder_item(30902, {'mode': "search", 'extendedsearch': True})
+        self.add_folder_item(
+            30902,
+            {'mode': "search", 'extendedsearch': True},
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+        )
         # Browse livestreams
-        self.add_folder_item(30903, {'mode': "livestreams"})
+        self.add_folder_item(
+            30903,
+            {'mode': "livestreams"},
+            icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png')
+        )
         # Browse recently added
-        self.add_folder_item(30904, {'mode': "recent", 'channel': 0})
+        self.add_folder_item(
+            30904,
+            {'mode': "recent", 'channel': 0},
+            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
+        )
         # Browse recently added by channel
-        self.add_folder_item(30905, {'mode': "recentchannels"})
+        self.add_folder_item(
+            30905,
+            {'mode': "recentchannels"},
+            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
+        )
         # Browse by Initial->Show
-        self.add_folder_item(30906, {'mode': "initial", 'channel': 0})
+        self.add_folder_item(
+            30906,
+            {'mode': "initial", 'channel': 0},
+            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
+        )
         # Browse by Channel->Initial->Shows
-        self.add_folder_item(30907, {'mode': "channels"})
+        self.add_folder_item(
+            30907,
+            {'mode': "channels"},
+            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
+        )
         # Database Information
-        self.add_action_item(30908, {'mode': "action-dbinfo"})
+        self.add_action_item(
+            30908,
+            {'mode': "action-dbinfo"},
+            icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png')
+        )
         # Manual database update
         if self.settings.updmode == 1 or self.settings.updmode == 2:
             self.add_action_item(30909, {'mode': "action-dbupdate"})
@@ -101,7 +133,10 @@ class MediathekView(KodiPlugin):
                 Default is `False`
         """
         self.add_folder_item(
-            30931, {'mode': "newsearch", 'extendedsearch': extendedsearch})
+            30931,
+            {'mode': "newsearch", 'extendedsearch': extendedsearch},
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+        )
         RecentSearches(self, extendedsearch).load().populate()
         self.end_of_directory()
 

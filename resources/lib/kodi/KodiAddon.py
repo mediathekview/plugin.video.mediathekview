@@ -34,6 +34,15 @@ class KodiAddon(KodiLogger):
         self.language = self.addon.getLocalizedString
         KodiLogger.__init__(self, self.addon_id, self.version)
 
+    def get_addon_info(self, info_id):
+        """
+        Returns the value of an addon property as a string.
+
+        Args:
+            info_id(str): id of the property that the module needs to access.
+        """
+        return self.addon.getAddonInfo(info_id)
+
     def get_setting(self, setting_id):
         """
         Read a setting value
@@ -157,7 +166,7 @@ class KodiPlugin(KodiAddon):
         """
         xbmcplugin.setResolvedUrl(self.addon_handle, succeeded, listitem)
 
-    def add_action_item(self, name, params, contextmenu=None):
+    def add_action_item(self, name, params, contextmenu=None, icon=None, thumb=None):
         """
         Adds an item to the directory that triggers a plugin action
 
@@ -169,10 +178,14 @@ class KodiPlugin(KodiAddon):
 
             contextmenu(array, optional): optional array of context
                 menu items
-        """
-        self.add_directory_item(name, params, False, contextmenu)
 
-    def add_folder_item(self, name, params, contextmenu=None):
+            icon(str, optional): path to an optional icon
+
+            thumb(str, optional): path to an optional thumbnail
+        """
+        self.add_directory_item(name, params, False, contextmenu, icon, thumb)
+
+    def add_folder_item(self, name, params, contextmenu=None, icon=None, thumb=None):
         """
         Adds an item to the directory that opens a subdirectory
 
@@ -184,10 +197,14 @@ class KodiPlugin(KodiAddon):
 
             contextmenu(array, optional): optional array of context
                 menu items
-        """
-        self.add_directory_item(name, params, True, contextmenu)
 
-    def add_directory_item(self, name, params, isfolder, contextmenu=None):
+            icon(str, optional): path to an optional icon
+
+            thumb(str, optional): path to an optional thumbnail
+        """
+        self.add_directory_item(name, params, True, contextmenu, icon, thumb)
+
+    def add_directory_item(self, name, params, isfolder, contextmenu=None, icon=None, thumb=None):
         """
         Adds an item to the directory
 
@@ -202,12 +219,25 @@ class KodiPlugin(KodiAddon):
 
             contextmenu(array, optional): optional array of context
                 menu items
+
+            icon(str, optional): path to an optional icon
+
+            thumb(str, optional): path to an optional thumbnail
         """
         if isinstance(name, int):
             name = self.language(name)
         list_item = xbmcgui.ListItem(name)
         if contextmenu is not None:
             list_item.addContextMenuItems(contextmenu)
+        if icon is not None or thumb is not None:
+            if icon is None:
+                icon = thumb
+            if thumb is None:
+                thumb = icon
+            list_item.setArt({
+                'thumb': icon,
+                'icon': icon
+            })
         xbmcplugin.addDirectoryItem(
             handle=self.addon_handle,
             url=self.build_url(params),
