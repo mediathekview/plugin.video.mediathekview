@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Leo Moll and Dominik Schlösser
-#
+"""
+The show model module
 
-# -- Imports ------------------------------------------------
+Copyright 2017-2018, Leo Moll and Dominik Schlösser
+Licensed under MIT License
+"""
 
-# -- Classes ------------------------------------------------
-class Show( object ):
-	def __init__( self ):
-		self.id			= 0
-		self.channelid	= 0
-		self.show		= ''
-		self.channel	= ''
+
+class Show(object):
+    """ The show model class """
+
+    def __init__(self):
+        self.showid = 0
+        self.channelid = 0
+        self.show = ''
+        self.channel = ''
