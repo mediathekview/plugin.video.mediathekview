@@ -20,7 +20,7 @@ import xbmcvfs
 
 import resources.lib.mvutils as mvutils
 
-from resources.lib.kodi.KodiUI import KodiBGDialog
+from resources.lib.kodi.kodiui import KodiProgressDialog
 from resources.lib.filmui import FilmUI
 from resources.lib.ttml2srt import ttml2srt
 
@@ -57,7 +57,7 @@ class Downloader(object):
         """
         film = self.database.retrieve_film_info(filmid)
         if film is None:
-            self.notifier.ShowError(30990, self.plugin.language(30991))
+            self.notifier.show_error(30990, self.plugin.language(30991))
             return
         ttmname = os.path.join(self.plugin.datapath, 'subtitle.ttml')
         srtname = os.path.join(self.plugin.datapath, 'subtitle.srt')
@@ -92,22 +92,22 @@ class Downloader(object):
         """
         ret = False
         if film.url_sub:
-            bgd = KodiBGDialog()
-            bgd.Create(30978, filename + u'.ttml')
+            progress = KodiProgressDialog()
+            progress.create(30978, filename + u'.ttml')
             # pylint: disable=broad-except
             try:
-                bgd.Update(0)
+                progress.update(0)
                 mvutils.url_retrieve_vfs(
-                    film.url_sub, ttmname, bgd.UrlRetrieveHook)
+                    film.url_sub, ttmname, progress.url_retrieve_hook)
                 try:
                     ttml2srt(xbmcvfs.File(ttmname, 'r'),
                              xbmcvfs.File(srtname, 'w'))
                     ret = True
                 except Exception as err:
                     self.plugin.info('Failed to convert to srt: {}', err)
-                bgd.Close()
+                progress.close()
             except Exception as err:
-                bgd.Close()
+                progress.close()
                 self.plugin.error(
                     'Failure downloading {}: {}', film.url_sub, err)
         return ret
@@ -143,7 +143,7 @@ class Downloader(object):
                 namestem = showname + ' - ' + namestem
         # review name
         if self.settings.reviewname:
-            (namestem, confirmed) = self.notifier.GetEnteredText(namestem, 30986)
+            (namestem, confirmed) = self.notifier.get_entered_text(namestem, 30986)
             namestem = mvutils.cleanup_filename(namestem.decode('utf-8'))
             if len(namestem) < 1 or confirmed is False:
                 return
@@ -162,7 +162,7 @@ class Downloader(object):
             filename = namestem + postfix + suffix
         # check for duplicate
         while xbmcvfs.exists(pathname + filename + extension):
-            (filename, confirmed) = self.notifier.GetEnteredText(filename, 30987)
+            (filename, confirmed) = self.notifier.get_entered_text(filename, 30987)
             filename = mvutils.cleanup_filename(filename.decode('utf-8'))
             if len(filename) < 1 or confirmed is False:
                 return
@@ -204,7 +204,7 @@ class Downloader(object):
 
         # review name
         if self.settings.reviewname:
-            (namestem, confirmed) = self.notifier.GetEnteredText(namestem, 30986)
+            (namestem, confirmed) = self.notifier.get_entered_text(namestem, 30986)
             namestem = mvutils.cleanup_filename(namestem.decode('utf-8'))
             if len(namestem) < 1 or confirmed is False:
                 return
@@ -239,19 +239,20 @@ class Downloader(object):
         ttmname = pathname + filename + u'.ttml'
 
         # download video
-        bgd = KodiBGDialog()
-        bgd.Create(self.plugin.language(30974), filename + extension)
+        progress = KodiProgressDialog()
+        progress.create(self.plugin.language(30974), filename + extension)
         # pylint: disable=broad-except
         try:
-            bgd.Update(0)
-            mvutils.url_retrieve_vfs(filmurl, movname, bgd.UrlRetrieveHook)
-            bgd.Close()
-            self.notifier.ShowNotification(
+            progress.update(0)
+            mvutils.url_retrieve_vfs(
+                filmurl, movname, progress.url_retrieve_hook)
+            progress.close()
+            self.notifier.show_notification(
                 30960, self.plugin.language(30976).format(filmurl))
         except Exception as err:
-            bgd.Close()
+            progress.close()
             self.plugin.error('Failure downloading {}: {}', filmurl, err)
-            self.notifier.ShowError(
+            self.notifier.show_error(
                 30952, self.plugin.language(30975).format(filmurl, err))
             return False
 
@@ -263,11 +264,11 @@ class Downloader(object):
 
     def _test_download_path(self, downloadpath):
         if not downloadpath:
-            self.notifier.ShowError(30952, 30958)
+            self.notifier.show_error(30952, 30958)
             return False
         # check if the download path is reachable
         if not xbmcvfs.exists(downloadpath):
-            self.notifier.ShowError(30952, 30979)
+            self.notifier.show_error(30952, 30979)
             return False
         return True
 

@@ -37,7 +37,7 @@ import datetime
 import xbmcgui
 import xbmcplugin
 
-from resources.lib.kodi.KodiAddon import KodiPlugin
+from resources.lib.kodi.kodiaddon import KodiPlugin
 
 from resources.lib.store import Store
 from resources.lib.notifier import Notifier
@@ -60,7 +60,7 @@ class MediathekView(KodiPlugin):
         self.settings = Settings()
         self.notifier = Notifier()
         self.database = Store(
-            self.getNewLogger('Store'),
+            self.get_new_logger('Store'),
             self.notifier,
             self.settings
         )
@@ -68,25 +68,26 @@ class MediathekView(KodiPlugin):
     def show_main_menu(self):
         """ Creates the main menu of the plugin """
         # Search
-        self.addFolderItem(30901, {'mode': "search", 'extendedsearch': False})
+        self.add_folder_item(
+            30901, {'mode': "search", 'extendedsearch': False})
         # Search all
-        self.addFolderItem(30902, {'mode': "search", 'extendedsearch': True})
+        self.add_folder_item(30902, {'mode': "search", 'extendedsearch': True})
         # Browse livestreams
-        self.addFolderItem(30903, {'mode': "livestreams"})
+        self.add_folder_item(30903, {'mode': "livestreams"})
         # Browse recently added
-        self.addFolderItem(30904, {'mode': "recent", 'channel': 0})
+        self.add_folder_item(30904, {'mode': "recent", 'channel': 0})
         # Browse recently added by channel
-        self.addFolderItem(30905, {'mode': "recentchannels"})
+        self.add_folder_item(30905, {'mode': "recentchannels"})
         # Browse by Initial->Show
-        self.addFolderItem(30906, {'mode': "initial", 'channel': 0})
+        self.add_folder_item(30906, {'mode': "initial", 'channel': 0})
         # Browse by Channel->Initial->Shows
-        self.addFolderItem(30907, {'mode': "channels"})
+        self.add_folder_item(30907, {'mode': "channels"})
         # Database Information
-        self.addActionItem(30908, {'mode': "action-dbinfo"})
+        self.add_action_item(30908, {'mode': "action-dbinfo"})
         # Manual database update
         if self.settings.updmode == 1 or self.settings.updmode == 2:
-            self.addActionItem(30909, {'mode': "action-dbupdate"})
-        self.endOfDirectory()
+            self.add_action_item(30909, {'mode': "action-dbupdate"})
+        self.end_of_directory()
         self._check_outdate()
 
     def show_searches(self, extendedsearch=False):
@@ -99,10 +100,10 @@ class MediathekView(KodiPlugin):
                 are performed both in show title and description.
                 Default is `False`
         """
-        self.addFolderItem(
+        self.add_folder_item(
             30931, {'mode': "newsearch", 'extendedsearch': extendedsearch})
         RecentSearches(self, extendedsearch).load().populate()
-        self.endOfDirectory()
+        self.end_of_directory()
 
     def new_search(self, extendedsearch=False):
         """
@@ -117,22 +118,22 @@ class MediathekView(KodiPlugin):
         settingid = 'lastsearch2' if extendedsearch is True else 'lastsearch1'
         headingid = 30902 if extendedsearch is True else 30901
         # are we returning from playback ?
-        search = self.addon.getSetting(settingid)
+        search = self.get_setting(settingid)
         if search:
             # restore previous search
             self.database.search(search, FilmUI(self), extendedsearch)
         else:
             # enter search term
-            (search, confirmed) = self.notifier.GetEnteredText('', headingid)
+            (search, confirmed) = self.notifier.get_entered_text('', headingid)
             if len(search) > 2 and confirmed is True:
                 RecentSearches(self, extendedsearch).load().add(search).save()
                 if self.database.search(search, FilmUI(self), extendedsearch) > 0:
-                    self.addon.setSetting(settingid, search)
+                    self.set_setting(settingid, search)
             else:
                 # pylint: disable=line-too-long
                 self.info(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
-                self.endOfDirectory(False, cacheToDisc=True)
+                self.end_of_directory(False, cache_to_disc=True)
 
     def show_db_info(self):
         """ Displays current information about the database """
@@ -242,6 +243,7 @@ class MediathekView(KodiPlugin):
         # save last activity timestamp
         self.settings.reset_user_activity()
         # process operation
+        self.info("Plugin invoked with parameters {}", self.args)
         mode = self.get_arg('mode', None)
         if mode is None:
             self.show_main_menu()
@@ -260,7 +262,7 @@ class MediathekView(KodiPlugin):
             extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
             RecentSearches(self, extendedsearch).load().delete(
                 search).save().populate()
-            self.runBuiltin('Container.Refresh')
+            self.run_builtin('Container.Refresh')
         elif mode == 'livestreams':
             self.database.get_live_streams(
                 FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
@@ -276,7 +278,7 @@ class MediathekView(KodiPlugin):
             self.show_db_info()
         elif mode == 'action-dbupdate':
             self.settings.trigger_update()
-            self.notifier.ShowNotification(30963, 30964, time=10000)
+            self.notifier.show_notification(30963, 30964, time=10000)
         elif mode == 'initial':
             channel = self.get_arg('channel', 0)
             self.database.get_initials(channel, InitialUI(self))
@@ -302,9 +304,9 @@ class MediathekView(KodiPlugin):
 
         # cleanup saved searches
         if mode is None or mode != 'search':
-            self.addon.setSetting('lastsearch1', '')
+            self.set_setting('lastsearch1', '')
         if mode is None or mode != 'searchall':
-            self.addon.setSetting('lastsearch2', '')
+            self.set_setting('lastsearch2', '')
 
     def exit(self):
         """ Shutdown of the application """

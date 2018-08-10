@@ -311,7 +311,7 @@ class StoreMySQL(object):
                     WHERE       ( `channelid` = %s )
                 """, (channelid, ))
             showui.begin(channelid)
-            for (showui.channelid, showui.channelid, showui.show, showui.channel) in cursor:
+            for (showui.showid, showui.channelid, showui.show, showui.channel) in cursor:
                 showui.add()
             showui.end()
             cursor.close()

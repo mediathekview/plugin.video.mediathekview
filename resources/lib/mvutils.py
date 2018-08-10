@@ -196,7 +196,7 @@ def url_retrieve_vfs(url, filename, reporthook, chunk_size=8192, aborthook=None)
 
 def build_url(query):
     """
-    Builds a valid plaugin url based on the supplied query object
+    Builds a valid plugin url based on the supplied query object
 
     Args:
         query(object): a query object

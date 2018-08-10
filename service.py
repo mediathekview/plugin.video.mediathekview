@@ -28,14 +28,12 @@ SOFTWARE.
 # -- Imports ------------------------------------------------
 from __future__ import unicode_literals
 
-from resources.lib.kodi.KodiAddon import KodiService
-from resources.lib.kodi.KodiAddon import KodiInterlockedMonitor
+from resources.lib.kodi.kodiaddon import KodiService
+from resources.lib.kodi.kodiaddon import KodiInterlockedMonitor
 
 from resources.lib.notifier import Notifier
 from resources.lib.settings import Settings
 from resources.lib.updater import MediathekViewUpdater
-
-# -- Classes ------------------------------------------------
 
 
 class MediathekViewMonitor(KodiInterlockedMonitor):
@@ -43,8 +41,9 @@ class MediathekViewMonitor(KodiInterlockedMonitor):
 
     def __init__(self, service, setting_id):
         super(MediathekViewMonitor, self).__init__(service, setting_id)
-        self.logger = service.getNewLogger('Monitor')
+        self.logger = service.get_new_logger('Monitor')
 
+    # pylint: disable=invalid-name
     def onSettingsChanged(self):
         """ Handler method invoked when settings have been changed """
         self.service.reload_settings()
@@ -55,24 +54,24 @@ class MediathekViewService(KodiService):
 
     def __init__(self):
         super(MediathekViewService, self).__init__()
-        self.setTopic('Service')
+        self.set_topic('Service')
         self.settings = Settings()
         self.notifier = Notifier()
         self.monitor = MediathekViewMonitor(self, 'instanceid')
-        self.updater = MediathekViewUpdater(self.getNewLogger(
+        self.updater = MediathekViewUpdater(self.get_new_logger(
             'Updater'), self.notifier, self.settings, self.monitor)
 
     def init(self):
         """ Initialisation of the service """
         self.info('Init (instance id: {})', self.monitor.instance_id)
-        self.monitor.RegisterInstance()
+        self.monitor.register_instance()
         self.updater.init(convert=True)
         self.settings.reset_user_activity()
 
     def run(self):
         """ Execution of the service """
         self.info('Starting up... (instance id: {})', self.monitor.instance_id)
-        while not self.monitor.abortRequested():
+        while not self.monitor.abort_requested():
             if self.settings.reload() is True:
                 # database configuration changed
                 self.info(
@@ -91,7 +90,7 @@ class MediathekViewService(KodiService):
                 self.settings.save_update_instance(self.monitor.instance_id)
                 self.updater.update(False)
             # Sleep/wait for abort for 60 seconds
-            if self.monitor.waitForAbort(15):
+            if self.monitor.wait_for_abort(15):
                 # Abort was requested while waiting. We should exit
                 break
         self.info('Shutting down... (instance id: {})',
@@ -101,7 +100,7 @@ class MediathekViewService(KodiService):
         """ Shutdown of the service """
         self.info('Exit (instance id: {})', self.monitor.instance_id)
         self.updater.exit()
-        self.monitor.UnregisterInstance()
+        self.monitor.unregister_instance()
 
     def reload_settings(self):
         """ Reload settings and reconfigure service behaviour """

@@ -116,7 +116,7 @@ class RecentSearches(object):
     def populate(self):
         """ Populates a directory with the recent serach list """
         for entry in self.recents:
-            self.plugin.addFolderItem(
+            self.plugin.add_folder_item(
                 entry['search'],
                 {
                     'mode': "research",

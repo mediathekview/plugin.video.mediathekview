@@ -31,11 +31,11 @@ class Store(object):
         # load storage engine
         if settings.type == 0:
             self.logger.info('Database driver: Internal (sqlite)')
-            self.database = StoreSQLite(logger.getNewLogger(
+            self.database = StoreSQLite(logger.get_new_logger(
                 'StoreSQLite'), notifier, self.settings)
         elif settings.type == 1:
             self.logger.info('Database driver: External (mysql)')
-            self.database = StoreMySQL(logger.getNewLogger(
+            self.database = StoreMySQL(logger.get_new_logger(
                 'StoreMySQL'), notifier, self.settings)
         else:
             self.logger.warn('Unknown Database driver selected')

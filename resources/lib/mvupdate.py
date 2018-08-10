@@ -13,7 +13,7 @@ import argparse
 import datetime
 import defusedxml.ElementTree as ET
 
-from resources.lib.base.Logger import Logger
+from resources.lib.base.logger import Logger
 from resources.lib.updater import MediathekViewUpdater
 
 # -- Classes ------------------------------------------------
@@ -79,7 +79,7 @@ class AppLogger(Logger):
         super(AppLogger, self).__init__(name, version, topic)
         self.verbosity = verbosity
 
-    def getNewLogger(self, topic=None):
+    def get_new_logger(self, topic=None):
         """
         Generates a new logger instance with a specific topic
 
@@ -135,25 +135,148 @@ class Notifier(object):
     def __init__(self):
         pass
 
-    def GetEnteredText(self, deftext='', heading='', hidden=False):
+    # pylint: disable=unused-argument
+    def get_entered_text(self, deftext=None, heading=None, hidden=False):
+        """
+        Asks the user to enter a text. The method returnes a tuple with
+        the text and the confirmation status: `( "Entered Text", True, )`
+
+        Args:
+            deftext(str|int, optional): Default text in the text entry box.
+                Can be a string or a numerical id to a localized text. This
+                text will be returned if the user selects `Cancel`
+
+            heading(str|int, optional): Heading text of the text entry UI.
+                Can be a string or a numerical id to a localized text.
+
+            hidden(bool, optional): If `True` the entered text is not
+                desplayed. Placeholders are used for every char. Default
+                is `False`
+        """
+        return (deftext, False, )
+
+    def show_ok_dialog(self, heading=None, line1=None, line2=None, line3=None):
+        """
+        Shows an OK dialog to the user
+
+        Args:
+            heading(str|int, optional): Heading text of the OK Dialog.
+                Can be a string or a numerical id to a localized text.
+
+            line1(str|int, optional): First text line of the OK Dialog.
+                Can be a string or a numerical id to a localized text.
+
+            line2(str|int, optional): Second text line of the OK Dialog.
+                Can be a string or a numerical id to a localized text.
+
+            line3(str|int, optional): Third text line of the OK Dialog.
+                Can be a string or a numerical id to a localized text.
+        """
         pass
 
-    def ShowNotification(self, heading, message, icon=None, time=5000, sound=True):
+    def show_notification(self, heading, message, icon=None, time=5000, sound=True):
+        """
+        Shows a notification to the user
+
+        Args:
+            heading(str|int): Heading text of the notification.
+                Can be a string or a numerical id to a localized text.
+
+            message(str|int): Text of the notification.
+                Can be a string or a numerical id to a localized text.
+
+            icon(id, optional): xbmc id of the icon. Can be `xbmcgui.NOTIFICATION_INFO`,
+                `xbmcgui.NOTIFICATION_WARNING` or `xbmcgui.NOTIFICATION_ERROR`.
+                Default is `xbmcgui.NOTIFICATION_INFO`
+
+            time(int, optional): Number of milliseconds the notification stays
+                visible. Default is 5000.
+
+            sound(bool, optional): If `True` a sound is played. Default is `True`
+        """
         pass
 
-    def ShowWarning(self, heading, message, time=5000, sound=True):
+    def show_warning(self, heading, message, time=5000, sound=True):
+        """
+        Shows a warning notification to the user
+
+        Args:
+            heading(str|int): Heading text of the notification.
+                Can be a string or a numerical id to a localized text.
+
+            message(str|int): Text of the notification.
+                Can be a string or a numerical id to a localized text.
+
+            time(int, optional): Number of milliseconds the notification stays
+                visible. Default is 5000.
+
+            sound(bool, optional): If `True` a sound is played. Default is `True`
+        """
         pass
 
-    def ShowError(self, heading, message, time=5000, sound=True):
+    def show_error(self, heading, message, time=5000, sound=True):
+        """
+        Shows an error notification to the user
+
+        Args:
+            heading(str|int): Heading text of the notification.
+                Can be a string or a numerical id to a localized text.
+
+            message(str|int): Text of the notification.
+                Can be a string or a numerical id to a localized text.
+
+            time(int, optional): Number of milliseconds the notification stays
+                visible. Default is 5000.
+
+            sound(bool, optional): If `True` a sound is played. Default is `True`
+        """
         pass
 
-    def ShowBGDialog(self, heading=None, message=None):
+    def show_progress_dialog(self, heading=None, message=None):
+        """
+        Shows a progress dialog to the user
+
+        Args:
+            heading(str|int): Heading text of the progress dialog.
+                Can be a string or a numerical id to a localized text.
+
+            message(str|int): Text of the progress dialog.
+                Can be a string or a numerical id to a localized text.
+        """
         pass
 
-    def UpdateBGDialog(self, percent, heading=None, message=None):
+    def update_progress_dialog(self, percent, heading=None, message=None):
+        """
+        Updates a progress dialog
+
+        Args:
+            percent(int): percentage of progress
+
+            heading(str|int): Heading text of the progress dialog.
+                Can be a string or a numerical id to a localized text.
+
+            message(str|int): Text of the progress dialog.
+                Can be a string or a numerical id to a localized text.
+        """
         pass
 
-    def CloseBGDialog(self):
+    def hook_progress_dialog(self, blockcount, blocksize, totalsize):
+        """
+        A hook function that will be passed to functions like `url_retrieve`
+
+        Args:
+            blockcount(int): Count of blocks transferred so far
+
+            blocksize(int): Block size in bytes
+
+            totalsize(int): Total size of the file
+        """
+        pass
+
+    def close_progress_dialog(self):
+        """
+        Closes a progress dialog
+        """
         pass
 
     def show_database_error(self, err):
@@ -226,8 +349,13 @@ class Notifier(object):
 
 
 class MediathekViewMonitor(object):
+    """ Standalone implementation of the monitor class """
     @staticmethod
-    def abortRequested():
+    def abort_requested():
+        """
+        Returns `True`if either this instance is not the registered
+        instance or Kodi is shutting down
+        """
         return False
 
 
@@ -352,8 +480,12 @@ class UpdateApp(AppLogger):
         self.settings = Settings(self.args)
         self.notifier = Notifier()
         self.monitor = MediathekViewMonitor()
-        self.updater = MediathekViewUpdater(self.getNewLogger(
-            'MediathekViewUpdater'), self.notifier, self.settings, self.monitor)
+        self.updater = MediathekViewUpdater(
+            self.get_new_logger('MediathekViewUpdater'),
+            self.notifier,
+            self.settings,
+            self.monitor
+        )
         return self.updater.init(convert=True)
 
     def run(self):

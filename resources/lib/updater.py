@@ -221,7 +221,7 @@ class MediathekViewUpdater(object):
                         self._init_record()
                     elif (prefix, event) == ("X", "end_array"):
                         self._end_record(records)
-                        if self.count % 100 == 0 and self.monitor.abortRequested():
+                        if self.count % 100 == 0 and self.monitor.abort_requested():
                             # kodi is shutting down. Close all
                             self._update_end(full, 'ABORTED')
                             self.notifier.close_update_progress()
@@ -343,7 +343,7 @@ class MediathekViewUpdater(object):
                     url,
                     filename=compfile,
                     reporthook=self.notifier.hook_download_progress,
-                    aborthook=self.monitor.abortRequested
+                    aborthook=self.monitor.abort_requested
                 )
                 break
             except urllib2.URLError as err:
