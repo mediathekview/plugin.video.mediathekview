@@ -168,7 +168,7 @@ def ttml2srt(infile, outfile):
 
         if elem.text:
             result += elem.text.strip()
-        if elem:
+        if elem is not None:
             for child in elem:
                 result += _render_subtitles(child, timestamp)
                 if child.tail:

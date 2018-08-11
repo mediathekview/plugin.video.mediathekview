@@ -86,11 +86,10 @@ class FilmUI(Film):
             if not self.settings.autosub and self.url_sub:
                 contextmenu.append((
                     self.plugin.language(30921),
-                    'RunPlugin({})'.format(
+                    'PlayMedia({})'.format(
                         self.plugin.build_url({
                             'mode': "playwithsrt",
-                            'id': self.filmid,
-                            'only_set_resolved_url': False
+                            'id': self.filmid
                         })
                     )
                 ))
@@ -146,8 +145,7 @@ class FilmUI(Film):
         if self.settings.autosub and self.url_sub:
             videourl = self.plugin.build_url({
                 'mode': "playwithsrt",
-                'id': self.filmid,
-                'only_set_resolved_url': True
+                'id': self.filmid
             })
 
         if total_items is not None:

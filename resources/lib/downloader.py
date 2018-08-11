@@ -42,7 +42,7 @@ class Downloader(object):
         self.settings = plugin.settings
         self.notifier = plugin.notifier
 
-    def play_movie_with_subs(self, filmid, only_set_resolved_url):
+    def play_movie_with_subs(self, filmid):
         """
         Play the specified film with subtitles. Since the subtitles
         are not available in a playable format, they have to be
@@ -50,10 +50,6 @@ class Downloader(object):
 
         Args:
             filmid(id): database id of the film to play
-
-            only_set_resolved_url(bool): if `True` the film will
-                not be played but only the resolved URL and `listitem`
-                will be notified to Kodi.
         """
         film = self.database.retrieve_film_info(filmid)
         if film is None:
@@ -64,14 +60,11 @@ class Downloader(object):
         subs = []
         if self.download_subtitle(film, ttmname, srtname, 'subtitle'):
             subs.append(srtname)
-        (videourl, listitem) = FilmUI(self.plugin).get_list_item(None, film)
+        (_, listitem) = FilmUI(self.plugin).get_list_item(None, film)
         if listitem:
             if subs:
                 listitem.setSubtitles(subs)
-            if only_set_resolved_url:
-                self.plugin.setResolvedUrl(True, listitem)
-            else:
-                xbmc.Player().play(videourl, listitem)
+            self.plugin.set_resolved_url(True, listitem)
 
     def download_subtitle(self, film, ttmname, srtname, filename):
         """

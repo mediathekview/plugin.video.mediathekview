@@ -315,8 +315,7 @@ class MediathekViewPlugin(KodiPlugin):
             Downloader(self).download_episode(filmid, quality)
         elif mode == 'playwithsrt':
             filmid = self.get_arg('id', 0)
-            only_sru = self.get_arg('only_set_resolved_url', 'False') == 'True'
-            Downloader(self).play_movie_with_subs(filmid, only_sru)
+            Downloader(self).play_movie_with_subs(filmid)
 
         # cleanup saved searches
         if mode is None or mode != 'search':
