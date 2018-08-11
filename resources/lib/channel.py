@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-# Copyright 2017 Leo Moll and Dominik Schlösser
-#
+"""
+The channel model module
 
-# -- Imports ------------------------------------------------
+Copyright 2017-2018, Leo Moll and Dominik Schlösser
+Licensed under MIT License
+"""
 
-# -- Classes ------------------------------------------------
-class Channel( object ):
-	def __init__( self ):
-		self.id			= 0
-		self.channel	= ''
+
+class Channel(object):
+    """ The channel model class """
+
+    def __init__(self):
+        self.channelid = 0
+        self.channel = ''
