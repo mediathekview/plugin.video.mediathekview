@@ -52,7 +52,7 @@ def ttml2srt(infile, outfile):
     for elem in root.getiterator():
         elem.tag = elem.tag.split('}', 1)[-1]
         elem.attrib = {name.split('}', 1)
-                       [-1]: value for name, value in elem.attrib.items()}
+                       [-1]: value for name, value in list(elem.attrib.items())}
 
     # get styles
     styles = {}
