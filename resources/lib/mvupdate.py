@@ -136,7 +136,8 @@ class Notifier(object):
         pass
 
     # pylint: disable=unused-argument
-    def get_entered_text(self, deftext=None, heading=None, hidden=False):
+    @staticmethod
+    def get_entered_text(deftext=None, heading=None, hidden=False):
         """
         Asks the user to enter a text. The method returnes a tuple with
         the text and the confirmation status: `( "Entered Text", True, )`
@@ -155,7 +156,8 @@ class Notifier(object):
         """
         return (deftext, False, )
 
-    def show_ok_dialog(self, heading=None, line1=None, line2=None, line3=None):
+    @staticmethod
+    def show_ok_dialog(heading=None, line1=None, line2=None, line3=None):
         """
         Shows an OK dialog to the user
 
@@ -174,7 +176,8 @@ class Notifier(object):
         """
         pass
 
-    def show_notification(self, heading, message, icon=None, time=5000, sound=True):
+    @staticmethod
+    def show_notification(heading, message, icon=None, time=5000, sound=True):
         """
         Shows a notification to the user
 
@@ -196,7 +199,8 @@ class Notifier(object):
         """
         pass
 
-    def show_warning(self, heading, message, time=5000, sound=True):
+    @staticmethod
+    def show_warning(heading, message, time=5000, sound=True):
         """
         Shows a warning notification to the user
 
@@ -214,7 +218,8 @@ class Notifier(object):
         """
         pass
 
-    def show_error(self, heading, message, time=5000, sound=True):
+    @staticmethod
+    def show_error(heading, message, time=5000, sound=True):
         """
         Shows an error notification to the user
 
@@ -232,7 +237,8 @@ class Notifier(object):
         """
         pass
 
-    def show_progress_dialog(self, heading=None, message=None):
+    @staticmethod
+    def show_progress_dialog(heading=None, message=None):
         """
         Shows a progress dialog to the user
 
@@ -245,7 +251,8 @@ class Notifier(object):
         """
         pass
 
-    def update_progress_dialog(self, percent, heading=None, message=None):
+    @staticmethod
+    def update_progress_dialog(percent, heading=None, message=None):
         """
         Updates a progress dialog
 
@@ -260,7 +267,8 @@ class Notifier(object):
         """
         pass
 
-    def hook_progress_dialog(self, blockcount, blocksize, totalsize):
+    @staticmethod
+    def hook_progress_dialog(blockcount, blocksize, totalsize):
         """
         A hook function that will be passed to functions like `url_retrieve`
 
@@ -273,77 +281,95 @@ class Notifier(object):
         """
         pass
 
-    def close_progress_dialog(self):
+    @staticmethod
+    def close_progress_dialog():
         """
         Closes a progress dialog
         """
         pass
 
-    def show_database_error(self, err):
+    @staticmethod
+    def show_database_error(err):
         """ Displays UI for a database error """
         pass
 
-    def show_download_error(self, name, err):
+    @staticmethod
+    def show_download_error(name, err):
         """ Displays UI for a download error """
         pass
 
-    def show_missing_extractor_error(self):
+    @staticmethod
+    def show_missing_extractor_error():
         """ Disaplys UI for a missing extractor error """
         pass
 
-    def show_limit_results(self, maxresults):
+    @staticmethod
+    def show_limit_results(maxresults):
         """ Display UI for search result limited by configuration """
         pass
 
-    def show_outdated_unknown(self):
+    @staticmethod
+    def show_outdated_unknown():
         """ Display UI for never updated database """
         pass
 
-    def show_outdated_known(self, status):
+    @staticmethod
+    def show_outdated_known(status):
         """ Display UI for an outdated database """
         pass
 
-    def show_download_progress(self):
+    @staticmethod
+    def show_download_progress():
         """ Display UI for a download in progress """
         pass
 
-    def update_download_progress(self, percent, message=None):
+    @staticmethod
+    def update_download_progress(percent, message=None):
         """ Update UI odometer for a download in progress """
         pass
 
-    def hook_download_progress(self, blockcount, blocksize, totalsize):
+    @staticmethod
+    def hook_download_progress(blockcount, blocksize, totalsize):
         """ UI Report hook for functions like `url_retrieve` """
         pass
 
-    def close_download_progress(self):
+    @staticmethod
+    def close_download_progress():
         """ Hides the UI for a download in progress """
         pass
 
-    def show_update_progress(self):
+    @staticmethod
+    def show_update_progress():
         """ Display UI for a database update in progress """
         pass
 
-    def update_update_progress(self, percent, count, channels, shows, movies):
+    @staticmethod
+    def update_update_progress(percent, count, channels, shows, movies):
         """ Update UI odometer for a database update in progress """
         pass
 
-    def close_update_progress(self):
+    @staticmethod
+    def close_update_progress():
         """ Hides the UI for a database update in progress """
         pass
 
-    def show_updating_scheme(self):
+    @staticmethod
+    def show_updating_scheme():
         """ SHow UI that the database schema is about to be updated """
         pass
 
-    def show_update_scheme_progress(self):
+    @staticmethod
+    def show_update_scheme_progress():
         """ Display UI for a database schema update in progress """
         pass
 
-    def update_update_scheme_progress(self, percent):
+    @staticmethod
+    def update_update_scheme_progress(percent):
         """ Update UI odometer for a database schema update in progress """
         pass
 
-    def close_update_scheme_progress(self):
+    @staticmethod
+    def close_update_scheme_progress():
         """ Hides the UI for a database schema update in progress """
         pass
 

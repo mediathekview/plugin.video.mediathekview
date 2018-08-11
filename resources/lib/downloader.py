@@ -15,7 +15,6 @@ import re
 from contextlib import closing
 
 # pylint: disable=import-error
-import xbmc
 import xbmcvfs
 
 import resources.lib.mvutils as mvutils
