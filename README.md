@@ -83,7 +83,7 @@ Das Addon unterstützt 4 verschiedene Aktualisierungsmethoden:
 * **Automatisch (Standard):** Bei dieser Methode wird die Aktualisierung der
 Datenbank automatisch durchgeführt. Die Aktualisierung erfolgt ein mal pro
 eingestelltem Aktualisierungsintervall (Standard: 2 Stunden). Die erste
-Aktualisierung eines Kalendertages ist eine vollstöndige Aktualisierung, alle
+Aktualisierung eines Kalendertages ist eine vollständige Aktualisierung, alle
 weiteren sind Differenz-Aktualisierungen. Die automatische Aktualisierung
 pausiert, wenn das Addon länger als 2 Stunden nicht bedient wurde, um
 Bandbreite und bei mobilen Geräten Strom zu sparen.
