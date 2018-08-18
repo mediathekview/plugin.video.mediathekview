@@ -131,6 +131,9 @@ class MediathekViewUpdater(object):
             else:
                 # no update of user is idle for more than 2 hours
                 return 0
+        elif self.settings.updmode == 4:
+            # continous update
+            return self._get_next_update_operation(force)
 
     def _get_next_update_operation(self, force=False):
         status = self.database.get_status()

@@ -127,6 +127,10 @@ msgctxt "#30244"
 msgid "Automatic"
 msgstr "Automatisch"
 
+msgctxt "#30245"
+msgid "Continously"
+msgstr "Zeitgesteuert"
+
 # Settings Page 3
 msgctxt "#30310"
 msgid "Series download directory"

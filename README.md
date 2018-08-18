@@ -79,7 +79,11 @@ allerdings nicht möglich eine abschließende Kompatibilitätsaussage zu machen.
 Funktionsweise der Aktualisierungsmethoden
 ------------------------------------------
 
-Das Addon unterstützt 4 verschiedene Aktualisierungsmethoden:
+Das Addon unterstützt 5 verschiedene Aktualisierungsmethoden:
+* **Zeitgesteuert:** Bei dieser Methode erfolgt die Aktualisierung ein mal
+pro eingestelltem Zeitintervall (Standard: 2 Stunden).  Die erste
+Aktualisierung eines Kalendertages ist eine vollständige Aktualisierung, alle
+weiteren sind Differenz-Aktualisierungen.
 * **Automatisch (Standard):** Bei dieser Methode wird die Aktualisierung der
 Datenbank automatisch durchgeführt. Die Aktualisierung erfolgt ein mal pro
 eingestelltem Aktualisierungsintervall (Standard: 2 Stunden). Die erste
@@ -250,7 +254,10 @@ possible to make a final compatibility statement.
 How the update methods work
 ---------------------------
 
-The addon supports 4 different update methods:
+The addon supports 5 different update methods:
+* **Continously:** This method automatically updates the database. The update
+takes place once per set update interval (default: 2 hours). The first update
+of a calendar day is a full update, all others are differential updates.
 * **Automatic (Default):** This method automatically updates the database.
 The update takes place once per set update interval (default: 2 hours). The
 first update of a calendar day is a full update, all others are differential
@@ -403,7 +410,11 @@ possibile fare una dichiarazione finale di compatibilità.
 Come funzionano i metodi di aggiornamento
 -----------------------------------------
 
-L'addon supporta 4 diversi metodi di aggiornamento:
+L'addon supporta 5 diversi metodi di aggiornamento:
+* **Di continuo:** Questo metodo aggiorna il database una volta per ogni
+intervallo di aggiornamento impostato (impostazione predefinita: 2 ore).
+Il primo aggiornamento di un giorno è un aggiornamento completo, tutti gli
+altri sono aggiornamenti differenziali.
 * **Automatico (Predefinito):** Questo metodo aggiorna automaticamente il
 database. L'aggiornamento avviene una volta per ogni intervallo di
 aggiornamento impostato (impostazione predefinita: 2 ore). Il primo
