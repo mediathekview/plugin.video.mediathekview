@@ -27,6 +27,8 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.5.1 (2018-08-XX):
+- Neue Aktualisierungsmethode "Zeitgesteuert"
+- Es war nicht möglich, den Aktualisierungsintervall bei der Methode "Automatisch" einzustellen
 - Passende Symbole für alle Menü-Einträge
 v0.5.0 (2018-08-08):
 - Bei manchen Filme fehlte im Kontext-Menü die Möglichkeit sie herunterzuladen
