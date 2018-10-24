@@ -6,3 +6,5 @@
 /Filmliste-*
 /.vscode
 /venv
+/.idea
+.directory
