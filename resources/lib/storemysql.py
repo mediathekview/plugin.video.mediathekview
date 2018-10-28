@@ -8,6 +8,7 @@ Copyright 2017-20180 Leo Moll and Dominik Schlösser
 
 import time
 import mysql.connector
+import hashlib
 
 import resources.lib.mvutils as mvutils
 
@@ -859,7 +860,7 @@ class StoreMySQL(object):
         channel = film['channel'][:64]
         show = film['show'][:128]
         title = film['title'][:128]
-        hashkey = mvutils.make_hashkey(channel, show, film["url_video"])
+        hashkey = hashlib.md5("{}:{}:{}".format(channel, show, film["url_video"])).hexdigest()
 
         try:
             self.sqlValues += """ (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s),"""
