@@ -69,7 +69,7 @@ class StoreMySQL(object):
                 the database will be converted. Default is
                 `False`
         """
-        self.resetInsertSql()
+        self.reset_insert_sql()
         self.logger.info('Using MySQL connector version {}',
                          mysql.connector.__version__)
         if reset:
@@ -109,6 +109,11 @@ class StoreMySQL(object):
         if self.conn is not None:
             self.conn.close()
             self.conn = None
+
+    def reset_insert_sql(self):
+        """ clear collected import data from sql variables """
+        self.sqlValues = ''
+        self.sqlData = []
 
     def search(self, search, filmui, extendedsearch=False):
         """
@@ -894,7 +899,7 @@ class StoreMySQL(object):
             cursor.execute(sql, self.sqlData)
         cursor.close()
         self.conn.commit()
-        self.resetInsertSql()
+        self.reset_insert_sql()
 
     def _get_schema_version(self):
         """
