@@ -860,7 +860,7 @@ class StoreMySQL(object):
         channel = film['channel'][:64]
         show = film['show'][:128]
         title = film['title'][:128]
-        hashkey = hashlib.md5("{}:{}:{}".format(channel, show, film["url_video"])).hexdigest()
+        hashkey = hashlib.md5((channel + ':' + show + ':' + film["url_video"]).encode('utf-8')).hexdigest()
 
         try:
             self.sqlValues += """ (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s),"""
