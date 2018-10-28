@@ -27,6 +27,14 @@ class StoreMySQL(object):
     """
 
     def __init__(self, logger, notifier, settings):
+        self.sqlInsert = """ insert into film_import 
+        				(`idhash`, `channel`, `show`, `showsearch`,
+        				`title`, `search`, `aired`, `duration`, `size`, `description`, 
+        				`website`, `url_sub`, `url_video`, `url_video_sd`, `url_video_hd`, 
+        				`airedepoch`) values 
+        				"""
+        self.sqlValues = ''
+        self.sqlData = []
         self.conn = None
         self.logger = logger
         self.notifier = notifier
@@ -61,6 +69,7 @@ class StoreMySQL(object):
                 the database will be converted. Default is
                 `False`
         """
+        self.resetInsertSql()
         self.logger.info('Using MySQL connector version {}',
                          mysql.connector.__version__)
         if reset:
@@ -486,23 +495,23 @@ class StoreMySQL(object):
             if not result:
                 status['status'] = "NONE"
                 return status
-            status['modified'] = result[0][0]
-            status['status'] = result[0][1]
-            status['lastupdate'] = result[0][2]
-            status['filmupdate'] = result[0][3]
-            status['fullupdate'] = result[0][4]
-            status['add_chn'] = result[0][5]
-            status['add_shw'] = result[0][6]
-            status['add_mov'] = result[0][7]
-            status['del_chn'] = result[0][8]
-            status['del_shw'] = result[0][9]
-            status['del_mov'] = result[0][10]
-            status['tot_chn'] = result[0][11]
-            status['tot_shw'] = result[0][12]
-            status['tot_mov'] = result[0][13]
+            status['modified'] = result[0][1]
+            status['status'] = result[0][2]
+            status['lastupdate'] = result[0][3]
+            status['filmupdate'] = result[0][4]
+            status['fullupdate'] = result[0][5]
+            status['add_chn'] = result[0][6]
+            status['add_shw'] = result[0][7]
+            status['add_mov'] = result[0][8]
+            status['del_chn'] = result[0][9]
+            status['del_shw'] = result[0][10]
+            status['del_mov'] = result[0][11]
+            status['tot_chn'] = result[0][12]
+            status['tot_shw'] = result[0][13]
+            status['tot_mov'] = result[0][14]
             return status
         except mysql.connector.Error as err:
-            if err.errno == -1:
+            if err.errno == -1 and reconnect:
                 # connection lost. Retry:
                 if reconnect:
                     self.logger.warn(
@@ -550,8 +559,10 @@ class StoreMySQL(object):
         """
         if self.conn is None:
             return
+        if status is None:
+            return
+        old = self.get_status()
         new = self.get_status()
-        old = new['status']
         if status is not None:
             new['status'] = status
         if lastupdate is not None:
@@ -560,116 +571,110 @@ class StoreMySQL(object):
             new['filmupdate'] = filmupdate
         if fullupdate is not None:
             new['fullupdate'] = fullupdate
-        if add_chn is not None:
-            new['add_chn'] = add_chn
-        if add_shw is not None:
-            new['add_shw'] = add_shw
-        if add_mov is not None:
-            new['add_mov'] = add_mov
-        if del_chn is not None:
-            new['del_chn'] = del_chn
-        if del_shw is not None:
-            new['del_shw'] = del_shw
-        if del_mov is not None:
-            new['del_mov'] = del_mov
+
+        if (old['status'] == 'NONE'):
+            try:
+                cursor = self.conn.cursor()
+                # insert status
+                cursor.execute("""
+        			INSERT INTO `status` (
+        				`id`, `status`, `lastupdate`, `filmupdate`, `fullupdate`
+        			) VALUES (
+        				%s, %s, %s, %s, %s
+        			)
+        			""", (
+                    1, status, lastupdate, filmupdate, fullupdate
+                )
+                               )
+                cursor.close()
+                self.conn.commit()
+            except mysql.connector.Error as err:
+                self.logger.error('Database error: {}, {}', err.errno, err)
+                self.notifier.show_database_error(err)
+                return
+            if (status != 'IDLE'):
+                return
+
+        if (status != 'IDLE'):
+            try:
+                cursor = self.conn.cursor()
+                # insert status
+                cursor.execute("""
+        			UPDATE `status` 
+        				set
+        					`status` = %s, `lastupdate` = %s, `filmupdate` = %s, `fullupdate` = %s
+        				where id=1
+        			""", (
+                    new['status'],
+                    new['lastupdate'],
+                    new['filmupdate'],
+                    new['fullupdate']
+                )
+                               )
+                cursor.close()
+                self.conn.commit()
+            except mysql.connector.Error as err:
+                self.logger.error('Database error: {}, {}', err.errno, err)
+                self.notifier.show_database_error(err)
+            return
+
+        if tot_chn is not None:
+            new['add_chn'] = max(0, tot_chn - old['tot_chn'])
+        if tot_shw is not None:
+            new['add_shw'] = max(0, tot_shw - old['tot_shw'])
+        if tot_mov is not None:
+            new['add_mov'] = max(0, tot_mov - old['tot_mov'])
+        if tot_chn is not None:
+            new['del_chn'] = max(0, old['tot_chn'] - tot_chn)
+        if tot_shw is not None:
+            new['del_shw'] = max(0, old['tot_shw'] - tot_shw)
+        if tot_mov is not None:
+            new['del_mov'] = max(0, old['tot_mov'] - tot_mov)
         if tot_chn is not None:
             new['tot_chn'] = tot_chn
         if tot_shw is not None:
             new['tot_shw'] = tot_shw
         if tot_mov is not None:
             new['tot_mov'] = tot_mov
+        # TODO: we should only write, if we have changed something...
         new['modified'] = int(time.time())
         try:
             cursor = self.conn.cursor()
-            if old == "NONE":
-                # insert status
-                cursor.execute(
-                    """
-                    INSERT INTO `status` (
-                        `modified`,
-                        `status`,
-                        `lastupdate`,
-                        `filmupdate`,
-                        `fullupdate`,
-                        `add_chn`,
-                        `add_shw`,
-                        `add_mov`,
-                        `del_chm`,
-                        `del_shw`,
-                        `del_mov`,
-                        `tot_chn`,
-                        `tot_shw`,
-                        `tot_mov`
-                    )
-                    VALUES (
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s,
-                        %s
-                    )
-                    """, (
-                        new['modified'],
-                        new['status'],
-                        new['lastupdate'],
-                        new['filmupdate'],
-                        new['fullupdate'],
-                        new['add_chn'],
-                        new['add_shw'],
-                        new['add_mov'],
-                        new['del_chn'],
-                        new['del_shw'],
-                        new['del_mov'],
-                        new['tot_chn'],
-                        new['tot_shw'],
-                        new['tot_mov'],
-                    )
-                )
-            else:
-                # update status
-                cursor.execute(
-                    """
-                    UPDATE `status`
-                    SET     `modified`      = %s,
-                            `status`        = %s,
-                            `lastupdate`    = %s,
-                            `filmupdate`    = %s,
-                            `fullupdate`    = %s,
-                            `add_chn`       = %s,
-                            `add_shw`       = %s,
-                            `add_mov`       = %s,
-                            `del_chm`       = %s,
-                            `del_shw`       = %s,
-                            `del_mov`       = %s,
-                            `tot_chn`       = %s,
-                            `tot_shw`       = %s,
-                            `tot_mov`       = %s
-                    """, (
-                        new['modified'],
-                        new['status'],
-                        new['lastupdate'],
-                        new['filmupdate'],
-                        new['fullupdate'],
-                        new['add_chn'],
-                        new['add_shw'],
-                        new['add_mov'],
-                        new['del_chn'],
-                        new['del_shw'],
-                        new['del_mov'],
-                        new['tot_chn'],
-                        new['tot_shw'],
-                        new['tot_mov'],
-                    )
-                )
+            # insert status
+            cursor.execute("""
+        		UPDATE `status`
+        			SET `modified`		= %s,
+        				`status`		= %s,
+        				`lastupdate`	= %s,
+        				`filmupdate`	= %s,
+        				`fullupdate`	= %s,
+        				`add_chn`		= %s,
+        				`add_shw`		= %s,
+        				`add_mov`		= %s,
+        				`del_chm`		= %s,
+        				`del_shw`		= %s,
+        				`del_mov`		= %s,
+        				`tot_chn`		= %s,
+        				`tot_shw`		= %s,
+        				`tot_mov`		= %s
+        			where id = 1
+        		""", (
+                new['modified'],
+                new['status'],
+                new['lastupdate'],
+                new['filmupdate'],
+                new['fullupdate'],
+                new['add_chn'],
+                new['add_shw'],
+                new['add_mov'],
+                new['del_chn'],
+                new['del_shw'],
+                new['del_mov'],
+                new['tot_chn'],
+                new['tot_shw'],
+                new['tot_mov'],
+            )
+                           )
             cursor.close()
             self.conn.commit()
         except mysql.connector.Error as err:
@@ -724,22 +729,16 @@ class StoreMySQL(object):
         Args:
             full(bool): if `True` a full update is started
         """
-        param = (1, ) if full else (0, )
+        param = (1,) if full else (0,)
         try:
             cursor = self.conn.cursor()
-            cursor.callproc('ftUpdateStart', param)
-            for result in cursor.stored_results():
-                for (cnt_chn, cnt_shw, cnt_mov) in result:
-                    cursor.close()
-                    self.conn.commit()
-                    return (cnt_chn, cnt_shw, cnt_mov)
-            # should never happen
-            cursor.close()
-            self.conn.commit()
+            cursor.execute('truncate film_import')
+            status = self.get_status(False)
+            return (status['tot_chn'], status['tot_shw'], status['tot_mov'])
         except mysql.connector.Error as err:
             self.logger.error('Database error: {}, {}', err.errno, err)
             self.notifier.show_database_error(err)
-        return (0, 0, 0, )
+        return (0, 0, 0,)
 
     def ft_update_end(self, delete):
         """
@@ -749,22 +748,98 @@ class StoreMySQL(object):
             delete(bool): if `True` all records not updated
                 will be deleted
         """
-        param = (1, ) if delete else (0, )
         try:
+            del_chn = 0
+            del_shw = 0
+            del_mov = 0
+            tot_chn = 0
+            tot_shw = 0
+            tot_mov = 0
+
             cursor = self.conn.cursor()
-            cursor.callproc('ftUpdateEnd', param)
-            for result in cursor.stored_results():
-                for (del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov) in result:
-                    cursor.close()
-                    self.conn.commit()
-                    return (del_chn, del_shw, del_mov, cnt_chn, cnt_shw, cnt_mov)
-            # should never happen
+            if delete:
+                cursor.execute("""
+        			delete f1 from film f1
+        			left join film_import f2
+        			on f1.idhash = f2.idhash
+        			where f2.id is null
+        		""")
+                del_mov = cursor.rowcount
+
+            cursor.execute("""
+        		insert into `channel` (dtCreated, channel)
+        			select distinct now() dtCreated, fi.`channel`from film_import fi
+        			left join `channel` c on fi.channel=c.channel
+        			where c.channel is null
+        	""")
+
+            cursor.execute("""
+        		insert into `show` (dtCreated, channelid, `show`, `search`)
+        			select distinct now() dtCreated, c.`id` channelid, fi.`show`, fi.`showsearch`
+        			from `channel` c, film_import fi
+        			left join `show` s on fi.show=s.show
+        			where fi.channel=c.channel
+        			and s.show is null
+        	""")
+
+            cursor.execute("""
+        		delete c1 from `channel` c1
+        			inner join `channel` c2
+        			where c1.id > c2.id
+        			and c1.channel = c2.channel
+        	""")
+            del_chn = cursor.rowcount
+
+            cursor.execute("""
+        		delete s1 from `show` s1
+        			inner join `show` s2
+        			where s1.id > s2.id
+        			and s1.search = s2.search
+        	""")
+            del_shw = cursor.rowcount
+
+            cursor.execute("""
+        		insert into `film` (idhash, dtCreated, channelid, showid, title, `search`,
+        			aired, duration, website, url_sub, url_video, url_video_sd,
+        			url_video_hd, airedepoch)
+        			select distinct fi.idhash, now() dtCreated, c.`id` channelid, s.`id` showid, fi.title, fi.`search`, fi.aired, fi.duration, fi.website, fi.url_sub, fi.url_video, fi.url_video_sd, fi.url_video_hd, fi.airedepoch
+        				from `channel` c, `show` s , film_import fi
+        				left join film f on fi.idhash=f.idhash
+        				where fi.channel=c.channel
+        				and fi.showsearch=s.search
+        				and f.idhash is null
+        	""")
+
+            cursor.execute("""truncate film_import""");
+
             cursor.close()
             self.conn.commit()
+
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT count(*) c FROM `channel`')
+            r = cursor.fetchall()
+            cursor.close()
+            if len(r) == 1:
+                tot_chn = r[0][0]
+
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT count(*) c FROM `show`')
+            r = cursor.fetchall()
+            cursor.close()
+            if len(r) == 1:
+                tot_shw = r[0][0]
+
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT count(*) c FROM `film`')
+            r = cursor.fetchall()
+            cursor.close()
+            if len(r) == 1:
+                tot_mov = r[0][0]
+
         except mysql.connector.Error as err:
             self.logger.error('Database error: {}, {}', err.errno, err)
             self.notifier.show_database_error(err)
-        return (0, 0, 0, 0, 0, 0, )
+        return (del_chn, del_shw, del_mov, tot_chn, tot_shw, tot_mov,)
 
     def ft_insert_film(self, film, commit=True):
         """
@@ -776,40 +851,18 @@ class StoreMySQL(object):
             commit(bool, optional): the operation will be
                 commited immediately. Default is `True`
         """
-        newchn = False
-        inschn = 0
-        insshw = 0
-        insmov = 0
         channel = film['channel'][:64]
         show = film['show'][:128]
         title = film['title'][:128]
-
-        # handle channel
-        if self.ft_channel != channel:
-            # process changed channel
-            newchn = True
-            self.ft_channel = channel
-            (self.ft_channelid, inschn) = self._insert_channel(self.ft_channel)
-            if self.ft_channelid == 0:
-                self.logger.info(
-                    'Undefined error adding channel "{}"', self.ft_channel)
-                return (0, 0, 0, 0, )
-
-        if newchn or self.ft_show != show:
-            # process changed show
-            self.ft_show = show
-            (self.ft_showid, insshw) = self._insert_show(self.ft_channelid,
-                                                         self.ft_show, mvutils.make_search_string(self.ft_show))
-            if self.ft_showid == 0:
-                self.logger.info(
-                    'Undefined error adding show "{}"', self.ft_show)
-                return (0, 0, 0, 0, )
+        hashkey = mvutils.make_hashkey(channel, show, film["url_video"])
 
         try:
-            cursor = self.conn.cursor()
-            cursor.callproc('ftInsertFilm', (
-                self.ft_channelid,
-                self.ft_showid,
+            self.sqlValues += """ (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s),"""
+            self.sqlData += [
+                hashkey,
+                channel,
+                show,
+                mvutils.make_search_string(show),
                 title,
                 mvutils.make_search_string(title),
                 film["aired"],
@@ -822,57 +875,31 @@ class StoreMySQL(object):
                 film["url_video_sd"],
                 film["url_video_hd"],
                 film["airedepoch"],
-            ))
-            for result in cursor.stored_results():
-                for (filmid, insmov) in result:
-                    cursor.close()
-                    if commit:
-                        self.conn.commit()
-                    return (filmid, inschn, insshw, insmov)
-                # should never happen
-                cursor.close()
-                if commit:
-                    self.conn.commit()
-        except mysql.connector.Error as err:
-            self.logger.error('Database error: {}, {}', err.errno, err)
-            self.notifier.show_database_error(err)
-        return (0, 0, 0, 0, )
+            ]
 
-    def _insert_channel(self, channel):
-        try:
-            cursor = self.conn.cursor()
-            cursor.callproc('ftInsertChannel', (channel, ))
-            for result in cursor.stored_results():
-                for (idd, added) in result:
-                    cursor.close()
-                    self.conn.commit()
-                    return (idd, added)
-            # should never happen
-            cursor.close()
-            self.conn.commit()
-        except mysql.connector.Error as err:
-            self.logger.error('Database error: {}, {}', err.errno, err)
-            self.notifier.show_database_error(err)
-        return (0, 0, )
+            return (0, 0, 0, 1,)
 
-    def _insert_show(self, channelid, show, search):
-        try:
-            cursor = self.conn.cursor()
-            cursor.callproc('ftInsertShow', (channelid, show, search, ))
-            for result in cursor.stored_results():
-                for (idd, added) in result:
-                    cursor.close()
-                    self.conn.commit()
-                    return (idd, added)
-            # should never happen
-            cursor.close()
-            self.conn.commit()
         except mysql.connector.Error as err:
             self.logger.error('Database error: {}, {}', err.errno, err)
-            self.notifier.show_database_error(err)
-        return (0, 0, )
+            self.notifier.ShowDatabaseError(err)
+        return (0, 0, 0, 0,)
+
+    def ft_flush_insert(self):
+        """
+        Dump collected data to db using bulk inserts
+        """
+        cursor = self.conn.cursor()
+        if len(self.sqlData) > 0:
+            sql = self.sqlInsert + self.sqlValues[:-1]
+            cursor.execute(sql, self.sqlData)
+        cursor.close()
+        self.conn.commit()
+        self.resetInsertSql()
 
     def _get_schema_version(self):
+        """
+        Read current schema version from status record
+        """
         if self.conn is None:
             return 0
         cursor = self.conn.cursor()
@@ -893,422 +920,272 @@ class StoreMySQL(object):
             return self._handle_database_update(convert, self._get_schema_version())
         if version == 0:
             # should never happen - something went wrong...
-            self.exit()
+            self.Exit()
             return False
-        elif version == 2:
+        elif version == 3:
             # current version
             return True
         elif convert is False:
             # do not convert (Addon threads)
-            self.exit()
-            self.notifier.show_updating_scheme()
+            # self.Exit()
+            self.notifier.ShowUpdatingScheme()
             return False
         elif version == 1:
             # convert from 1 to 2
             self.logger.info('Converting database to version 2')
-            self.notifier.show_update_scheme_progress()
+            self.notifier.ShowUpdateSchemeProgress()
             try:
                 cursor = self.conn.cursor()
                 cursor.execute('SELECT @@SESSION.sql_mode')
-                (sql_mode, ) = cursor.fetchone()
+                (sql_mode,) = cursor.fetchone()
                 self.logger.info('Current SQL mode is {}', sql_mode)
                 cursor.execute('SET SESSION sql_mode = ""')
 
                 self.logger.info('Reducing channel name length...')
-                cursor.execute(
-                    'ALTER TABLE `channel` CHANGE COLUMN `channel` `channel` varchar(64) NOT NULL')
-                self.notifier.update_update_scheme_progress(5)
+                cursor.execute('ALTER TABLE `channel` CHANGE COLUMN `channel` `channel` varchar(64) NOT NULL')
+                self.notifier.UpdateUpdateSchemeProgress(5)
                 self.logger.info('Reducing show name length...')
                 cursor.execute(
-                    'ALTER TABLE `show` CHANGE COLUMN `show` `show` varchar(128) NOT NULL')
-                self.notifier.update_update_scheme_progress(10)
-                cursor.execute(
-                    'ALTER TABLE `show` CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
-                self.notifier.update_update_scheme_progress(15)
+                    'ALTER TABLE `show` CHANGE COLUMN `show` `show` varchar(128) NOT NULL, CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
+                self.notifier.UpdateUpdateSchemeProgress(10)
                 self.logger.info('Reducing film title length...')
                 cursor.execute(
-                    'ALTER TABLE `film` CHANGE COLUMN `title` `title` varchar(128) NOT NULL')
-                self.notifier.update_update_scheme_progress(50)
-                cursor.execute(
-                    'ALTER TABLE `film` CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
-                self.notifier.update_update_scheme_progress(80)
+                    'ALTER TABLE `film` CHANGE COLUMN `title` `title` varchar(128) NOT NULL, CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
+                self.notifier.UpdateUpdateSchemeProgress(65)
                 self.logger.info('Deleting old dupecheck index...')
                 cursor.execute('ALTER TABLE `film` DROP KEY `dupecheck`')
                 self.logger.info('Creating and filling new column idhash...')
-                cursor.execute(
-                    'ALTER TABLE `film` ADD COLUMN `idhash` varchar(32) NULL AFTER `id`')
-                self.notifier.update_update_scheme_progress(82)
+                cursor.execute('ALTER TABLE `film` ADD COLUMN `idhash` varchar(32) NULL AFTER `id`')
+                self.notifier.UpdateUpdateSchemeProgress(82)
                 cursor.execute(
                     'UPDATE `film` SET `idhash`= MD5( CONCAT( `channelid`, ":", `showid`, ":", `url_video` ) )')
-                self.notifier.update_update_scheme_progress(99)
+                self.notifier.UpdateUpdateSchemeProgress(99)
                 self.logger.info('Creating new dupecheck index...')
-                cursor.execute(
-                    'ALTER TABLE `film` ADD KEY `dupecheck` (`idhash`)')
+                cursor.execute('ALTER TABLE `film` ADD KEY `dupecheck` (`idhash`)')
                 self.logger.info('Adding version info to status table...')
-                cursor.execute(
-                    'ALTER TABLE `status` ADD COLUMN `version` INT(11) NOT NULL DEFAULT 2')
+                cursor.execute('ALTER TABLE `status` ADD COLUMN `version` INT(11) NOT NULL DEFAULT 2')
                 self.logger.info('Resetting SQL mode to {}', sql_mode)
-                cursor.execute('SET SESSION sql_mode = %s', (sql_mode, ))
+                cursor.execute('SET SESSION sql_mode = %s', (sql_mode,))
                 self.logger.info('Scheme successfully updated to version 2')
-                self.notifier.close_update_scheme_progress()
+                return self._handle_database_update(convert, self._get_schema_version())
             except mysql.connector.Error as err:
-                self.logger.error(
-                    '=== DATABASE SCHEME UPDATE ERROR: {} ===', err)
-                self.exit()
-                self.notifier.close_update_scheme_progress()
+                self.logger.error('=== DATABASE SCHEME UPDATE ERROR: {} ===', err)
+                self.Exit()
+                self.notifier.CloseUpdateSchemeProgress()
+                self.notifier.show_database_error(err)
+                return False
+        elif version == 2:
+            # convert from 2 to 3
+            self.logger.info('Converting database to version 3')
+            self.notifier.ShowUpdateSchemeProgress()
+            try:
+                cursor = self.conn.cursor()
+                cursor.execute('SELECT @@SESSION.sql_mode')
+                (sql_mode,) = cursor.fetchone()
+                self.logger.info('Current SQL mode is {}', sql_mode)
+                cursor.execute('SET SESSION sql_mode = ""')
+
+                self.logger.info('Dropping touched column on channel...')
+                cursor.execute('ALTER TABLE `channel` DROP  `touched`')
+                self.notifier.UpdateUpdateSchemeProgress(5)
+                self.logger.info('Dropping touched column on show...')
+                cursor.execute('ALTER TABLE `show` DROP  `touched`')
+                self.notifier.UpdateUpdateSchemeProgress(15)
+                self.logger.info('Adding primary key to staus...')
+                cursor.execute(
+                    "ALTER TABLE `status` ADD `id` INT(4) UNSIGNED NOT NULL DEFAULT '1' FIRST, ADD PRIMARY KEY (`id`)")
+                self.notifier.UpdateUpdateSchemeProgress(20)
+                self.logger.info('Dropping touched column on film...')
+                cursor.execute('ALTER TABLE `film` DROP  `touched`')
+                self.notifier.UpdateUpdateSchemeProgress(60)
+
+                self.logger.info('Dropping stored procedure ftInsertChannel...')
+                cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertChannel`')
+                self.notifier.UpdateUpdateSchemeProgress(65)
+
+                self.logger.info('Dropping stored procedure ftInsertFilm...')
+                cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertFilm`')
+                self.notifier.UpdateUpdateSchemeProgress(70)
+
+                self.logger.info('Dropping stored procedure ftInsertShow...')
+                cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertShow`')
+                self.notifier.UpdateUpdateSchemeProgress(75)
+
+                self.logger.info('Dropping stored procedure ftUpdateEnd...')
+                cursor.execute('DROP PROCEDURE IF EXISTS `ftUpdateEnd`')
+                self.notifier.UpdateUpdateSchemeProgress(80)
+
+                self.logger.info('Dropping stored procedure ftUpdateStart...')
+                cursor.execute('DROP PROCEDURE IF EXISTS `ftUpdateStart`')
+                self.notifier.UpdateUpdateSchemeProgress(85)
+
+                self.logger.info('Creating tabele film_import...')
+                cursor.execute("""CREATE TABLE IF NOT EXISTS `film_import` (
+        			 `id` int(11) NOT NULL AUTO_INCREMENT,
+        			 `idhash` varchar(32) DEFAULT NULL,
+        			 `dtCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        			 `touched` smallint(1) NOT NULL DEFAULT '1',
+        			 `channel` varchar(64) NOT NULL,
+        			 `channelid` int(11) NOT NULL,
+        			 `show` varchar(128) NOT NULL,
+        			 `showsearch` varchar(128) NOT NULL,
+        			 `showid` int(11) NOT NULL,
+        			 `title` varchar(128) NOT NULL,
+        			 `search` varchar(128) NOT NULL,
+        			 `aired` timestamp NULL DEFAULT NULL,
+        			 `duration` time DEFAULT NULL,
+        			 `size` int(11) DEFAULT NULL,
+        			 `description` longtext,
+        			 `website` varchar(384) DEFAULT NULL,
+        			 `url_sub` varchar(384) DEFAULT NULL,
+        			 `url_video` varchar(384) DEFAULT NULL,
+        			 `url_video_sd` varchar(384) DEFAULT NULL,
+        			 `url_video_hd` varchar(384) DEFAULT NULL,
+        			 `airedepoch` int(11) DEFAULT NULL,
+        			 PRIMARY KEY (`id`),
+        			 KEY `index_1` (`channel`,`show`),
+        			 KEY `dupecheck` (`idhash`)
+        			) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC
+        		""")
+                self.notifier.UpdateUpdateSchemeProgress(95)
+                cursor.execute('UPDATE `status` set `version` = 3')
+                self.logger.info('Resetting SQL mode to {}', sql_mode)
+                cursor.execute('SET SESSION sql_mode = %s', (sql_mode,))
+                self.logger.info('Scheme successfully updated to version 3')
+                self.notifier.CloseUpdateSchemeProgress()
+            except mysql.connector.Error as err:
+                self.logger.error('=== DATABASE SCHEME UPDATE ERROR: {} ===', err)
+                self.Exit()
+                self.notifier.CloseUpdateSchemeProgress()
                 self.notifier.show_database_error(err)
                 return False
         return True
 
     def _handle_database_initialization(self):
+        self.logger.info('Database creation started')
+
         cursor = None
         dbcreated = False
         try:
             cursor = self.conn.cursor()
-            cursor.execute('CREATE DATABASE `{}` DEFAULT CHARACTER SET utf8'.format(
-                self.settings.database))
+            cursor.execute(
+                'CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8'.format(self.settings.database))
             dbcreated = True
             self.conn.database = self.settings.database
             cursor.execute('SET FOREIGN_KEY_CHECKS=0')
             self.conn.commit()
-            cursor.execute(
-                """
-CREATE TABLE `channel` (
-    `id`            int(11)         NOT NULL AUTO_INCREMENT,
-    `dtCreated`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `touched`       smallint(1)     NOT NULL DEFAULT '1',
-    `channel`       varchar(64)     NOT NULL,
-    PRIMARY KEY                     (`id`),
-    KEY             `channel`       (`channel`)
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
-                """
-            )
+            cursor.execute("""
+        		CREATE TABLE `channel` (
+        			`id`			int(11)			NOT NULL AUTO_INCREMENT,
+        			`dtCreated`		timestamp		NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        			`channel`		varchar(64)		NOT NULL,
+        			PRIMARY KEY						(`id`),
+        			KEY				`channel`		(`channel`)
+        		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
+        	""")
             self.conn.commit()
 
             cursor.execute("""
-CREATE TABLE `film` (
-    `id`            int(11)         NOT NULL AUTO_INCREMENT,
-    `idhash`        varchar(32)     DEFAULT NULL,
-    `dtCreated`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `touched`       smallint(1)     NOT NULL DEFAULT '1',
-    `channelid`     int(11)         NOT NULL,
-    `showid`        int(11)         NOT NULL,
-    `title`         varchar(128)    NOT NULL,
-    `search`        varchar(128)    NOT NULL,
-    `aired`         timestamp       NULL DEFAULT NULL,
-    `duration`      time            DEFAULT NULL,
-    `size`          int(11)         DEFAULT NULL,
-    `description`   longtext,
-    `website`       varchar(384)    DEFAULT NULL,
-    `url_sub`       varchar(384)    DEFAULT NULL,
-    `url_video`     varchar(384)    DEFAULT NULL,
-    `url_video_sd`  varchar(384)    DEFAULT NULL,
-    `url_video_hd`  varchar(384)    DEFAULT NULL,
-    `airedepoch`    int(11)         DEFAULT NULL,
-    PRIMARY KEY                     (`id`),
-    KEY             `index_1`       (`showid`,`title`),
-    KEY             `index_2`       (`channelid`,`title`),
-    KEY             `dupecheck`     (`idhash`),
-    CONSTRAINT `FK_FilmChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-    CONSTRAINT `FK_FilmShow` FOREIGN KEY (`showid`) REFERENCES `show` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
-            """)
+        		CREATE TABLE `film` (
+        			`id`			int(11)			NOT NULL AUTO_INCREMENT,
+        			`idhash`		varchar(32)		DEFAULT NULL,
+        			`dtCreated`		timestamp		NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        			`channelid`		int(11)			NOT NULL,
+        			`showid`		int(11)			NOT NULL,
+        			`title`			varchar(128)	NOT NULL,
+        			`search`		varchar(128)	NOT NULL,
+        			`aired`			timestamp		NULL DEFAULT NULL,
+        			`duration`		time			DEFAULT NULL,
+        			`size`			int(11)			DEFAULT NULL,
+        			`description`	longtext,
+        			`website`		varchar(384)	DEFAULT NULL,
+        			`url_sub`		varchar(384)	DEFAULT NULL,
+        			`url_video`		varchar(384)	DEFAULT NULL,
+        			`url_video_sd`	varchar(384)	DEFAULT NULL,
+        			`url_video_hd`	varchar(384)	DEFAULT NULL,
+        			`airedepoch`	int(11)			DEFAULT NULL,
+        			PRIMARY KEY						(`id`),
+        			KEY				`index_1`		(`showid`,`title`),
+        			KEY				`index_2`		(`channelid`,`title`),
+        			KEY				`dupecheck`		(`idhash`),
+        			CONSTRAINT `FK_FilmChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+        			CONSTRAINT `FK_FilmShow` FOREIGN KEY (`showid`) REFERENCES `show` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+        		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
+        	""")
+            self.conn.commit()
+            cursor.execute("""
+        		CREATE TABLE IF NOT EXISTS `film_import` (
+        			`id` int(11) NOT NULL AUTO_INCREMENT,
+        			`idhash` varchar(32) DEFAULT NULL,
+        			`dtCreated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        			`touched` smallint(1) NOT NULL DEFAULT '1',
+        			`channel` varchar(64) NOT NULL,
+        			`channelid` int(11) NOT NULL,
+        			`show` varchar(128) NOT NULL,
+        			`showsearch` varchar(128) NOT NULL,
+        			`showid` int(11) NOT NULL,
+        			`title` varchar(128) NOT NULL,
+        			`search` varchar(128) NOT NULL,
+        			`aired` timestamp NULL DEFAULT NULL,
+        			`duration` time DEFAULT NULL,
+        			`size` int(11) DEFAULT NULL,
+        			`description` longtext,
+        			`website` varchar(384) DEFAULT NULL,
+        			`url_sub` varchar(384) DEFAULT NULL,
+        			`url_video` varchar(384) DEFAULT NULL,
+        			`url_video_sd` varchar(384) DEFAULT NULL,
+        			`url_video_hd` varchar(384) DEFAULT NULL,
+        			`airedepoch` int(11) DEFAULT NULL,
+        			PRIMARY KEY (`id`),
+        			KEY `index_1` (`channel`,`show`),
+        			KEY `dupecheck` (`idhash`)
+        		) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC
+        	""")
+            self.conn.commit()
+            cursor.execute("""
+        		CREATE TABLE `show` (
+        			`id`			int(11)			NOT NULL AUTO_INCREMENT,
+        			`dtCreated`		timestamp		NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        			`channelid`		int(11)			NOT NULL,
+        			`show`			varchar(128)	NOT NULL,
+        			`search`		varchar(128)	NOT NULL,
+        			PRIMARY KEY						(`id`),
+        			KEY				`show`			(`show`),
+        			KEY				`search`		(`search`),
+        			KEY				`combined_1`	(`channelid`,`search`),
+        			KEY				`combined_2`	(`channelid`,`show`),
+        			CONSTRAINT `FK_ShowChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+        		) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
+        	""")
             self.conn.commit()
 
             cursor.execute("""
-CREATE TABLE `show` (
-    `id`            int(11)         NOT NULL AUTO_INCREMENT,
-    `dtCreated`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `touched`       smallint(1)     NOT NULL DEFAULT '1',
-    `channelid`     int(11)         NOT NULL,
-    `show`          varchar(128)    NOT NULL,
-    `search`        varchar(128)    NOT NULL,
-    PRIMARY KEY                     (`id`),
-    KEY             `show`          (`show`),
-    KEY             `search`        (`search`),
-    KEY             `combined_1`    (`channelid`,`search`),
-    KEY             `combined_2`    (`channelid`,`show`),
-    CONSTRAINT `FK_ShowChannel` FOREIGN KEY (`channelid`) REFERENCES `channel` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
-            """)
+        		CREATE TABLE `status` (
+        		 `id` int(4) unsigned NOT NULL DEFAULT '1',
+        		 `modified` int(11) NOT NULL,
+        		 `status` varchar(255) NOT NULL,
+        		 `lastupdate` int(11) NOT NULL,
+        		 `filmupdate` int(11) NOT NULL,
+        		 `fullupdate` int(1) NOT NULL,
+        		 `add_chn` int(11) NOT NULL,
+        		 `add_shw` int(11) NOT NULL,
+        		 `add_mov` int(11) NOT NULL,
+        		 `del_chm` int(11) NOT NULL,
+        		 `del_shw` int(11) NOT NULL,
+        		 `del_mov` int(11) NOT NULL,
+        		 `tot_chn` int(11) NOT NULL,
+        		 `tot_shw` int(11) NOT NULL,
+        		 `tot_mov` int(11) NOT NULL,
+        		 `version` int(11) NOT NULL DEFAULT '3',
+        		 PRIMARY KEY (`id`)
+        		) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC
+        	""")
             self.conn.commit()
 
-            cursor.execute("""
-CREATE TABLE `status` (
-    `modified`      int(11)         NOT NULL,
-    `status`        varchar(255)    NOT NULL,
-    `lastupdate`    int(11)         NOT NULL,
-    `filmupdate`    int(11)         NOT NULL,
-    `fullupdate`    int(1)          NOT NULL,
-    `add_chn`       int(11)         NOT NULL,
-    `add_shw`       int(11)         NOT NULL,
-    `add_mov`       int(11)         NOT NULL,
-    `del_chm`       int(11)         NOT NULL,
-    `del_shw`       int(11)         NOT NULL,
-    `del_mov`       int(11)         NOT NULL,
-    `tot_chn`       int(11)         NOT NULL,
-    `tot_shw`       int(11)         NOT NULL,
-    `tot_mov`       int(11)         NOT NULL,
-    `version`       int(11)         NOT NULL DEFAULT 2
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC DEFAULT CHARSET=utf8;
-            """)
-            self.conn.commit()
-
-            cursor.execute(
-                'INSERT INTO `status` VALUES (0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0,2);')
+            cursor.execute('INSERT INTO `status` VALUES (0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0,3);')
             self.conn.commit()
 
             cursor.execute('SET FOREIGN_KEY_CHECKS=1')
-            self.conn.commit()
-
-            cursor.execute("""
-CREATE PROCEDURE `ftInsertChannel`(
-    _channel    VARCHAR(255)
-)
-BEGIN
-    DECLARE channelid_  INT(11);
-    DECLARE touched_    INT(1);
-    DECLARE added_      INT(1) DEFAULT 0;
-
-    SELECT  `id`,
-            `touched`
-    INTO    channelid_,
-            touched_
-    FROM    `channel`
-    WHERE   ( `channel`.`channel` = _channel );
-
-    IF ( channelid_ IS NULL ) THEN
-        INSERT INTO `channel` (
-            `channel`
-        )
-        VALUES (
-            _channel
-        );
-        SET channelid_  = LAST_INSERT_ID();
-        SET added_ = 1;
-    ELSE
-        UPDATE  `channel`
-        SET     `touched` = 1
-        WHERE   ( `id` = channelid_ );
-    END IF;
-
-    SELECT  channelid_  AS `id`,
-            added_      AS `added`;
-END
-            """)
-            self.conn.commit()
-
-            cursor.execute("""
-CREATE PROCEDURE `ftInsertFilm`(
-    _channelid      INT(11),
-    _showid         INT(11),
-    _title          VARCHAR(255),
-    _search         VARCHAR(255),
-    _aired          TIMESTAMP,
-    _duration       TIME,
-    _size           INT(11),
-    _description    LONGTEXT,
-    _website        VARCHAR(384),
-    _url_sub        VARCHAR(384),
-    _url_video      VARCHAR(384),
-    _url_video_sd   VARCHAR(384),
-    _url_video_hd   VARCHAR(384),
-    _airedepoch     INT(11)
-)
-BEGIN
-    DECLARE     id_         INT;
-    DECLARE     added_      INT DEFAULT 0;
-    DECLARE     idhash_     VARCHAR(32);
-
-    SET idhash_ = MD5( CONCAT( _channelid, ':', _showid, ':', _url_video ) );
-
-    SELECT      `id`
-    INTO        id_
-    FROM        `film` AS f
-    WHERE       ( f.idhash = idhash_ );
-
-    IF ( id_ IS NULL ) THEN
-        INSERT INTO `film` (
-            `idhash`,
-            `channelid`,
-            `showid`,
-            `title`,
-            `search`,
-            `aired`,
-            `duration`,
-            `size`,
-            `description`,
-            `website`,
-            `url_sub`,
-            `url_video`,
-            `url_video_sd`,
-            `url_video_hd`,
-            `airedepoch`
-        )
-        VALUES (
-            idhash_,
-            _channelid,
-            _showid,
-            _title,
-            _search,
-            IF(_aired = "1980-01-01 00:00:00", NULL, _aired),
-            IF(_duration = "00:00:00", NULL, _duration),
-            _size,
-            _description,
-            _website,
-            _url_sub,
-            _url_video,
-            _url_video_sd,
-            _url_video_hd,
-            _airedepoch
-        );
-        SET id_         = LAST_INSERT_ID();
-        SET added_      = 1;
-    ELSE
-        UPDATE  `film`
-        SET     `touched` = 1
-        WHERE   ( `id` = id_ );
-    END IF;
-    SELECT  id_         AS `id`,
-            added_      AS `added`;
-END
-            """)
-            self.conn.commit()
-
-            cursor.execute("""
-CREATE PROCEDURE `ftInsertShow`(
-    _channelid  INT(11),
-    _show       VARCHAR(255),
-    _search     VARCHAR(255)
-)
-BEGIN
-    DECLARE showid_     INT(11);
-    DECLARE touched_    INT(1);
-    DECLARE added_      INT(1) DEFAULT 0;
-
-    SELECT  `id`,
-            `touched`
-    INTO    showid_,
-            touched_
-    FROM    `show`
-    WHERE   ( `show`.`channelid` = _channelid )
-            AND
-            ( `show`.`show` = _show );
-
-    IF ( showid_ IS NULL ) THEN
-        INSERT INTO `show` (
-            `channelid`,
-            `show`,
-            `search`
-        )
-        VALUES (
-            _channelid,
-            _show,
-            _search
-        );
-        SET showid_ = LAST_INSERT_ID();
-        SET added_ = 1;
-    ELSE
-        UPDATE  `show`
-        SET     `touched` = 1
-        WHERE   ( `id` = showid_ );
-    END IF;
-
-
-    SELECT  showid_     AS `id`,
-            added_      AS `added`;
-END
-            """)
-            self.conn.commit()
-
-            cursor.execute("""
-CREATE PROCEDURE `ftUpdateEnd`(
-    _full   INT(1)
-)
-BEGIN
-    DECLARE     del_chn_        INT DEFAULT 0;
-    DECLARE     del_shw_        INT DEFAULT 0;
-    DECLARE     del_mov_        INT DEFAULT 0;
-    DECLARE     cnt_chn_        INT DEFAULT 0;
-    DECLARE     cnt_shw_        INT DEFAULT 0;
-    DECLARE     cnt_mov_        INT DEFAULT 0;
-
-    IF ( _full = 1 ) THEN
-        SELECT      COUNT(*)
-        INTO        del_chn_
-        FROM        `channel`
-        WHERE       ( `touched` = 0 );
-
-        SELECT      COUNT(*)
-        INTO        del_shw_
-        FROM        `show`
-        WHERE       ( `touched` = 0 );
-
-        SELECT      COUNT(*)
-        INTO        del_mov_
-        FROM        `film`
-        WHERE       ( `touched` = 0 );
-
-        DELETE FROM `show`
-        WHERE       ( `show`.`touched` = 0 )
-                    AND
-                    ( ( SELECT SUM( `film`.`touched` ) FROM `film` WHERE `film`.`showid` = `show`.`id` ) = 0 );
-
-        DELETE FROM `film`
-        WHERE       ( `touched` = 0 );
-    ELSE
-        SET del_chn_ = 0;
-        SET del_shw_ = 0;
-        SET del_mov_ = 0;
-    END IF;
-
-    SELECT  del_chn_    AS  `del_chn`,
-            del_shw_    AS  `del_shw`,
-            del_mov_    AS  `del_mov`,
-            cnt_chn_    AS  `cnt_chn`,
-            cnt_shw_    AS  `cnt_shw`,
-            cnt_mov_    AS  `cnt_mov`;
-END
-            """)
-            self.conn.commit()
-
-            cursor.execute("""
-CREATE PROCEDURE `ftUpdateStart`(
-    _full   INT(1)
-)
-BEGIN
-    DECLARE     cnt_chn_        INT DEFAULT 0;
-    DECLARE     cnt_shw_        INT DEFAULT 0;
-    DECLARE     cnt_mov_        INT DEFAULT 0;
-
-    IF ( _full = 1 ) THEN
-        UPDATE  `channel`
-        SET     `touched` = 0;
-
-        UPDATE  `show`
-        SET     `touched` = 0;
-
-        UPDATE  `film`
-        SET     `touched` = 0;
-    END IF;
-
-    SELECT  COUNT(*)
-    INTO    cnt_chn_
-    FROM    `channel`;
-
-    SELECT  COUNT(*)
-    INTO    cnt_shw_
-    FROM    `show`;
-
-    SELECT  COUNT(*)
-    INTO    cnt_mov_
-    FROM    `film`;
-
-    SELECT  cnt_chn_    AS `cnt_chn`,
-            cnt_shw_    AS `cnt_shw`,
-            cnt_mov_    AS `cnt_mov`;
-END
-            """)
             self.conn.commit()
 
             cursor.close()
@@ -1319,8 +1196,7 @@ END
             self.notifier.show_database_error(err)
             try:
                 if dbcreated:
-                    cursor.execute('DROP DATABASE `{}`'.format(
-                        self.settings.database))
+                    cursor.execute('DROP DATABASE `{}`'.format(self.settings.database))
                     self.conn.commit()
                 if cursor is not None:
                     cursor.close()

@@ -71,7 +71,7 @@ class FilmUI(Film):
         Add the current entry to the directory
 
         Args:
-            altname(str, optional): alternative name for the entry
+            alttitle(str, optional): alternative name for the entry
 
             total_items(int, optional): if specified, the number
                 is passed to the kodi routines in order to

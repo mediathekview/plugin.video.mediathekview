@@ -15,6 +15,7 @@ import string
 
 import urllib
 import urllib2
+import md5
 
 from contextlib import closing
 from resources.lib.exceptions import ExitRequested
@@ -106,6 +107,20 @@ def make_search_string(val):
     search = ''.join([c for c in val if c in cset])
     return search.upper().strip()
 
+
+def make_hashkey(channel, show, url):
+    """
+    Build md5 hash as unique film identifier by c
+    hannel, show and default url
+
+    Args:
+        channel(str): channel name
+        show(str): show name
+        url(str): default film url
+    """
+    st = channel + ':' + show + ':' + url
+    hashObject = md5.new(st.encode('utf-8'))
+    return hashObject.hexdigest()
 
 def make_duration(val):
     """
