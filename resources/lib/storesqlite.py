@@ -863,7 +863,7 @@ class StoreSQLite(object):
                     self.ft_showid = cursor.lastrowid
 
             # check if the movie is there
-            hashkey = hashlib.md5((channel + ':' + show + ':' + film["url_video"]).encode('utf-8')).hexdigest()
+            idhash = hashlib.md5((channel + ':' + show + ':' + film["url_video"]).encode('utf-8')).hexdigest()
 
             cursor.execute("""
                 SELECT      `id`,
