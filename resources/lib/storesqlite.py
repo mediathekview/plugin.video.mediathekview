@@ -946,7 +946,7 @@ class StoreSQLite(object):
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
 
-    def ftFlushInsert(self):
+    def ft_flush_insert(self):
         """
         Bulk inserts not implemented in sqlite driver
         """

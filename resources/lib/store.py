@@ -317,6 +317,6 @@ class Store(object):
         """
         Dump collected film data to db using bulk inserts where applicable
         """
-        if self.db is not None:
-            self.db.ftFlushInsert()
+        if self.database is not None:
+            self.database.ft_flush_insert()
         return

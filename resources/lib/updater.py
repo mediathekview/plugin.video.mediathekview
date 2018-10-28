@@ -266,7 +266,7 @@ class MediathekViewUpdater(object):
                                         'Could not determine date "{}" of filmliste: {}', value.strip(), err)
                             except ValueError as err:
                                 pass
-
+            self.database.ft_flush_insert()
             self._update_end(full, 'IDLE')
             self.logger.info(
                 'Import of {} in update cycle {} finished', destfile, self.cycle)
@@ -517,6 +517,8 @@ class MediathekViewUpdater(object):
                 self.film,
                 True
             )
+            self.database.ft_flush_insert()
+
         else:
             self.count = self.count + 1
             (_, cnt_chn, cnt_shw, cnt_mov) = self.database.ft_insert_film(
