@@ -497,9 +497,12 @@ class MediathekViewUpdater(object):
         self.film["geo"] = ""
 
     def _end_record(self, records):
-        if self.count % 1000 == 0:
+        self.count = self.count + 1
+
+        if self.count % self.database.flush_block_size() == 0:
             # pylint: disable=line-too-long
-            percent = int(self.count * 100 / records)
+            # add 10% to record for final db update time in update_end
+            percent = int(self.count * 100 / (records * 1.1))
             self.logger.info('In progress (%d%%): channels:%d, shows:%d, movies:%d ...' % (
                 percent, self.add_chn, self.add_shw, self.add_mov))
             self.notifier.update_update_progress(
@@ -512,7 +515,6 @@ class MediathekViewUpdater(object):
                 tot_shw=self.tot_shw + self.add_shw,
                 tot_mov=self.tot_mov + self.add_mov
             )
-            self.count = self.count + 1
             (_, cnt_chn, cnt_shw, cnt_mov) = self.database.ft_insert_film(
                 self.film,
                 True
@@ -520,7 +522,6 @@ class MediathekViewUpdater(object):
             self.database.ft_flush_insert()
 
         else:
-            self.count = self.count + 1
             (_, cnt_chn, cnt_shw, cnt_mov) = self.database.ft_insert_film(
                 self.film,
                 False

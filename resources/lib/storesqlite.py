@@ -110,6 +110,9 @@ class StoreSQLite(object):
             self.conn.close()
             self.conn = None
 
+    def flush_block_size(self):
+        return 1000;
+
     def search(self, search, filmui, extendedsearch=False):
         """
         Performs a search for films based on a search term

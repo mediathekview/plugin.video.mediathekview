@@ -15,7 +15,6 @@ import string
 
 import urllib
 import urllib2
-import md5
 
 from contextlib import closing
 from resources.lib.exceptions import ExitRequested
