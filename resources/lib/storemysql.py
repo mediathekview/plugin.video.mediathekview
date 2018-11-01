@@ -82,8 +82,7 @@ class StoreMySQL(object):
                 host=self.settings.host,
                 port=self.settings.port,
                 user=self.settings.user,
-                password=self.settings.password,
-                use_pure=False
+                password=self.settings.password
             )
             try:
                 cursor = self.conn.cursor()
@@ -95,7 +94,7 @@ class StoreMySQL(object):
                 # tests showed that prepared statements provide no speed improvemend
                 # as this feature is not implemented
                 # in the c clientlib
-                self.blockCursor = self.conn.cursor(prepared=False)
+                self.blockCursor = self.conn.cursor()
             # pylint: disable=broad-except
             except Exception:
                 self.logger.info('Connected to server {}', self.settings.host)
@@ -110,7 +109,7 @@ class StoreMySQL(object):
             self.notifier.show_database_error(err)
             return False
         except Exception as err:
-            if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
+            if err.args[0] == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.logger.info('=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database)
                 return self._handle_database_initialization()
             self.conn = None
