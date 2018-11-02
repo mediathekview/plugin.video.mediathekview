@@ -916,7 +916,6 @@ class StoreMySQL(object):
         hashkey = hashlib.md5((channel + ':' + show + ':' + film["url_video"]).encode('utf-8')).hexdigest()
 
         try:
-            self.sqlValues += """ (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s),"""
             self.sqlData += [
                 hashkey,
                 channel,
