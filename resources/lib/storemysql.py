@@ -49,8 +49,8 @@ class StoreMySQL(object):
         self.ft_showid = None
         # useful query fragments
         # pylint: disable=line-too-long
-        self.sql_query_films = "SELECT film.id,`title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_sub`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
-        self.sql_query_filmcnt = "SELECT COUNT(*) FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
+        self.sql_query_films = "SELECT film.id,`title`,`show`,`channel`,`description`,TIME_TO_SEC(`duration`) AS `seconds`,`size`,`aired`,`url_sub`,`url_video`,`url_video_sd`,`url_video_hd` FROM `film` LEFT JOIN `show` ON `show`.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
+        self.sql_query_filmcnt = "SELECT COUNT(*) FROM `film` LEFT JOIN `show` ON `show`.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
         self.sql_cond_recent = "( TIMESTAMPDIFF(SECOND,{},CURRENT_TIMESTAMP()) <= {} )".format(
             "aired" if settings.recentmode == 0 else "film.dtCreated", settings.maxage)
         self.sql_cond_nofuture = " AND ( ( `aired` IS NULL ) OR ( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) > 0 ) )" if settings.nofuture else ""
@@ -84,20 +84,18 @@ class StoreMySQL(object):
                 user=self.settings.user,
                 password=self.settings.password
             )
-            try:
-                cursor = self.conn.cursor()
-                cursor.execute('SELECT VERSION()')
-                (version, ) = cursor.fetchone()
-                self.logger.info(
-                    'Connected to server {} running {}', self.settings.host, version)
-                self.blockInsert = self.build_insert(self.flush_block_size())
-                # tests showed that prepared statements provide no speed improvemend
-                # as this feature is not implemented
-                # in the c clientlib
-                self.blockCursor = self.conn.cursor()
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT VERSION()')
+            (version, ) = cursor.fetchone()
+            self.logger.info(
+                'Connected to server {} running {}', self.settings.host, version)
+            self.blockInsert = self.build_insert(self.flush_block_size())
+            # tests showed that prepared statements provide no speed improvemend
+            # as this feature is not implemented
+            # in the c clientlib
+            self.blockCursor = self.conn.cursor()
+            self._check_db_state()
             # pylint: disable=broad-except
-            except Exception:
-                self.logger.info('Connected to server {}', self.settings.host)
             self.conn.database = self.settings.database
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
@@ -113,11 +111,41 @@ class StoreMySQL(object):
                 self.logger.info('=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database)
                 return self._handle_database_initialization()
             self.conn = None
-            self.logger.error('Database error: {}, {}', err.errno, err)
+            self.logger.error('Database error: {}, {}', err.args[0], err)
             self.notifier.show_database_error(err)
             return False
         # handle schema versioning
         return self._handle_database_update(convert)
+
+    def _check_db_state(self):
+        """
+        check existance of database and tables and take required actions
+        """
+        cursor = self.conn.cursor()
+        cursor.execute('show databases like %s', (self.settings.database, ))
+        row = cursor.fetchone()
+        if row is None:
+            cursor.close()
+            return self._handle_database_initialization()
+        self.conn.database = self.settings.database
+        cursor.execute('show tables')
+        tablesRequired2 = {u'channel', u'show', u'film', u'show', u'status'}
+        tablesRequired3 = {u'channel', u'show', u'film', u'show', u'status', u'film_import'}
+        tablesFound = []
+        row = cursor.fetchone()
+        while row is not None:
+            tablesFound.append(row[0])
+            row = cursor.fetchone()
+        if tablesRequired2.intersection(tablesFound) == tablesRequired2:
+            version = self._get_schema_version()
+            if version == 2:
+                # found all tables required for v2
+                return
+            if version == 3 and tablesRequired3.intersection(tablesFound) == tablesRequired3:
+                # found all tables required for v3
+                return
+
+        self._handle_database_initialization()
 
     def exit(self):
         """ Shutdown of the database system """
@@ -135,11 +163,10 @@ class StoreMySQL(object):
         return self.sqlInsert + sqlValues[:-1]
 
     def flush_block_size(self):
-        return 2000;
+        return 2000
 
     def clear_insert_data(self):
         """ clear collected import data from sql variables """
-        self.sqlValues = ''
         self.sqlData = []
 
     def search(self, search, filmui, extendedsearch=False):
@@ -310,30 +337,30 @@ class StoreMySQL(object):
                                 GROUP_CONCAT(`channel`)
                     FROM        `show`
                     LEFT JOIN   `channel`
-                        ON      ( channel.id = show.channelid )
+                        ON      ( channel.id = `show`.channelid )
                     WHERE       ( `show` LIKE %s )
                     GROUP BY    `show`
                 """, (initial + '%', ))
             elif channelid == 0:
                 cursor.execute("""
-                    SELECT      show.id,
-                                show.channelid,
-                                show.show,
+                    SELECT      `show`.id,
+                                `show`.channelid,
+                                `show`.show,
                                 channel.channel
                     FROM        `show`
                     LEFT JOIN   `channel`
-                        ON      ( channel.id = show.channelid )
+                        ON      ( channel.id = `show`.channelid )
                     WHERE       ( `show` LIKE %s )
                 """, (initial + '%', ))
             elif initial:
                 cursor.execute("""
-                    SELECT      show.id,
-                                show.channelid,
-                                show.show,
+                    SELECT      `show`.id,
+                                `show`.channelid,
+                                `show`.show,
                                 channel.channel
                     FROM        `show`
                     LEFT JOIN   `channel`
-                        ON      ( channel.id = show.channelid )
+                        ON      ( channel.id = `show`.channelid )
                     WHERE       (
                                     ( `channelid` = %s )
                                     AND
@@ -342,13 +369,13 @@ class StoreMySQL(object):
                 """, (channelid, initial + '%', ))
             else:
                 cursor.execute("""
-                    SELECT      show.id,
-                                show.channelid,
-                                show.show,
+                    SELECT      `show`.id,
+                                `show`.channelid,
+                                `show`.show,
                                 channel.channel
                     FROM        `show`
                     LEFT JOIN   `channel`
-                        ON      ( channel.id = show.channelid )
+                        ON      ( channel.id = `show`.channelid )
                     WHERE       ( `channelid` = %s )
                 """, (channelid, ))
             showui.begin(channelid)
@@ -604,7 +631,7 @@ class StoreMySQL(object):
         if fullupdate is not None:
             new['fullupdate'] = fullupdate
 
-        if (old['status'] == 'NONE'):
+        if old['status'] == 'NONE':
             try:
                 cursor = self.conn.cursor()
                 # insert status
@@ -624,10 +651,10 @@ class StoreMySQL(object):
                 self.logger.error('Database error: {}, {}', err.errno, err)
                 self.notifier.show_database_error(err)
                 return
-            if (status != 'IDLE'):
+            if status != 'IDLE':
                 return
 
-        if (status != 'IDLE'):
+        if status != 'IDLE':
             try:
                 cursor = self.conn.cursor()
                 # insert status
@@ -842,7 +869,7 @@ class StoreMySQL(object):
                         and f.idhash is null
             """)
 
-            cursor.execute("""truncate film_import""");
+            cursor.execute("""truncate film_import""")
 
             cursor.close()
             self.conn.commit()
@@ -913,7 +940,7 @@ class StoreMySQL(object):
 
         except mysql.connector.Error as err:
             self.logger.error('Database error: {}, {}', err.errno, err)
-            self.notifier.ShowDatabaseError(err)
+            self.notifier.show_database_error(err)
         return (0, 0, 0, 0,)
 
     def ft_flush_insert(self):
@@ -956,20 +983,20 @@ class StoreMySQL(object):
             return self._handle_database_update(convert, self._get_schema_version())
         if version == 0:
             # should never happen - something went wrong...
-            self.Exit()
+            self.exit()
             return False
         elif version == 3:
             # current version
             return True
         elif convert is False:
             # do not convert (Addon threads)
-            # self.Exit()
-            self.notifier.ShowUpdatingScheme()
+            # self.exit()
+            self.notifier.show_updating_scheme()
             return False
         elif version == 1:
             # convert from 1 to 2
             self.logger.info('Converting database to version 2')
-            self.notifier.ShowUpdateSchemeProgress()
+            self.notifier.show_update_scheme_progress()
             try:
                 cursor = self.conn.cursor()
                 cursor.execute('SELECT @@SESSION.sql_mode')
@@ -979,23 +1006,23 @@ class StoreMySQL(object):
 
                 self.logger.info('Reducing channel name length...')
                 cursor.execute('ALTER TABLE `channel` CHANGE COLUMN `channel` `channel` varchar(64) NOT NULL')
-                self.notifier.UpdateUpdateSchemeProgress(5)
+                self.notifier.update_update_scheme_progress(5)
                 self.logger.info('Reducing show name length...')
                 cursor.execute(
                     'ALTER TABLE `show` CHANGE COLUMN `show` `show` varchar(128) NOT NULL, CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
-                self.notifier.UpdateUpdateSchemeProgress(10)
+                self.notifier.update_update_scheme_progress(10)
                 self.logger.info('Reducing film title length...')
                 cursor.execute(
                     'ALTER TABLE `film` CHANGE COLUMN `title` `title` varchar(128) NOT NULL, CHANGE COLUMN `search` `search` varchar(128) NOT NULL')
-                self.notifier.UpdateUpdateSchemeProgress(65)
+                self.notifier.update_update_scheme_progress(65)
                 self.logger.info('Deleting old dupecheck index...')
                 cursor.execute('ALTER TABLE `film` DROP KEY `dupecheck`')
                 self.logger.info('Creating and filling new column idhash...')
                 cursor.execute('ALTER TABLE `film` ADD COLUMN `idhash` varchar(32) NULL AFTER `id`')
-                self.notifier.UpdateUpdateSchemeProgress(82)
+                self.notifier.update_update_scheme_progress(82)
                 cursor.execute(
                     'UPDATE `film` SET `idhash`= MD5( CONCAT( `channelid`, ":", `showid`, ":", `url_video` ) )')
-                self.notifier.UpdateUpdateSchemeProgress(99)
+                self.notifier.update_update_scheme_progress(99)
                 self.logger.info('Creating new dupecheck index...')
                 cursor.execute('ALTER TABLE `film` ADD KEY `dupecheck` (`idhash`)')
                 self.logger.info('Adding version info to status table...')
@@ -1006,14 +1033,14 @@ class StoreMySQL(object):
                 return self._handle_database_update(convert, self._get_schema_version())
             except mysql.connector.Error as err:
                 self.logger.error('=== DATABASE SCHEME UPDATE ERROR: {} ===', err)
-                self.Exit()
-                self.notifier.CloseUpdateSchemeProgress()
+                self.exit()
+                self.notifier.close_update_scheme_progress()
                 self.notifier.show_database_error(err)
                 return False
         elif version == 2:
             # convert from 2 to 3
             self.logger.info('Converting database to version 3')
-            self.notifier.ShowUpdateSchemeProgress()
+            self.notifier.show_update_scheme_progress()
             try:
                 cursor = self.conn.cursor()
                 cursor.execute('SELECT @@SESSION.sql_mode')
@@ -1023,37 +1050,37 @@ class StoreMySQL(object):
 
                 self.logger.info('Dropping touched column on channel...')
                 cursor.execute('ALTER TABLE `channel` DROP  `touched`')
-                self.notifier.UpdateUpdateSchemeProgress(5)
+                self.notifier.update_update_scheme_progress(5)
                 self.logger.info('Dropping touched column on show...')
                 cursor.execute('ALTER TABLE `show` DROP  `touched`')
-                self.notifier.UpdateUpdateSchemeProgress(15)
+                self.notifier.update_update_scheme_progress(15)
                 self.logger.info('Adding primary key to staus...')
                 cursor.execute(
                     "ALTER TABLE `status` ADD `id` INT(4) UNSIGNED NOT NULL DEFAULT '1' FIRST, ADD PRIMARY KEY (`id`)")
-                self.notifier.UpdateUpdateSchemeProgress(20)
+                self.notifier.update_update_scheme_progress(20)
                 self.logger.info('Dropping touched column on film...')
                 cursor.execute('ALTER TABLE `film` DROP  `touched`, CHANGE idhash idhash varchar(32) NOT NULL')
-                self.notifier.UpdateUpdateSchemeProgress(60)
+                self.notifier.update_update_scheme_progress(60)
 
                 self.logger.info('Dropping stored procedure ftInsertChannel...')
                 cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertChannel`')
-                self.notifier.UpdateUpdateSchemeProgress(65)
+                self.notifier.update_update_scheme_progress(65)
 
                 self.logger.info('Dropping stored procedure ftInsertFilm...')
                 cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertFilm`')
-                self.notifier.UpdateUpdateSchemeProgress(70)
+                self.notifier.update_update_scheme_progress(70)
 
                 self.logger.info('Dropping stored procedure ftInsertShow...')
                 cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertShow`')
-                self.notifier.UpdateUpdateSchemeProgress(75)
+                self.notifier.update_update_scheme_progress(75)
 
                 self.logger.info('Dropping stored procedure ftUpdateEnd...')
                 cursor.execute('DROP PROCEDURE IF EXISTS `ftUpdateEnd`')
-                self.notifier.UpdateUpdateSchemeProgress(80)
+                self.notifier.update_update_scheme_progress(80)
 
                 self.logger.info('Dropping stored procedure ftUpdateStart...')
                 cursor.execute('DROP PROCEDURE IF EXISTS `ftUpdateStart`')
-                self.notifier.UpdateUpdateSchemeProgress(85)
+                self.notifier.update_update_scheme_progress(85)
 
                 self.logger.info('Creating tabele film_import...')
                 cursor.execute("""CREATE TABLE IF NOT EXISTS `film_import` (
@@ -1078,16 +1105,16 @@ class StoreMySQL(object):
                     KEY `show` (`show`)
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC
                 """)
-                self.notifier.UpdateUpdateSchemeProgress(95)
+                self.notifier.update_update_scheme_progress(95)
                 cursor.execute('UPDATE `status` set `version` = 3')
                 self.logger.info('Resetting SQL mode to {}', sql_mode)
                 cursor.execute('SET SESSION sql_mode = %s', (sql_mode,))
                 self.logger.info('Scheme successfully updated to version 3')
-                self.notifier.CloseUpdateSchemeProgress()
+                self.notifier.close_update_scheme_progress()
             except mysql.connector.Error as err:
                 self.logger.error('=== DATABASE SCHEME UPDATE ERROR: {} ===', err)
-                self.Exit()
-                self.notifier.CloseUpdateSchemeProgress()
+                self.exit()
+                self.notifier.close_update_scheme_progress()
                 self.notifier.show_database_error(err)
                 return False
         return True
@@ -1106,7 +1133,7 @@ class StoreMySQL(object):
             cursor.execute('SET FOREIGN_KEY_CHECKS=0')
             self.conn.commit()
             cursor.execute("""
-                CREATE TABLE `channel` (
+                CREATE TABLE IF NOT EXISTS `channel` (
                     `id`            int(11)            NOT NULL AUTO_INCREMENT,
                     `dtCreated`        timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `channel`        varchar(64)        NOT NULL,
@@ -1117,7 +1144,7 @@ class StoreMySQL(object):
             self.conn.commit()
 
             cursor.execute("""
-                CREATE TABLE `film` (
+                CREATE TABLE IF NOT EXISTS `film` (
                     `id`            int(11)            NOT NULL AUTO_INCREMENT,
                     `idhash`        varchar(32)        DEFAULT NULL,
                     `dtCreated`        timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -1169,7 +1196,7 @@ class StoreMySQL(object):
             """)
             self.conn.commit()
             cursor.execute("""
-                CREATE TABLE `show` (
+                CREATE TABLE IF NOT EXISTS `show` (
                     `id`            int(11)            NOT NULL AUTO_INCREMENT,
                     `dtCreated`        timestamp        NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     `channelid`        int(11)            NOT NULL,
@@ -1186,7 +1213,7 @@ class StoreMySQL(object):
             self.conn.commit()
 
             cursor.execute("""
-                CREATE TABLE `status` (
+                CREATE TABLE IF NOT EXISTS `status` (
                  `id` int(4) unsigned NOT NULL DEFAULT '1',
                  `modified` int(11) NOT NULL,
                  `status` varchar(255) NOT NULL,
@@ -1208,7 +1235,7 @@ class StoreMySQL(object):
             """)
             self.conn.commit()
 
-            cursor.execute('INSERT INTO `status` VALUES (1, 0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0,3);')
+            cursor.execute('INSERT INTO `status` VALUES (1, 0,"IDLE",0,0,1,0,0,0,0,0,0,0,0,0,3);')
             self.conn.commit()
 
             cursor.execute('SET FOREIGN_KEY_CHECKS=1')

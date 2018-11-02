@@ -111,7 +111,7 @@ class StoreSQLite(object):
             self.conn = None
 
     def flush_block_size(self):
-        return 1000;
+        return 1000
 
     def search(self, search, filmui, extendedsearch=False):
         """
