@@ -94,39 +94,31 @@ class StoreMySQL(object):
             # as this feature is not implemented
             # in the c clientlib
             self.blockCursor = self.conn.cursor()
-            self._check_db_state()
-            # pylint: disable=broad-except
-            self.conn.database = self.settings.database
-        except mysql.connector.Error as err:
-            if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                self.logger.info(
-                    '=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database)
-                return self._handle_database_initialization()
-            self.conn = None
-            self.logger.error('Database error: {}, {}', err.errno, err)
-            self.notifier.show_database_error(err)
-            return False
+            if self._check_db_state(convert):
+                self.conn.database = self.settings.database
+            else:
+                self.conn = None
+                return False
+        # pylint: disable=broad-except
         except Exception as err:
-            if err.args[0] == mysql.connector.errorcode.ER_BAD_DB_ERROR:
-                self.logger.info('=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database)
-                return self._handle_database_initialization()
             self.conn = None
             self.logger.error('Database error: {}, {}', err.args[0], err)
             self.notifier.show_database_error(err)
             return False
         # handle schema versioning
-        return self._handle_database_update(convert)
+        self._handle_database_update(convert)
 
-    def _check_db_state(self):
+    def _check_db_state(self, convert):
         """
         check existance of database and tables and take required actions
+        return True when db is usable
         """
         cursor = self.conn.cursor()
         cursor.execute('show databases like %s', (self.settings.database, ))
         row = cursor.fetchone()
         if row is None:
             cursor.close()
-            return self._handle_database_initialization()
+            return self._handle_database_initialization(convert)
         self.conn.database = self.settings.database
         cursor.execute('show tables')
         tablesRequired2 = {u'channel', u'show', u'film', u'show', u'status'}
@@ -140,12 +132,11 @@ class StoreMySQL(object):
             version = self._get_schema_version()
             if version == 2:
                 # found all tables required for v2
-                return
+                return True
             if version == 3 and tablesRequired3.intersection(tablesFound) == tablesRequired3:
                 # found all tables required for v3
-                return
-
-        self._handle_database_initialization()
+                return True
+        return self._handle_database_initialization(convert)
 
     def exit(self):
         """ Shutdown of the database system """
@@ -1118,7 +1109,11 @@ class StoreMySQL(object):
                 return False
         return True
 
-    def _handle_database_initialization(self):
+    def _handle_database_initialization(self, convert):
+        if convert == False:
+            self.notifier.show_database_error('Database not yet set up')
+            return False
+
         self.logger.info('Database creation started')
 
         cursor = None
