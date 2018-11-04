@@ -106,6 +106,7 @@ def make_search_string(val):
     search = ''.join([c for c in val if c in cset])
     return search.upper().strip()
 
+
 def make_duration(val):
     """
     Converts a string in `hh:mm:ss` representation
