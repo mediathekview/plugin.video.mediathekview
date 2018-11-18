@@ -110,6 +110,7 @@ class StoreSQLite(object):
             self.conn.close()
             self.conn = None
 
+    @classmethod
     def flush_block_size(self):
         return 1000
 
@@ -949,6 +950,7 @@ class StoreSQLite(object):
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
 
+    @classmethod
     def ft_flush_insert(self):
         """
         Bulk inserts not implemented in sqlite driver

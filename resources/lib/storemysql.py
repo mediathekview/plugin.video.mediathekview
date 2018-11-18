@@ -28,12 +28,11 @@ class StoreMySQL(object):
     """
 
     def __init__(self, logger, notifier, settings):
-        self.sqlInsert = """ insert into film_import 
+        self.sqlInsert = """insert into film_import
                         (`idhash`, `channel`, `show`, `showsearch`,
-                        `title`, `search`, `aired`, `duration`, `size`, `description`, 
-                        `website`, `url_sub`, `url_video`, `url_video_sd`, `url_video_hd`, 
-                        `airedepoch`) values 
-                        """
+                        `title`, `search`, `aired`, `duration`, `size`, `description`,
+                        `website`, `url_sub`, `url_video`, `url_video_sd`, `url_video_hd`,
+                        `airedepoch`) values """
         self.blockInsert = ''
         self.blockCursor = None
         self.filmImportColumns = 16
@@ -149,10 +148,13 @@ class StoreMySQL(object):
 
     def build_insert(self, rows):
         sqlValues = ''
-        for i in xrange(0, rows):
+        i = 0
+        while i < rows:
+            i += 1
             sqlValues += ' (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s),'
         return self.sqlInsert + sqlValues[:-1]
 
+    @classmethod
     def flush_block_size(self):
         return 2000
 
@@ -779,7 +781,6 @@ class StoreMySQL(object):
         Args:
             full(bool): if `True` a full update is started
         """
-        param = (1,) if full else (0,)
         try:
             cursor = self.conn.cursor()
             cursor.execute('truncate film_import')
