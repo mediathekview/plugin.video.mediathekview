@@ -76,6 +76,10 @@ class MediathekViewUpdater( object ):
 			self.logger.info( 'Update disabled since database not available' )
 			return 0
 
+		elif force == True:
+			# always full update when force is given by cli-argument
+			return self._getNextUpdateOperation( force )
+
 		elif self.settings.updmode == 0:
 			# update disabled - no update
 			return 0
@@ -113,12 +117,16 @@ class MediathekViewUpdater( object ):
 			return 0
 		elif status['status'] == "UPDATING":
 			# already updating - no update
-			self.logger.debug( 'Already updating' )
+			self.logger.info( 'Already updating, no update' )
 			return 0
 		elif not force and tsnow - tsold < self.settings.updinterval:
 			# last update less than the configured update interval - no update
 			self.logger.debug( 'Last update less than the configured update interval. do nothing' )
 			return 0
+		elif force:
+			# Force is set - always full update
+			self.logger.info( 'Full update force by command-line argument' )
+			return 1
 		elif dtnow != dtold:
 			# last update was not today. do full update once a day
 			self.logger.debug( 'Last update was not today. do full update once a day' )
