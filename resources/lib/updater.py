@@ -48,6 +48,7 @@ FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
 FILMLISTE_DIF_URL = 'https://res.mediathekview.de/diff.xml'
 
 # -- Classes ------------------------------------------------
+# pylint: disable=bad-whitespace
 
 
 class MediathekViewUpdater(object):
@@ -97,7 +98,7 @@ class MediathekViewUpdater(object):
         """ Returns if the updater is enabled """
         return self.settings.updenabled
 
-    def get_current_update_operation(self, force=False):
+    def get_current_update_operation(self, force=False, full=False):
         """
         Determines which update operation should be done. Returns
         one of these values:
@@ -108,6 +109,8 @@ class MediathekViewUpdater(object):
 
         Args:
             force(bool, optional): if `True` a full update
+                is always returned. Default is `False`
+            full(book, optional): if `True` a full update
                 is always returned. Default is `False`
         """
         if self.database is None:
@@ -120,22 +123,22 @@ class MediathekViewUpdater(object):
         elif self.settings.updmode == 1 or self.settings.updmode == 2:
             # manual update or update on first start
             if self.settings.is_update_triggered() is True:
-                return self._get_next_update_operation(True)
+                return self._get_next_update_operation(True, False)
             else:
                 # no update on all subsequent calls
                 return 0
         elif self.settings.updmode == 3:
             # automatic update
             if self.settings.is_user_alive():
-                return self._get_next_update_operation(force)
+                return self._get_next_update_operation(force, full)
             else:
                 # no update of user is idle for more than 2 hours
                 return 0
         elif self.settings.updmode == 4:
             # continous update
-            return self._get_next_update_operation(force)
+            return self._get_next_update_operation(force, full)
 
-    def _get_next_update_operation(self, force=False):
+    def _get_next_update_operation(self, force=False, full=False):
         status = self.database.get_status()
         tsnow = int(time.time())
         tsold = status['lastupdate']
@@ -155,7 +158,7 @@ class MediathekViewUpdater(object):
             # already updating - no update
             self.logger.debug('Already updating')
             return 0
-        elif not force and tsnow - tsold < self.settings.updinterval:
+        elif not full and not force and tsnow - tsold < self.settings.updinterval:
             # last update less than the configured update interval - no update
             self.logger.debug(
                 'Last update less than the configured update interval. do nothing')
@@ -169,6 +172,10 @@ class MediathekViewUpdater(object):
             # last full update was aborted - full update needed
             self.logger.debug(
                 'Last full update was aborted - full update needed')
+            return 1
+        elif full is True:
+            # full update requested
+            self.logger.info('Full update requested')
             return 1
         else:
             # do differential update
@@ -199,25 +206,26 @@ class MediathekViewUpdater(object):
         Args:
             full(bool): Perform full update if `True`
         """
-        (_, _, destfile, avgrecsize) = self._get_update_info(full)
+        (_, _, destfile, avgrecsize)=self._get_update_info(full)
         if not mvutils.file_exists(destfile):
             self.logger.error('File {} does not exists', destfile)
             return False
         # estimate number of records in update file
-        records = int(mvutils.file_size(destfile) / avgrecsize)
+        records=int(mvutils.file_size(destfile) / avgrecsize)
         if not self.database.ft_init():
             self.logger.warn(
                 'Failed to initialize update. Maybe a concurrency problem?')
             return False
         # pylint: disable=broad-except
         try:
+            starttime=time.time()
             self.logger.info(
                 'Starting import of approx. {} records from {}', records, destfile)
             with closing(open(destfile, 'r')) as updatefile:
-                parser = ijson.parse(updatefile)
-                flsm = 0
-                flts = 0
-                (self.tot_chn, self.tot_shw, self.tot_mov) = self._update_start(full)
+                parser=ijson.parse(updatefile)
+                flsm=0
+                flts=0
+                (self.tot_chn, self.tot_shw, self.tot_mov)=self._update_start(full)
                 self.notifier.show_update_progress()
                 for prefix, event, value in parser:
                     if (prefix, event) == ("X", "start_array"):
@@ -242,9 +250,9 @@ class MediathekViewUpdater(object):
                         if flsm == 2 and value is not None:
                             # this is the timestmap of this database update
                             try:
-                                fldt = datetime.datetime.strptime(
+                                fldt=datetime.datetime.strptime(
                                     value.strip(), "%d.%m.%Y, %H:%M")
-                                flts = int(time.mktime(fldt.timetuple()))
+                                flts=int(time.mktime(fldt.timetuple()))
                                 self.database.update_status(filmupdate=flts)
                                 self.logger.info(
                                     'Filmliste dated {}', value.strip())
@@ -253,7 +261,7 @@ class MediathekViewUpdater(object):
                                 # SEE: https://forum.kodi.tv/showthread.php?tid=112916&pid=1214507#pid1214507
                                 # Wonderful. His name is also Leopold
                                 try:
-                                    flts = int(time.mktime(time.strptime(
+                                    flts=int(time.mktime(time.strptime(
                                         value.strip(), "%d.%m.%Y, %H:%M")))
                                     self.database.update_status(
                                         filmupdate=flts)
@@ -269,7 +277,11 @@ class MediathekViewUpdater(object):
 
             self._update_end(full, 'IDLE')
             self.logger.info(
-                'Import of {} in update cycle {} finished', destfile, self.cycle)
+                'Import of {} in update cycle {} finished. Duration: {} seconds',
+                destfile,
+                self.cycle,
+                int(time.time() - starttime)
+            )
             self.notifier.close_update_progress()
             return True
         except KeyboardInterrupt:
