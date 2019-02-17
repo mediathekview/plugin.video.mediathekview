@@ -429,11 +429,18 @@ class UpdateApp(AppLogger):
             action='count',
             help='show progress messages'
         )
-        sqliteopts.add_argument(
+        sqliteforce = sqliteopts.add_mutually_exclusive_group()
+        sqliteforce.add_argument(
             '-f', '--force',
             default=False,
             action='store_true',
             help='ignore the minimum interval'
+        )
+        sqliteforce.add_argument(
+            '-F', '--full',
+            default=False,
+            action='store_true',
+            help='ignore the minimum interval and force a full update'
         )
         sqliteopts.add_argument(
             '-i', '--intervall',
@@ -456,11 +463,18 @@ class UpdateApp(AppLogger):
             action='count',
             help='show progress messages'
         )
-        mysqlopts.add_argument(
+        mysqlforce = mysqlopts.add_mutually_exclusive_group()
+        mysqlforce.add_argument(
             '-f', '--force',
             default=False,
             action='store_true',
             help='ignore the minimum interval'
+        )
+        mysqlforce.add_argument(
+            '-F', '--full',
+            default=False,
+            action='store_true',
+            help='ignore the minimum interval and force a full update'
         )
         mysqlopts.add_argument(
             '-i', '--intervall',
@@ -517,7 +531,8 @@ class UpdateApp(AppLogger):
     def run(self):
         """ Execution of the application """
         self.info('Starting up...')
-        updateop = self.updater.get_current_update_operation(self.args.force)
+        updateop = self.updater.get_current_update_operation(
+            self.args.force, self.args.full)
         if updateop == 1:
             # full update
             self.info('Initiating full update...')

@@ -169,11 +169,17 @@ das Programm spezifische Hilfe aus. Beispiel:
 
 ````
 leo@bookpoldo ~/plugin.video.mediathekview $ ./mvupdate mysql -h
-usage: mvupdate mysql [-h] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
-                      [-d DATABASE]
+usage: mvupdate mysql [-h] [-v] [-f | -F] [-i INTERVALL] [-H HOST] [-P PORT]
+                      [-u USER] [-p PASSWORD] [-d DATABASE]
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --verbose         show progress messages (default: 0)
+  -f, --force           ignore the minimum interval (default: False)
+  -F, --full            ignore the minimum interval and force a full update
+                        (default: False)
+  -i INTERVALL, --intervall INTERVALL
+                        minimum interval between updates (default: 3600)
   -H HOST, --host HOST  hostname or ip address (default: localhost)
   -P PORT, --port PORT  connection port (default: 3306)
   -u USER, --user USER  connection username (default: mediathekview)
@@ -340,6 +346,12 @@ usage: mvupdate mysql [-h] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --verbose         show progress messages (default: 0)
+  -f, --force           ignore the minimum interval (default: False)
+  -F, --full            ignore the minimum interval and force a full update
+                        (default: False)
+  -i INTERVALL, --intervall INTERVALL
+                        minimum interval between updates (default: 3600)
   -H HOST, --host HOST  hostname or ip address (default: localhost)
   -P PORT, --port PORT  connection port (default: 3306)
   -u USER, --user USER  connection username (default: mediathekview)
@@ -504,6 +516,12 @@ usage: mvupdate mysql [-h] [-H HOST] [-P PORT] [-u USER] [-p PASSWORD]
 
 optional arguments:
   -h, --help            show this help message and exit
+  -v, --verbose         show progress messages (default: 0)
+  -f, --force           ignore the minimum interval (default: False)
+  -F, --full            ignore the minimum interval and force a full update
+                        (default: False)
+  -i INTERVALL, --intervall INTERVALL
+                        minimum interval between updates (default: 3600)
   -H HOST, --host HOST  hostname or ip address (default: localhost)
   -P PORT, --port PORT  connection port (default: 3306)
   -u USER, --user USER  connection username (default: mediathekview)
