@@ -26,8 +26,11 @@
 		<description lang="de_DE">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
-		<news>v0.5.1 (2019-02-XX):
-- Neue option --full um ein vollstndiges Update zu erzwingen        
+		<news>v0.5.X (2019-02-XX):
+- Natives ultraschnelles Update für SQLite
+v0.5.2 (2019-02-17):
+- Neue option --full um ein vollstndiges Update zu erzwingen
+v0.5.1 (2018-08-22):
 - Neue Aktualisierungsmethode "Zeitgesteuert"
 - Es war nicht möglich, den Aktualisierungsintervall bei der Methode "Automatisch" einzustellen
 - Passende Symbole für alle Menü-Einträge

@@ -2,7 +2,7 @@
 """
 Utilities module
 
-Copyright (c) 2017-2018, Leo Moll
+Copyright (c) 2017-2019, Leo Moll
 Licensed under MIT License
 """
 
@@ -82,6 +82,29 @@ def file_remove(name):
             return True
         except OSError:
             pass
+    return False
+
+
+def file_rename(srcname, dstname):
+    """
+    Rename a file
+
+    Args:
+        srcname(str): name of the source file
+        dstname(str): name of the file after the rename operation
+    """
+    if file_exists(srcname):
+        try:
+            os.rename(srcname, dstname)
+            return True
+        except OSError:
+            # maybe windows on overwrite. try non atomic rename
+            try:
+                os.remove(dstname)
+                os.rename(srcname, dstname)
+                return True
+            except OSError:
+                return False
     return False
 
 

@@ -2,7 +2,7 @@
 """
 The database wrapper module
 
-Copyright 2017-2018, Leo Moll
+Copyright 2017-2019, Leo Moll
 Licensed under MIT License
 """
 
@@ -266,6 +266,42 @@ class Store(object):
         """
         if self.database is not None:
             return self.database.supports_update()
+        return False
+
+    def supports_native_update(self, full):
+        """
+        Returns `True` if the selected database driver supports
+        updating a local copy with native functions and files
+
+        Args:
+            full(bool): if `True` a full update is requested
+        """
+        if self.database is not None:
+            return self.database.supports_native_update(full)
+        return False
+
+    def get_native_info(self, full):
+        """
+        Returns a tuple containing:
+        - The URL of the requested update type dispatcher
+        - the base name of the downloadable file
+
+        Args:
+            full(bool): if `True` a full update is requested
+        """
+        if self.database is not None:
+            return self.database.get_native_info(full)
+        return None
+
+    def native_update(self, full):
+        """
+        Performs a native update of the database.
+
+        Args:
+            full(bool): if `True` a full update is started
+        """
+        if self.database is not None:
+            return self.database.native_update(full)
         return False
 
     def ft_init(self):

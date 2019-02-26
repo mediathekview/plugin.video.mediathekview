@@ -2,7 +2,7 @@
 """
 The database updater module
 
-Copyright 2017-2018 Leo Moll and Dominik Schlösser
+Copyright 2017-2019, Leo Moll and Dominik Schlösser
 """
 
 # -- Imports ------------------------------------------------
@@ -192,7 +192,12 @@ class MediathekViewUpdater(object):
         """
         if self.database is None:
             return
-        if self.database.supports_update():
+        elif self.database.supports_native_update(full):
+            if self.get_newest_list(full):
+                if self.database.native_update(full):
+                    self.cycle += 1
+            self.delete_list(full)
+        elif self.database.supports_update():
             if self.get_newest_list(full):
                 if self.import_database(full):
                     self.cycle += 1
@@ -206,26 +211,26 @@ class MediathekViewUpdater(object):
         Args:
             full(bool): Perform full update if `True`
         """
-        (_, _, destfile, avgrecsize)=self._get_update_info(full)
+        (_, _, destfile, avgrecsize) = self._get_update_info(full)
         if not mvutils.file_exists(destfile):
             self.logger.error('File {} does not exists', destfile)
             return False
         # estimate number of records in update file
-        records=int(mvutils.file_size(destfile) / avgrecsize)
+        records = int(mvutils.file_size(destfile) / avgrecsize)
         if not self.database.ft_init():
             self.logger.warn(
                 'Failed to initialize update. Maybe a concurrency problem?')
             return False
         # pylint: disable=broad-except
         try:
-            starttime=time.time()
+            starttime = time.time()
             self.logger.info(
                 'Starting import of approx. {} records from {}', records, destfile)
             with closing(open(destfile, 'r')) as updatefile:
-                parser=ijson.parse(updatefile)
-                flsm=0
-                flts=0
-                (self.tot_chn, self.tot_shw, self.tot_mov)=self._update_start(full)
+                parser = ijson.parse(updatefile)
+                flsm = 0
+                flts = 0
+                (self.tot_chn, self.tot_shw, self.tot_mov) = self._update_start(full)
                 self.notifier.show_update_progress()
                 for prefix, event, value in parser:
                     if (prefix, event) == ("X", "start_array"):
@@ -250,9 +255,9 @@ class MediathekViewUpdater(object):
                         if flsm == 2 and value is not None:
                             # this is the timestmap of this database update
                             try:
-                                fldt=datetime.datetime.strptime(
+                                fldt = datetime.datetime.strptime(
                                     value.strip(), "%d.%m.%Y, %H:%M")
-                                flts=int(time.mktime(fldt.timetuple()))
+                                flts = int(time.mktime(fldt.timetuple()))
                                 self.database.update_status(filmupdate=flts)
                                 self.logger.info(
                                     'Filmliste dated {}', value.strip())
@@ -261,7 +266,7 @@ class MediathekViewUpdater(object):
                                 # SEE: https://forum.kodi.tv/showthread.php?tid=112916&pid=1214507#pid1214507
                                 # Wonderful. His name is also Leopold
                                 try:
-                                    flts=int(time.mktime(time.strptime(
+                                    flts = int(time.mktime(time.strptime(
                                         value.strip(), "%d.%m.%Y, %H:%M")))
                                     self.database.update_status(
                                         filmupdate=flts)
@@ -419,6 +424,15 @@ class MediathekViewUpdater(object):
             ext = 'gz'
         else:
             return (None, None, None, 0, )
+
+        info = self.database.get_native_info(full)
+        if info is not None:
+            return (
+                info[0],
+                os.path.join(self.settings.datapath, info[1] + '.' + ext),
+                os.path.join(self.settings.datapath, info[1]),
+                500
+            )
 
         if full:
             return (
