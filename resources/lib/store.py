@@ -312,3 +312,19 @@ class Store(object):
         if self.database is not None:
             return self.database.ft_insert_film(film, commit)
         return (0, 0, 0, 0, )
+
+    def ft_flush_insert(self):
+        """
+        Dump collected film data to db using bulk inserts where applicable
+        """
+        if self.database is not None:
+            self.database.ft_flush_insert()
+        return
+
+    def flush_block_size(self):
+        """
+        get num of rows per bulk insert from storage adapter
+        """
+        if (self.database) is not None:
+            return self.database.flush_block_size()
+        return 1

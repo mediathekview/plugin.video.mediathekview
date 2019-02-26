@@ -110,6 +110,10 @@ class StoreSQLite(object):
             self.conn.close()
             self.conn = None
 
+    @classmethod
+    def flush_block_size(self):
+        return 1000
+
     def search(self, search, filmui, extendedsearch=False):
         """
         Performs a search for films based on a search term
@@ -863,8 +867,8 @@ class StoreSQLite(object):
                     self.ft_showid = cursor.lastrowid
 
             # check if the movie is there
-            idhash = hashlib.md5("{}:{}:{}".format(
-                self.ft_channelid, self.ft_showid, film['url_video'])).hexdigest()
+            idhash = hashlib.md5((channel + ':' + show + ':' + film["url_video"]).encode('utf-8')).hexdigest()
+
             cursor.execute("""
                 SELECT      `id`,
                             `touched`
@@ -945,6 +949,13 @@ class StoreSQLite(object):
             self._handle_database_corruption(err)
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
+
+    @classmethod
+    def ft_flush_insert(self):
+        """
+        Bulk inserts not implemented in sqlite driver
+        """
+        return
 
     def _handle_database_corruption(self, err):
         self.logger.error(
