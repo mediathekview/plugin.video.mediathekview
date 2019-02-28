@@ -45,6 +45,7 @@ class Settings(object):
         self.user = addon.getSetting('dbuser')
         self.password = addon.getSetting('dbpass')
         self.database = addon.getSetting('dbdata')
+        self.updnative = addon.getSetting('updnative') == 'true'
         self.updmode = int(addon.getSetting('updmode'))
         self.updinterval = int(float(addon.getSetting('updinterval'))) * 3600
         # download

@@ -18,7 +18,8 @@ from resources.lib.film import Film
 from resources.lib.exceptions import DatabaseCorrupted
 
 # -- Constants ----------------------------------------------
-DATABASE_URL = 'https://mvupdate.yeasoft.com/filmliste-v2.db.xz'
+# DATABASE_URL = 'https://mvupdate.yeasoft.com/filmliste-v2.db.xz'
+DATABASE_URL = 'https://liste.mediathekview.de/filmliste-v2.db.xz'
 DATABASE_AKT = 'filmliste-v2.db.update'
 
 
@@ -681,8 +682,7 @@ class StoreSQLite(object):
         """
         return True
 
-    @staticmethod
-    def supports_native_update(full):
+    def supports_native_update(self, full):
         """
         Returns `True` if the selected database driver supports
         updating a local copy with native functions and files
@@ -690,10 +690,9 @@ class StoreSQLite(object):
         Args:
             full(bool): if `True` a full update is requested
         """
-        return full
+        return full and self.settings.updnative
 
-    @staticmethod
-    def get_native_info(full):
+    def get_native_info(self, full):
         """
         Returns a tuple containing:
         - The URL of the requested update type dispatcher
@@ -702,7 +701,7 @@ class StoreSQLite(object):
         Args:
             full(bool): if `True` a full update is requested
         """
-        if full:
+        if full and self.settings.updnative:
             return (DATABASE_URL, DATABASE_AKT)
         return None
 

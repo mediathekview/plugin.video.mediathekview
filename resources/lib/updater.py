@@ -339,7 +339,7 @@ class MediathekViewUpdater(object):
                 aborthook=self.monitor.abort_requested
             )
         except urllib2.URLError as err:
-            self.logger.error('Failure downloading {}', url)
+            self.logger.error('Failure downloading {} - {}', url, err)
             self.notifier.close_download_progress()
             self.notifier.show_download_error(url, err)
             return False
