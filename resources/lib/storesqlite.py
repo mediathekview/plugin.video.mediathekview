@@ -18,7 +18,8 @@ from resources.lib.film import Film
 from resources.lib.exceptions import DatabaseCorrupted
 
 # -- Constants ----------------------------------------------
-DATABASE_AKT_URL = 'https://mvupdate.yeasoft.com/akt-sqlite.xml'
+DATABASE_URL = 'https://mvupdate.yeasoft.com/filmliste-v2.db.xz'
+DATABASE_AKT = 'filmliste-v2.db.update'
 
 
 class StoreSQLite(object):
@@ -680,7 +681,8 @@ class StoreSQLite(object):
         """
         return True
 
-    def supports_native_update(self, full):
+    @staticmethod
+    def supports_native_update(full):
         """
         Returns `True` if the selected database driver supports
         updating a local copy with native functions and files
@@ -690,7 +692,8 @@ class StoreSQLite(object):
         """
         return full
 
-    def get_native_info(self, full):
+    @staticmethod
+    def get_native_info(full):
         """
         Returns a tuple containing:
         - The URL of the requested update type dispatcher
@@ -700,7 +703,7 @@ class StoreSQLite(object):
             full(bool): if `True` a full update is requested
         """
         if full:
-            return (DATABASE_AKT_URL, 'filmliste-v2.db.new')
+            return (DATABASE_URL, DATABASE_AKT)
         return None
 
     def native_update(self, full):
@@ -990,7 +993,7 @@ class StoreSQLite(object):
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
 
     def _handle_update_substitution(self):
-        updfile = os.path.join(self.settings.datapath, 'filmliste-v2.db.new')
+        updfile = os.path.join(self.settings.datapath, DATABASE_AKT)
         sqlfile = os.path.join(self.settings.datapath, 'filmliste-v2.db')
         if mvutils.file_exists(updfile):
             self.logger.info('Native update file found. Updating database...')

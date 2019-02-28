@@ -8,17 +8,14 @@ Copyright 2017-2019, Leo Moll and Dominik Schlösser
 # -- Imports ------------------------------------------------
 import os
 import time
-import random
 import urllib2
 import datetime
 import subprocess
 
 from contextlib import closing
-from operator import itemgetter
 
 import ijson
 
-import defusedxml.ElementTree as etree
 import resources.lib.mvutils as mvutils
 
 # from resources.lib.utils import *
@@ -44,8 +41,9 @@ except ImportError:
     pass
 
 # -- Constants ----------------------------------------------
-FILMLISTE_AKT_URL = 'https://res.mediathekview.de/akt.xml'
-FILMLISTE_DIF_URL = 'https://res.mediathekview.de/diff.xml'
+FILMLISTE_URL = 'https://liste.mediathekview.de/'
+FILMLISTE_AKT = 'Filmliste-akt'
+FILMLISTE_DIF = 'Filmliste-diff'
 
 # -- Classes ------------------------------------------------
 # pylint: disable=bad-whitespace
@@ -321,29 +319,6 @@ class MediathekViewUpdater(object):
             self.notifier.show_missing_extractor_error()
             return False
 
-        # get mirrorlist
-        self.logger.info('Opening {}', url)
-        try:
-            data = urllib2.urlopen(url).read()
-        except urllib2.URLError as err:
-            self.logger.error('Failure opening {}', url)
-            self.notifier.show_download_error(url, err)
-            return False
-        root = etree.fromstring(data)
-        urls = []
-        for server in root.findall('Server'):
-            try:
-                mirror_url = server.find('URL').text
-                priority = server.find('Prio').text
-                urls.append((self._get_update_url(mirror_url),
-                             float(priority) + random.random() * 1.2))
-                self.logger.info(
-                    'Found mirror {} (Priority {})', mirror_url, priority)
-            except AttributeError:
-                pass
-        urls = sorted(urls, key=itemgetter(1))
-        urls = [url[0] for url in urls]
-
         # cleanup downloads
         self.logger.info('Cleaning up old downloads...')
         mvutils.file_remove(compfile)
@@ -351,37 +326,34 @@ class MediathekViewUpdater(object):
 
         # download filmliste
         self.notifier.show_download_progress()
-        lasturl = ''
-        for url in urls:
-            # pylint: disable=broad-except
-            try:
-                lasturl = url
-                self.logger.info('Trying to download {} from {}...',
-                                 os.path.basename(compfile), url)
-                self.notifier.update_download_progress(0, url)
-                mvutils.url_retrieve(
-                    url,
-                    filename=compfile,
-                    reporthook=self.notifier.hook_download_progress,
-                    aborthook=self.monitor.abort_requested
-                )
-                break
-            except urllib2.URLError as err:
-                self.logger.error('Failure downloading {}', url)
-                self.notifier.close_download_progress()
-                self.notifier.show_download_error(lasturl, err)
-                return False
-            except ExitRequested as err:
-                self.logger.error(
-                    'Immediate exit requested. Aborting download of {}', url)
-                self.notifier.close_download_progress()
-                self.notifier.show_download_error(lasturl, err)
-                return False
-            except Exception as err:
-                self.logger.error('Failure writng {}', url)
-                self.notifier.close_download_progress()
-                self.notifier.show_download_error(lasturl, err)
-                return False
+
+        # pylint: disable=broad-except
+        try:
+            self.logger.info('Trying to download {} from {}...',
+                             os.path.basename(compfile), url)
+            self.notifier.update_download_progress(0, url)
+            mvutils.url_retrieve(
+                url,
+                filename=compfile,
+                reporthook=self.notifier.hook_download_progress,
+                aborthook=self.monitor.abort_requested
+            )
+        except urllib2.URLError as err:
+            self.logger.error('Failure downloading {}', url)
+            self.notifier.close_download_progress()
+            self.notifier.show_download_error(url, err)
+            return False
+        except ExitRequested as err:
+            self.logger.error(
+                'Immediate exit requested. Aborting download of {}', url)
+            self.notifier.close_download_progress()
+            self.notifier.show_download_error(url, err)
+            return False
+        except Exception as err:
+            self.logger.error('Failure writng {}', url)
+            self.notifier.close_download_progress()
+            self.notifier.show_download_error(url, err)
+            return False
 
         # decompress filmliste
         if self.use_xz is True:
@@ -417,35 +389,35 @@ class MediathekViewUpdater(object):
 
     def _get_update_info(self, full):
         if self.use_xz is True:
-            ext = 'xz'
+            ext = '.xz'
         elif UPD_CAN_BZ2 is True:
-            ext = 'bz2'
+            ext = '.bz2'
         elif UPD_CAN_GZ is True:
-            ext = 'gz'
+            ext = '.gz'
         else:
             return (None, None, None, 0, )
 
         info = self.database.get_native_info(full)
         if info is not None:
             return (
-                info[0],
-                os.path.join(self.settings.datapath, info[1] + '.' + ext),
+                self._get_update_url(info[0]),
+                os.path.join(self.settings.datapath, info[1] + ext),
                 os.path.join(self.settings.datapath, info[1]),
                 500
             )
 
         if full:
             return (
-                FILMLISTE_AKT_URL,
-                os.path.join(self.settings.datapath, 'Filmliste-akt.' + ext),
-                os.path.join(self.settings.datapath, 'Filmliste-akt'),
+                FILMLISTE_URL + FILMLISTE_AKT + ext,
+                os.path.join(self.settings.datapath, FILMLISTE_AKT + ext),
+                os.path.join(self.settings.datapath, FILMLISTE_AKT),
                 600,
             )
         else:
             return (
-                FILMLISTE_DIF_URL,
-                os.path.join(self.settings.datapath, 'Filmliste-diff.' + ext),
-                os.path.join(self.settings.datapath, 'Filmliste-diff'),
+                FILMLISTE_URL + FILMLISTE_DIF + ext,
+                os.path.join(self.settings.datapath, FILMLISTE_DIF + ext),
+                os.path.join(self.settings.datapath, FILMLISTE_DIF),
                 700,
             )
 

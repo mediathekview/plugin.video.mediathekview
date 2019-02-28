@@ -685,7 +685,8 @@ class StoreMySQL(object):
         return True
 
     # pylint: disable=unused-argument
-    def supports_native_update(self, full):
+    @staticmethod
+    def supports_native_update(full):
         """
         Returns `True` if the selected database driver supports
         updating a local copy with native functions and files
@@ -695,7 +696,8 @@ class StoreMySQL(object):
         """
         return False
 
-    def get_native_info(self, full):
+    @staticmethod
+    def get_native_info(full):
         """
         Returns a tuple containing:
         - The URL of the requested update type dispatcher
@@ -706,7 +708,8 @@ class StoreMySQL(object):
         """
         return None
 
-    def native_update(self, full):
+    @staticmethod
+    def native_update(full):
         """
         Performs a native update of the database.
 
