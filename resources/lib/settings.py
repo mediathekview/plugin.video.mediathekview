@@ -105,7 +105,7 @@ class Settings(object):
     @staticmethod
     def reset_user_activity():
         """ Signals that a user activity has occurred """
-        xbmcaddon.Addon().setSetting('lastactivity', '{}'.format(time.time()))
+        xbmcaddon.Addon().setSetting('lastactivity', '{}'.format(int(time.time())))
 
     @staticmethod
     def save_update_instance(instanceid):
