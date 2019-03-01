@@ -8,9 +8,12 @@ Licensed under MIT License
 # pylint: disable=too-many-lines,line-too-long
 
 import os
+import json
 import time
 import sqlite3
 import hashlib
+
+from contextlib import closing
 
 import resources.lib.mvutils as mvutils
 
@@ -259,7 +262,7 @@ class StoreSQLite(object):
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
 
-    def get_shows(self, channelid, initial, showui):
+    def get_shows(self, channelid, initial, showui, caching=True):
         """
         Populates the current UI directory with a list
         of shows limited to a specific channel or not.
@@ -275,8 +278,29 @@ class StoreSQLite(object):
         """
         if self.conn is None:
             return
+
+        if caching and self.settings.caching:
+            channelid = int(channelid)
+            if channelid == 0 and self.settings.groupshows:
+                cache_condition = "SHOW:1:" + initial
+            elif channelid == 0:
+                cache_condition = "SHOW:2:" + initial
+            elif initial:
+                cache_condition = "SHOW:3:" + channelid + ':' + initial
+            elif initial:
+                cache_condition = "SHOW:3:" + channelid
+            cached_data = self._load_cache('get_shows', cache_condition)
+            if cached_data is not None:
+                showui.begin(channelid)
+                for show_data in cached_data:
+                    showui.set_from_dict(show_data)
+                    showui.add()
+                showui.end()
+                return
+
         try:
             channelid = int(channelid)
+            cached_data = []
             cursor = self.conn.cursor()
             if channelid == 0 and self.settings.groupshows:
                 cursor.execute("""
@@ -330,8 +354,12 @@ class StoreSQLite(object):
             showui.begin(channelid)
             for (showui.showid, showui.channelid, showui.show, showui.channel) in cursor:
                 showui.add()
+                if caching and self.settings.caching:
+                    cached_data.append(showui.get_as_dict())
             showui.end()
             cursor.close()
+            if caching and self.settings.caching:
+                self._save_cache('get_shows', cache_condition, cached_data)
         except sqlite3.Error as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
@@ -369,9 +397,19 @@ class StoreSQLite(object):
             10000
         )
 
-    def _search_channels_condition(self, condition, channelui):
+    def _search_channels_condition(self, condition, channelui, caching=True):
         if self.conn is None:
             return
+        if caching and self.settings.caching:
+            cached_data = self._load_cache('search_channels', condition)
+            if cached_data is not None:
+                channelui.begin()
+                for channel_data in cached_data:
+                    channelui.set_from_dict(channel_data)
+                    channelui.add()
+                channelui.end()
+                return
+
         try:
             if condition is None:
                 query = 'SELECT id,channel,0 AS `count` FROM channel'
@@ -380,26 +418,48 @@ class StoreSQLite(object):
                 query = 'SELECT channel.id AS `id`,channel,COUNT(*) AS `count` FROM film LEFT JOIN channel ON channel.id=film.channelid'
                 qtail = ' WHERE ' + condition + ' GROUP BY channel'
             self.logger.info('SQLite Query: {}', query + qtail)
+            cached_data = []
             cursor = self.conn.cursor()
             cursor.execute(query + qtail)
             channelui.begin()
             for (channelui.channelid, channelui.channel, channelui.count) in cursor:
                 channelui.add()
+                if caching and self.settings.caching:
+                    cached_data.append(channelui.get_as_dict())
             channelui.end()
             cursor.close()
+            if caching and self.settings.caching:
+                self._save_cache('search_channels', condition, cached_data)
         except sqlite3.Error as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
 
-    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True):
+    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True, caching=True):
         if self.conn is None:
             return 0
+
+        maxresults = int(maxresults)
+        if limiting:
+            sql_cond_limit = self.sql_cond_nofuture + self.sql_cond_minlength
+        else:
+            sql_cond_limit = ''
+
+        if caching and self.settings.caching:
+            cache_condition = condition + sql_cond_limit + \
+                (' LIMIT {}'.format(maxresults + 1)
+                 if maxresults else '') + ':{}'.format(params)
+            cached_data = self._load_cache('search_films', cache_condition)
+            if cached_data is not None:
+                results = len(cached_data)
+                filmui.begin(showshows, showchannels)
+                for film_data in cached_data:
+                    filmui.set_from_dict(film_data)
+                    filmui.add(total_items=results)
+                filmui.end()
+                return results
+
         try:
-            maxresults = int(maxresults)
-            if limiting:
-                sql_cond_limit = self.sql_cond_nofuture + self.sql_cond_minlength
-            else:
-                sql_cond_limit = ''
+            cached_data = []
             self.logger.info(
                 'SQLite Query: {}',
                 self.sql_query_films +
@@ -430,8 +490,12 @@ class StoreSQLite(object):
             filmui.begin(showshows, showchannels)
             for (filmui.filmid, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd) in cursor:
                 filmui.add(total_items=results)
+                if caching and self.settings.caching:
+                    cached_data.append(filmui.get_as_dict())
             filmui.end()
             cursor.close()
+            if caching and self.settings.caching:
+                self._save_cache('search_films', cache_condition, cached_data)
             return results
         except sqlite3.Error as err:
             self.logger.error('Database error: {}', err)
@@ -990,6 +1054,46 @@ class StoreSQLite(object):
             self._handle_database_corruption(err)
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
+
+    def _load_cache(self, reqtype, condition, maxage=7200):
+        filename = os.path.join(self.settings.datapath, reqtype + '.cache')
+        try:
+            with closing(open(filename)) as json_file:
+                data = json.load(json_file)
+                if isinstance(data, dict):
+                    if data.get('type', '') != reqtype:
+                        return None
+                    if data.get('condition') != condition:
+                        return None
+                    if time.time() - data.get('time', 0) > maxage:
+                        return None
+                    data = data.get('data', [])
+                    return data if isinstance(data, list) else None
+        # pylint: disable=broad-except
+        except Exception as err:
+            self.logger.error(
+                'Failed to load cache file {}: {}', filename, err)
+        return None
+
+    def _save_cache(self, reqtype, condition, data):
+        if not isinstance(data, list):
+            return False
+        filename = os.path.join(self.settings.datapath, reqtype + '.cache')
+        cache = {
+            "type": reqtype,
+            "time": int(time.time()),
+            "condition": condition,
+            "data": data
+        }
+        try:
+            with closing(open(filename, 'w')) as json_file:
+                json.dump(cache, json_file)
+            return True
+        # pylint: disable=broad-except
+        except Exception as err:
+            self.logger.error(
+                'Failed to write cache file {}: {}', filename, err)
+            return False
 
     def _handle_update_substitution(self):
         updfile = os.path.join(self.settings.datapath, DATABASE_AKT)

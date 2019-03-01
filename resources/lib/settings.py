@@ -47,6 +47,7 @@ class Settings(object):
         self.database = addon.getSetting('dbdata')
         self.updnative = addon.getSetting('updnative') == 'true'
         self.updmode = int(addon.getSetting('updmode'))
+        self.caching = addon.getSetting('caching') == 'true'
         self.updinterval = int(float(addon.getSetting('updinterval'))) * 3600
         # download
         self.downloadpathep = addon.getSetting('downloadpathep')

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.5.3.2"
+	version="0.5.9"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -27,9 +27,10 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>v0.6.0 (2019-03-XX):
+- Feature: Cache der Anfragen für lokale Datenbanken
+- Feature: Natives ultraschnelles Update für SQLite
 - Bugfix: Live Streams konnten heruntergeladen werden
 - Bugfix: Auf Kodi 18 hat der automatische Aktualisierungsmodus nicht mehr funktioniert
-- Feature: Natives ultraschnelles Update für SQLite
 v0.5.2 (2019-02-17):
 - Feature: Neue option --full um ein vollstndiges Update zu erzwingen
 v0.5.1 (2018-08-22):
