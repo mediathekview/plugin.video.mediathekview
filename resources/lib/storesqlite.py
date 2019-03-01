@@ -163,7 +163,8 @@ class StoreSQLite(object):
                 filmui,
                 True,
                 False,
-                10000
+                self.settings.maxresults,
+                order='film.aired'
             )
         return self._search_condition(
             self.sql_cond_recent,
@@ -171,7 +172,8 @@ class StoreSQLite(object):
             filmui,
             True,
             False,
-            10000
+            self.settings.maxresults,
+            order='film.aired'
         )
 
     def get_live_streams(self, filmui):
@@ -434,7 +436,7 @@ class StoreSQLite(object):
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
 
-    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True, caching=True):
+    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True, caching=True, order=None):
         if self.conn is None:
             return 0
 
@@ -448,25 +450,32 @@ class StoreSQLite(object):
             cache_condition = condition + sql_cond_limit + \
                 (' LIMIT {}'.format(maxresults + 1)
                  if maxresults else '') + ':{}'.format(params)
+            start = time.time()
             cached_data = self._load_cache('search_films', cache_condition)
+            self.logger.info('LOAD_CACHE:{}', time.time() - start)
             if cached_data is not None:
                 results = len(cached_data)
                 filmui.begin(showshows, showchannels)
+                start = time.time()
                 for film_data in cached_data:
                     filmui.set_from_dict(film_data)
                     filmui.add(total_items=results)
                 filmui.end()
+                self.logger.info('FILL_KODI_LIST:{}', time.time() - start)
                 return results
 
         try:
             cached_data = []
+            order = (' ORDER BY ' + order) if order is not None else ''
             self.logger.info(
                 'SQLite Query: {}',
                 self.sql_query_films +
                 ' WHERE ' +
                 condition +
-                sql_cond_limit
+                sql_cond_limit +
+                order
             )
+            start = time.time()
             cursor = self.conn.cursor()
             cursor.execute(
                 self.sql_query_filmcnt +
@@ -484,15 +493,19 @@ class StoreSQLite(object):
                 ' WHERE ' +
                 condition +
                 sql_cond_limit +
+                order +
                 (' LIMIT {}'.format(maxresults + 1) if maxresults else ''),
                 params
             )
+            self.logger.info('QUERY_TIME:{}', time.time() - start)
+            start = time.time()
             filmui.begin(showshows, showchannels)
             for (filmui.filmid, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd) in cursor:
                 filmui.add(total_items=results)
                 if caching and self.settings.caching:
                     cached_data.append(filmui.get_as_dict())
             filmui.end()
+            self.logger.info('FILL_KODI_LIST:{}', time.time() - start)
             cursor.close()
             if caching and self.settings.caching:
                 self._save_cache('search_films', cache_condition, cached_data)
