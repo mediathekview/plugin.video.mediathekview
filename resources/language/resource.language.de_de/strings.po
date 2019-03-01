@@ -111,6 +111,10 @@ msgctxt "#30232"
 msgid "Update interval in hours"
 msgstr "Aktualisierungsintervall in Stunden"
 
+msgctxt "#30233"
+msgid "Fast Native Updates"
+msgstr "Schnelle Datenbankaktualisierung"
+
 msgctxt "#30241"
 msgid "Disabled"
 msgstr "Abgeschaltet"

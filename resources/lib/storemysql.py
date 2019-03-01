@@ -2,7 +2,7 @@
 """
 The MySQL database support module
 
-Copyright 2017-20180 Leo Moll and Dominik Schlösser
+Copyright 2017-2019, Leo Moll and Dominik Schlösser
 """
 # pylint: disable=too-many-lines,line-too-long
 
@@ -683,6 +683,40 @@ class StoreMySQL(object):
         updating a local copy
         """
         return True
+
+    # pylint: disable=unused-argument
+    @staticmethod
+    def supports_native_update(full):
+        """
+        Returns `True` if the selected database driver supports
+        updating a local copy with native functions and files
+
+        Args:
+            full(bool): if `True` a full update is requested
+        """
+        return False
+
+    @staticmethod
+    def get_native_info(full):
+        """
+        Returns a tuple containing:
+        - The URL of the requested update type dispatcher
+        - the base name of the downloadable file
+
+        Args:
+            full(bool): if `True` a full update is requested
+        """
+        return None
+
+    @staticmethod
+    def native_update(full):
+        """
+        Performs a native update of the database.
+
+        Args:
+            full(bool): if `True` a full update is started
+        """
+        return False
 
     def reinit(self):
         """ Reinitializes the database connection """

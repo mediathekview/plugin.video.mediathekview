@@ -2,7 +2,7 @@
 """
 The local SQlite database module
 
-Copyright 2017-2018, Leo Moll
+Copyright 2017-2019, Leo Moll
 Licensed under MIT License
 """
 # pylint: disable=too-many-lines,line-too-long
@@ -16,6 +16,11 @@ import resources.lib.mvutils as mvutils
 
 from resources.lib.film import Film
 from resources.lib.exceptions import DatabaseCorrupted
+
+# -- Constants ----------------------------------------------
+# DATABASE_URL = 'https://mvupdate.yeasoft.com/filmliste-v2.db.xz'
+DATABASE_URL = 'https://liste.mediathekview.de/filmliste-v2.db.xz'
+DATABASE_AKT = 'filmliste-v2.db.update'
 
 
 class StoreSQLite(object):
@@ -85,10 +90,15 @@ class StoreSQLite(object):
         if reset is True or not mvutils.file_exists(self.dbfile):
             self.logger.info(
                 '===== RESET: Database will be deleted and regenerated =====')
+            self.exit()
             mvutils.file_remove(self.dbfile)
-            self.conn = sqlite3.connect(self.dbfile, timeout=60)
-            self._handle_database_initialization()
+            if self._handle_update_substitution():
+                self.conn = sqlite3.connect(self.dbfile, timeout=60)
+            else:
+                self.conn = sqlite3.connect(self.dbfile, timeout=60)
+                self._handle_database_initialization()
         else:
+            self._handle_update_substitution()
             try:
                 self.conn = sqlite3.connect(self.dbfile, timeout=60)
             except sqlite3.DatabaseError as err:
@@ -672,6 +682,41 @@ class StoreSQLite(object):
         """
         return True
 
+    def supports_native_update(self, full):
+        """
+        Returns `True` if the selected database driver supports
+        updating a local copy with native functions and files
+
+        Args:
+            full(bool): if `True` a full update is requested
+        """
+        return full and self.settings.updnative
+
+    def get_native_info(self, full):
+        """
+        Returns a tuple containing:
+        - The URL of the requested update type dispatcher
+        - the base name of the downloadable file
+
+        Args:
+            full(bool): if `True` a full update is requested
+        """
+        if full and self.settings.updnative:
+            return (DATABASE_URL, DATABASE_AKT)
+        return None
+
+    def native_update(self, full):
+        """
+        Performs a native update of the database.
+
+        Args:
+            full(bool): if `True` a full update is started
+        """
+        if full:
+            self.exit()
+            self.init()
+        return full
+
     def ft_init(self):
         """
         Initializes local database for updating
@@ -945,6 +990,14 @@ class StoreSQLite(object):
             self._handle_database_corruption(err)
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
+
+    def _handle_update_substitution(self):
+        updfile = os.path.join(self.settings.datapath, DATABASE_AKT)
+        sqlfile = os.path.join(self.settings.datapath, 'filmliste-v2.db')
+        if mvutils.file_exists(updfile):
+            self.logger.info('Native update file found. Updating database...')
+            return mvutils.file_rename(updfile, sqlfile)
+        return False
 
     def _handle_database_corruption(self, err):
         self.logger.error(

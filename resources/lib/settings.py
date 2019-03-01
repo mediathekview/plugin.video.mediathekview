@@ -45,6 +45,7 @@ class Settings(object):
         self.user = addon.getSetting('dbuser')
         self.password = addon.getSetting('dbpass')
         self.database = addon.getSetting('dbdata')
+        self.updnative = addon.getSetting('updnative') == 'true'
         self.updmode = int(addon.getSetting('updmode'))
         self.updinterval = int(float(addon.getSetting('updinterval'))) * 3600
         # download
@@ -104,7 +105,7 @@ class Settings(object):
     @staticmethod
     def reset_user_activity():
         """ Signals that a user activity has occurred """
-        xbmcaddon.Addon().setSetting('lastactivity', '{}'.format(time.time()))
+        xbmcaddon.Addon().setSetting('lastactivity', '{}'.format(int(time.time())))
 
     @staticmethod
     def save_update_instance(instanceid):

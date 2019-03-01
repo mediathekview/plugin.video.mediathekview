@@ -38,6 +38,7 @@ class Settings(object):
         self.recentmode = 0
         self.groupshows = False
         self.updmode = 3
+        self.updnative = args.native
         self.updinterval = args.intervall
 
     @staticmethod
@@ -454,6 +455,12 @@ class UpdateApp(AppLogger):
             dest='path',
             help='alternative path for the sqlite database',
             default='./'
+        )
+        sqliteopts.add_argument(
+            '-n', '--native',
+            default=False,
+            action='store_true',
+            help='allow native update'
         )
         mysqlopts = subparsers.add_parser(
             'mysql', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
