@@ -2,7 +2,7 @@
 """
 The film model UI module
 
-Copyright 2017-2018, Leo Moll and Dominik Schlösser
+Copyright 2017-2019, Leo Moll and Dominik Schlösser
 Licensed under MIT License
 """
 
@@ -81,7 +81,7 @@ class FilmUI(Film):
 
         # create context menu
         contextmenu = []
-        if self.url_video or self.url_video_sd or self.url_video_hd:
+        if not self.is_live_stream() and (self.url_video or self.url_video_sd or self.url_video_hd):
             # play with subtitles
             if not self.settings.autosub and self.url_sub:
                 contextmenu.append((
@@ -167,6 +167,10 @@ class FilmUI(Film):
     def end(self):
         """ Finish a directory containing films """
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
+
+    def is_live_stream(self):
+        """ Returns `True` if the film is a live stream """
+        return self.show.upper() == 'LIVESTREAM'
 
     def get_list_item(self, alttitle, film=None):
         """ Returns a Kodi `listitem` for a film """
