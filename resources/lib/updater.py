@@ -130,7 +130,7 @@ class MediathekViewUpdater(object):
             if self.settings.is_user_alive():
                 return self._get_next_update_operation(force, full)
             else:
-                # no update of user is idle for more than 2 hours
+                # no update if user is idle for more than 2 hours
                 return 0
         elif self.settings.updmode == 4:
             # continous update
@@ -587,13 +587,47 @@ class MediathekViewUpdater(object):
         return 0
 
     def _decompress_gz(self, sourcefile, destfile):
+        """
         blocksize = 8192
+
         try:
             with open(destfile, 'wb') as dstfile, gzip.open(sourcefile) as srcfile:
                 for data in iter(lambda: srcfile.read(blocksize), b''):
                     dstfile.write(data)
                 # pylint: disable=broad-except
         except Exception as err:
-            self.logger.error('gz decompression failed: {}'.format(err))
+            self.logger.error('gz decompression of "{}" to "{}" failed: {}'.format(
+                sourcefile, destfile, err))
+            return -1
+        return 0
+        """
+        blocksize = 8192
+        # pylint: disable=broad-except,line-too-long
+
+        try:
+            srcfile = gzip.open(sourcefile)
+        except Exception as err:
+            self.logger.error('gz decompression of "{}" to "{}" failed on opening gz file: {}'.format(
+                sourcefile, destfile, err))
+            return -1
+
+        try:
+            dstfile = open(destfile, 'wb')
+        except Exception as err:
+            self.logger.error('gz decompression of "{}" to "{}" failed on opening destination file: {}'.format(
+                sourcefile, destfile, err))
+            return -1
+
+        try:
+            for data in iter(lambda: srcfile.read(blocksize), b''):
+                try:
+                    dstfile.write(data)
+                except Exception as err:
+                    self.logger.error('gz decompression of "{}" to "{}" failed on writing destination file: {}'.format(
+                        sourcefile, destfile, err))
+                    return -1
+        except Exception as err:
+            self.logger.error('gz decompression of "{}" to "{}" failed on reading gz file: {}'.format(
+                sourcefile, destfile, err))
             return -1
         return 0
