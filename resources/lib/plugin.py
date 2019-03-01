@@ -318,9 +318,8 @@ class MediathekViewPlugin(KodiPlugin):
             Downloader(self).play_movie_with_subs(filmid)
 
         # cleanup saved searches
-        if mode is None or mode != 'search':
+        if mode is None or mode != 'newsearch':
             self.set_setting('lastsearch1', '')
-        if mode is None or mode != 'searchall':
             self.set_setting('lastsearch2', '')
 
     def exit(self):

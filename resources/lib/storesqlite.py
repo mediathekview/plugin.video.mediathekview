@@ -288,9 +288,9 @@ class StoreSQLite(object):
             elif channelid == 0:
                 cache_condition = "SHOW:2:" + initial
             elif initial:
-                cache_condition = "SHOW:3:" + channelid + ':' + initial
-            elif initial:
-                cache_condition = "SHOW:3:" + channelid
+                cache_condition = "SHOW:3:" + str(channelid) + ':' + initial
+            else:
+                cache_condition = "SHOW:3:" + str(channelid)
             cached_data = self._load_cache('get_shows', cache_condition)
             if cached_data is not None:
                 showui.begin(channelid)
