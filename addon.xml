@@ -31,28 +31,10 @@
 - Feature: Natives ultraschnelles Update für SQLite
 - Bugfix: Live Streams konnten heruntergeladen werden
 - Bugfix: Auf Kodi 18 hat der automatische Aktualisierungsmodus nicht mehr funktioniert
-v0.5.2 (2019-02-17):
 - Feature: Neue option --full um ein vollstndiges Update zu erzwingen
-v0.5.1 (2018-08-22):
 - Feature: Neue Aktualisierungsmethode "Zeitgesteuert"
 - Bugfix: Es war nicht möglich, den Aktualisierungsintervall bei der Methode "Automatisch" einzustellen
 - Feature: Passende Symbole für alle Menü-Einträge
-v0.5.0 (2018-08-08):
-- Bugfix: Bei manchen Filme fehlte im Kontext-Menü die Möglichkeit sie herunterzuladen
-- Feature: Old Maria DB / MySQL support
-- Feature: Datenbank-Downloads werden direkt nach der Verarbeitung gelöscht
-- Feature: Abspielen mit Untertitel wahlweise aus dem Kontext-Menü oder immer (Einstellung)
-- Feature: Letzte Suchvorgänge
-- Feature: Auflistung der Live-Streams beschleunigt
-- Feature: Möglichkeit eine Sendung als Film oder als Episode einer Serie herunterzuladen
-- Bugfix: Auf gewissen Systemen ist die Erzeugung der SQLite Datenbank fehlgeschlagen
-- Feature: Effizientere Datenbankstruktur
-- Feature: "mvupdate" hat die neuen Optionen --force und --intervall
-- Feature: Verschiedene Optionen bezüglich NFO-Dateien
-- Feature: Automatische Erkennung von Staffel und Folge
-- Feature: Verbesserte Download-Einstellungen
-- Feature: "Update bei Start" aktualisiert erst beim ersten Addon-Aufruf
-- Feature: Typ und Version der SQL Datenbank wird nun im Log angezeigt
 </news>
 		<platform>all</platform>
 		<language>de fr</language>
