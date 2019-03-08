@@ -1,0 +1,7 @@
+tests:
+skips:
+- B303  # Ignore warnings about using insecure MD2, MD4, MD5, or SHA1 hash function.
+- B310  # Ignore warnings about auditing url open for permitted schemes
+- B311  # Ignore warnings about standard pseudo-random generators
+- B404  # Ignore warnings about importing subprocess
+- B609  # Ignore warnings about subprocess call
