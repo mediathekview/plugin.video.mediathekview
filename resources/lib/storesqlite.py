@@ -100,22 +100,18 @@ class StoreSQLite(object):
             else:
                 self.conn = sqlite3.connect(self.dbfile, timeout=60)
                 self._handle_database_initialization()
+            self._handle_database_configuration()
+            return True
         else:
             self._handle_update_substitution()
             try:
                 self.conn = sqlite3.connect(self.dbfile, timeout=60)
+                self._handle_database_configuration()
+                return True
             except sqlite3.DatabaseError as err:
                 self.logger.error(
                     'Error while opening database: {}. trying to fully reset the Database...', err)
                 return self.init(reset=True, convert=convert)
-
-        # 3x speed-up, check mode 'WAL'
-        self.conn.execute('pragma journal_mode=off')
-        # that is a bit dangerous :-) but faaaast
-        self.conn.execute('pragma synchronous=off')
-        self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
-        self.conn.create_aggregate('GROUP_CONCAT', 1, GroupConcatClass)
-        return True
 
     def exit(self):
         """ Shutdown of the database system """
@@ -1115,6 +1111,14 @@ class StoreSQLite(object):
             self.logger.info('Native update file found. Updating database...')
             return mvutils.file_rename(updfile, sqlfile)
         return False
+
+    def _handle_database_configuration(self):
+        # 3x speed-up, check mode 'WAL'
+        self.conn.execute('pragma journal_mode=off')
+        # that is a bit dangerous :-) but faaaast
+        self.conn.execute('pragma synchronous=off')
+        self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
+        self.conn.create_aggregate('GROUP_CONCAT', 1, GroupConcatClass)
 
     def _handle_database_corruption(self, err):
         self.logger.error(
