@@ -62,6 +62,30 @@ msgctxt "#30117"
 msgid "Recent calculated by"
 msgstr "Recent calculated by"
 
+msgctxt "#30119"
+msgid "Default Sort Method for film list"
+msgstr "Default sort for film list"
+
+msgctxt "#30120"
+msgid "Sort by title"
+msgstr "Title"
+
+msgctxt "#30121"
+msgid "Sort by date"
+msgstr "Date"
+
+msgctxt "#30122"
+msgid "Sort by added"
+msgstr "Added Date"
+
+msgctxt "#30123"
+msgid "Sort by size"
+msgstr "Size"
+
+msgctxt "#30124"
+msgid "Sort by duration"
+msgstr "Duration"
+
 msgctxt "#30171"
 msgid "Aired Date"
 msgstr "Aired Date"
