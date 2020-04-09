@@ -986,7 +986,7 @@ class StoreSQLite(object):
 
             # check if the movie is there
             idhash = hashlib.md5("{}:{}:{}".format(
-                self.ft_channelid, self.ft_showid, film['url_video'])).hexdigest()
+                self.ft_channelid, self.ft_showid, film['url_video']).encode('utf8')).hexdigest()
             cursor.execute("""
                 SELECT      `id`,
                             `touched`

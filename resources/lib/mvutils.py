@@ -247,8 +247,8 @@ def build_url(query):
 def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):
     aborthook = aborthook if aborthook is not None else lambda: False
     total_size = int(
-        src.info().getheader('Content-Length').strip()
-    ) if src.info() and src.info().getheader('Content-Length') else 0
+        src.info().get('Content-Length').strip()
+    ) if src.info() and src.info().get('Content-Length') else 0
     total_chunks = 0
 
     while not aborthook():
