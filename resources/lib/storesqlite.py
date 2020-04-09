@@ -108,9 +108,18 @@ class StoreSQLite(object):
                 self.logger.error(
                     'Error while opening database: {}. trying to fully reset the Database...', err)
                 return self.init(reset=True, convert=convert)
-
-        # 3x speed-up, check mode 'WAL'
-        self.conn.execute('pragma journal_mode=off')
+        try:
+            # 3x speed-up, check mode 'WAL'
+            self.conn.execute('pragma journal_mode=off')
+            # check if DB is ready or broken
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT * FROM `status` LIMIT 1')
+            result = cursor.fetchall()
+            cursor.close()
+        except sqlite3.DatabaseError as err:
+            self.logger.error('Error on first query: {}. trying to fully reset the Database...', err)
+            return self.init(reset=True, convert=convert)
+            
         # that is a bit dangerous :-) but faaaast
         self.conn.execute('pragma synchronous=off')
         self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
