@@ -57,7 +57,7 @@ class FilmUI(Film):
             allSortMethods[0] = allSortMethods[self.settings.filmSortMethod]
             allSortMethods[self.settings.filmSortMethod]=method
             self.sortmethods = allSortMethods
-            
+
         self.showshows = False
         self.showchannels = False
 
