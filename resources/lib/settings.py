@@ -5,15 +5,16 @@ The addon settings module
 Copyright 2017-2018, Leo Moll and Dominik Schlösser
 Licensed under MIT License
 """
-
+#from __future__ import unicode_literals
 # -- Imports ------------------------------------------------
 import time
-
+import sys
 # pylint: disable=import-error
 import xbmc
 import xbmcaddon
 
 # -- Classes ------------------------------------------------
+
 
 
 class Settings(object):
@@ -26,8 +27,13 @@ class Settings(object):
         """ Loads the settings of the addon """
         # pylint: disable=attribute-defined-outside-init
         addon = xbmcaddon.Addon()
-        self.datapath = xbmc.translatePath(
-            addon.getAddonInfo('profile').decode('utf-8'))
+        #self.datapath = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
+        #self.datapath = addon.getAddonInfo('path').decode('utf-8')
+        xbmc.log("HERE " + addon.getAddonInfo('profile'), 3)
+        xbmc.log("HERE " + addon.getAddonInfo('path'), 3)
+        xbmc.log("HERE " + xbmc.translatePath(addon.getAddonInfo('profile')), 3)
+        self.datapath = xbmc.translatePath(addon.getAddonInfo('profile')).decode('utf-8')
+        
         self.firstrun = addon.getSetting('firstrun') == 'true'
         # general
         self.preferhd = addon.getSetting('quality') == 'true'
@@ -51,7 +57,9 @@ class Settings(object):
         self.updinterval = int(float(addon.getSetting('updinterval'))) * 3600
         # download
         self.downloadpathep = addon.getSetting('downloadpathep')
+        self.downloadpathep = unicode(self.downloadpathep, 'utf-8')
         self.downloadpathmv = addon.getSetting('downloadpathmv')
+        self.downloadpathmv = unicode(self.downloadpathmv, 'utf-8')
         self.moviefolders = addon.getSetting('moviefolders') == 'true'
         self.movienamewithshow = addon.getSetting(
             'movienamewithshow') == 'true'

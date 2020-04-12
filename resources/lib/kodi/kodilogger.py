@@ -57,5 +57,8 @@ class KodiLogger(Logger):
             part = arg
             if isinstance(arg, basestring):
                 part = arg  # arg.decode('utf-8')
+                if isinstance(part, unicode):
+                    part = part.encode('utf-8')
+
             parts.append(part)
         xbmc.log(self.prefix + message.format(*parts), level=level)

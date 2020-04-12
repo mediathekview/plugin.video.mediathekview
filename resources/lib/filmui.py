@@ -218,7 +218,7 @@ class FilmUI(Film):
                 info_labels['dateadded'] = airedstring
 
         icon = os.path.join(
-            self.plugin.path,
+            self.plugin.unicodePath,
             'resources',
             'icons',
             film.channel.lower() + '-m.png'
