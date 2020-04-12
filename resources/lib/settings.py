@@ -5,10 +5,8 @@ The addon settings module
 Copyright 2017-2018, Leo Moll and Dominik Schlösser
 Licensed under MIT License
 """
-#from __future__ import unicode_literals
 # -- Imports ------------------------------------------------
 import time
-import sys
 # pylint: disable=import-error
 import xbmc
 import xbmcaddon
