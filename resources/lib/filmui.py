@@ -9,7 +9,6 @@ Licensed under MIT License
 import os
 
 # pylint: disable=import-error
-import xbmc
 import xbmcgui
 import xbmcplugin
 
