@@ -62,6 +62,13 @@ msgctxt "#30117"
 msgid "Recent calculated by"
 msgstr "Neuigkeit berechnet ab"
 
+<<<<<<< Upstream, based on origin/SortByDateadded
+=======
+msgctxt "#30118"
+msgid "Up-to-Date check interval [sec]"
+msgstr "Nach Updates suchen alle [sec]"
+
+>>>>>>> 066084e Add DateAdded as sort method, setting for default sort, added to plot
 msgctxt "#30119"
 msgid "Default Sort Method for film list"
 msgstr "Standard Sortierung der Filmliste"
@@ -456,3 +463,7 @@ msgstr "Fehler beim Abspielen"
 msgctxt "#30989"
 msgid "Cannot retrieve Movie Information"
 msgstr "Es war nicht möglich die Sendung zu finden"
+
+msgctxt "#30990"
+msgid "Airdate: [COLOR chartreuse]{0:s}[/COLOR][CR][CR]"
+msgstr "Ausgestrahlt: [COLOR chartreuse]{0:s}[/COLOR][CR][CR]"

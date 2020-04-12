@@ -456,3 +456,7 @@ msgstr "Play Error"
 msgctxt "#30989"
 msgid "Cannot retrieve Movie Information"
 msgstr "Cannot retrieve Movie Information"
+
+msgctxt "#30990"
+msgid "Airdate: [COLOR chartreuse]{0:s}[/COLOR][CR][CR]"
+msgstr "Airdate: [COLOR chartreuse]{0:s}[/COLOR][CR][CR]"
