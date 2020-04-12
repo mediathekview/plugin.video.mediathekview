@@ -70,7 +70,8 @@ class StoreMySQL(object):
                 host=self.settings.host,
                 port=self.settings.port,
                 user=self.settings.user,
-                password=self.settings.password
+                password=self.settings.password,
+                auth_plugin = 'mysql_native_password'
             )
             try:
                 cursor = self.conn.cursor()
