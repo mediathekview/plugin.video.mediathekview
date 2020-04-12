@@ -27,11 +27,6 @@ class Settings(object):
         """ Loads the settings of the addon """
         # pylint: disable=attribute-defined-outside-init
         addon = xbmcaddon.Addon()
-        #self.datapath = xbmc.translatePath(addon.getAddonInfo('profile').decode('utf-8'))
-        #self.datapath = addon.getAddonInfo('path').decode('utf-8')
-        xbmc.log("HERE " + addon.getAddonInfo('profile'), 3)
-        xbmc.log("HERE " + addon.getAddonInfo('path'), 3)
-        xbmc.log("HERE " + xbmc.translatePath(addon.getAddonInfo('profile')), 3)
         self.datapath = xbmc.translatePath(addon.getAddonInfo('profile')).decode('utf-8')
         
         self.firstrun = addon.getSetting('firstrun') == 'true'
