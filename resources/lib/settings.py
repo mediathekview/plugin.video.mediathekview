@@ -26,7 +26,6 @@ class Settings(object):
         # pylint: disable=attribute-defined-outside-init
         addon = xbmcaddon.Addon()
         self.datapath = xbmc.translatePath(addon.getAddonInfo('profile')).decode('utf-8')
-        
         self.firstrun = addon.getSetting('firstrun') == 'true'
         # general
         self.preferhd = addon.getSetting('quality') == 'true'
