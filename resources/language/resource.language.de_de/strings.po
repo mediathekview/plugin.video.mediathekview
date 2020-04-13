@@ -62,13 +62,6 @@ msgctxt "#30117"
 msgid "Recent calculated by"
 msgstr "Neuigkeit berechnet ab"
 
-<<<<<<< Upstream, based on origin/SortByDateadded
-=======
-msgctxt "#30118"
-msgid "Up-to-Date check interval [sec]"
-msgstr "Nach Updates suchen alle [sec]"
-
->>>>>>> 066084e Add DateAdded as sort method, setting for default sort, added to plot
 msgctxt "#30119"
 msgid "Default Sort Method for film list"
 msgstr "Standard Sortierung der Filmliste"
@@ -83,11 +76,11 @@ msgstr "Sendedatum"
 
 msgctxt "#30122"
 msgid "Sort by added"
-msgstr "Hinzugefügt"
+msgstr "Hinzugefï¿½gt"
 
 msgctxt "#30123"
 msgid "Sort by size"
-msgstr "Dateigröße"
+msgstr "Dateigrï¿½ï¿½e"
 
 msgctxt "#30124"
 msgid "Sort by duration"
