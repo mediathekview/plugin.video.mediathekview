@@ -76,11 +76,11 @@ msgstr "Sendedatum"
 
 msgctxt "#30122"
 msgid "Sort by added"
-msgstr "Hinzugef�gt"
+msgstr "Hinzugefügt"
 
 msgctxt "#30123"
 msgid "Sort by size"
-msgstr "Dateigr��e"
+msgstr "Dateigröße"
 
 msgctxt "#30124"
 msgid "Sort by duration"
