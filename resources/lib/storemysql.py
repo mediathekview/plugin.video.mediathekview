@@ -66,13 +66,21 @@ class StoreMySQL(object):
         if reset:
             self.logger.warn('Reset not supported')
         try:
-            self.conn = mysql.connector.connect(
-                host=self.settings.host,
-                port=self.settings.port,
-                user=self.settings.user,
-                password=self.settings.password,
-                auth_plugin = 'mysql_native_password'
-            )
+            try:
+                self.conn = mysql.connector.connect(
+                    host=self.settings.host,
+                    port=self.settings.port,
+                    user=self.settings.user,
+                    password=self.settings.password
+                )
+            except:
+                self.conn = mysql.connector.connect(
+                    host=self.settings.host,
+                    port=self.settings.port,
+                    user=self.settings.user,
+                    password=self.settings.password,
+                    auth_plugin = 'mysql_native_password'
+                )
             try:
                 cursor = self.conn.cursor()
                 cursor.execute('SELECT VERSION()')
