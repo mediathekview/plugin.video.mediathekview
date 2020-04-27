@@ -66,6 +66,7 @@ class StoreMySQL(object):
         if reset:
             self.logger.warn('Reset not supported')
         try:
+            # TODO Kodi 19 - we can update to mysql connector which supports auth_plugin parameter
             try:
                 self.conn = mysql.connector.connect(
                     host=self.settings.host,
