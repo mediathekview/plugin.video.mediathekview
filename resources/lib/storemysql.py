@@ -74,7 +74,7 @@ class StoreMySQL(object):
                     user=self.settings.user,
                     password=self.settings.password
                 )
-            except:
+            except Exception:
                 self.conn = mysql.connector.connect(
                     host=self.settings.host,
                     port=self.settings.port,
