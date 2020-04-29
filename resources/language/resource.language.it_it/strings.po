@@ -62,6 +62,10 @@ msgctxt "#30117"
 msgid "Recent calculated by"
 msgstr "Novità calcolate con"
 
+msgctxt "#30118"
+msgid "Up-to-Date check interval [sec]"
+msgstr "intervallo di controllo [sec]"
+
 msgctxt "#30171"
 msgid "Aired Date"
 msgstr "Data di Trasmissione"

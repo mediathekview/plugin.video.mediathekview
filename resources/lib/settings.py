@@ -36,6 +36,7 @@ class Settings(object):
         self.maxresults = int(addon.getSetting('maxresults'))
         self.maxage = int(addon.getSetting('maxage')) * 86400
         self.recentmode = int(addon.getSetting('recentmode'))
+        self.updateCheckInterval = int(addon.getSetting('updateCheckInterval'))
         # database
         self.type = int(addon.getSetting('dbtype'))
         self.host = addon.getSetting('dbhost')
