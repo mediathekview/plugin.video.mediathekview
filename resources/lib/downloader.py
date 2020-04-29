@@ -92,8 +92,10 @@ class Downloader(object):
                 mvutils.url_retrieve_vfs(
                     film.url_sub, ttmname, progress.url_retrieve_hook)
                 try:
-                    ttml2srt(xbmcvfs.File(ttmname, 'r'),
+                    ttml2srtConverter = ttml2srt()
+                    ttml2srtConverter.do(xbmcvfs.File(ttmname, 'r'),
                              xbmcvfs.File(srtname, 'w'))
+                    
                     ret = True
                 except Exception as err:
                     self.plugin.info('Failed to convert to srt: {}', err)

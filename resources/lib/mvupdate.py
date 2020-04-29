@@ -11,7 +11,7 @@ import os
 import sys
 import argparse
 import datetime
-import defusedxml.ElementTree as ET
+from xml.etree import ElementTree as ET
 
 from resources.lib.base.logger import Logger
 from resources.lib.updater import MediathekViewUpdater
