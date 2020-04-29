@@ -357,7 +357,7 @@ class MediathekViewUpdater(object):
             self.notifier.show_download_error(url, err)
             return False
         except Exception as err:
-            self.logger.error('Failure writng {}', url)
+            self.logger.error('Failure writing {}', url)
             self.notifier.close_download_progress()
             self.notifier.show_download_error(url, err)
             return False
