@@ -2,7 +2,7 @@
 """
 The addon settings module
 
-Copyright 2017-2018, Leo Moll and Dominik Schl�sser
+Copyright 2017-2018, Leo Moll and Dominik Schlösser
 Licensed under MIT License
 """
 
