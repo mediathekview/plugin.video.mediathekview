@@ -121,10 +121,8 @@ class StoreSQLite(object):
             if (failedCount > 3):
                 self.logger.error('Failed to restore database, please uninstall plugin, delete user profile and reinstall')
                 raise err
-            
             self.logger.error('Error on first query: {}. trying to fully reset the Database...trying {} times', err, failedCount)
             return self.init(reset=True, convert=convert, failedCount=failedCount)
-
         # that is a bit dangerous :-) but faaaast
         self.conn.execute('pragma synchronous=off')
         self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
