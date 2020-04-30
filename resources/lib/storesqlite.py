@@ -1068,8 +1068,9 @@ class StoreSQLite(object):
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
 
-    def _load_cache(self, reqtype, condition, maxage=7200):
+    def _load_cache(self, reqtype, condition):
         filename = os.path.join(self.settings.datapath, reqtype + '.cache')
+        dbLastUpdate = self.get_status()['modified']
         try:
             with closing(open(filename)) as json_file:
                 data = json.load(json_file)
@@ -1078,10 +1079,12 @@ class StoreSQLite(object):
                         return None
                     if data.get('condition') != condition:
                         return None
-                    if time.time() - data.get('time', 0) > maxage:
+                    if int(dbLastUpdate) != data.get('time', 0):
                         return None
                     data = data.get('data', [])
-                    return data if isinstance(data, list) else None
+                    if isinstance(data, list):
+                        return data
+                    return None
         # pylint: disable=broad-except
         except Exception as err:
             self.logger.error(
@@ -1092,9 +1095,10 @@ class StoreSQLite(object):
         if not isinstance(data, list):
             return False
         filename = os.path.join(self.settings.datapath, reqtype + '.cache')
+        dbLastUpdate = self.get_status()['modified']
         cache = {
             "type": reqtype,
-            "time": int(time.time()),
+            "time": int(dbLastUpdate),
             "condition": condition,
             "data": data
         }
