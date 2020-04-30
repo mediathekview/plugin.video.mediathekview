@@ -60,7 +60,7 @@ class StoreSQLite(object):
         self.ft_show = None
         self.ft_showid = None
 
-    def init(self, reset=False, convert=False):
+    def init(self, reset=False, convert=False, failedCount = 0):
         """
         Startup of the database system
 
@@ -108,9 +108,21 @@ class StoreSQLite(object):
                 self.logger.error(
                     'Error while opening database: {}. trying to fully reset the Database...', err)
                 return self.init(reset=True, convert=convert)
-
-        # 3x speed-up, check mode 'WAL'
-        self.conn.execute('pragma journal_mode=off')
+        try:
+            # 3x speed-up, check mode 'WAL'
+            self.conn.execute('pragma journal_mode=off')
+            # check if DB is ready or broken
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT * FROM `status` LIMIT 1')
+            cursor.fetchall()
+            cursor.close()
+        except sqlite3.DatabaseError as err:
+            failedCount += 1
+            if (failedCount > 3):
+                self.logger.error('Failed to restore database, please uninstall plugin, delete user profile and reinstall')
+                raise err
+            self.logger.error('Error on first query: {}. trying to fully reset the Database...trying {} times', err, failedCount)
+            return self.init(reset=True, convert=convert, failedCount=failedCount)
         # that is a bit dangerous :-) but faaaast
         self.conn.execute('pragma synchronous=off')
         self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
