@@ -40,12 +40,23 @@ class FilmUI(Film):
         self.plugin = plugin
         self.handle = plugin.addon_handle
         self.settings = Settings()
-        self.sortmethods = sortmethods if sortmethods is not None else [
+        # define sortmethod for films
+        # all av. sort method and put the default sortmethod on first place to be used by UI
+        allSortMethods = [
             xbmcplugin.SORT_METHOD_TITLE,
             xbmcplugin.SORT_METHOD_DATE,
-            xbmcplugin.SORT_METHOD_DURATION,
-            xbmcplugin.SORT_METHOD_SIZE
+            xbmcplugin.SORT_METHOD_DATEADDED,
+            xbmcplugin.SORT_METHOD_SIZE,
+            xbmcplugin.SORT_METHOD_DURATION
         ]
+        if sortmethods is not None:
+            self.sortmethods = sortmethods
+        else:
+            method = allSortMethods[0]
+            allSortMethods[0] = allSortMethods[self.settings.filmSortMethod]
+            allSortMethods[self.settings.filmSortMethod]=method
+            self.sortmethods = allSortMethods
+
         self.showshows = False
         self.showchannels = False
 
@@ -214,8 +225,9 @@ class FilmUI(Film):
             if airedstring[:4] != '1970':
                 info_labels['date'] = airedstring[8:10] + '-' + \
                     airedstring[5:7] + '-' + airedstring[:4]
-                info_labels['aired'] = airedstring
+                info_labels['aired'] = airedstring[:10]
                 info_labels['dateadded'] = airedstring
+                info_labels['plot'] = self.plugin.language(30990).format(airedstring) + info_labels['plot']
 
         icon = os.path.join(
             self.plugin.unicodePath,
