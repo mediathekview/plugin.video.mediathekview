@@ -111,7 +111,7 @@ class AppLogger(Logger):
         parts = []
         for arg in args:
             part = arg
-            if isinstance(arg, basestring):
+            if isinstance(arg, str):
                 part = arg  # arg.decode('utf-8')
             parts.append(part)
         output = '{} {} {}{}'.format(

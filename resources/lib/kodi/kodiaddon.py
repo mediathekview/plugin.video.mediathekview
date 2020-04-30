@@ -36,8 +36,7 @@ class KodiAddon(KodiLogger):
         self.fanart = self.addon.getAddonInfo('fanart')
         self.version = self.addon.getAddonInfo('version')
         self.path = self.addon.getAddonInfo('path')
-        self.datapath = xbmc.translatePath(
-            self.addon.getAddonInfo('profile').decode('utf-8'))
+        self.datapath = xbmc.translatePath(self.addon.getAddonInfo('profile')).decode('utf-8')
         self.language = self.addon.getLocalizedString
         KodiLogger.__init__(self, self.addon_id, self.version)
 

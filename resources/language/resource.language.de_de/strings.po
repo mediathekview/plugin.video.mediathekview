@@ -62,6 +62,10 @@ msgctxt "#30117"
 msgid "Recent calculated by"
 msgstr "Neuigkeit berechnet ab"
 
+msgctxt "#30118"
+msgid "Up-to-Date check interval [sec]"
+msgstr "Nach Updates suchen alle [sec]"
+
 msgctxt "#30119"
 msgid "Default Sort Method for film list"
 msgstr "Standard Sortierung der Filmliste"
