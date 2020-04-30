@@ -40,7 +40,7 @@ class Downloader(object):
         self.database = plugin.database
         self.settings = plugin.settings
         self.notifier = plugin.notifier
-        self.plugin.datapath = unicode(self.plugin.datapath, 'utf-8')
+        self.plugin.datapath = self.plugin.datapath
 
     def play_movie_with_subs(self, filmid):
         """
