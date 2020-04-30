@@ -123,7 +123,7 @@ class KodiUI(object):
         self.show_notification(
             heading, message, xbmcgui.NOTIFICATION_WARNING, time, sound)
 
-    def show_error(self, heading, message, time=5000, sound=True):
+    def show_error(self, heading, message, time=8000, sound=True):
         """
         Shows an error notification to the user
 
