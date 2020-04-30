@@ -95,7 +95,6 @@ class Downloader(object):
                     ttml2srtConverter = ttml2srt()
                     ttml2srtConverter.do(xbmcvfs.File(ttmname, 'r'),
                              xbmcvfs.File(srtname, 'w'))
-                    
                     ret = True
                 except Exception as err:
                     self.plugin.info('Failed to convert to srt: {}', err)
