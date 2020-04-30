@@ -72,7 +72,7 @@ class ShowUI(Show):
             icon = 'special://home/addons/' + self.plugin.addon_id + \
                 '/resources/icons/default-m.png'
 
-        list_item = xbmcgui.ListItem(label=resultingname)
+        list_item = xbmcgui.ListItem(label=resultingname, offscreen=True)
         list_item.setInfo(type='video', infoLabels=info_labels)
         list_item.setArt({
             'thumb': icon,
