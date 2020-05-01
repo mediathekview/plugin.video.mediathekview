@@ -57,7 +57,7 @@ class InitialUI(object):
                                          ' ' and self.initial != '' else ' No Title', self.count)
         else:
             resultingname = altname
-        list_item = xbmcgui.ListItem(label=resultingname, offscreen=True)
+        list_item = xbmcgui.ListItem(label=resultingname)
         xbmcplugin.addDirectoryItem(
             handle=self.handle,
             url=mvutils.build_url({

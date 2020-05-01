@@ -55,7 +55,7 @@ class ChannelUI(Channel):
         resultingname = self.channel if self.count == 0 else '%s (%d)' % (
             self.channel, self.count, )
         list_item = xbmcgui.ListItem(
-            label=resultingname if altname is None else altname, offscreen=True)
+            label=resultingname if altname is None else altname)
         icon = 'special://home/addons/' + self.plugin.addon_id + \
             '/resources/icons/' + self.channel.lower() + '-m.png'
         list_item.setArt({

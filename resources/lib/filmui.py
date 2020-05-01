@@ -236,7 +236,7 @@ class FilmUI(Film):
             film.channel.lower() + '-m.png'
         )
 
-        listitem = xbmcgui.ListItem(resultingtitle, path=videourl, offscreen=True)
+        listitem = xbmcgui.ListItem(resultingtitle, path=videourl)
         listitem.setInfo(type='video', infoLabels=info_labels)
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({

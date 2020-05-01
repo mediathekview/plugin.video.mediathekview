@@ -232,7 +232,7 @@ class KodiPlugin(KodiAddon):
         """
         if isinstance(name, int):
             name = self.language(name)
-        list_item = xbmcgui.ListItem(name, offscreen=True)
+        list_item = xbmcgui.ListItem(name)
         if contextmenu is not None:
             list_item.addContextMenuItems(contextmenu)
         if icon is not None or thumb is not None:
