@@ -146,7 +146,8 @@ folgende zwei Bibliotheken zur Verfügung stehen, sowie das Entpackprogramm
 Die Installation dieser Bibliotheken erfolgt durch Eingabe folgender Befehle:
 
 ````
-pip install mysql-connector==2.1.4
+sudo apt install python-pip
+pip install mysql-connector==2.2.9
 ````
 
 Das Aktualisierungsprogramm heisst `mvupdate` und liegt im Hauptverzeichnis
@@ -314,7 +315,8 @@ the following python libraries are required:
 The required libraries can be installed via pip:
 
 ````
-pip install mysql-connector==2.1.4
+sudo apt install python-pip
+pip install mysql-connector==2.2.9
 ````
 
 The update program is called `mvupdate` and is located in the root directory
@@ -480,7 +482,8 @@ librerie python:
 QUeste potranno essere istallate mediante il programma pip:
 
 ````
-pip install mysql-connector==2.1.4
+sudo apt install python-pip
+pip install mysql-connector==2.2.9
 ````
 
 Il programma di aggiornamento si chiama `mvupdate` e si trova nella directory
