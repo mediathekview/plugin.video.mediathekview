@@ -490,17 +490,6 @@ class StoreSQLite(object):
             start = time.time()
             cursor = self.conn.cursor()
             cursor.execute(
-                self.sql_query_filmcnt +
-                ' WHERE ' +
-                condition +
-                sql_cond_limit +
-                (' LIMIT {}'.format(maxresults + 1) if maxresults else ''),
-                params
-            )
-            (results, ) = cursor.fetchone()
-            if maxresults and results > maxresults:
-                self.notifier.show_limit_results(maxresults)
-            cursor.execute(
                 self.sql_query_films +
                 ' WHERE ' +
                 condition +
@@ -511,11 +500,21 @@ class StoreSQLite(object):
             )
             self.logger.info('QUERY_TIME:{}', time.time() - start)
             start = time.time()
-            filmui.begin(showshows, showchannels)
+            resultCount = 0
             for (filmui.filmid, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd) in cursor:
+                resultCount += 1
+                if maxresults and resultCount > maxresults:
+                    break;
+                cached_data.append(filmui.get_as_dict()) #write data to dict anyway because we want the total number of rows to be passed to add function
+            ###
+            results = len(cached_data)
+            filmui.begin(showshows, showchannels)
+            for film_data in cached_data:
+                filmui.set_from_dict(film_data)
                 filmui.add(total_items=results)
-                if caching and self.settings.caching:
-                    cached_data.append(filmui.get_as_dict())
+            filmui.end()
+            if maxresults and resultCount > maxresults:
+                self.notifier.show_limit_results(maxresults)        
             filmui.end()
             self.logger.info('FILL_KODI_LIST:{}', time.time() - start)
             cursor.close()
