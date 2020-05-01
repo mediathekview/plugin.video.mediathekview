@@ -67,21 +67,20 @@ class StoreMySQL(object):
             self.logger.warn('Reset not supported')
         try:
             # TODO Kodi 19 - we can update to mysql connector which supports auth_plugin parameter
-            try:
-                self.conn = mysql.connector.connect(
-                    host=self.settings.host,
-                    port=self.settings.port,
-                    user=self.settings.user,
-                    password=self.settings.password
-                )
-            except Exception:
-                self.conn = mysql.connector.connect(
-                    host=self.settings.host,
-                    port=self.settings.port,
-                    user=self.settings.user,
-                    password=self.settings.password,
-                    auth_plugin = 'mysql_native_password'
-                )
+            connectargs = {
+                'host': self.settings.host,
+                'port': self.settings.port,
+                'user': self.settings.user,
+                'password': self.settings.password
+            }
+            if mysql.connector.__version_info__ > (1, 2):
+                connectargs['auth_plugin'] = 'mysql_native_password'
+            else:
+                self.logger.debug('Not using auth_plugin parameter')
+            if mysql.connector.__version_info__ > (2, 1) and mysql.connector.HAVE_CEXT:
+                connectargs['use_pure'] = True
+                self.logger.debug('Forcefully disabling C extension')
+            self.conn = mysql.connector.connect(**connectargs)
             try:
                 cursor = self.conn.cursor()
                 cursor.execute('SELECT VERSION()')
