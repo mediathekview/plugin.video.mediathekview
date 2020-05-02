@@ -22,6 +22,8 @@ except ImportError:
     from urllib import urlencode
     from urllib2 import urlopen
 
+from email.utils import parsedate_tz, mktime_tz
+
 from contextlib import closing
 from resources.lib.exceptions import ExitRequested
 
@@ -178,6 +180,15 @@ def cleanup_filename(val):
     search = ''.join([c for c in val if c in cset])
     return search.strip()
 
+def url_lastmodified(url):
+    """
+    Query a network object's last-modified value as a unix timestamp
+
+    Args:
+        url(str): the source url of the object to query
+    """
+    with closing(urlopen(url)) as src:
+        return mktime_tz(parsedate_tz(src.info().get('last-modified')))
 
 def url_retrieve(url, filename, reporthook, chunk_size=8192, aborthook=None):
     """

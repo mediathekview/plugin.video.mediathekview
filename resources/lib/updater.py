@@ -8,7 +8,6 @@ Copyright 2017-2019, Leo Moll and Dominik Schlösser
 # -- Imports ------------------------------------------------
 import os
 import time
-import datetime
 import subprocess
 
 # pylint: disable=import-error
@@ -20,6 +19,7 @@ except ImportError:
     from urllib2 import URLError
 
 from contextlib import closing
+from datetime import datetime
 
 import json
 
@@ -147,8 +147,6 @@ class MediathekViewUpdater(object):
         status = self.database.get_status()
         tsnow = int(time.time())
         tsold = status['lastupdate']
-        dtnow = datetime.datetime.fromtimestamp(tsnow).date()
-        dtold = datetime.datetime.fromtimestamp(tsold).date()
         if status['status'] == 'UNINIT':
             # database not initialized - no update
             self.logger.debug('database not initialized')
@@ -168,10 +166,9 @@ class MediathekViewUpdater(object):
             self.logger.debug(
                 'Last update less than the configured update interval. do nothing')
             return 0
-        elif dtnow != dtold:
-            # last update was not today. do full update once a day
-            self.logger.debug(
-                'Last update was not today. do full update once a day')
+        elif self._is_db_stale(status['filmupdate']):
+            # available filmliste has newer date than database
+            self.logger.debug('Last update too old to rely on diffs; do full update')
             return 1
         elif status['status'] == "ABORTED" and status['fullupdate'] == 1:
             # last full update was aborted - full update needed
@@ -258,8 +255,7 @@ class MediathekViewUpdater(object):
                         # this is the timestamp of this database update
                         value = atuple[1][0]
                         try:
-                            fldt = datetime.datetime.strptime(
-                                value.strip(), "%d.%m.%Y, %H:%M")
+                            fldt = datetime.strptime(value.strip(), "%d.%m.%Y, %H:%M")
                             flts = int(time.mktime(fldt.timetuple()))
                             self.database.update_status(filmupdate=flts)
                             self.logger.info(
@@ -462,6 +458,19 @@ class MediathekViewUpdater(object):
         else:
             # should never happen since it will not be called
             return None
+
+    def _is_db_stale(self, tsdb):
+        url, _, _, _ = self._get_update_info(True)
+        try:
+            tslist = mvutils.url_lastmodified(url)
+            dtlist = datetime.fromtimestamp(tslist)
+            dtdb = datetime.fromtimestamp(tsdb)
+            self.logger.debug('Database from {} and list at {} last modified on {}', dtdb, url, dtlist)
+            return dtlist.date() > dtdb.date()
+        # pylint: disable=broad-except
+        except Exception as err:
+            self.logger.debug('Unable to query last-modified time for {}: {} {}', url, type(err).__name__, err)
+            return True
 
     def _update_start(self, full):
         self.logger.info('Initializing update...')
