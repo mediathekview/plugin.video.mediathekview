@@ -47,7 +47,6 @@ class StoreSQLite(object):
         self.dbfile = os.path.join(self.settings.datapath, 'filmliste-v2.db')
         # useful query fragments
         self.sql_query_films = "SELECT film.id,title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_sub,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
-        self.sql_query_filmcnt = "SELECT COUNT(*) FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
         self.sql_cond_recent = "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format(
             "aired" if settings.recentmode == 0 else "film.dtCreated",
             settings.maxage
