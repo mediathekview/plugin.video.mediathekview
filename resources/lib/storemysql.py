@@ -91,10 +91,17 @@ class StoreMySQL(object):
             except Exception:
                 self.logger.info('Connected to server {}', self.settings.host)
             self.conn.database = self.settings.database
+            ## check tables
+            cursor.execute('SELECT * FROM status')
+            cursor.fetchone()
         except mysql.connector.Error as err:
             if err.errno == mysql.connector.errorcode.ER_BAD_DB_ERROR:
                 self.logger.info(
                     '=== DATABASE {} DOES NOT EXIST. TRYING TO CREATE IT ===', self.settings.database)
+                return self._handle_database_initialization()
+            if err.errno == mysql.connector.errorcode.ER_NO_SUCH_TABLE:
+                self.logger.info(
+                    '=== TABLE DOES NOT EXIST. TRYING TO CREATE IT ===')
                 return self._handle_database_initialization()
             self.conn = None
             self.logger.error('Database error: {}, {}', err.errno, err)
@@ -1008,7 +1015,7 @@ class StoreMySQL(object):
         dbcreated = False
         try:
             cursor = self.conn.cursor()
-            cursor.execute('CREATE DATABASE `{}` DEFAULT CHARACTER SET utf8'.format(
+            cursor.execute('CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8'.format(
                 self.settings.database))
             dbcreated = True
             self.conn.database = self.settings.database
