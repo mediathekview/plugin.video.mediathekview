@@ -76,7 +76,7 @@ class RecentSearches(object):
         Args:
             search(str): search string
         """
-        slow = search.decode('utf-8').lower()
+        slow = search.lower()
         try:
             for entry in self.recents:
                 if entry['search'].lower() == slow:
@@ -88,7 +88,7 @@ class RecentSearches(object):
                 'Recent searches list is broken (error {}) - cleaning up', err)
             self.recents = []
         self.recents.append({
-            'search':			search.decode('utf-8'),
+            'search':			search,
             'when':				int(time.time())
         })
         return self
@@ -100,7 +100,7 @@ class RecentSearches(object):
         Args:
             search(str): search string
         """
-        slow = search.decode('utf-8').lower()
+        slow = search.lower()
         try:
             for entry in self.recents:
                 if entry['search'].lower() == slow:

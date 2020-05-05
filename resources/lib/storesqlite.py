@@ -149,7 +149,7 @@ class StoreSQLite(object):
                 performed also on film descriptions. Default is
                 `False`
         """
-        searchmask = '%' + search.decode('utf-8') + '%'
+        searchmask = '%' + search + '%'
         searchcond = '( ( title LIKE ? ) OR ( show LIKE ? ) OR ( description LIKE ? ) )' if extendedsearch is True else '( ( title LIKE ? ) OR ( show LIKE ? ) )'
         searchparm = (searchmask, searchmask, searchmask) if extendedsearch is True else (
             searchmask, searchmask, )
