@@ -47,7 +47,7 @@ class RecentSearches(object):
         """ Loads the recent searches list """
         try:
             with closing(open(self.datafile)) as json_file:
-                data = json.load(json_file)
+                data = json.load(json_file, encoding='UTF-8')
                 if isinstance(data, list):
                     self.recents = sorted(
                         data, key=itemgetter('when'), reverse=True)
@@ -62,7 +62,7 @@ class RecentSearches(object):
         data = sorted(self.recents, key=itemgetter('when'), reverse=True)
         try:
             with closing(open(self.datafile, 'w')) as json_file:
-                json.dump(data, json_file)
+                json.dump(data, json_file, encoding='UTF-8')
         # pylint: disable=broad-except
         except Exception as err:
             self.plugin.error(

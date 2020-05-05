@@ -1083,7 +1083,7 @@ class StoreSQLite(object):
         dbLastUpdate = self.get_status()['modified']
         try:
             with closing(open(filename)) as json_file:
-                data = json.load(json_file)
+                data = json.load(json_file, encoding='UTF-8')
                 if isinstance(data, dict):
                     if data.get('type', '') != reqtype:
                         return None
@@ -1114,7 +1114,7 @@ class StoreSQLite(object):
         }
         try:
             with closing(open(filename, 'w')) as json_file:
-                json.dump(cache, json_file)
+                json.dump(cache, json_file, encoding='UTF-8')
             return True
         # pylint: disable=broad-except
         except Exception as err:
