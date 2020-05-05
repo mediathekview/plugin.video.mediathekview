@@ -43,7 +43,7 @@ class KodiUI(object):
         keyboard.doModal()
         if keyboard.isConfirmed():
             return (keyboard.getText(), True, )
-        return (deftext.encode('utf-8'), False, )
+        return (deftext, False, ) ##TODO deftext.encode('utf-8')
 
     def show_ok_dialog(self, heading=None, line1=None, line2=None, line3=None):
         """
