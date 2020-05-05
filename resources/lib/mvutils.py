@@ -253,11 +253,11 @@ def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):
 
     while not aborthook():
         reporthook(total_chunks, chunk_size, total_size)
-        chunk = src.read(chunk_size)
-        if not chunk:
+        byteStringchunk = src.read(chunk_size)
+        if not byteStringchunk:
             # operation has finished
             return
-        dst.write(chunk)
+        dst.write(bytearray(byteStringchunk))
         total_chunks += 1
     # abort requested
     raise ExitRequested('Reception interrupted.')
