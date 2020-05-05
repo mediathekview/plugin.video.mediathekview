@@ -1082,8 +1082,8 @@ class StoreSQLite(object):
         filename = os.path.join(self.settings.datapath, reqtype + '.cache')
         dbLastUpdate = self.get_status()['modified']
         try:
-            with closing(open(filename)) as json_file:
-                data = json.load(json_file, encoding='UTF-8')
+            with closing(open(filename, encoding='utf-8')) as json_file:
+                data = json.load(json_file)
                 if isinstance(data, dict):
                     if data.get('type', '') != reqtype:
                         return None
@@ -1113,8 +1113,8 @@ class StoreSQLite(object):
             "data": data
         }
         try:
-            with closing(open(filename, 'w')) as json_file:
-                json.dump(cache, json_file, encoding='UTF-8')
+            with closing(open(filename, 'w', encoding='utf-8')) as json_file:
+                json.dump(cache, json_file)
             return True
         # pylint: disable=broad-except
         except Exception as err:
