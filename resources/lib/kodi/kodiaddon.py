@@ -13,6 +13,7 @@ import xbmc
 import xbmcgui
 import xbmcaddon
 import xbmcplugin
+import resources.lib.mvutils as mvutils
 
 try:
     # Python 3.x
@@ -35,8 +36,8 @@ class KodiAddon(KodiLogger):
         self.icon = self.addon.getAddonInfo('icon')
         self.fanart = self.addon.getAddonInfo('fanart')
         self.version = self.addon.getAddonInfo('version')
-        self.path = self.addon.getAddonInfo('path') ##TODO self.unicodePath = unicode(self.path, 'utf-8')
-        self.datapath = xbmc.translatePath(self.addon.getAddonInfo('profile')) ### TODO.decode('utf-8')
+        self.path = mvutils.py2_decode(self.addon.getAddonInfo('path')) ##TODO self.unicodePath = unicode(self.path, 'utf-8')
+        self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile'))) ### TODO.decode('utf-8')
         self.language = self.addon.getLocalizedString
         KodiLogger.__init__(self, self.addon_id, self.version)
 

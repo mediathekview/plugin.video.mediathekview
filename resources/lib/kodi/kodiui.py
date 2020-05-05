@@ -10,6 +10,7 @@ Licensed under MIT License
 import xbmc
 import xbmcgui
 import xbmcaddon
+import resources.lib.mvutils as mvutils
 
 
 class KodiUI(object):
@@ -42,7 +43,9 @@ class KodiUI(object):
         keyboard = xbmc.Keyboard(deftext, heading, 1 if hidden else 0)
         keyboard.doModal()
         if keyboard.isConfirmed():
-            return (keyboard.getText(), True, )
+            enteredText = keyboard.getText();
+            enteredText = mvutils.py2_encode(enteredText);
+            return (enteredText, True, )
         return (deftext, False, ) ##TODO deftext.encode('utf-8')
 
     def show_ok_dialog(self, heading=None, line1=None, line2=None, line3=None):
