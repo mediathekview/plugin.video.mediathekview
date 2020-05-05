@@ -214,10 +214,10 @@ class FilmUI(Film):
             'plot': film.description
         }
 
-        if film.size > 0:
+        if film.size is not None and film.size > 0:
             info_labels['size'] = film.size * 1024 * 1024
 
-        if film.seconds > 0:
+        if film.seconds is not None and film.seconds > 0:
             info_labels['duration'] = film.seconds
 
         if film.aired is not None:
