@@ -230,7 +230,7 @@ class FilmUI(Film):
                 info_labels['plot'] = self.plugin.language(30990).format(airedstring) + info_labels['plot']
 
         icon = os.path.join(
-            self.plugin.unicodePath,
+            self.plugin.path,
             'resources',
             'icons',
             film.channel.lower() + '-m.png'
