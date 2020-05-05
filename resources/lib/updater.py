@@ -237,8 +237,8 @@ class MediathekViewUpdater(object):
         # pylint: disable=broad-except
         try:
             starttime = time.time()
-            with closing( open(destfile, 'r') ) as updatefile:
-                jsonDoc = json.load( updatefile, encoding='UTF-8', object_pairs_hook=self._object_pairs_hook )
+            with closing( open(destfile, 'r', encoding="utf-8") ) as updatefile:
+                jsonDoc = json.load( updatefile, encoding="utf-8", object_pairs_hook=self._object_pairs_hook )
                 self.logger.info( 'Starting import of {} records from {}', (len(jsonDoc)-2), destfile )
                 flsm = 0
                 flts = 0
