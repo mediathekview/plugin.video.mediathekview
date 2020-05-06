@@ -11,10 +11,9 @@ import time
 
 from contextlib import closing
 from operator import itemgetter
-
+from codecs import open
 # pylint: disable=import-error
 import xbmcplugin
-from codecs import open
 
 
 class RecentSearches(object):

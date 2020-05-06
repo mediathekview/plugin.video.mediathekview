@@ -238,7 +238,7 @@ class ttml2srt(object):
 
         #TODO #if isinstance(outfile, str) or isinstance(outfile, unicode):
         if isinstance(outfile, str):
-            dstfile = open(outfile, 'w', encoding='utf-8')
+            dstfile = io.open(outfile, 'w', encoding='utf-8')
         else:
             dstfile = outfile
         srt_i = 1
