@@ -34,7 +34,7 @@ import io
 
 from datetime import timedelta
 from xml.etree import ElementTree as ET
-
+from codecs import open
 
 class ttml2srt(object):
 

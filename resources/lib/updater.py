@@ -20,6 +20,7 @@ except ImportError:
     from urllib2 import URLError
 
 from contextlib import closing
+from codecs import open
 
 import json
 
@@ -238,7 +239,7 @@ class MediathekViewUpdater(object):
         try:
             starttime = time.time()
             with closing( open(destfile, 'r', encoding="utf-8") ) as updatefile:
-                jsonDoc = json.load( updatefile, encoding="utf-8", object_pairs_hook=self._object_pairs_hook )
+                jsonDoc = json.load( updatefile, object_pairs_hook=self._object_pairs_hook )
                 self.logger.info( 'Starting import of {} records from {}', (len(jsonDoc)-2), destfile )
                 flsm = 0
                 flts = 0
