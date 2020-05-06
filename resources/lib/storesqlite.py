@@ -100,8 +100,9 @@ class StoreSQLite(object):
                 self.conn = sqlite3.connect(self.dbfile, timeout=60)
                 self._handle_database_initialization()
         else:
-            self._handle_update_substitution()
             try:
+                if self._handle_update_substitution():
+                    self._handle_not_update_to_date_dbfile()
                 self.conn = sqlite3.connect(self.dbfile, timeout=60)
             except sqlite3.DatabaseError as err:
                 self.logger.error(
@@ -113,7 +114,13 @@ class StoreSQLite(object):
             # check if DB is ready or broken
             cursor = self.conn.cursor()
             cursor.execute('SELECT * FROM `status` LIMIT 1')
-            cursor.fetchall()
+            rs = cursor.fetchall()
+            ##
+            self.logger.info('Current DB Status Last modified {} ({})', time.ctime(rs[0][0]), rs[0][0])
+            self.logger.info('Current DB Status Last lastupdate {} ({})', time.ctime(rs[0][2]), rs[0][2])
+            self.logger.info('Current DB Status Last filmupdate {} ({})', time.ctime(rs[0][3]), rs[0][3])
+            self.logger.info('Current DB Status Last fullupdate {}', rs[0][4])
+            ##
             cursor.close()
         except sqlite3.DatabaseError as err:
             failedCount += 1
@@ -1136,6 +1143,30 @@ class StoreSQLite(object):
         self.notifier.show_database_error(err)
         self.exit()
         self.init(reset=True, convert=False)
+
+    def _handle_not_update_to_date_dbfile(self):
+        ###
+        try:
+            if self.conn is None:
+                self.conn = sqlite3.connect(self.dbfile, timeout=60)
+            cursor = self.conn.cursor()
+            cursor.execute('SELECT modified FROM `status` LIMIT 1')
+            rs = cursor.fetchall()
+            modified = rs[0][0]
+            current_time = int(time.time())
+            target_time = modified + 8 * 60 * 60;
+            if (target_time < current_time):
+                self.logger.info("Outdated DB after full refresh! DB modified time is {} ({}) which is less than allowed {} ({})",time.ctime(modified),modified,time.ctime(target_time),target_time)
+                cursor = self.conn.cursor()
+                cursor.execute('UPDATE status SET modified = ?,lastupdate = ?, filmupdate = ?', (int(time.time()),int(time.time()),int(time.time())))
+                cursor.close()
+                self.conn.commit()
+                return True
+            self.conn.close()
+            self.conn = None
+        except sqlite3.DatabaseError as err:
+            self.logger.error('HUST: {}', err)     
+        return False
 
     def _handle_database_initialization(self):
         self.conn.executescript("""
