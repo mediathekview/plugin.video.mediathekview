@@ -4,7 +4,7 @@
 	version="0.6.2"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
-		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="xbmc.python" version="2.25.0"/>
 		<import addon="script.module.requests" version="2.12.4"/>
 		<import addon="script.module.myconnpy" version="1.1.7"/>
 	</requires>
