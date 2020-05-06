@@ -14,6 +14,7 @@ import sqlite3
 import hashlib
 
 from contextlib import closing
+from codecs import open
 
 import resources.lib.mvutils as mvutils
 

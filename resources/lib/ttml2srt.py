@@ -34,7 +34,7 @@ import io
 
 from datetime import timedelta
 from xml.etree import ElementTree as ET
-
+from codecs import open
 
 class ttml2srt(object):
 
@@ -238,7 +238,7 @@ class ttml2srt(object):
 
         #TODO #if isinstance(outfile, str) or isinstance(outfile, unicode):
         if isinstance(outfile, str):
-            dstfile = io.open(outfile, 'w', encoding='utf-8')
+            dstfile = open(outfile, 'w', encoding='utf-8')
         else:
             dstfile = outfile
         srt_i = 1

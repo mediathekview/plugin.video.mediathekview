@@ -14,6 +14,7 @@ from operator import itemgetter
 
 # pylint: disable=import-error
 import xbmcplugin
+from codecs import open
 
 
 class RecentSearches(object):
