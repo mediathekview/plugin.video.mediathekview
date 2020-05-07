@@ -10,7 +10,7 @@ Licensed under MIT License
 import xbmc
 
 from resources.lib.base.logger import Logger
-
+import resources.lib.mvutils as mvutils
 
 class KodiLogger(Logger):
     """
@@ -55,11 +55,7 @@ class KodiLogger(Logger):
         parts = []
         for arg in args:
             part = arg
-            #TODO if isinstance(arg, basestring):
             if isinstance(arg, str):
-                part = arg  # arg.decode('utf-8')
-                #if isinstance(part, unicode):
-                #    part = part.encode('utf-8')
-
+                part = mvutils.py2_encode(arg)
             parts.append(part)
         xbmc.log(self.prefix + message.format(*parts), level=level)
