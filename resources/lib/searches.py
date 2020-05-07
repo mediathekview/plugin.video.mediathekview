@@ -120,7 +120,7 @@ class RecentSearches(object):
                 entry['search'],
                 {
                     'mode': "research",
-                    'search': entry['search'].encode('utf-8'),
+                    'search': entry['search'],
                     'extendedsearch': self.extendedsearch
                 },
                 [
@@ -129,7 +129,7 @@ class RecentSearches(object):
                         'RunPlugin({})'.format(
                             self.plugin.build_url({
                                 'mode': "delsearch",
-                                'search': entry['search'].encode('utf-8'),
+                                'search': entry['search'],
                                 'extendedsearch': self.extendedsearch
                             })
                         )
