@@ -132,7 +132,7 @@ class StoreMySQL(object):
                 performed also on film descriptions. Default is
                 `False`
         """
-        searchmask = '%' + search.decode('utf-8') + '%'
+        searchmask = '%' + search + '%'
         searchcond = '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) OR ( `description` LIKE %s ) )' if extendedsearch is True else '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) )'
         searchparm = (searchmask, searchmask, searchmask) if extendedsearch is True else (
             searchmask, searchmask, )

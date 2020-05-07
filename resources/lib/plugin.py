@@ -46,7 +46,6 @@ class MediathekViewPlugin(KodiPlugin):
             self.notifier,
             self.settings
         )
-        self.unicodePath = unicode(self.path, 'utf-8')
 
     def show_main_menu(self):
         """ Creates the main menu of the plugin """
@@ -54,49 +53,49 @@ class MediathekViewPlugin(KodiPlugin):
         self.add_folder_item(
             30901,
             {'mode': "search", 'extendedsearch': False},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
         )
         # Search all
         self.add_folder_item(
             30902,
             {'mode': "search", 'extendedsearch': True},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
         )
         # Browse livestreams
         self.add_folder_item(
             30903,
             {'mode': "livestreams"},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'live2-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png')
         )
         # Browse recently added
         self.add_folder_item(
             30904,
             {'mode': "recent", 'channel': 0},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'new-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
         )
         # Browse recently added by channel
         self.add_folder_item(
             30905,
             {'mode': "recentchannels"},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'new-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
         )
         # Browse by Initial->Show
         self.add_folder_item(
             30906,
             {'mode': "initial", 'channel': 0},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'movie-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
         )
         # Browse by Channel->Initial->Shows
         self.add_folder_item(
             30907,
             {'mode': "channels"},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'movie-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
         )
         # Database Information
         self.add_action_item(
             30908,
             {'mode': "action-dbinfo"},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'dbinfo-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png')
         )
         # Manual database update
         if self.settings.updmode == 1 or self.settings.updmode == 2:
@@ -117,7 +116,7 @@ class MediathekViewPlugin(KodiPlugin):
         self.add_folder_item(
             30931,
             {'mode': "newsearch", 'extendedsearch': extendedsearch},
-            icon=os.path.join(self.unicodePath, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
         )
         RecentSearches(self, extendedsearch).load().populate()
         self.end_of_directory()

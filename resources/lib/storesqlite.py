@@ -14,6 +14,7 @@ import sqlite3
 import hashlib
 
 from contextlib import closing
+from codecs import open
 
 import resources.lib.mvutils as mvutils
 
@@ -156,7 +157,7 @@ class StoreSQLite(object):
                 performed also on film descriptions. Default is
                 `False`
         """
-        searchmask = '%' + search.decode('utf-8') + '%'
+        searchmask = '%' + search + '%'
         searchcond = '( ( title LIKE ? ) OR ( show LIKE ? ) OR ( description LIKE ? ) )' if extendedsearch is True else '( ( title LIKE ? ) OR ( show LIKE ? ) )'
         searchparm = (searchmask, searchmask, searchmask) if extendedsearch is True else (
             searchmask, searchmask, )
@@ -1003,7 +1004,7 @@ class StoreSQLite(object):
 
             # check if the movie is there
             idhash = hashlib.md5("{}:{}:{}".format(
-                self.ft_channelid, self.ft_showid, film['url_video']).encode('utf8')).hexdigest()
+                self.ft_channelid, self.ft_showid, film['url_video'])).hexdigest()
             cursor.execute("""
                 SELECT      `id`,
                             `touched`
@@ -1089,7 +1090,7 @@ class StoreSQLite(object):
         filename = os.path.join(self.settings.datapath, reqtype + '.cache')
         dbLastUpdate = self.get_status()['modified']
         try:
-            with closing(open(filename)) as json_file:
+            with closing(open(filename, encoding='utf-8')) as json_file:
                 data = json.load(json_file)
                 if isinstance(data, dict):
                     if data.get('type', '') != reqtype:
@@ -1120,7 +1121,7 @@ class StoreSQLite(object):
             "data": data
         }
         try:
-            with closing(open(filename, 'w')) as json_file:
+            with closing(open(filename, 'w', encoding='utf-8')) as json_file:
                 json.dump(cache, json_file)
             return True
         # pylint: disable=broad-except

@@ -138,7 +138,7 @@ class Downloader(object):
         # review name
         if self.settings.reviewname:
             (namestem, confirmed) = self.notifier.get_entered_text(namestem, 30986)
-            namestem = mvutils.cleanup_filename(namestem.decode('utf-8'))
+            namestem = mvutils.cleanup_filename(namestem)
             if len(namestem) < 1 or confirmed is False:
                 return
         # build year postfix
@@ -157,7 +157,7 @@ class Downloader(object):
         # check for duplicate
         while xbmcvfs.exists(pathname + filename + extension):
             (filename, confirmed) = self.notifier.get_entered_text(filename, 30987)
-            filename = mvutils.cleanup_filename(filename.decode('utf-8'))
+            filename = mvutils.cleanup_filename(filename)
             if len(filename) < 1 or confirmed is False:
                 return
 
@@ -199,7 +199,7 @@ class Downloader(object):
         # review name
         if self.settings.reviewname:
             (namestem, confirmed) = self.notifier.get_entered_text(namestem, 30986)
-            namestem = mvutils.cleanup_filename(namestem.decode('utf-8'))
+            namestem = mvutils.cleanup_filename(namestem)
             if len(namestem) < 1 or confirmed is False:
                 return
 
