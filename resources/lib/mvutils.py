@@ -56,6 +56,33 @@ def py2_decode(s, encoding='utf-8'):
        s = s.decode(encoding)
    return s
 
+def array_to_utf(a):
+    autf = []
+    i = 0
+    for v in a:
+        if PY2 and isinstance(v, unicode):
+            autf.append(py2_encode(v))
+        elif PY2 and isinstance(v, dict):
+            autf.append(dict_to_utf(v))
+        elif PY2 and isinstance(v, list):
+            autf.append(array_to_utf(v))
+        else:
+            autf.append(v)
+    return autf
+
+def dict_to_utf(d):
+    dutf = {}
+    for k,v in d.iteritems():
+        if PY2 and isinstance(v, unicode):
+            dutf[k] = py2_encode(v)
+        elif PY2 and isinstance(v, list):
+            dutf[k] = array_to_utf(v)
+        elif PY2 and isinstance(v, dict):
+            dutf[k] = dict_to_utf(v)
+        else:
+            dutf[k] = v
+    return dutf
+
 def dir_exists(name):
     """
     Tests if a directory exists

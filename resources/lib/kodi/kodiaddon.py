@@ -138,7 +138,9 @@ class KodiPlugin(KodiAddon):
         Args:
             params(object): an object containing parameters
         """
-        return self.base_url + '?' + urlencode(params)
+        ### BUG in urlencode which is solved in python 3
+        utfEnsuredParams = mvutils.dict_to_utf(params)
+        return self.base_url + '?' + urlencode(utfEnsuredParams)
 
     def run_plugin(self, params):
         """
