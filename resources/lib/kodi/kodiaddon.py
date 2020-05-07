@@ -118,7 +118,9 @@ class KodiPlugin(KodiAddon):
                 parameter was specified
         """
         try:
-            return self.args[argname][0]
+            argument = self.args[argname][0]
+            argument = mvutils.py2_decode(argument)
+            return argument
         except TypeError:
             return default
         except KeyError:
