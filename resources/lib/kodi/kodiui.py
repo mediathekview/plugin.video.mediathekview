@@ -44,7 +44,7 @@ class KodiUI(object):
         keyboard.doModal()
         if keyboard.isConfirmed():
             enteredText = keyboard.getText();
-            enteredText = mvutils.py2_encode(enteredText);
+            enteredText = mvutils.py2_decode(enteredText);
             return (enteredText, True, )
         return (deftext, False, ) ##TODO deftext.encode('utf-8')
 

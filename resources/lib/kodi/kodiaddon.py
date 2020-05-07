@@ -48,7 +48,9 @@ class KodiAddon(KodiLogger):
         Args:
             info_id(str): id of the property that the module needs to access.
         """
-        return self.addon.getAddonInfo(info_id)
+        argument = self.addon.getAddonInfo(info_id)
+        argument = mvutils.py2_decode(argument)
+        return argument
 
     def get_setting(self, setting_id):
         """
@@ -57,7 +59,9 @@ class KodiAddon(KodiLogger):
         Args:
             setting_id(int): id number of the setting
         """
-        return self.addon.getSetting(setting_id)
+        argument = self.addon.getSetting(setting_id)
+        argument = mvutils.py2_decode(argument)
+        return argument
 
     def set_setting(self, setting_id, value):
         """
@@ -123,22 +127,6 @@ class KodiPlugin(KodiAddon):
             return argument
         except TypeError:
             return default
-        except KeyError:
-            return default
-
-    def get_args(self, argname, default):
-        """
-        Get specific parameters passed to the plugin.
-        This function returns an array.
-
-        Args:
-            argname(str): the name of the parameter
-
-            default(str): the value to return if no such
-                parameter was specified. Must be an array.
-        """
-        try:
-            return self.args[argname]
         except KeyError:
             return default
 
