@@ -141,16 +141,13 @@ Zielsystem einen python2-Interpreter bereitstellen. Des weiteren müssen noch
 folgende zwei Bibliotheken zur Verfügung stehen, sowie das Entpackprogramm
 'xz' (optional):
 
-* ijson
-* defusedxml
 * mysql-connector
 
 Die Installation dieser Bibliotheken erfolgt durch Eingabe folgender Befehle:
 
 ````
-pip install ijson
-pip install defusedxml
-pip install mysql-connector==2.1.4
+sudo apt install python-pip
+pip install mysql-connector==2.2.9
 ````
 
 Das Aktualisierungsprogramm heisst `mvupdate` und liegt im Hauptverzeichnis
@@ -313,16 +310,13 @@ A python2 interpreter as well as the unpacker 'xz' is requirered on the
 target system in order to execute the commandline update process. Additionally
 the following python libraries are required:
 
-* ijson
-* defusedxml
 * mysql-connector
 
 The required libraries can be installed via pip:
 
 ````
-pip install ijson
-pip install defusedxml
-pip install mysql-connector==2.1.4
+sudo apt install python-pip
+pip install mysql-connector==2.2.9
 ````
 
 The update program is called `mvupdate` and is located in the root directory
@@ -483,16 +477,13 @@ che sul sistema sul quale il processo viene eseguito sia istallato un
 interprete python2, il programma di decompressione 'xz' e le seguenti
 librerie python:
 
-* ijson
-* defusedxml
 * mysql-connector
 
 QUeste potranno essere istallate mediante il programma pip:
 
 ````
-pip install ijson
-pip install defusedxml
-pip install mysql-connector==2.1.4
+sudo apt install python-pip
+pip install mysql-connector==2.2.9
 ````
 
 Il programma di aggiornamento si chiama `mvupdate` e si trova nella directory
