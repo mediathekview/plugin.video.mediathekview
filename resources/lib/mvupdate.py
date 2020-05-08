@@ -116,7 +116,7 @@ class AppLogger(Logger):
             parts.append(part)
         output = '{} {} {}{}'.format(
             datetime.datetime.now(),
-            {-1: 'ERROR', 0: 'WARNING', 1: 'NOTICE', 2: 'DEBUG'}.get(level, 2),
+            {-1: 'ERROR', 0: 'WARNING', 1: 'INFO', 2: 'DEBUG'}.get(level, 2),
             self.prefix,
             message.format(*parts)
         )

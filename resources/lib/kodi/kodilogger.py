@@ -41,7 +41,7 @@ class KodiLogger(Logger):
 
     def info(self, message, *args):
         """ Outputs an info message """
-        self._log(xbmc.LOGNOTICE, message, *args)
+        self._log(xbmc.LOGINFO, message, *args)
 
     def warn(self, message, *args):
         """ Outputs a warning message """
