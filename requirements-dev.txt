@@ -1,8 +1,0 @@
-ijson
-defusedxml
-mysql-connector==2.1.4
-
-# python 2
-# pylint==1.9.3
-pylint
-autopep8
