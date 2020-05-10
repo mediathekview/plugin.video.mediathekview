@@ -110,6 +110,7 @@ class StoreSQLite(object):
                     'Error while opening database: {}. trying to fully reset the Database...', err)
                 return self.init(reset=True, convert=convert)
         try:
+
             # 3x speed-up, check mode 'WAL'
             self.conn.execute('pragma journal_mode=off')
             # check if DB is ready or broken
@@ -1003,8 +1004,8 @@ class StoreSQLite(object):
                     self.ft_showid = cursor.lastrowid
 
             # check if the movie is there
-            idhash = hashlib.md5("{}:{}:{}".format(
-                self.ft_channelid, self.ft_showid, film['url_video'])).hexdigest()
+            checkString = "{}:{}:{}".format(self.ft_channelid, self.ft_showid, film['url_video'])
+            idhash = hashlib.md5(checkString.encode('utf-8')).hexdigest()
             cursor.execute("""
                 SELECT      `id`,
                             `touched`

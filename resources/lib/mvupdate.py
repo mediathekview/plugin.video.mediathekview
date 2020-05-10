@@ -11,8 +11,9 @@ import os
 import sys
 import argparse
 import datetime
-from xml.etree import ElementTree as ET
+import resources.lib.mvutils as mvutils
 
+from xml.etree import ElementTree as ET
 from resources.lib.base.logger import Logger
 from resources.lib.updater import MediathekViewUpdater
 
@@ -112,7 +113,7 @@ class AppLogger(Logger):
         for arg in args:
             part = arg
             if isinstance(arg, str):
-                part = arg  # arg.decode('utf-8')
+                part = mvutils.py2_encode(arg)
             parts.append(part)
         output = '{} {} {}{}'.format(
             datetime.datetime.now(),
@@ -410,6 +411,7 @@ class UpdateApp(AppLogger):
         self.settings = None
         if storederr is not None:
             self.warn("Unable to find version information: {} {}", storederr[0].__name__, storederr[1])
+        self.info('Python Version' + sys.version)
 
     def init(self):
         """ Startup of the application """
