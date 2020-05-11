@@ -147,6 +147,10 @@ class MediathekViewUpdater(object):
         status = self.database.get_status()
         tsnow = int(time.time())
         tsold = status['lastupdate']
+        tsdb = status['filmupdate']
+        dtdb = datetime.fromtimestamp(tsdb)
+        (tslist, dtlist) = self._get_update_modified_time()
+        tsthresh = self.settings.updinterval
         if status['status'] == 'UNINIT':
             # database not initialized - no update
             self.logger.debug('database not initialized')
@@ -161,14 +165,16 @@ class MediathekViewUpdater(object):
             # already updating - no update
             self.logger.debug('Already updating')
             return 0
-        elif not full and not force and tsnow - tsold < self.settings.updinterval:
-            # last update less than the configured update interval - no update
+        elif not full and not force and tslist - tsdb < tsthresh:
+            # available filmliste isn't tsthresh seconds newer than database
             self.logger.debug(
-                'Last update less than the configured update interval. do nothing')
+                'Last update just {} seconds older than available update '
+                '(threshold {} seconds); do nothing', tslist - tsdb, tsthresh)
             return 0
-        elif self._is_db_stale(status['filmupdate']):
+        elif dtlist.date() > dtdb.date():
             # available filmliste has newer date than database
-            self.logger.debug('Last update too old to rely on diffs; do full update')
+            self.logger.debug(
+                'Last update too old to rely on diffs; do full update')
             return 1
         elif status['status'] == "ABORTED" and status['fullupdate'] == 1:
             # last full update was aborted - full update needed
@@ -459,18 +465,18 @@ class MediathekViewUpdater(object):
             # should never happen since it will not be called
             return None
 
-    def _is_db_stale(self, tsdb):
+    def _get_update_modified_time(self):
         url, _, _, _ = self._get_update_info(True)
+        tslist = float("inf")
+        dtlist = datetime.max
         try:
             tslist = mvutils.url_lastmodified(url)
             dtlist = datetime.fromtimestamp(tslist)
-            dtdb = datetime.fromtimestamp(tsdb)
-            self.logger.debug('Database from {} and list at {} last modified on {}', dtdb, url, dtlist)
-            return dtlist.date() > dtdb.date()
+            self.logger.debug('List at {} last modified on {}', url, dtlist)
         # pylint: disable=broad-except
         except Exception as err:
             self.logger.debug('Unable to query last-modified time for {}: {} {}', url, type(err).__name__, err)
-            return True
+        return (tslist, dtlist)
 
     def _update_start(self, full):
         self.logger.info('Initializing update...')
