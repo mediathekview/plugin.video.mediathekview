@@ -252,7 +252,7 @@ def url_retrieve(url, filename, reporthook, chunk_size=8192, aborthook=None):
             each block read thereafter. If specified the operation will be
             aborted if the hook function returns `True`
     """
-    with closing(urlopen(url)) as src, closing(open(filename, 'wb')) as dst:
+    with closing(urlopen(url, timeout = 10)) as src, closing(open(filename, 'wb')) as dst:
         _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook)
 
 
@@ -280,7 +280,7 @@ def url_retrieve_vfs(url, filename, reporthook, chunk_size=8192, aborthook=None)
             each block read thereafter. If specified the operation will be
             aborted if the hook function returns `True`
     """
-    with closing(urlopen(url)) as src, closing(xbmcvfs.File(filename, 'wb')) as dst:
+    with closing(urlopen(url, timeout = 10)) as src, closing(xbmcvfs.File(filename, 'wb')) as dst:
         _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook)
 
 
