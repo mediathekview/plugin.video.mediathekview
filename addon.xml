@@ -43,6 +43,7 @@
 - RBTV logo add
 - Python 3 compat
 - Kodi loglevel change (notice to info)
+- Add User Agent String for all request to fix issue with ORF
 v.0.6.2 (2019-03-10):
 - [fix] Implemented Workaround for broken gzip module support in Kodi 18 running on Android
 - [fix] Fixed crash in mvupdate tool when invoked with MySQL support
