@@ -72,7 +72,7 @@ def array_to_utf(a):
 
 def dict_to_utf(d):
     dutf = {}
-    for k,v in d.items():
+    for k,v in list(d.items()):
         if PY2 and isinstance(v, unicode):
             dutf[k] = py2_encode(v)
         elif PY2 and isinstance(v, list):

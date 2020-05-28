@@ -57,7 +57,7 @@ class ttml2srt(object):
         # strip namespaces
         for elem in root.getiterator():
             elem.tag = elem.tag.split('}', 1)[-1]
-            elem.attrib = {name.split('}', 1)[-1]: value for name, value in elem.attrib.items()}
+            elem.attrib = {name.split('}', 1)[-1]: value for name, value in list(elem.attrib.items())}
 
         tick_rate = root.attrib.get('tickRate', None)
         if tick_rate is not None:
