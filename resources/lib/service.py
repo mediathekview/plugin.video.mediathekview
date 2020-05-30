@@ -3,7 +3,7 @@
 The service module
 
 Copyright 2017-2018, Leo Moll and Dominik Schlösser
-Licensed under MIT License
+SPDX-License-Identifier: MIT
 """
 
 # -- Imports ------------------------------------------------

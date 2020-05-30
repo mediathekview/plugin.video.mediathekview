@@ -3,7 +3,7 @@
 Utilities module
 
 Copyright (c) 2017-2019, Leo Moll
-Licensed under MIT License
+SPDX-License-Identifier: MIT
 """
 
 from __future__ import unicode_literals
