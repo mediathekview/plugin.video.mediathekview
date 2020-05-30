@@ -7,6 +7,7 @@ SPDX-License-Identifier: MIT
 """
 
 # pylint: disable=import-error
+import os
 import xbmcgui
 import xbmcplugin
 
@@ -56,8 +57,12 @@ class ChannelUI(Channel):
             self.channel, self.count, )
         list_item = xbmcgui.ListItem(
             label=resultingname if altname is None else altname)
-        icon = 'special://home/addons/' + self.plugin.addon_id + \
-            '/resources/icons/' + self.channel.lower() + '-m.png'
+        icon = os.path.join(
+            self.plugin.path,
+            'resources',
+            'icons',
+            self.channel.lower() + '-m.png'
+        )
         list_item.setArt({
             'thumb': icon,
             'icon': icon
