@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="0.6.2"
+	version="0.6.4+matrix.1"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
@@ -14,8 +14,7 @@
 	</extension>
 	<extension
 		point="xbmc.service"
-		library="service.py"
-		start="startup" />
+		library="service.py"/>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="de_DE">Öffentlich-Rechtliche Mediatheken</summary>
 		<summary lang="en_GB">Public service video-platforms</summary>
@@ -23,25 +22,36 @@
 		<description lang="de_DE">Ermöglicht den Zugriff auf fast alle deutschen Mediatheken der öffentlich Rechtlichen basierend auf der Datenbank von MediathekView.de</description>
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
-		<news>v.0.6.2 (2019-03-10):
-- Bugfix: Entpacken von GZ-Archiven auf FireTV 4K und ähnliche Geräte funktioniert nun wieder
-- Bugfix: mvupdate funktioniert nun wieder
-- Compliance: Code Kompatibilität für zukünftige Kodi Versionen mit Python 3
-v.0.6.1 (2019-03-08):
-- Bugfix: Fixed module exception due to case error
-v0.6.0 (2019-03-01):
-- Feature: Cache der Anfragen für lokale Datenbanken
-- Feature: Natives ultraschnelles Update für SQLite
-- Bugfix: Live Streams konnten heruntergeladen werden
-- Bugfix: Auf Kodi 18 hat der automatische Aktualisierungsmodus nicht mehr funktioniert
-- Feature: Neue option --full um ein vollstndiges Update zu erzwingen
-- Feature: Neue Aktualisierungsmethode "Zeitgesteuert"
-- Bugfix: Es war nicht möglich, den Aktualisierungsintervall bei der Methode "Automatisch" einzustellen
-- Feature: Passende Symbole für alle Menü-Einträge
+		<news>v.0.6.4 (2020-05-26):
+[fix]
+- #143 ijson issue on FireTvStick
+- #136 MySql caching_sha2_password issue
+- #135 HTTPMessage Header issue
+- #134 ijson issue
+- #124 Corrupt database
+- #166 Sorttitle missing in shows and channel list
+- #168 Added urlopen timeout
+- Fixed heading on DB-Status-Dialog
+[new]
+- #140 / #131 Datenbank check interval
+- #71 Default Sort
+- #95 Sort by time, date
+- #147 Show error message for 8 sec
+[others]
+- Update 3rd party code for Py3 (subtitles SRT-Files)
+- Update cache for sqlListe for invalidate after DB update
+- RBTV logo add
+- Python 3 compat
+- Kodi loglevel change (notice to info)
+- Add User Agent String for all request to fix issue with ORF
+v.0.6.2 (2019-03-10):
+- [fix] Implemented Workaround for broken gzip module support in Kodi 18 running on Android
+- [fix] Fixed crash in mvupdate tool when invoked with MySQL support
+- [new] Improved compatibility with future Kodi versions with Python 3 support
 </news>
 		<platform>all</platform>
 		<language>de fr</language>
-		<license>MIT License</license>
+		<license>MIT</license>
 		<forum>https://forum.kodi.tv/showthread.php?tid=326799</forum>
 		<source>https://github.com/mediathekview/plugin.video.mediathekview</source>
 		<website>https://mediathekview.de/</website>
@@ -53,7 +63,6 @@ v0.6.0 (2019-03-01):
 			<screenshot>resources/screenshot2.png</screenshot>
 			<screenshot>resources/screenshot3.png</screenshot>
 			<screenshot>resources/screenshot4.png</screenshot>
-			<screenshot>resources/screenshot5.png</screenshot>
 		</assets>
 	</extension>
 </addon>

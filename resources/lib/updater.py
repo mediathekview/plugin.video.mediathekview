@@ -3,6 +3,7 @@
 The database updater module
 
 Copyright 2017-2019, Leo Moll and Dominik Schlösser
+SPDX-License-Identifier: MIT
 """
 
 # -- Imports ------------------------------------------------

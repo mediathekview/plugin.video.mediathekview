@@ -3,7 +3,7 @@
 The local SQlite database module
 
 Copyright 2017-2019, Leo Moll
-Licensed under MIT License
+SPDX-License-Identifier: MIT
 """
 # pylint: disable=too-many-lines,line-too-long
 

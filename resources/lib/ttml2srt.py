@@ -5,27 +5,7 @@ The TTML to SRT conversion module
 Copyright 2017 Laura Klünder
 See https://github.com/codingcatgirl/ttml2srt
 
-MIT License
-
-Copyright (c) 2017 Laura Klünder
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+SPDX-License-Identifier: MIT
 """
 # Latest commit 2c361b5 on 29 Sep 2018
 
@@ -57,7 +37,7 @@ class ttml2srt(object):
         # strip namespaces
         for elem in root.getiterator():
             elem.tag = elem.tag.split('}', 1)[-1]
-            elem.attrib = {name.split('}', 1)[-1]: value for name, value in elem.attrib.items()}
+            elem.attrib = {name.split('}', 1)[-1]: value for name, value in list(elem.attrib.items())}
 
         tick_rate = root.attrib.get('tickRate', None)
         if tick_rate is not None:
