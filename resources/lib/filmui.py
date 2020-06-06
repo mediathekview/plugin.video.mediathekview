@@ -73,9 +73,9 @@ class FilmUI(Film):
         """
         self.showshows = showshows
         self.showchannels = showchannels
-        # xbmcplugin.setContent( self.handle, 'tvshows' )
         for method in self.sortmethods:
             xbmcplugin.addSortMethod(self.handle, method)
+        xbmcplugin.setContent(self.handle, self.settings.contentType)
 
     def add(self, alttitle=None, total_items=None):
         """

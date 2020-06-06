@@ -90,6 +90,30 @@ msgctxt "#30124"
 msgid "Sort by duration"
 msgstr "Duration"
 
+msgctxt "#30130"
+msgid "Content Type Movie list"
+msgstr "Content Type Movie list"
+
+msgctxt "#30131"
+msgid "none"
+msgstr "none"
+
+msgctxt "#30132"
+msgid "videos"
+msgstr "videos"
+
+msgctxt "#30133"
+msgid "movies"
+msgstr "movies"
+
+msgctxt "#30134"
+msgid "episodes"
+msgstr "episodes"
+
+msgctxt "#30135"
+msgid "tvshows"
+msgstr "tvshows"
+
 msgctxt "#30171"
 msgid "Aired Date"
 msgstr "Aired Date"
