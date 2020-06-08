@@ -364,7 +364,9 @@ class MediathekViewUpdater(object):
         # cleanup downloads
         self.logger.info('Cleaning up old downloads...')
         mvutils.file_remove(compfile)
-        mvutils.file_remove(destfile)
+        mvutils.deleteFiles(self.settings.datapath, FILMLISTE_AKT+'*')
+        mvutils.deleteFiles(self.settings.datapath, FILMLISTE_DIF+'*')
+        
 
         # download filmliste
         self.notifier.show_download_progress()
@@ -427,7 +429,8 @@ class MediathekViewUpdater(object):
         (_, compfile, destfile, _) = self._get_update_info(full)
         self.logger.info('Cleaning up downloads...')
         mvutils.file_remove(compfile)
-        mvutils.deleteFiles(self.settings.datapath, destfile+'*')
+        mvutils.deleteFiles(self.settings.datapath, FILMLISTE_AKT+'*')
+        mvutils.deleteFiles(self.settings.datapath, FILMLISTE_DIF+'*')
 
     def _get_update_info(self, full):
         if self.use_xz is True:
