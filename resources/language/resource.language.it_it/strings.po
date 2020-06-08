@@ -487,5 +487,5 @@ msgid "Cannot retrieve Movie Information"
 msgstr "Non è stato possibile trovare il film"
 
 msgctxt "#30990"
-msgid "Airdate: [COLOR chartreuse]{0:s}[/COLOR][CR][CR]"
-msgstr "In onda: [COLOR chartreuse]{0:s}[/COLOR][CR][CR]"
+msgid "Airdate: {0:s}[CR][CR]"
+msgstr "Ausgestrahlt: {0:s}[CR][CR]"
