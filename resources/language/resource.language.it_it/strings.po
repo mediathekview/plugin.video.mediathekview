@@ -98,6 +98,10 @@ msgctxt "#30172"
 msgid "Added to Database"
 msgstr "Entrata nel database"
 
+msgctxt "#30173"
+msgid "Default"
+msgstr "Default"
+
 # Settings Page 2
 msgctxt "#30210"
 msgid "Database type"

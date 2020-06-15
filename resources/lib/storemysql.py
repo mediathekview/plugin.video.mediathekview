@@ -136,7 +136,14 @@ class StoreMySQL(object):
         searchcond = '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) OR ( `description` LIKE %s ) )' if extendedsearch is True else '( ( `title` LIKE %s ) OR ( `show` LIKE %s ) )'
         searchparm = (searchmask, searchmask, searchmask) if extendedsearch is True else (
             searchmask, searchmask, )
-        return self._search_condition(searchcond, searchparm, filmui, True, True, self.settings.maxresults)
+        return self._search_condition(
+            condition=searchcond,
+            params=searchparm,
+            filmui=filmui,
+            showshows=True,
+            showchannels=True,
+            maxresults=self.settings.maxresults,
+            order='film.aired desc')
 
     def get_recents(self, channelid, filmui):
         """
@@ -152,20 +159,22 @@ class StoreMySQL(object):
         """
         if channelid != '0':
             return self._search_condition(
-                self.sql_cond_recent + ' AND ( film.channelid=%s )',
-                (int(channelid), ),
-                filmui,
-                True,
-                False,
-                10000
+                condition=self.sql_cond_recent + ' AND ( film.channelid=%s )',
+                params=(int(channelid), ),
+                filmui=filmui,
+                showshows=True,
+                showchannels=False,
+                maxresults=self.settings.maxresults,
+                order='film.aired desc'
             )
         return self._search_condition(
-            self.sql_cond_recent,
-            (),
-            filmui,
-            True,
-            False,
-            10000
+            condition=self.sql_cond_recent,
+            params=(),
+            filmui=filmui,
+            showshows=True,
+            showchannels=False,
+            maxresults=self.settings.maxresults,
+            order='film.aired desc'
         )
 
     def get_live_streams(self, filmui):
@@ -178,13 +187,13 @@ class StoreMySQL(object):
                 for populating the directory
         """
         return self._search_condition(
-            '( show.search="LIVESTREAM" )',
-            (),
-            filmui,
-            False,
-            False,
-            0,
-            False
+            condition='( show.search="LIVESTREAM" )',
+            params=(),
+            filmui=filmui,
+            showshows=False,
+            showchannels=False,
+            maxresults=0,
+            limiting=False
         )
 
     def get_channels(self, channelui):
@@ -351,21 +360,23 @@ class StoreMySQL(object):
         if showid.find(',') == -1:
             # only one channel id
             return self._search_condition(
-                '( `showid` = %s )',
-                (int(showid), ),
-                filmui,
-                False,
-                False,
-                10000
+                condition='( `showid` = %s )',
+                params=(int(showid), ),
+                filmui=filmui,
+                showshows=False,
+                showchannels=False,
+                maxresults=self.settings.maxresults,
+                order='film.aired desc'
             )
         # multiple channel ids
         return self._search_condition(
-            '( `showid` IN ( {} ) )'.format(showid),
-            (),
-            filmui,
-            False,
-            True,
-            10000
+            condition='( `showid` IN ( {} ) )'.format(showid),
+            params=(),
+            filmui=filmui,
+            showshows=False,
+            showchannels=True,
+            maxresults=self.settings.maxresults,
+            order='film.aired desc'
         )
 
     def _search_channels_condition(self, condition, channelui):
@@ -392,10 +403,12 @@ class StoreMySQL(object):
             self.logger.error('Database error: {}, {}', err.errno, err)
             self.notifier.show_database_error(err)
 
-    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True):
+    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True, order=''):
         if self.conn is None:
             return 0
         try:
+            if len(order) > 0:
+                order = ' ORDER BY ' + order
             if limiting:
                 sql_cond_limit = self.sql_cond_nofuture + self.sql_cond_minlength
             else:
@@ -405,7 +418,8 @@ class StoreMySQL(object):
                 self.sql_query_films +
                 ' WHERE ' +
                 condition +
-                sql_cond_limit
+                sql_cond_limit +
+                order
             )
             cursor = self.conn.cursor()
             cursor.execute(
@@ -413,6 +427,7 @@ class StoreMySQL(object):
                 ' WHERE ' +
                 condition +
                 sql_cond_limit +
+                order +
                 (' LIMIT {}'.format(maxresults + 1) if maxresults else ''),
                 params
             )
@@ -424,6 +439,7 @@ class StoreMySQL(object):
                 ' WHERE ' +
                 condition +
                 sql_cond_limit +
+                order +
                 (' LIMIT {}'.format(maxresults + 1) if maxresults else ''),
                 params
             )
