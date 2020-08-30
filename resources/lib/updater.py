@@ -581,7 +581,10 @@ class MediathekViewUpdater(object):
         self.film["title"] = valueArray[2][:255]
         ##
         if len(valueArray[3]) == 10:
-            self.film["aired"] = valueArray[3][6:] + '-' + valueArray[3][3:5] + '-' + valueArray[3][:2]  
+            yr = valueArray[3][6:]
+            if yr < '1980':
+                yr = '1980'
+            self.film["aired"] = yr + '-' + valueArray[3][3:5] + '-' + valueArray[3][:2]  
             if (len(valueArray[4]) == 8):
                 self.film["aired"] = self.film["aired"] + " " + valueArray[4]
         ##
