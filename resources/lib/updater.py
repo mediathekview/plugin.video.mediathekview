@@ -11,7 +11,8 @@ import os
 import time
 import datetime
 import subprocess
-import UpdateFileParser as UpdateFileParser
+import resources.lib.updateFileParser as UpdateFileParser
+
 
 # pylint: disable=import-error
 try:
