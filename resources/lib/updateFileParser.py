@@ -30,7 +30,7 @@ class UpdateFileParser(object):
         ##
         if (self.cPosition == -1):
             #self.logger.info("EOF")
-            return "";
+            return ""
         index = self.buffer.find(aWord, self.cPosition)
         #print("index " + str(index))
         if (index > -1):
@@ -43,15 +43,15 @@ class UpdateFileParser(object):
             #print("filled new buffer with " + str(len(nbuffer)))
             if (len(nbuffer) == 0):
                 rStr = self.buffer[self.cPosition:]
-                self.cPosition = -1;
+                self.cPosition = -1
                 #self.logger.info("no more buffer")
-                return rStr;
+                return rStr
             else:
                 self.buffer = self.buffer[self.cPosition:] + nbuffer
                 self.cPosition = 0
                 #self.logger.info("refill buffer - next iteration")
                 return self.next(aWord)        
-        return "";
+        return ""
     
     def close(self):
-        self.filehandle.close();
+        self.filehandle.close()

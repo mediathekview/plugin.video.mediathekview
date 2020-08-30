@@ -211,13 +211,6 @@ class MediathekViewUpdater(object):
                     self.cycle += 1
             self.delete_list(full)
 
-    def _object_pairs_hook(self, inputArg):
-        """
-        We need this because the default handler would convert everything to dict
-        and the same key would be overwritten and lost (e.g. X) 
-        """
-        return inputArg
-
     def import_database(self, full):
         """
         Performs a database update when a
@@ -251,10 +244,8 @@ class MediathekViewUpdater(object):
             (self.tot_chn, self.tot_shw, self.tot_mov) = self._update_start(full)
             self.notifier.show_update_progress()
             
-            self.logger.info( 'inint UpdateFileParser ' + destfile  )
             ufp = UpdateFileParser.UpdateFileParser(self.logger, 512000, destfile)
             ufp.init()
-            self.logger.info( 'read first ')
             fileHeader = ufp.next(',"X":');
             ### META
             ## {"Filmliste":["30.08.2020, 11:13","30.08.2020, 09:13","3","MSearch [Vers.: 3.1.139]","d93c9794acaf3e482d42c24e513f78a8"],"Filmliste":["Sender","Thema","Titel","Datum","Zeit","Dauer","Größe [MB]","Beschreibung","Url","Website","Url Untertitel","Url RTMP","Url Klein","Url RTMP Klein","Url HD","Url RTMP HD","DatumL","Url History","Geo","neu"]
@@ -288,13 +279,10 @@ class MediathekViewUpdater(object):
             except ValueError as err:
                 pass            
 
-            aCnt = 0
             ###
             while (True):
-                aCnt = aCnt + 1;
                 aPart = ufp.next(',"X":');
                 if (len(aPart) == 0):
-                    #self.logger.info('no more data at ' + str(aCnt))
                     break;
                 ##
                 aPart = '{"X":' + aPart;
@@ -323,7 +311,7 @@ class MediathekViewUpdater(object):
                     self.notifier.close_update_progress()
                     return True                
 
-                    
+            ufp.close()        
             self._update_end(full, 'IDLE')
             self.logger.info('{} records processed',self.count)
             self.logger.info(
@@ -369,9 +357,7 @@ class MediathekViewUpdater(object):
         # cleanup downloads
         self.logger.info('Cleaning up old downloads...')
         mvutils.file_remove(compfile)
-        #mvutils.deleteFiles(self.settings.datapath, FILMLISTE_AKT+'*')
-        #mvutils.deleteFiles(self.settings.datapath, FILMLISTE_DIF+'*')
-        
+        mvutils.file_remove(destfile)        
 
         # download filmliste
         self.notifier.show_download_progress()
@@ -434,8 +420,7 @@ class MediathekViewUpdater(object):
         (_, compfile, destfile, _) = self._get_update_info(full)
         self.logger.info('Cleaning up downloads...')
         mvutils.file_remove(compfile)
-        #mvutils.deleteFiles(self.settings.datapath, FILMLISTE_AKT+'*')
-        #mvutils.deleteFiles(self.settings.datapath, FILMLISTE_DIF+'*')
+        mvutils.file_remove(destfile)
 
     def _get_update_info(self, full):
         if self.use_xz is True:
