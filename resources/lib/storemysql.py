@@ -1008,10 +1008,8 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
                     # in hope of failing single row inserts give us more detailed
                     # feedback about a violating value.
                     cursor.execute(self.sql_films_insertTT, self.films_to_insert[0])
-                    insmov = insmov + 1
                 else :
                     cursor.executemany(self.sql_films_insertTT, self.films_to_insert)
-                    insmov = insmov + len(self.films_to_insert)
 
                 for result in cursor.execute(self.sql_films_process, multi=True):
                     if not result.with_rows:
