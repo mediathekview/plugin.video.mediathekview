@@ -1001,19 +1001,20 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
         if commit:
             cursor = self.conn.cursor()
             try:
-                for _ in cursor.execute(self.sql_films_prepareTT, multi=True): pass
+                for result in cursor.execute(self.sql_films_prepareTT, multi=True): pass
 
                 if len(self.films_to_insert) == 1:
                     # For single row inserts use execute instead of executemany
                     # in hope of failing single row inserts give us more detailed
                     # feedback about a violating value.
                     cursor.execute(self.sql_films_insertTT, self.films_to_insert[0])
-                    insmov = insmov + 1
                 else :
                     cursor.executemany(self.sql_films_insertTT, self.films_to_insert)
-                    insmov = insmov + len(self.films_to_insert)
 
-                for _ in cursor.execute(self.sql_films_process, multi=True): pass
+                for result in cursor.execute(self.sql_films_process, multi=True):
+                    if not result.with_rows:
+                        if result.statement.startswith("INSERT INTO `film`"):
+                            insmov = result.rowcount
 
                 self.films_to_insert = []
             except mysql.connector.Error as err:
@@ -1030,7 +1031,7 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
                     # because it has to be emptyed for this process.
                     _rows = []
                     for row in self.films_to_insert:
-                        _rows.append(row)
+                        insmov += _rows.append(row)[3]
 
                     self.films_to_insert = []
 
