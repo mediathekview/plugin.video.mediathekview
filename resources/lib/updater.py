@@ -531,7 +531,7 @@ class MediathekViewUpdater(object):
         self.film["geo"] = ""
 
     def _end_record(self, records):
-        if self.count % 1000 == 0:
+        if self.count % 1000 == 0 or self.count == records:
             # pylint: disable=line-too-long
             percent = int(self.count * 100 / records)
             self.logger.info('In progress (%d%%): channels:%d, shows:%d, movies:%d ...' % (
