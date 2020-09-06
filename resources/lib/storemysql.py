@@ -919,6 +919,10 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
             delete(bool): if `True` all records not updated
                 will be deleted
         """
+        # Close the batch update
+        if (len(self.films_to_insert) > 0):
+            self.ft_insert_film(None, True)
+
         param = (1, ) if delete else (0, )
         try:
             cursor = self.conn.cursor()
@@ -953,50 +957,51 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
         insshw = 0
         insmov = 0
 
-        if isinstance(film, tuple):
-            self.films_to_insert.append(film)
-        else:
-            channel = film['channel'][:64]
-            show = film['show'][:128]
-            title = film['title'][:128]
-
-            # handle channel
-            if self.ft_channel != channel:
-                # process changed channel
-                newchn = True
-                self.ft_channel = channel
-                (self.ft_channelid, inschn) = self._insert_channel(self.ft_channel)
-                if self.ft_channelid == 0:
-                    self.logger.info(
-                        'Undefined error adding channel "{}"', self.ft_channel)
-                    return (0, 0, 0, 0, )
-
-            if newchn or self.ft_show != show:
-                # process changed show
-                self.ft_show = show
-                (self.ft_showid, insshw) = self._insert_show(self.ft_channelid,
-                                                             self.ft_show, mvutils.make_search_string(self.ft_show))
-                if self.ft_showid == 0:
-                    self.logger.info(
-                        'Undefined error adding show "{}"', self.ft_show)
-                    return (0, 0, 0, 0, )
-
-            self.films_to_insert.append((
-                    self.ft_channelid,
-                    self.ft_showid,
-                    title,
-                    mvutils.make_search_string(title),
-                    film["aired"],
-                    film["duration"],
-                    film["size"],
-                    film["description"],
-                    film["website"],
-                    film["url_sub"],
-                    film["url_video"],
-                    film["url_video_sd"],
-                    film["url_video_hd"],
-                    film["airedepoch"],
-                  ))
+        if (film is not None):
+            if isinstance(film, tuple):
+                self.films_to_insert.append(film)
+            else:
+                channel = film['channel'][:64]
+                show = film['show'][:128]
+                title = film['title'][:128]
+    
+                # handle channel
+                if self.ft_channel != channel:
+                    # process changed channel
+                    newchn = True
+                    self.ft_channel = channel
+                    (self.ft_channelid, inschn) = self._insert_channel(self.ft_channel)
+                    if self.ft_channelid == 0:
+                        self.logger.info(
+                            'Undefined error adding channel "{}"', self.ft_channel)
+                        return (0, 0, 0, 0, )
+    
+                if newchn or self.ft_show != show:
+                    # process changed show
+                    self.ft_show = show
+                    (self.ft_showid, insshw) = self._insert_show(self.ft_channelid,
+                                                                 self.ft_show, mvutils.make_search_string(self.ft_show))
+                    if self.ft_showid == 0:
+                        self.logger.info(
+                            'Undefined error adding show "{}"', self.ft_show)
+                        return (0, 0, 0, 0, )
+    
+                self.films_to_insert.append((
+                        self.ft_channelid,
+                        self.ft_showid,
+                        title,
+                        mvutils.make_search_string(title),
+                        film["aired"],
+                        film["duration"],
+                        film["size"],
+                        film["description"],
+                        film["website"],
+                        film["url_sub"],
+                        film["url_video"],
+                        film["url_video_sd"],
+                        film["url_video_hd"],
+                        film["airedepoch"],
+                      ))
 
         if commit:
             cursor = self.conn.cursor()
