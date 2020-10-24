@@ -151,7 +151,7 @@ sudo apt install python-pip
 pip install mysql-connector==2.2.9
 Python 3:
 sudo apt install python3-pip
-pip3 install mysql-connector==2.2.9
+pip3 install mysql-connector-python==8.0.22 
 ````
 
 Das Aktualisierungsprogramm heisst `mvupdate` (`mvupdate3` für Python 3) und liegt im Hauptverzeichnis
@@ -324,7 +324,7 @@ sudo apt install python-pip
 pip install mysql-connector==2.2.9
 Python 3:
 sudo apt install python3-pip
-pip3 install mysql-connector==2.2.9
+pip3 install mysql-connector-python==8.0.22
 ````
 
 The update program is called `mvupdate` (`mvupdate3` for Python 3) and is located in the root directory
@@ -495,7 +495,7 @@ sudo apt install python-pip
 pip install mysql-connector==2.2.9
 Python 3:
 sudo apt install python3-pip
-pip3 install mysql-connector==2.2.9
+pip3 install mysql-connector-python==8.0.22
 ````
 
 Il programma di aggiornamento si chiama `mvupdate` (`mvupdate3` per Python 3) e si trova nella directory
