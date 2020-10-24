@@ -29,6 +29,7 @@ v.0.6.6 (2020-09-xx):
 - [other] #171 / #170 improved memory usage
 - [new] #169 new sort order (airdate desc)
 - [new] define content type in settings to enable more skins
+- [new] Bulk insert for mySQL
 v.0.6.4 (2020-05-26):
 [fix]
 - #143 ijson issue on FireTvStick
