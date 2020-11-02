@@ -52,8 +52,8 @@ class StoreSQLite(object):
             "aired" if settings.recentmode == 0 else "film.dtCreated",
             settings.maxage
         )
-        self.sql_cond_nofuture = " AND ( ( aired IS NULL ) OR ( ( UNIX_TIMESTAMP() - aired ) > 0 ) )" if settings.nofuture else ""
-        self.sql_cond_minlength = " AND ( ( duration IS NULL ) OR ( duration >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
+        self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if settings.nofuture else ""
+        self.sql_cond_minlength = " AND ( duration >= %d )" % settings.minlength if settings.minlength > 0 else ""
         # update helper
         self.ft_channel = None
         self.ft_channelid = None

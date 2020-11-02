@@ -42,16 +42,16 @@ class StoreMySQL(object):
         self.sql_query_filmcnt = "SELECT COUNT(*) FROM `film` LEFT JOIN `show` ON show.id=film.showid LEFT JOIN `channel` ON channel.id=film.channelid"
         self.sql_cond_recent = "( TIMESTAMPDIFF(SECOND,{},CURRENT_TIMESTAMP()) <= {} )".format(
             "aired" if settings.recentmode == 0 else "film.dtCreated", settings.maxage)
-        self.sql_cond_nofuture = " AND ( ( `aired` IS NULL ) OR ( TIMESTAMPDIFF(HOUR,`aired`,CURRENT_TIMESTAMP()) > 0 ) )" if settings.nofuture else ""
-        self.sql_cond_minlength = " AND ( ( `duration` IS NULL ) OR ( TIME_TO_SEC(`duration`) >= %d ) )" % settings.minlength if settings.minlength > 0 else ""
+        self.sql_cond_nofuture = " AND ( `aired` < CURRENT_DATE() )" if settings.nofuture else ""
+        self.sql_cond_minlength = " AND ( TIME_TO_SEC(`duration`) >= %d )" % settings.minlength if settings.minlength > 0 else ""
 
         self.films_to_insert = []
         self.sql_films_prepareTT = """
 CREATE TEMPORARY TABLE IF NOT EXISTS `t_film`(
   `channelid`      INT(11),
   `showid`         INT(11),
-  `title`          VARCHAR(255),
-  `search`         VARCHAR(255),
+  `title`          VARCHAR(128),
+  `search`         VARCHAR(128),
   `aired`          DATETIME,
   `duration`       TIME,
   `size`           INT(11),
@@ -131,8 +131,8 @@ INSERT INTO `film` (
       `t_film`.`showid`,
       `t_film`.`title`,
       `t_film`.`search`,
-      IF(`t_film`.`aired` <= "1980-01-01 00:00:00", NULL, `t_film`.`aired`),
-      IF(`t_film`.`duration` = "00:00:00", NULL, `t_film`.`duration`),
+      `t_film`.`aired`,
+      `t_film`.`duration`,
       `t_film`.`size`,
       `t_film`.`description`,
       `t_film`.`website`,
@@ -1106,8 +1106,59 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
             # should never happen - something went wrong...
             self.exit()
             return False
-        elif version == 2:
+        elif version == 3:
             # current version
+            return True
+        elif version == 2:
+            self.logger.info('Converting database to version ')
+            self.notifier.show_update_scheme_progress()
+            try:
+                cursor = self.conn.cursor()
+                cursor.execute('SELECT @@SESSION.sql_mode')
+                (sql_mode, ) = cursor.fetchone()
+                self.logger.info('Current SQL mode is {}', sql_mode)
+                cursor.execute('SET SESSION sql_mode = ""')
+                ##
+                self.logger.info('Change airdate to datetime...')
+                self.logger.info('add column')
+                cursor.execute('ALTER TABLE `film` ADD COLUMN `aired2` DATETIME')
+                self.notifier.update_update_scheme_progress(5)
+                self.logger.info('update column')
+                cursor.execute('UPDATE `film` SET `aired2` = FROM_UNIXTIME(UNIX_TIMESTAMP(`aired`))')
+                self.notifier.update_update_scheme_progress(30)
+                self.logger.info('drop old column')
+                cursor.execute('ALTER TABLE `film` DROP COLUMN `aired`')
+                self.notifier.update_update_scheme_progress(60)
+                self.logger.info('rename column')
+                cursor.execute('ALTER TABLE `film` CHANGE `aired2` `aired` DATETIME')
+                self.notifier.update_update_scheme_progress(70)
+                ##
+                self.logger.info('change column idHash to char')
+                cursor.execute('ALTER TABLE `film` CHANGE `idhash` `idhash` CHAR(32)')
+                self.notifier.update_update_scheme_progress(80)
+                ##
+                self.logger.info('Update duration')
+                cursor.execute("UPDATE `film` SET `duration` = '00:00:00' where `duration` is null")
+                self.notifier.update_update_scheme_progress(90)
+                ##
+                self.logger.info('drop procedure')
+                cursor.execute('DROP PROCEDURE IF EXISTS `ftInsertFilm`')
+                self.notifier.update_update_scheme_progress(95)
+                ##
+                self.logger.info('Update Version')
+                cursor.execute('UPDATE `status` SET `version` = 3')
+                #
+                self.logger.info('Resetting SQL mode to {}', sql_mode)
+                cursor.execute('SET SESSION sql_mode = %s', (sql_mode, ))
+                self.logger.info('Scheme successfully updated to version 2')
+                self.notifier.close_update_scheme_progress()
+            except mysql.connector.Error as err:
+                self.logger.error(
+                    '=== DATABASE SCHEME UPDATE ERROR: {} ===', err)
+                self.exit()
+                self.notifier.close_update_scheme_progress()
+                self.notifier.show_database_error(err)
+                return False
             return True
         elif convert is False:
             # do not convert (Addon threads)
@@ -1116,7 +1167,7 @@ DROP TEMPORARY TABLE IF EXISTS `t_film`;
             return False
         elif version == 1:
             # convert from 1 to 2
-            self.logger.info('Converting database to version 2')
+            self.logger.info('Converting database from version 2 to version 3')
             self.notifier.show_update_scheme_progress()
             try:
                 cursor = self.conn.cursor()
@@ -1199,14 +1250,14 @@ CREATE TABLE `channel` (
             cursor.execute("""
 CREATE TABLE `film` (
     `id`            int(11)         NOT NULL AUTO_INCREMENT,
-    `idhash`        varchar(32)     DEFAULT NULL,
+    `idhash`        char(32)        DEFAULT NULL,
     `dtCreated`     timestamp       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     `touched`       smallint(1)     NOT NULL DEFAULT '1',
     `channelid`     int(11)         NOT NULL,
     `showid`        int(11)         NOT NULL,
     `title`         varchar(128)    NOT NULL,
     `search`        varchar(128)    NOT NULL,
-    `aired`         timestamp       NULL DEFAULT NULL,
+    `aired`         datetime        NULL DEFAULT NULL,
     `duration`      time            DEFAULT NULL,
     `size`          int(11)         DEFAULT NULL,
     `description`   longtext,
@@ -1266,7 +1317,7 @@ CREATE TABLE `status` (
             self.conn.commit()
 
             cursor.execute(
-                'INSERT INTO `status` VALUES (0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0,2);')
+                'INSERT INTO `status` VALUES (0,"IDLE",0,0,0,0,0,0,0,0,0,0,0,0,3);')
             self.conn.commit()
 
             cursor.execute('SET FOREIGN_KEY_CHECKS=1')
@@ -1415,6 +1466,18 @@ BEGIN
     DECLARE     cnt_shw_        INT DEFAULT 0;
     DECLARE     cnt_mov_        INT DEFAULT 0;
 
+    SELECT  COUNT(id)
+    INTO    cnt_chn_
+    FROM    `channel`;
+
+    SELECT  COUNT(id)
+    INTO    cnt_shw_
+    FROM    `show`;
+
+    SELECT  COUNT(id)
+    INTO    cnt_mov_
+    FROM    `film`;
+
     IF ( _full = 1 ) THEN
         UPDATE  `channel`
         SET     `touched` = 0;
@@ -1425,19 +1488,7 @@ BEGIN
         UPDATE  `film`
         SET     `touched` = 0;
     END IF;
-
-    SELECT  COUNT(*)
-    INTO    cnt_chn_
-    FROM    `channel`;
-
-    SELECT  COUNT(*)
-    INTO    cnt_shw_
-    FROM    `show`;
-
-    SELECT  COUNT(*)
-    INTO    cnt_mov_
-    FROM    `film`;
-
+    
     SELECT  cnt_chn_    AS `cnt_chn`,
             cnt_shw_    AS `cnt_shw`,
             cnt_mov_    AS `cnt_mov`;
