@@ -148,10 +148,10 @@ Die Installation dieser Bibliotheken erfolgt durch Eingabe folgender Befehle:
 ````
 Python 2:
 sudo apt install python-pip
-pip install mysql-connector-python==8.0.22
+pip install mysql-connector-python
 Python 3:
 sudo apt install python3-pip
-pip3 install mysql-connector-python==8.0.22
+pip3 install mysql-connector-python
 ````
 
 Das Aktualisierungsprogramm heisst `mvupdate` (`mvupdate3` für Python 3) und liegt im Hauptverzeichnis
@@ -321,10 +321,10 @@ The required library can be installed via pip:
 ````
 Python 2:
 sudo apt install python-pip
-pip install mysql-connector-python==8.0.22
+pip install mysql-connector-python
 Python 3:
 sudo apt install python3-pip
-pip3 install mysql-connector-python==8.0.22
+pip3 install mysql-connector-python
 ````
 
 The update program is called `mvupdate` (`mvupdate3` for Python 3) and is located in the root directory
@@ -487,15 +487,15 @@ librerie python:
 
 * mysql-connector
 
-QUeste potranno essere istallate mediante il programma pip:
+Queste potranno essere istallate mediante il programma pip:
 
 ````
 Python 2:
 sudo apt install python-pip
-pip install mysql-connector-python==8.0.22
+pip install mysql-connector-python
 Python 3:
 sudo apt install python3-pip
-pip3 install mysql-connector-python==8.0.22
+pip3 install mysql-connector-python
 ````
 
 Il programma di aggiornamento si chiama `mvupdate` (`mvupdate3` per Python 3) e si trova nella directory
