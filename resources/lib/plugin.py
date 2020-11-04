@@ -71,7 +71,7 @@ class MediathekViewPlugin(KodiPlugin):
         # Browse recently added
         self.add_folder_item(
             30904,
-            {'mode': "recent", 'channel': 0},
+            {'mode': "recent", 'channel': ""},
             icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
         )
         # Browse recently added by channel
@@ -83,7 +83,7 @@ class MediathekViewPlugin(KodiPlugin):
         # Browse by Initial->Show
         self.add_folder_item(
             30906,
-            {'mode': "initial", 'channel': 0},
+            {'mode': "initial", 'channel': ""},
             icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
         )
         # Browse by Channel->Initial->Shows
@@ -285,7 +285,7 @@ class MediathekViewPlugin(KodiPlugin):
             self.database.get_live_streams(
                 FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
         elif mode == 'recent':
-            channel = self.get_arg('channel', 0)
+            channel = self.get_arg('channel', "")
             self.database.get_recents(channel, FilmUI(self))
         elif mode == 'recentchannels':
             self.database.get_recent_channels(
@@ -298,25 +298,25 @@ class MediathekViewPlugin(KodiPlugin):
             self.settings.trigger_update()
             self.notifier.show_notification(30963, 30964, time=10000)
         elif mode == 'initial':
-            channel = self.get_arg('channel', 0)
+            channel = self.get_arg('channel', "")
             self.database.get_initials(channel, InitialUI(self))
         elif mode == 'shows':
-            channel = self.get_arg('channel', 0)
+            channel = self.get_arg('channel', "")
             initial = self.get_arg('initial', None)
             self.database.get_shows(channel, initial, ShowUI(self))
         elif mode == 'films':
-            show = self.get_arg('show', 0)
+            show = self.get_arg('show', "")
             self.database.get_films(show, FilmUI(self))
         elif mode == 'downloadmv':
-            filmid = self.get_arg('id', 0)
+            filmid = self.get_arg('id', "")
             quality = self.get_arg('quality', 1)
             Downloader(self).download_movie(filmid, quality)
         elif mode == 'downloadep':
-            filmid = self.get_arg('id', 0)
+            filmid = self.get_arg('id', "")
             quality = self.get_arg('quality', 1)
             Downloader(self).download_episode(filmid, quality)
         elif mode == 'playwithsrt':
-            filmid = self.get_arg('id', 0)
+            filmid = self.get_arg('id', "")
             Downloader(self).play_movie_with_subs(filmid)
 
         # cleanup saved searches

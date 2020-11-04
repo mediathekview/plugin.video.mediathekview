@@ -42,7 +42,7 @@ class ShowUI(Show):
         Args:
             channelid(id): database id of the channel
         """
-        self.querychannelid = int(channelid)
+        self.querychannelid = channelid
         for method in self.sortmethods:
             xbmcplugin.addSortMethod(self.handle, method)
         xbmcplugin.setContent(self.handle, '')

@@ -190,10 +190,23 @@ class FilmUI(Film):
             film = self
         # get the best url
         # pylint: disable=line-too-long
-        videourl = film.url_video_hd if (
-            film.url_video_hd != "" and self.plugin.settings.preferhd) else film.url_video if film.url_video != "" else film.url_video_sd
-        videohds = " (HD)" if (film.url_video_hd !=
-                               "" and self.plugin.settings.preferhd) else ""
+        ##
+        ##videourl = film.url_video_hd if (
+        ##    film.url_video_hd != "" and self.plugin.settings.preferhd) else film.url_video if film.url_video != "" else film.url_video_sd
+        ##videohds = " (HD)" if (film.url_video_hd !=
+        ##                       "" and self.plugin.settings.preferhd) else ""
+        
+        if (film.url_video_hd != "" and self.plugin.settings.preferhd):
+            videourl = film.url_video_hd
+            videohds = " (HD)"
+        elif (film.url_video_sd != ""):
+            videourl = film.url_video_sd
+            videohds = " (SD)"
+        else:
+            videourl = film.url_video
+            videohds = " (VIDEO)"
+            
+        
         # exit if no url supplied
         if videourl == "":
             return None

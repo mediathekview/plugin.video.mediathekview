@@ -45,11 +45,11 @@ class StoreSQLite(object):
         self.settings = settings
         # internals
         self.conn = None
-        self.dbfile = os.path.join(self.settings.datapath, 'filmliste-v2.db')
+        self.dbfile = os.path.join(self.settings.datapath, 'filmliste-v3.db')
         # useful query fragments
-        self.sql_query_films = "SELECT film.id,title,show,channel,description,duration,size,datetime(aired, 'unixepoch', 'localtime'),url_sub,url_video,url_video_sd,url_video_hd FROM film LEFT JOIN show ON show.id=film.showid LEFT JOIN channel ON channel.id=film.channelid"
+        self.sql_query_films = "SELECT idhash as id, title, show, channel, description, duration, size, datetime(aired, 'unixepoch', 'localtime'), url_sub, url_video, url_video_sd, url_video_hd FROM film"
         self.sql_cond_recent = "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format(
-            "aired" if settings.recentmode == 0 else "film.dtCreated",
+            "aired" if settings.recentmode == 0 else "dtCreated",
             settings.maxage
         )
         self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if settings.nofuture else ""
@@ -89,7 +89,12 @@ class StoreSQLite(object):
             self.settings.datapath,
             'filmliste-v1.db'
         ))
-
+        # remove old versions
+        mvutils.file_remove(os.path.join(
+            self.settings.datapath,
+            'filmliste-v2.db'
+        ))
+        
         if reset is True or not mvutils.file_exists(self.dbfile):
             self.logger.info(
                 '===== RESET: Database will be deleted and regenerated =====')
@@ -158,6 +163,7 @@ class StoreSQLite(object):
                 performed also on film descriptions. Default is
                 `False`
         """
+        self.logger.info('search')
         searchmask = '%' + search + '%'
         searchcond = '( ( title LIKE ? ) OR ( show LIKE ? ) OR ( description LIKE ? ) )' if extendedsearch is True else '( ( title LIKE ? ) OR ( show LIKE ? ) )'
         searchparm = (searchmask, searchmask, searchmask) if extendedsearch is True else (
@@ -183,15 +189,16 @@ class StoreSQLite(object):
             filmui(FilmUI): an instance of a film model view used
                 for populating the directory
         """
-        if channelid != '0':
+        self.logger.info('get_recents')
+        if channelid != "":
             return self._search_condition(
-                condition=self.sql_cond_recent + ' AND ( film.channelid=? )',
-                params=(int(channelid), ),
+                condition=self.sql_cond_recent + ' AND ( channel=? )',
+                params=(channelid, ),
                 filmui=filmui,
                 showshows=True,
                 showchannels=False,
                 maxresults=self.settings.maxresults,
-                order='film.aired desc'
+                order='aired desc'
             )
 
         return self._search_condition(
@@ -201,7 +208,7 @@ class StoreSQLite(object):
             showshows=True,
             showchannels=False,
             maxresults=self.settings.maxresults,
-            order='film.aired desc'
+            order='aired desc'
         )
 
     def get_live_streams(self, filmui):
@@ -213,8 +220,9 @@ class StoreSQLite(object):
             filmui(FilmUI): an instance of a film model view used
                 for populating the directory
         """
+        self.logger.info('get_live_streams')
         return self._search_condition(
-            condition='( show.search="LIVESTREAM" )',
+            condition='( show="LIVESTREAM" )',
             params=(),
             filmui=filmui,
             showshows=False,
@@ -258,30 +266,37 @@ class StoreSQLite(object):
             initialui(InitialUI): an instance of a grouped entry
                 model view used for populating the directory
         """
+        self.logger.info('get_initials')
         if self.conn is None:
             return
         try:
-            channelid = int(channelid)
+            channelid = channelid
             cursor = self.conn.cursor()
-            if channelid != 0:
+            if channelid != "":
                 self.logger.info(
-                    'SQlite Query: SELECT SUBSTR(search,1,1),COUNT(*) FROM show WHERE ( channelid={} ) GROUP BY LEFT(search,1)',
+                    """
+                    SELECT      SUBSTR(show,1,1),COUNT(*)
+                    FROM        film
+                    WHERE       ( channel={} ) and SUBSTR(show,1,1) between 'A' and 'Z'
+                    GROUP BY    SUBSTR(show,1,1)
+                    """,
                     channelid
                 )
                 cursor.execute("""
-                    SELECT      SUBSTR(search,1,1),COUNT(*)
-                    FROM        show
-                    WHERE       ( channelid=? )
-                    GROUP BY    SUBSTR(search,1,1)
+                    SELECT      SUBSTR(show,1,1),COUNT(*)
+                    FROM        film
+                    WHERE       ( channel=? ) and SUBSTR(show,1,1) between 'A' and 'Z'
+                    GROUP BY    SUBSTR(show,1,1)
                 """, (channelid, ))
             else:
                 self.logger.info(
-                    'SQlite Query: SELECT SUBSTR(search,1,1),COUNT(*) FROM show GROUP BY LEFT(search,1)'
+                    'SQlite Query: SELECT SUBSTR(show,1,1),COUNT(*) FROM film GROUP BY SUBSTR(show,1,1)'
                 )
                 cursor.execute("""
-                    SELECT      SUBSTR(search,1,1),COUNT(*)
-                    FROM        show
-                    GROUP BY    SUBSTR(search,1,1)
+                    SELECT      SUBSTR(show,1,1),COUNT(*)
+                    FROM        film
+                    WHERE SUBSTR(show,1,1) between 'A' and 'Z'
+                    GROUP BY    SUBSTR(show,1,1)
                 """)
             initialui.begin(channelid)
             for (initialui.initial, initialui.count) in cursor:
@@ -306,19 +321,19 @@ class StoreSQLite(object):
             showui(ShowUI): an instance of a show model view
                 used for populating the directory
         """
+        self.logger.info('get_shows')
         if self.conn is None:
             return
 
         if caching and self.settings.caching:
-            channelid = int(channelid)
-            if channelid == 0 and self.settings.groupshows:
+            if channelid == "" and self.settings.groupshows:
                 cache_condition = "SHOW:1:" + initial
-            elif channelid == 0:
+            elif channelid == "":
                 cache_condition = "SHOW:2:" + initial
             elif initial:
-                cache_condition = "SHOW:3:" + str(channelid) + ':' + initial
+                cache_condition = "SHOW:3:" + channelid + ':' + initial
             else:
-                cache_condition = "SHOW:3:" + str(channelid)
+                cache_condition = "SHOW:3:" + channelid
             cached_data = self._load_cache('get_shows', cache_condition)
             if cached_data is not None:
                 showui.begin(channelid)
@@ -329,58 +344,59 @@ class StoreSQLite(object):
                 return
 
         try:
-            channelid = int(channelid)
+            channelid = channelid
             cached_data = []
             cursor = self.conn.cursor()
-            if channelid == 0 and self.settings.groupshows:
-                cursor.execute("""
-                    SELECT      GROUP_CONCAT(show.id),
-                                GROUP_CONCAT(channelid),
+            if channelid == "" and self.settings.groupshows:
+                sqlstmt = """
+                    SELECT      GROUP_CONCAT(showid),
+                                GROUP_CONCAT(channel),
                                 show,
                                 GROUP_CONCAT(channel)
-                    FROM        show
-                    LEFT JOIN   channel
-                        ON      ( channel.id = show.channelid )
+                    FROM        film
                     WHERE       ( show LIKE ? )
                     GROUP BY    show
-                """, (initial + '%', ))
-            elif channelid == 0:
-                cursor.execute("""
-                    SELECT      show.id,
-                                show.channelid,
-                                show.show,
-                                channel.channel
-                    FROM        show
-                    LEFT JOIN   channel
-                        ON      ( channel.id = show.channelid )
+                """
+                cursor.execute(sqlstmt, (initial + '%', ))
+            elif channelid == "":
+                sqlstmt = """
+                    SELECT      showid,
+                                channel,
+                                show,
+                                channel
+                    FROM        film
                     WHERE       ( show LIKE ? )
-                """, (initial + '%', ))
+                    GROUP BY showid, channel, show, channel
+                """
+                cursor.execute(sqlstmt, (initial + '%', ))
             elif initial:
-                cursor.execute("""
-                    SELECT      show.id,
-                                show.channelid,
-                                show.show,
-                                channel.channel
-                    FROM        show
-                    LEFT JOIN   channel
-                        ON      ( channel.id = show.channelid )
-                    WHERE       (
-                                    ( channelid=? )
+                sqlstmt = """
+                    SELECT      showid,
+                                channel,
+                                show,
+                                channel
+                    FROM        film
+                    WHERE
+                                ( channel=? )
                                     AND
                                     ( show LIKE ? )
-                                )
-                """, (channelid, initial + '%', ))
+                    GROUP BY showid, channel, show, channel
+                """
+                cursor.execute(sqlstmt, (channelid, initial + '%', ))
             else:
-                cursor.execute("""
-                    SELECT      show.id,
-                                show.channelid,
-                                show.show,
-                                channel.channel
-                    FROM        show
-                    LEFT JOIN   channel
-                        ON      ( channel.id = show.channelid )
-                    WHERE       ( channelid=? )
-                """, (channelid, ))
+                sqlstmt ="""
+                    SELECT      showid,
+                                channel,
+                                show,
+                                channel
+                    FROM        film
+                    WHERE       ( channel=? )
+                    GROUP BY showid, channel, show, channel
+                """
+                cursor.execute(sqlstmt, (channelid, ))
+            ##
+            self.logger.info(sqlstmt);
+            ##
             showui.begin(channelid)
             for (showui.showid, showui.channelid, showui.show, showui.channel) in cursor:
                 showui.add()
@@ -405,13 +421,15 @@ class StoreSQLite(object):
             filmui(FilmUI): an instance of a film model view
                 used for populating the directory
         """
+        self.logger.info('get_films')
         if self.conn is None:
             return
         if showid.find(',') == -1:
             # only one channel id
+            self.logger.info('get_films for one show')
             return self._search_condition(
                 condition='( showid=? )',
-                params=(int(showid),),
+                params=(showid,),
                 filmui=filmui,
                 showshows=False,
                 showchannels=False,
@@ -420,8 +438,12 @@ class StoreSQLite(object):
             )
 
         # multiple channel ids
+        self.logger.info('get_films for one show')
+        self.logger.info(showid)
+        parts = showid.split(',')
+        sql_list = ','.join("'{0}'".format(w) for w in parts)
         return self._search_condition(
-            condition='( showid IN ( {} ) )'.format(showid),
+            condition='( showid IN ( {} ) )'.format(sql_list),
             params=(),
             filmui=filmui,
             showshows=False,
@@ -445,10 +467,10 @@ class StoreSQLite(object):
 
         try:
             if condition is None:
-                query = 'SELECT id,channel,0 AS `count` FROM channel'
+                query = 'SELECT channel,channel,0 AS `count` FROM film group by channel'
                 qtail = ''
             else:
-                query = 'SELECT channel.id AS `id`,channel,COUNT(*) AS `count` FROM film LEFT JOIN channel ON channel.id=film.channelid'
+                query = 'SELECT channel AS `id`,channel,COUNT(*) AS `count` FROM film'
                 qtail = ' WHERE ' + condition + ' GROUP BY channel'
             self.logger.info('SQLite Query: {}', query + qtail)
             cached_data = []
@@ -556,7 +578,7 @@ class StoreSQLite(object):
         if self.conn is None:
             return None
         try:
-            condition = '( film.id={} )'.format(filmid)
+            condition = '( film.idhash={} )'.format(filmid)
             self.logger.info(
                 'SQLite Query: {}',
                 self.sql_query_films +
@@ -579,6 +601,15 @@ class StoreSQLite(object):
             self.notifier.show_database_error(err)
         return None
 
+    def get_version(self):
+        vversion = 0;
+        try :
+            statusRs = get_status()
+            vversion = int(status['version']);
+        except Exception as err:
+            self.logger.error('Failed to load version from status: {}', err)
+        return vvserion;
+        
     def get_status(self):
         """ Retrieves the database status information """
         status = {
@@ -595,7 +626,8 @@ class StoreSQLite(object):
             'del_mov': 0,
             'tot_chn': 0,
             'tot_shw': 0,
-            'tot_mov': 0
+            'tot_mov': 0,
+            'version': 0
         }
         if self.conn is None:
             status['status'] = "UNINIT"
@@ -622,6 +654,8 @@ class StoreSQLite(object):
         status['tot_chn'] = result[0][11]
         status['tot_shw'] = result[0][12]
         status['tot_mov'] = result[0][13]
+        if (len(result[0]) > 13):
+            status['version'] = result[0][14]
         return status
 
     def update_status(self, status=None, lastupdate=None, filmupdate=None, fullupdate=None, add_chn=None, add_shw=None, add_mov=None, del_chn=None, del_shw=None, del_mov=None, tot_chn=None, tot_shw=None, tot_mov=None):
@@ -707,7 +741,8 @@ class StoreSQLite(object):
                     `del_mov`,
                     `tot_chn`,
                     `tot_shw`,
-                    `tot_mov`
+                    `tot_mov`,
+                    `version`
                 )
                 VALUES (
                     ?,
@@ -723,7 +758,8 @@ class StoreSQLite(object):
                     ?,
                     ?,
                     ?,
-                    ?
+                    ?,
+                    4
                 )
                 """, (
                     new['modified'],
@@ -869,24 +905,14 @@ class StoreSQLite(object):
             cursor = self.conn.cursor()
             if full:
                 cursor.executescript("""
-                    UPDATE  `channel`
-                    SET     `touched` = 0;
-
-                    UPDATE  `show`
-                    SET     `touched` = 0;
-
                     UPDATE  `film`
                     SET     `touched` = 0;
                 """)
-            cursor.execute('SELECT COUNT(*) FROM `channel`')
-            result1 = cursor.fetchone()
-            cursor.execute('SELECT COUNT(*) FROM `show`')
-            result2 = cursor.fetchone()
             cursor.execute('SELECT COUNT(*) FROM `film`')
             result3 = cursor.fetchone()
             cursor.close()
             self.conn.commit()
-            return (result1[0], result2[0], result3[0], )
+            return (0, 0, result3[0], )
         except sqlite3.DatabaseError as err:
             self._handle_database_corruption(err)
             raise DatabaseCorrupted(
@@ -901,26 +927,22 @@ class StoreSQLite(object):
                 will be deleted
         """
         try:
+            del_chn=0
+            del_shw=0
+            del_mov=0
+            cnt_chn=0
+            cnt_shw=0
+            cnt_mov=0
+            ##
             cursor = self.conn.cursor()
-            cursor.execute(
-                'SELECT COUNT(*) FROM `channel` WHERE ( touched = 0 )')
-            (del_chn, ) = cursor.fetchone()
-            cursor.execute('SELECT COUNT(*) FROM `show` WHERE ( touched = 0 )')
-            (del_shw, ) = cursor.fetchone()
             cursor.execute('SELECT COUNT(*) FROM `film` WHERE ( touched = 0 )')
             (del_mov, ) = cursor.fetchone()
             if delete:
-                cursor.execute(
-                    'DELETE FROM `show` WHERE ( show.touched = 0 ) AND ( ( SELECT SUM( film.touched ) FROM `film` WHERE film.showid = show.id ) = 0 )')
                 cursor.execute('DELETE FROM `film` WHERE ( touched = 0 )')
             else:
                 del_chn = 0
                 del_shw = 0
                 del_mov = 0
-            cursor.execute('SELECT COUNT(*) FROM `channel`')
-            (cnt_chn, ) = cursor.fetchone()
-            cursor.execute('SELECT COUNT(*) FROM `show`')
-            (cnt_shw, ) = cursor.fetchone()
             cursor.execute('SELECT COUNT(*) FROM `film`')
             (cnt_mov, ) = cursor.fetchone()
             cursor.close()
@@ -931,123 +953,20 @@ class StoreSQLite(object):
             raise DatabaseCorrupted(
                 'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
 
-    def ft_insert_film(self, film, commit=True):
-        """
-        Inserts a film emtry into the database
-
-        Args:
-            film(Film): a film entry
-
-            commit(bool, optional): the operation will be
-                commited immediately. Default is `True`
-        """
-        try:
-            cursor = self.conn.cursor()
-            newchn = False
-            inschn = 0
-            insshw = 0
-            insmov = 0
-            channel = film['channel'][:64]
-            show = film['show'][:128]
-            title = film['title'][:128]
-
-            # handle channel
-            if self.ft_channel != channel:
-                # process changed channel
-                newchn = True
-                cursor.execute(
-                    'SELECT `id`,`touched` FROM `channel` WHERE channel.channel=?', (channel, ))
-                result = cursor.fetchall()
-                if result:
-                    # get the channel data
-                    self.ft_channel = channel
-                    self.ft_channelid = result[0][0]
-                    if result[0][1] == 0:
-                        # updated touched
-                        cursor.execute(
-                            'UPDATE `channel` SET `touched`=1 WHERE ( channel.id=? )', (self.ft_channelid, ))
-                else:
-                    # insert the new channel
-                    inschn = 1
-                    cursor.execute('INSERT INTO `channel` ( `dtCreated`,`channel` ) VALUES ( ?,? )', (int(
-                        time.time()), channel))
-                    self.ft_channel = channel
-                    self.ft_channelid = cursor.lastrowid
-
-            # handle show
-            if newchn or self.ft_show != show:
-                # process changed show
-                cursor.execute(
-                    'SELECT `id`,`touched` FROM `show` WHERE ( show.channelid=? ) AND ( show.show=? )', (self.ft_channelid, show))
-                result = cursor.fetchall()
-                if result:
-                    # get the show data
-                    self.ft_show = show
-                    self.ft_showid = result[0][0]
-                    if result[0][1] == 0:
-                        # updated touched
-                        cursor.execute(
-                            'UPDATE `show` SET `touched`=1 WHERE ( show.id=? )', (self.ft_showid, ))
-                else:
-                    # insert the new show
-                    insshw = 1
-                    cursor.execute(
-                        """
-                        INSERT INTO `show` (
-                            `dtCreated`,
-                            `channelid`,
-                            `show`,
-                            `search`
-                        )
-                        VALUES (
-                            ?,
-                            ?,
-                            ?,
-                            ?
-                        )
-                        """, (
-                            int(time.time()),
-                            self.ft_channelid, show,
-                            mvutils.make_search_string(show)
-                        )
-                    )
-                    self.ft_show = show
-                    self.ft_showid = cursor.lastrowid
-
-            # check if the movie is there
-            checkString = "{}:{}:{}".format(self.ft_channelid, self.ft_showid, film['url_video'])
-            idhash = hashlib.md5(checkString.encode('utf-8')).hexdigest()
-            cursor.execute("""
-                SELECT      `id`,
-                            `touched`
-                FROM        `film`
-                WHERE       ( film.idhash = ? )
-            """, (idhash, ))
-            result = cursor.fetchall()
-            if result:
-                # film found
-                filmid = result[0][0]
-                if result[0][1] == 0:
-                    # update touched
-                    cursor.execute(
-                        'UPDATE `film` SET `touched`=1 WHERE ( film.id=? )', (filmid, ))
-            else:
-                # insert the new film
-                insmov = 1
-                cursor.execute(
-                    """
+    def ft_insert_film(self, filmArray, commit=True):
+        #
+        pStmtInsert = """
                     INSERT INTO `film` (
                         `idhash`,
                         `dtCreated`,
-                        `channelid`,
+                        `channel`,
                         `showid`,
+                        `show`,
                         `title`,
-                        `search`,
                         `aired`,
                         `duration`,
                         `size`,
                         `description`,
-                        `website`,
                         `url_sub`,
                         `url_video`,
                         `url_video_sd`,
@@ -1067,36 +986,30 @@ class StoreSQLite(object):
                         ?,
                         ?,
                         ?,
-                        ?,
                         ?
-                    )
-                    """, (
-                        idhash,
-                        int(time.time()),
-                        self.ft_channelid,
-                        self.ft_showid,
-                        title,
-                        mvutils.make_search_string(film['title']),
-                        film['airedepoch'],
-                        mvutils.make_duration(film['duration']),
-                        film['size'],
-                        film['description'],
-                        film['website'],
-                        film['url_sub'],
-                        film['url_video'],
-                        film['url_video_sd'],
-                        film['url_video_hd']
-                    )
-                )
-                filmid = cursor.lastrowid
-            if commit:
-                self.conn.commit()
-            cursor.close()
-            return (filmid, inschn, insshw, insmov)
+                    )"""
+        pStmtUpdate = """UPDATE `film` SET touched = 1 WHERE idhash = ?"""
+        try:
+            cursor = self.conn.cursor()
+            insertArray = []
+            updateCnt = 0
+            insertCnt = 0
+            for f in filmArray:
+                cursor.execute(pStmtUpdate,(f[0],))
+                if cursor.rowcount == 0:
+                    insertArray.append(f)
+                    insertCnt +=1
+                else:
+                    updateCnt +=1
+            #
+            cursor.executemany(pStmtInsert,insertArray)
+            #
+            return (updateCnt,insertCnt)
         except sqlite3.DatabaseError as err:
             self._handle_database_corruption(err)
             raise DatabaseCorrupted(
-                'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))
+                'Database error during critical operation: {} - Database will be rebuilt from scratch.'.format(err))   
+    
 
     def _load_cache(self, reqtype, condition):
         filename = os.path.join(self.settings.datapath, reqtype + '.cache')
@@ -1144,7 +1057,7 @@ class StoreSQLite(object):
 
     def _handle_update_substitution(self):
         updfile = os.path.join(self.settings.datapath, DATABASE_AKT)
-        sqlfile = os.path.join(self.settings.datapath, 'filmliste-v2.db')
+        sqlfile = os.path.join(self.settings.datapath, 'filmliste-v3.db')
         if mvutils.file_exists(updfile):
             self.logger.info('Native update file found. Updating database...')
             return mvutils.file_rename(updfile, sqlfile)
@@ -1186,56 +1099,27 @@ class StoreSQLite(object):
 PRAGMA foreign_keys = false;
 
 -- ----------------------------
---  Table structure for channel
--- ----------------------------
-DROP TABLE IF EXISTS "channel";
-CREATE TABLE "channel" (
-     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-     "dtCreated" integer(11,0) NOT NULL DEFAULT 0,
-     "touched" integer(1,0) NOT NULL DEFAULT 1,
-     "channel" TEXT(64,0) NOT NULL
-);
-
--- ----------------------------
 --  Table structure for film
 -- ----------------------------
 DROP TABLE IF EXISTS "film";
 CREATE TABLE "film" (
-     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-     "idhash" TEXT(32,0) NOT NULL,
+     "idhash" TEXT(32,0) NOT NULL PRIMARY KEY,
      "dtCreated" integer(11,0) NOT NULL DEFAULT 0,
      "touched" integer(1,0) NOT NULL DEFAULT 1,
-     "channelid" INTEGER(11,0) NOT NULL,
-     "showid" INTEGER(11,0) NOT NULL,
-     "title" TEXT(128,0) NOT NULL,
-     "search" TEXT(128,0) NOT NULL,
+     "channel" TEXT(32,0) NOT NULL COLLATE NOCASE,
+     "showid" TEXT(8,0) NOT NULL,
+     "show" TEXT(128,0) NOT NULL COLLATE NOCASE,
+     "title" TEXT(128,0) NOT NULL COLLATE NOCASE,
      "aired" integer(11,0),
      "duration" integer(11,0),
      "size" integer(11,0),
-     "description" TEXT(2048,0),
-     "website" TEXT(384,0),
+     "description" TEXT(2048,0) COLLATE NOCASE,
      "url_sub" TEXT(384,0),
      "url_video" TEXT(384,0),
      "url_video_sd" TEXT(384,0),
-     "url_video_hd" TEXT(384,0),
-    CONSTRAINT "FK_FilmShow" FOREIGN KEY ("showid") REFERENCES "show" ("id") ON DELETE CASCADE,
-    CONSTRAINT "FK_FilmChannel" FOREIGN KEY ("channelid") REFERENCES "channel" ("id") ON DELETE CASCADE
+     "url_video_hd" TEXT(384,0)
 );
-
--- ----------------------------
---  Table structure for show
--- ----------------------------
-DROP TABLE IF EXISTS "show";
-CREATE TABLE "show" (
-     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-     "dtCreated" integer(11,0) NOT NULL DEFAULT 0,
-     "touched" integer(1,0) NOT NULL DEFAULT 1,
-     "channelid" INTEGER(11,0) NOT NULL DEFAULT 0,
-     "show" TEXT(128,0) NOT NULL,
-     "search" TEXT(128,0) NOT NULL,
-    CONSTRAINT "FK_ShowChannel" FOREIGN KEY ("channelid") REFERENCES "channel" ("id") ON DELETE CASCADE
-);
-
+                        
 -- ----------------------------
 --  Table structure for status
 -- ----------------------------
@@ -1254,22 +1138,9 @@ CREATE TABLE "status" (
      "del_mov" integer(11,0),
      "tot_chn" integer(11,0),
      "tot_shw" integer(11,0),
-     "tot_mov" integer(11,0)
+     "tot_mov" integer(11,0),
+     "version" integer(11,0)
 );
-
--- ----------------------------
---  Indexes structure for table film
--- ----------------------------
-CREATE INDEX "dupecheck" ON film ("idhash");
-CREATE INDEX "index_1" ON film ("channelid", "title" COLLATE NOCASE);
-CREATE INDEX "index_2" ON film ("showid", "title" COLLATE NOCASE);
-
--- ----------------------------
---  Indexes structure for table show
--- ----------------------------
-CREATE INDEX "search" ON show ("search");
-CREATE INDEX "combined_1" ON show ("channelid", "search");
-CREATE INDEX "combined_2" ON show ("channelid", "show");
 
 PRAGMA foreign_keys = true;
         """)

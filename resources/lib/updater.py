@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 import os
 import time
 import datetime
+import hashlib
 import subprocess
 import resources.lib.updateFileParser as UpdateFileParser
 
@@ -82,6 +83,8 @@ class MediathekViewUpdater(object):
         self.tot_mov = 0
         self.index = 0
         self.count = 0
+        self.insertCount = 0
+        self.updateCount = 0
         self.film = {}
 
     def init(self, convert=False):
@@ -233,6 +236,8 @@ class MediathekViewUpdater(object):
                 'Failed to initialize update. Maybe a concurrency problem?')
             return False
         
+        ###
+        
         # pylint: disable=broad-except
         try:
             starttime = time.time()
@@ -282,6 +287,8 @@ class MediathekViewUpdater(object):
                 pass            
 
             ###
+            recordArray = [];
+            ###
             while (True):
                 aPart = ufp.next(',"X":');
                 if (len(aPart) == 0):
@@ -296,22 +303,92 @@ class MediathekViewUpdater(object):
                 self._init_record()
                 # behaviour of the update list
                 if (len(jsonDoc[0]) > 0):
-                    sender = jsonDoc[0]
+                    sender = jsonDoc[0][:32]
                 else:
                     jsonDoc[0] = sender
                 # same for thema
                 if (len(jsonDoc[1]) > 0):
-                    thema = jsonDoc[1]
+                    thema = jsonDoc[1][:128]
                 else:
                     jsonDoc[1] = thema
                 ##
-                self._add_value( jsonDoc )
-                self._end_record(records)
-                if self.count % 100 == 0 and self.monitor.abort_requested():
-                    # kodi is shutting down. Close all
-                    self._update_end(full, 'ABORTED')
-                    self.notifier.close_update_progress()
-                    return True                
+                self.film['channel'] = sender
+                self.film['show'] = thema
+                self.film["title"] = jsonDoc[2][:128]
+                ##
+                if len(jsonDoc[3]) == 10:
+                    self.film["aired"] = jsonDoc[3][6:] + '-' + jsonDoc[3][3:5] + '-' + jsonDoc[3][:2]  
+                    if (len(jsonDoc[4]) == 8):
+                        self.film["aired"] = self.film["aired"] + " " + jsonDoc[4]
+                ##
+                if len(jsonDoc[5]) > 0:
+                    self.film["duration"] = jsonDoc[5]
+                if len(jsonDoc[6]) > 0:
+                    self.film["size"] = int(jsonDoc[6])
+                if len(jsonDoc[7]) > 0:
+                    self.film["description"] = jsonDoc[7]
+                self.film["url_video"] = jsonDoc[8]
+                self.film["website"] = jsonDoc[9]
+                self.film["url_sub"] = jsonDoc[10]    
+                self.film["url_video_sd"] = self._make_url(jsonDoc[12])
+                self.film["url_video_hd"] = self._make_url(jsonDoc[14])
+                if len(jsonDoc[16]) > 0:
+                    self.film["airedepoch"] = int(jsonDoc[16])
+                self.film["geo"] = jsonDoc[18]
+                ##
+                # check if the movie is there
+                checkString = "{}:{}:{}:{}".format(sender.encode('utf-8'), thema.encode('utf-8'), self.film["title"].encode('utf-8'), self.film['url_video'])
+                idhash = hashlib.md5(checkString).hexdigest()
+                ##
+                showid = hashlib.md5(thema.encode('utf-8')).hexdigest()
+                showid = showid[:8]
+                ##
+                ##
+                recordArray.append((
+                        idhash,
+                        int(time.time()),
+                        self.film['channel'],
+                        showid,
+                        self.film['show'],
+                        self.film["title"],
+                        self.film['airedepoch'],
+                        mvutils.make_duration(self.film['duration']),
+                        self.film['size'],
+                        self.film['description'],
+                        self.film['url_sub'],
+                        self.film['url_video'],
+                        self.film['url_video_sd'],
+                        self.film['url_video_hd']
+                    ))
+                self.count = self.count +1
+                
+                
+                
+                #self._end_record(records)
+                
+                ## check
+                if self.count % 40000 == 0:
+                    if self.monitor.abort_requested():
+                        # kodi is shutting down. Close all
+                        self._update_end(full, 'ABORTED')
+                        self.notifier.close_update_progress()
+                        return True
+                    else:
+                        # run insert
+                        (ai,au) = self.database.ft_insert_film(recordArray)
+                        self.insertCount += ai
+                        self.updateCount += au
+                        recordArray = []                        
+                        # update status
+                        percent = int(self.count * 100 / records)
+                        percent = percent if percent <= 100 else 100
+                        self.logger.info('In progress (%d%%): insert:%d, update:%d' % (percent, self.insertCount, self.updateCount))
+                        self.notifier.update_update_progress(percent, self.count, self.insertCount, self.updateCount, 0)
+            
+            if len(recordArray) > 0:
+                (ai,au) = self.database.ft_insert_film(recordArray)
+                self.insertCount += ai
+                self.updateCount += au
 
             ufp.close()        
             self._update_end(full, 'IDLE')
@@ -349,6 +426,7 @@ class MediathekViewUpdater(object):
         Args:
             full(bool): Downloads the full list if `True`
         """
+
         (url, compfile, destfile, _) = self._get_update_info(full)
         if url is None:
             self.logger.error(
@@ -479,6 +557,8 @@ class MediathekViewUpdater(object):
         self.del_mov = 0
         self.index = 0
         self.count = 0
+        self.insertCount = 0
+        self.updateCount = 0
         self.film = {
             "channel": "",
             "show": "",
@@ -562,30 +642,7 @@ class MediathekViewUpdater(object):
         self.add_shw += cnt_shw
         self.add_mov += cnt_mov
 
-    def _add_value(self, valueArray):
-        self.film["channel"] = valueArray[0]
-        self.film["show"] = valueArray[1][:255]
-        self.film["title"] = valueArray[2][:255]
-        ##
-        if len(valueArray[3]) == 10:
-            self.film["aired"] = valueArray[3][6:] + '-' + valueArray[3][3:5] + '-' + valueArray[3][:2]  
-            if (len(valueArray[4]) == 8):
-                self.film["aired"] = self.film["aired"] + " " + valueArray[4]
-        ##
-        if len(valueArray[5]) > 0:
-            self.film["duration"] = valueArray[5]
-        if len(valueArray[6]) > 0:
-            self.film["size"] = int(valueArray[6])
-        if len(valueArray[7]) > 0:
-            self.film["description"] = valueArray[7]
-        self.film["url_video"] = valueArray[8]
-        self.film["website"] = valueArray[9]
-        self.film["url_sub"] = valueArray[10]    
-        self.film["url_video_sd"] = self._make_url(valueArray[12])
-        self.film["url_video_hd"] = self._make_url(valueArray[14])
-        if len(valueArray[16]) > 0:
-            self.film["airedepoch"] = int(valueArray[16])
-        self.film["geo"] = valueArray[18]
+        
         
     def _make_url(self, val):
         parts = val.split('|')
