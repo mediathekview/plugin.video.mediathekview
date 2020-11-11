@@ -18,6 +18,7 @@ from contextlib import closing
 import xbmcvfs
 
 import resources.lib.mvutils as mvutils
+import resources.lib.appContext as appContext
 
 from resources.lib.kodi.kodiui import KodiProgressDialog
 from resources.lib.filmui import FilmUI
@@ -38,9 +39,10 @@ class Downloader(object):
     def __init__(self, plugin):
         self.plugin = plugin
         self.database = plugin.database
-        self.settings = plugin.settings
-        self.notifier = plugin.notifier
-        self.plugin.datapath = self.plugin.datapath
+        self.settings = appContext.MVSETTINGS
+        self.notifier = appContext.MVNOTIFIER
+        self.logger = appContext.MVLOGGER.get_new_logger('Downloader')
+
 
     def play_movie_with_subs(self, filmid):
         """
@@ -55,8 +57,8 @@ class Downloader(object):
         if film is None:
             self.notifier.show_error(30990, self.plugin.language(30991))
             return
-        ttmname = os.path.join(self.plugin.datapath, 'subtitle.ttml')
-        srtname = os.path.join(self.plugin.datapath, 'subtitle.srt')
+        ttmname = os.path.join(self.settings.getDatapath(), 'subtitle.ttml')
+        srtname = os.path.join(self.settings.getDatapath(), 'subtitle.srt')
         subs = []
         if self.download_subtitle(film, ttmname, srtname, 'subtitle'):
             subs.append(srtname)
@@ -98,11 +100,11 @@ class Downloader(object):
                              xbmcvfs.File(srtname, 'w'))
                     ret = True
                 except Exception as err:
-                    self.plugin.info('Failed to convert to srt: {}', err)
+                    self.logger.info('Failed to convert to srt: {}', err)
                 progress.close()
             except Exception as err:
                 progress.close()
-                self.plugin.error(
+                self.logger.error(
                     'Failure downloading {}: {}', film.url_sub, err)
         return ret
 
@@ -117,7 +119,7 @@ class Downloader(object):
 
             quality(int): quality to download (0 = SD, 1 = Normal, 2 = HD)
         """
-        if not self._test_download_path(self.settings.downloadpathmv):
+        if not self._test_download_path(self.settings.getDownloadPathMovie()):
             return
         film = self.database.retrieve_film_info(filmid)
         if film is None:
@@ -131,12 +133,12 @@ class Downloader(object):
             if not namestem:
                 namestem = u'Film'
             namestem = namestem + '-{}'.format(film.filmid)
-        elif self.settings.movienamewithshow:
+        elif self.settings.getMovieNameWithShow():
             showname = mvutils.cleanup_filename(film.show)[:64]
             if showname:
                 namestem = showname + ' - ' + namestem
         # review name
-        if self.settings.reviewname:
+        if self.settings.getReviewName():
             (namestem, confirmed) = self.notifier.get_entered_text(namestem, 30986)
             namestem = mvutils.cleanup_filename(namestem)
             if len(namestem) < 1 or confirmed is False:
@@ -148,11 +150,11 @@ class Downloader(object):
         else:
             postfix = ''
         # determine destination path and film filename
-        if self.settings.moviefolders:
-            pathname = self.settings.downloadpathmv + namestem + postfix + '/'
+        if self.settings.getUseMovieFolder():
+            pathname = self.settings.getDownloadPathMovie() + namestem + postfix + '/'
             filename = namestem + suffix
         else:
-            pathname = self.settings.downloadpathmv
+            pathname = self.settings.getDownloadPathMovie()
             filename = namestem + postfix + suffix
         # check for duplicate
         while xbmcvfs.exists(pathname + filename + extension):
@@ -177,7 +179,7 @@ class Downloader(object):
 
             quality(int): quality to download (0 = SD, 1 = Normal, 2 = HD)
         """
-        if not self._test_download_path(self.settings.downloadpathep):
+        if not self._test_download_path(self.settings.getDownloadPathEpisode()):
             return
         film = self.database.retrieve_film_info(filmid)
         if film is None:
@@ -197,14 +199,14 @@ class Downloader(object):
             showname = namestem
 
         # review name
-        if self.settings.reviewname:
+        if self.settings.getReviewName():
             (namestem, confirmed) = self.notifier.get_entered_text(namestem, 30986)
             namestem = mvutils.cleanup_filename(namestem)
             if len(namestem) < 1 or confirmed is False:
                 return
 
         # prepare download directory and determine sequence number
-        pathname = self.settings.downloadpathep + showname + '/'
+        pathname = self.settings.getDownloadPathEpisode() + showname + '/'
         sequence = 1
         if xbmcvfs.exists(pathname):
             (_, epfiles, ) = xbmcvfs.listdir(pathname)
@@ -245,13 +247,13 @@ class Downloader(object):
                 30960, self.plugin.language(30976).format(filmurl))
         except Exception as err:
             progress.close()
-            self.plugin.error('Failure downloading {}: {}', filmurl, err)
+            self.logger.error('Failure downloading {}: {}', filmurl, err)
             self.notifier.show_error(
                 30952, self.plugin.language(30975).format(filmurl, err))
-            return False
+            raise
 
         # download subtitles
-        if self.settings.downloadsrt and film.url_sub:
+        if self.settings.getDownloadSubtitle() and film.url_sub:
             self.download_subtitle(film, ttmname, srtname, filename)
 
         return True
@@ -288,7 +290,7 @@ class Downloader(object):
         # create movie NFO file
         # See: https://kodi.wiki/view/NFO_files/Movies
         # pylint: disable=broad-except
-        if self.settings.makenfo > 0:
+        if self.settings.getMakeInfo() > 0:
             try:
                 # bug of pylint 1.7.1 - See https://github.com/PyCQA/pylint/issues/1444
                 # pylint: disable=no-member
@@ -321,14 +323,15 @@ class Downloader(object):
                         )
                     nfofile.write(bytearray('</movie>\n', 'utf-8'))
             except Exception as err:
-                self.plugin.error(
+                self.logger.error(
                     'Failure creating episode NFO file for {}: {}', filmurl, err)
+                raise
 
     def _make_series_nfo_files(self, film, filmurl, pathname, filename, season, episode, sequence):
         # create series NFO files
         # See: https://kodi.wiki/view/NFO_files/TV_shows
         # pylint: disable=broad-except
-        if self.settings.makenfo > 0:
+        if self.settings.getMakeInfo() > 0:
             aired = self._matches(
                 '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', str(film.aired))
             year = self._matches('([12][0-9][0-9][0-9])', str(film.aired))
@@ -350,7 +353,7 @@ class Downloader(object):
                                 bytearray('\t<year>{}</year>\n'.format(year), 'utf-8'))
                         nfofile.write(bytearray('</tvshow>\n', 'utf-8'))
                 except Exception as err:
-                    self.plugin.error(
+                    self.logger.error(
                         'Failure creating show NFO file for {}: {}', filmurl, err)
 
             try:
@@ -360,17 +363,17 @@ class Downloader(object):
                     nfofile.write(bytearray('<episodedetails>\n', 'utf-8'))
                     nfofile.write(
                         bytearray('\t<title>{}</title>\n'.format(film.title), 'utf-8'))
-                    if self.settings.makenfo == 2 and season is not None and episode is not None:
+                    if self.settings.getMakeInfo() == 2 and season is not None and episode is not None:
                         nfofile.write(
                             bytearray('\t<season>{}</season>\n'.format(season), 'utf-8'))
                         nfofile.write(
                             bytearray('\t<episode>{}</episode>\n'.format(episode), 'utf-8'))
-                    elif self.settings.makenfo == 2 and episode is not None:
+                    elif self.settings.getMakeInfo() == 2 and episode is not None:
                         nfofile.write(
                             bytearray('\t<season>1</season>\n', 'utf-8'))
                         nfofile.write(
                             bytearray('\t<episode>{}</episode>\n'.format(episode), 'utf-8'))
-                    elif self.settings.makenfo == 2:
+                    elif self.settings.getMakeInfo() == 2:
                         nfofile.write(
                             bytearray('\t<season>999</season>\n', 'utf-8'))
                         nfofile.write(
@@ -400,13 +403,13 @@ class Downloader(object):
                         bytearray('\t<studio>{}</studio>\n'.format(film.channel), 'utf-8'))
                     nfofile.write(bytearray('</episodedetails>\n', 'utf-8'))
             except Exception as err:
-                self.plugin.error(
+                self.logger.error(
                     'Failure creating episode NFO file for {}: {}', filmurl, err)
 
     def _season_and_episode_detect(self, film):
         # initial trivial implementation
-        self.plugin.error('film.show is type {}', type(film.show))
-        self.plugin.error('film.title is type {}', type(film.title))
+        self.logger.error('film.show is type {}', type(film.show))
+        self.logger.error('film.title is type {}', type(film.title))
         season = self._matches(r'staffel[\.:\- ]+([0-9]+)', film.title)
         if season is None:
             season = self._matches(r'([0-9]+)[\.:\- ]+staffel', film.title)

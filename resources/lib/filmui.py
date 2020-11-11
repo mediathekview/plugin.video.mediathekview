@@ -5,15 +5,15 @@ The film model UI module
 Copyright 2017-2019, Leo Moll and Dominik Schlösser
 SPDX-License-Identifier: MIT
 """
-
+import time
 import os
-
+from datetime import datetime
+from datetime import timedelta
 # pylint: disable=import-error
 import xbmcgui
 import xbmcplugin
-
+import resources.lib.appContext as appContext
 from resources.lib.film import Film
-from resources.lib.settings import Settings
 
 
 class FilmUI(Film):
@@ -37,9 +37,10 @@ class FilmUI(Film):
 
     def __init__(self, plugin, sortmethods=None):
         Film.__init__(self)
+        self.logger = appContext.MVLOGGER.get_new_logger('FilmUI')
         self.plugin = plugin
         self.handle = plugin.addon_handle
-        self.settings = Settings()
+        self.settings = appContext.MVSETTINGS
         # define sortmethod for films
         # all av. sort method and put the default sortmethod on first place to be used by UI
         allSortMethods = [
@@ -54,12 +55,14 @@ class FilmUI(Film):
             self.sortmethods = sortmethods
         else:
             method = allSortMethods[0]
-            allSortMethods[0] = allSortMethods[self.settings.filmSortMethod]
-            allSortMethods[self.settings.filmSortMethod]=method
+            allSortMethods[0] = allSortMethods[self.settings.getFilmSortMethod()]
+            allSortMethods[self.settings.getFilmSortMethod()]=method
             self.sortmethods = allSortMethods
-
+        #
         self.showshows = False
         self.showchannels = False
+        self.startTime = 0
+        self.tzDiff = datetime.now() - datetime.utcnow()
 
     def begin(self, showshows, showchannels):
         """
@@ -72,11 +75,12 @@ class FilmUI(Film):
             showchannels(bool): if `True` the channel name is
                 suffixed to the film name
         """
+        self.startTime = time.time()
         self.showshows = showshows
         self.showchannels = showchannels
         for method in self.sortmethods:
             xbmcplugin.addSortMethod(self.handle, method)
-        xbmcplugin.setContent(self.handle, self.settings.contentType)
+        xbmcplugin.setContent(self.handle, self.settings.getContentType())
 
     def add(self, alttitle=None, total_items=None):
         """
@@ -95,7 +99,7 @@ class FilmUI(Film):
         contextmenu = []
         if not self.is_live_stream() and (self.url_video or self.url_video_sd or self.url_video_hd):
             # play with subtitles
-            if not self.settings.autosub and self.url_sub:
+            if not self.settings.getAutoSub() and self.url_sub:
                 contextmenu.append((
                     self.plugin.language(30921),
                     'PlayMedia({})'.format(
@@ -154,7 +158,7 @@ class FilmUI(Film):
                 ))
             listitem.addContextMenuItems(contextmenu)
 
-        if self.settings.autosub and self.url_sub:
+        if self.settings.getAutoSub() and self.url_sub:
             videourl = self.plugin.build_url({
                 'mode': "playwithsrt",
                 'id': self.filmid
@@ -178,6 +182,7 @@ class FilmUI(Film):
 
     def end(self):
         """ Finish a directory containing films """
+        self.logger.info('Listitem generated: {} sec', time.time() - self.startTime)
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
 
     def is_live_stream(self):
@@ -195,16 +200,14 @@ class FilmUI(Film):
         ##    film.url_video_hd != "" and self.plugin.settings.preferhd) else film.url_video if film.url_video != "" else film.url_video_sd
         ##videohds = " (HD)" if (film.url_video_hd !=
         ##                       "" and self.plugin.settings.preferhd) else ""
-        
-        if (film.url_video_hd != "" and self.plugin.settings.preferhd):
+        videohds = ""
+        if (film.url_video_hd != "" and self.settings.getPreferHd()):
             videourl = film.url_video_hd
             videohds = " (HD)"
         elif (film.url_video_sd != ""):
             videourl = film.url_video_sd
-            videohds = " (SD)"
         else:
             videourl = film.url_video
-            videohds = " (VIDEO)"
             
         
         # exit if no url supplied
@@ -236,14 +239,13 @@ class FilmUI(Film):
         if film.seconds is not None and film.seconds > 0:
             info_labels['duration'] = film.seconds
 
-        if film.aired is not None:
-            airedstring = '%s' % film.aired
-            if airedstring[:4] != '1970':
-                info_labels['date'] = airedstring[8:10] + '-' + \
-                    airedstring[5:7] + '-' + airedstring[:4]
-                info_labels['aired'] = airedstring[:10]
-                info_labels['dateadded'] = airedstring
-                info_labels['plot'] = self.plugin.language(30990).format(airedstring) + info_labels['plot']
+        if film.aired is not None and film.aired != 0:
+            ndate = datetime(1970, 1, 1) + timedelta(seconds=(film.aired)) + self.tzDiff
+            airedstring  = ndate.isoformat().replace('T',' ')
+            info_labels['date'] = airedstring[:10]
+            info_labels['aired'] = airedstring[:10]
+            info_labels['dateadded'] = airedstring
+            info_labels['plot'] = self.plugin.language(30990).format(airedstring) + info_labels['plot']
 
         icon = os.path.join(
             self.plugin.path,
@@ -252,7 +254,12 @@ class FilmUI(Film):
             film.channel.lower() + '-m.png'
         )
 
-        listitem = xbmcgui.ListItem(resultingtitle, path=videourl)
+        ##
+        if self.plugin.get_kodi_version() > 17:
+            listitem = xbmcgui.ListItem(label=resultingtitle, path=videourl, offscreen=True)
+        else:
+            listitem = xbmcgui.ListItem(label=resultingtitle, path=videourl)
+        ##
         listitem.setInfo(type='video', infoLabels=info_labels)
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({

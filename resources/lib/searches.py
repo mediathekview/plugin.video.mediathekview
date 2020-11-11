@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 import os
 import json
 import time
+import resources.lib.appContext as appContext
 
 from contextlib import closing
 from operator import itemgetter
@@ -34,14 +35,14 @@ class RecentSearches(object):
     def __init__(self, plugin, extendedsearch, sortmethods=None):
         self.plugin = plugin
         self.handle = plugin.addon_handle
-        self.sortmethods = sortmethods if sortmethods is not None else [
-            xbmcplugin.SORT_METHOD_TITLE]
+        self.sortmethods = sortmethods if sortmethods is not None else [xbmcplugin.SORT_METHOD_TITLE]
         self.extendedsearch = extendedsearch
         self.recents = []
         self.datafile = os.path.join(
-            self.plugin.settings.datapath,
+            appContext.MVSETTINGS.getDatapath(),
             'recent_ext_searches.json' if extendedsearch else 'recent_std_searches.json'
         )
+        self.logger = appContext.MVLOGGER.get_new_logger('RecentSearches')
 
     def load(self):
         """ Loads the recent searches list """
@@ -53,7 +54,7 @@ class RecentSearches(object):
                         data, key=itemgetter('when'), reverse=True)
         # pylint: disable=broad-except
         except Exception as err:
-            self.plugin.error(
+            self.logger.error(
                 'Failed to load last searches file {}: {}', self.datafile, err)
         return self
 
@@ -65,7 +66,7 @@ class RecentSearches(object):
                 json.dump(data, json_file)
         # pylint: disable=broad-except
         except Exception as err:
-            self.plugin.error(
+            self.logger.error(
                 'Failed to write last searches file {}: {}', self.datafile, err)
         return self
 
@@ -84,7 +85,7 @@ class RecentSearches(object):
                     return self
         # pylint: disable=broad-except
         except Exception as err:
-            self.plugin.error(
+            self.logger.error(
                 'Recent searches list is broken (error {}) - cleaning up', err)
             self.recents = []
         self.recents.append({
@@ -108,7 +109,7 @@ class RecentSearches(object):
                     return self
         # pylint: disable=broad-except
         except Exception as err:
-            self.plugin.error(
+            self.logger.error(
                 'Recent searches list is broken (error {}) - cleaning up', err)
             self.recents = []
         return self

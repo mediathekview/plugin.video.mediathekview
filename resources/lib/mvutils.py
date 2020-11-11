@@ -229,12 +229,12 @@ def make_duration(val):
         val(str): input string in format `hh:mm:ss`
     """
     if val == "00:00:00":
-        return None
+        return 0
     elif val is None:
-        return None
+        return 0
     parts = val.split(':')
     if len(parts) != 3:
-        return None
+        return 0
     return int(parts[0]) * 3600 + int(parts[1]) * 60 + int(parts[2])
 
 
@@ -334,40 +334,3 @@ def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):
     # abort requested
     raise ExitRequested('Reception interrupted.')
 
-def fileSplitter(inputFilename, defaultSize = 40000000):
-    outputFiles = []
-    chunkSize = defaultSize
-    filename = inputFilename
-    cnt = 0
-    curentSize = 0
-    with closing( open(inputFilename, 'rb', encoding="utf-8") ) as fin:
-        overflowBuffer = None
-        buffer = None
-        while True:
-            #
-            fout = open(inputFilename + str(cnt),"wb", encoding="utf-8")
-            outputFiles.append(inputFilename + str(cnt))
-            cnt += 1
-            #
-            if overflowBuffer is not None and len(overflowBuffer) > 0:
-                fout.write(overflowBuffer)
-            buffer = fin.read(chunkSize)
-            if not buffer:
-                break;
-            #
-            lastElement = buffer.rfind(',"X":')
-            if lastElement != -1:
-                fout.write(buffer[:lastElement])
-                fout.write(u'}')
-            else:
-                fout.write(buffer)
-            fout.close()
-            #
-            if lastElement < len(buffer):
-                lastElement += 1
-                overflowBuffer = buffer[lastElement:]
-                overflowBuffer = u'{' + overflowBuffer
-            else:
-                overflowBuffer = None
-        fout.close()
-    return outputFiles

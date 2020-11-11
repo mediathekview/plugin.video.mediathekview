@@ -7,13 +7,15 @@ SPDX-License-Identifier: MIT
 """
 
 # pylint: disable=import-error
+import time
+import resources.lib.appContext as appContext
 import xbmcgui
 import xbmcplugin
 
 import resources.lib.mvutils as mvutils
+from resources.lib.initial import Initial
 
-
-class InitialUI(object):
+class InitialUI(Initial):
     """
     The initial grouping model view class
 
@@ -26,6 +28,7 @@ class InitialUI(object):
     """
 
     def __init__(self, plugin, sortmethods=None):
+        self.logger = appContext.MVLOGGER.get_new_logger('InitialUI')
         self.plugin = plugin
         self.handle = plugin.addon_handle
         self.sortmethods = sortmethods if sortmethods is not None else [
@@ -33,6 +36,7 @@ class InitialUI(object):
         self.channelid = 0
         self.initial = ''
         self.count = 0
+        self.startTime = 0
 
     def begin(self, channelid):
         """
@@ -41,6 +45,7 @@ class InitialUI(object):
         Args:
             channelid(id): database id of the channel to group by
         """
+        self.startTime = time.time()
         self.channelid = channelid
         for method in self.sortmethods:
             xbmcplugin.addSortMethod(self.handle, method)
@@ -58,7 +63,13 @@ class InitialUI(object):
                                          ' ' and self.initial != '' else ' No Title', self.count)
         else:
             resultingname = altname
-        list_item = xbmcgui.ListItem(label=resultingname)
+        
+        ##
+        if self.plugin.get_kodi_version() > 17:
+            list_item = xbmcgui.ListItem(label=resultingname, offscreen=True)
+        else:
+            list_item = xbmcgui.ListItem(label=resultingname)
+        ##
         info_labels = {
             'title': resultingname,
             'sorttitle': resultingname.lower()
@@ -78,4 +89,5 @@ class InitialUI(object):
 
     def end(self):
         """ Finish a directory containing grouped entries """
+        self.logger.info('Listitem generated: {} sec', time.time() - self.startTime)
         xbmcplugin.endOfDirectory(self.handle)

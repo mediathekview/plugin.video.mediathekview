@@ -396,27 +396,16 @@ msgstr "Stato del Database: %s"
 
 msgctxt "#30966"
 msgid "This database was never updated"
-msgstr "Questo database non è stato mai attualizzato"
-
-msgctxt "#30967"
-msgid "%s in progress...\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies"
-msgstr "%s in corso...\nAggiornamento del %s\nAggiunzioni: %d canali, %d programmi, %d film"
-
-msgctxt "#30968"
-msgid "%s in progress...\nAdditions: %d channels, %d shows, %d movies"
-msgstr "%s in corso...\nAggiunzioni: %d canali, %d programmi, %d film"
-
-msgctxt "#30969"
-msgid "Last %s: %s\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
-msgstr "Ultimo %s: %s\nAggiornamento del %s\nAggiunzioni: %d canali, %d programmi, %d film\nCancellazioni: %d canali, %d programmi, %d film"
+msgstr "Questo database non Ã¨ stato mai attualizzato"
 
 msgctxt "#30970"
-msgid "Last %s: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
-msgstr "Ultimo %s: %s\nAggiunzioni: %d canali, %d programmi, %d film\nCancellazioni: %d canali, %d programmi, %d film"
+msgid "Filmlist: %s\nFull: %s\nIncremental: %s"
+msgstr "lista de películas: %s\completamente update : %s\nincremental update: %s"
 
 msgctxt "#30971"
-msgid "Total: %d channels, %d shows, %d movies"
-msgstr "Somme: %d canali, %d programmi, %d film"
+msgid "Channels, %d shows, %d movies %d"
+msgstr "canali: %d programmi: %d film %d"
+
 
 msgctxt "#30972"
 msgid "Full Update"

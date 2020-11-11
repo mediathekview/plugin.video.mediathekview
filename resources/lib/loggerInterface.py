@@ -1,20 +1,15 @@
 # -*- coding: utf-8 -*-
+# SPDX-License-Identifier: MIT
 """
-The Kodi logger module
+The base logger module
 
 Copyright 2017-2018, Leo Moll and Dominik Schlösser
-SPDX-License-Identifier: MIT
 """
 
-# pylint: disable=import-error
-import xbmc
 
-from resources.lib.base.logger import Logger
-import resources.lib.mvutils as mvutils
-
-class KodiLogger(Logger):
+class LoggerInterface(object):
     """
-    The Kodi logger class
+    The logger base class
 
     Args:
         name(str): Name of the logger
@@ -25,6 +20,12 @@ class KodiLogger(Logger):
             from this logger. Default is `None`
     """
 
+    def __init__(self, name, version, topic=None):
+        self.name = name
+        self.version = version
+        self.prefix = None
+        self.set_topic(topic)
+
     def get_new_logger(self, topic=None):
         """
         Generates a new logger instance with a specific topic
@@ -33,29 +34,34 @@ class KodiLogger(Logger):
             topic(str, optional): the topic of the new logger.
                 Default is the same topic of `self`
         """
-        return KodiLogger(self.name, self.version, topic)
+        pass
+
+    def set_topic(self, topic=None):
+        """
+        Changes the topic of the logger
+
+        Args:
+            topic(str, optional): the new topic of the logger.
+                If not specified or `None`, the logger will have
+                no topic. Default is `None`
+        """
+        if topic is None:
+            self.prefix = '[%s-%s]: ' % (self.name, self.version)
+        else:
+            self.prefix = '[%s-%s:%s]: ' % (self.name, self.version, topic)
 
     def debug(self, message, *args):
         """ Outputs a debug message """
-        self._log(xbmc.LOGDEBUG, message, *args)
+        pass
 
     def info(self, message, *args):
         """ Outputs an info message """
-        self._log(xbmc.LOGINFO, message, *args)
+        pass
 
     def warn(self, message, *args):
         """ Outputs a warning message """
-        self._log(xbmc.LOGWARNING, message, *args)
+        pass
 
     def error(self, message, *args):
         """ Outputs an error message """
-        self._log(xbmc.LOGERROR, message, *args)
-
-    def _log(self, level, message, *args):
-        parts = []
-        for arg in args:
-            part = arg
-            if isinstance(arg, str):
-                part = mvutils.py2_encode(arg)
-            parts.append(part)
-        xbmc.log(self.prefix + message.format(*parts), level=level)
+        pass

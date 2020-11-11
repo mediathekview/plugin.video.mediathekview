@@ -44,5 +44,11 @@
 		<setting id="lastactivity"		type="number"					default="0"		visible="false"						/>
 		<setting id="lastsearch1"		type="text"						default=""		visible="false"						/>
 		<setting id="lastsearch2"		type="text"						default=""		visible="false"						/>
+		<setting id="lastUpdate"	    type="number"					default="0"		visible="false"						/>
+		<setting id="lastFullUpdate"	type="number"					default="0"		visible="false"						/>
+		<setting id="databaseVersion"	type="text"					    default="0"		visible="false"						/>
+		<setting id="databaseStatus"	type="text"					    default="0"		visible="false"						/>
+        
+        
 	</category>
 </settings>

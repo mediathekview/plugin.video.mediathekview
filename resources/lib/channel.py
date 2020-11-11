@@ -11,19 +11,19 @@ class Channel(object):
     """ The channel model class """
 
     def __init__(self):
-        self.channelid = 0
         self.channel = ''
+        self.count = 0
 
     def get_as_dict(self):
         """ Returns the values as a map """
         return {
-            "channelid": self.channelid,
-            "channel": self.channel
+            "channel": self.channel,
+            "count": self.count
         }
 
     def set_from_dict(self, data):
         """ Assigns internal values from a map """
         if not isinstance(data, dict):
             return
-        self.channelid = data.get('channelid', 0)
         self.channel = data.get('channel', '')
+        self.count = data.get('count', 0)

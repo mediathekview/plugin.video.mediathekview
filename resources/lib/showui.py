@@ -7,6 +7,8 @@ SPDX-License-Identifier: MIT
 """
 
 # pylint: disable=import-error
+import time
+import resources.lib.appContext as appContext
 import xbmcgui
 import xbmcplugin
 
@@ -29,11 +31,13 @@ class ShowUI(Show):
 
     def __init__(self, plugin, sortmethods=None):
         super(ShowUI, self).__init__()
+        self.logger = appContext.MVLOGGER.get_new_logger('ShowUI')
         self.plugin = plugin
         self.handle = plugin.addon_handle
         self.sortmethods = sortmethods if sortmethods is not None else [
             xbmcplugin.SORT_METHOD_TITLE]
         self.querychannelid = 0
+        self.startTime = 0
 
     def begin(self, channelid):
         """
@@ -42,6 +46,7 @@ class ShowUI(Show):
         Args:
             channelid(id): database id of the channel
         """
+        self.startTime = time.time()
         self.querychannelid = channelid
         for method in self.sortmethods:
             xbmcplugin.addSortMethod(self.handle, method)
@@ -73,7 +78,10 @@ class ShowUI(Show):
             icon = 'special://home/addons/' + self.plugin.addon_id + \
                 '/resources/icons/default-m.png'
 
-        list_item = xbmcgui.ListItem(label=resultingname)
+        if self.plugin.get_kodi_version() > 17:
+            list_item = xbmcgui.ListItem(label=resultingname,offscreen=True)
+        else:
+            list_item = xbmcgui.ListItem(label=resultingname)
         list_item.setInfo(type='video', infoLabels=info_labels)
         list_item.setArt({
             'thumb': icon,
@@ -92,4 +100,5 @@ class ShowUI(Show):
 
     def end(self):
         """ Finish a directory containing shows """
+        self.logger.info('Listitem generated: {} sec', time.time() - self.startTime)
         xbmcplugin.endOfDirectory(self.handle)

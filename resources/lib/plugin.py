@@ -13,7 +13,7 @@ from __future__ import unicode_literals  # ,absolute_import, division
 # standard_library.install_aliases()
 import os
 import time
-import datetime
+from datetime import datetime
 
 # pylint: disable=import-error
 import xbmcgui
@@ -21,15 +21,16 @@ import xbmcplugin
 
 from resources.lib.kodi.kodiaddon import KodiPlugin
 
-from resources.lib.store import Store
-from resources.lib.notifier import Notifier
-from resources.lib.settings import Settings
+from resources.lib.storeMySql import StoreMySQL
+from resources.lib.storeSqlite import StoreSQLite
+from resources.lib.notifierKodi import NotifierKodi
 from resources.lib.filmui import FilmUI
 from resources.lib.channelui import ChannelUI
 from resources.lib.initialui import InitialUI
 from resources.lib.showui import ShowUI
 from resources.lib.downloader import Downloader
 from resources.lib.searches import RecentSearches
+import resources.lib.appContext as appContext
 
 # -- Classes ------------------------------------------------
 
@@ -39,13 +40,20 @@ class MediathekViewPlugin(KodiPlugin):
 
     def __init__(self):
         super(MediathekViewPlugin, self).__init__()
-        self.settings = Settings()
-        self.notifier = Notifier()
-        self.database = Store(
-            self.get_new_logger('Store'),
-            self.notifier,
-            self.settings
-        )
+        self.settings = appContext.MVSETTINGS
+        self.notifier = appContext.MVNOTIFIER
+        self.logger = appContext.MVLOGGER.get_new_logger('MediathekViewPlugin')
+        if self.settings.getDatabaseType() == 0:
+            self.logger.info('Database driver: Internal (sqlite)')
+            self.database = StoreSQLite()
+        elif self.settings.getDatabaseType() == 1:
+            self.logger.info('Database driver: External (mysql)')
+            self.database = StoreMySQL()
+        else:
+            self.logger.warn('Unknown Database driver selected')
+            self.database = None
+        ##
+        ##self.database = Store()
 
     def show_main_menu(self):
         """ Creates the main menu of the plugin """
@@ -99,7 +107,7 @@ class MediathekViewPlugin(KodiPlugin):
             icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png')
         )
         # Manual database update
-        if self.settings.updmode == 1 or self.settings.updmode == 2:
+        if self.settings.getDatabaseUpateMode() == 1 or self.settings.getDatabaseUpateMode() == 2:
             self.add_action_item(30909, {'mode': "action-dbupdate"})
         self.end_of_directory()
         self._check_outdate()
@@ -149,7 +157,7 @@ class MediathekViewPlugin(KodiPlugin):
                     self.set_setting(settingid, search)
             else:
                 # pylint: disable=line-too-long
-                self.info(
+                self.logger.info(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
                 self.end_of_directory(False, cache_to_disc=True)
 
@@ -166,60 +174,16 @@ class MediathekViewPlugin(KodiPlugin):
         }.get(info['status'], 30941))
         infostr = self.language(30965) % infostr
         totinfo = self.language(30971) % (
-            info['tot_chn'],
-            info['tot_shw'],
-            info['tot_mov']
-        )
-        updatetype = self.language(30972 if info['fullupdate'] > 0 else 30973)
-        if info['status'] == 'UPDATING' and info['filmupdate'] > 0:
-            updinfo = self.language(30967) % (
-                updatetype,
-                datetime.datetime.fromtimestamp(
-                    info['filmupdate']
-                ).strftime('%Y-%m-%d %H:%M:%S'),
-                info['add_chn'],
-                info['add_shw'],
-                info['add_mov']
+            info['chn'],
+            info['shw'],
+            info['mov']
             )
-        elif info['status'] == 'UPDATING':
-            updinfo = self.language(30968) % (
-                updatetype,
-                info['add_chn'],
-                info['add_shw'],
-                info['add_mov']
+        updinfo = self.language(30970) % (
+            datetime.fromtimestamp(info['filmUpdate']).isoformat().replace('T',' '),
+            datetime.fromtimestamp(info['lastFullUpdate']).isoformat().replace('T',' '),
+            datetime.fromtimestamp(info['lastUpdate']).isoformat().replace('T',' ')
             )
-        elif info['lastupdate'] > 0 and info['filmupdate'] > 0:
-            updinfo = self.language(30969) % (
-                updatetype,
-                datetime.datetime.fromtimestamp(
-                    info['lastupdate']
-                ).strftime('%Y-%m-%d %H:%M:%S'),
-                datetime.datetime.fromtimestamp(
-                    info['filmupdate']
-                ).strftime('%Y-%m-%d %H:%M:%S'),
-                info['add_chn'],
-                info['add_shw'],
-                info['add_mov'],
-                info['del_chn'],
-                info['del_shw'],
-                info['del_mov']
-            )
-        elif info['lastupdate'] > 0:
-            updinfo = self.language(30970) % (
-                updatetype,
-                datetime.datetime.fromtimestamp(
-                    info['lastupdate']
-                ).strftime('%Y-%m-%d %H:%M:%S'),
-                info['add_chn'],
-                info['add_shw'],
-                info['add_mov'],
-                info['del_chn'],
-                info['del_shw'],
-                info['del_mov']
-            )
-        else:
-            updinfo = self.language(30966)
-
+        ##
         xbmcgui.Dialog().textviewer(
             heading,
             infostr + '\n\n' +
@@ -228,7 +192,7 @@ class MediathekViewPlugin(KodiPlugin):
         )
 
     def _check_outdate(self, maxage=172800):
-        if self.settings.updmode != 1 and self.settings.updmode != 2:
+        if self.settings.getDatabaseUpateMode() != 1 and self.settings.getDatabaseUpateMode() != 2:
             # no check with update disabled or update automatic
             return
         if self.database is None:
@@ -245,23 +209,22 @@ class MediathekViewPlugin(KodiPlugin):
             return
         # lets check how old we are
         tsnow = int(time.time())
-        tsold = int(status['lastupdate'])
+        tsold = int(status['lastUpdate'])
         if tsnow - tsold > maxage:
             self.notifier.show_outdated_known(status)
 
     def init(self):
         """ Initialisation of the plugin """
-        if self.database.init():
-            if self.settings.handle_first_run():
-                pass
-            self.settings.handle_update_on_start()
+        pass
+
 
     def run(self):
         """ Execution of the plugin """
+        start = time.time()
         # save last activity timestamp
-        self.settings.reset_user_activity()
+        self.settings.user_activity()
         # process operation
-        self.info("Plugin invoked with parameters {}", self.args)
+        self.logger.info("Plugin invoked with parameters {}", self.args)
         mode = self.get_arg('mode', None)
         if mode is None:
             self.show_main_menu()
@@ -286,6 +249,7 @@ class MediathekViewPlugin(KodiPlugin):
                 FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
+            channel == "" if channel == "0" else channel
             self.database.get_recents(channel, FilmUI(self))
         elif mode == 'recentchannels':
             self.database.get_recent_channels(
@@ -293,19 +257,25 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'channels':
             self.database.get_channels(ChannelUI(self, nextdir='shows'))
         elif mode == 'action-dbinfo':
+            self.run_builtin("ActivateWindow(busydialognocancel)")
             self.show_db_info()
+            self.run_builtin("Dialog.Close(busydialognocancel)")            
         elif mode == 'action-dbupdate':
-            self.settings.trigger_update()
-            self.notifier.show_notification(30963, 30964, time=10000)
+            self.settings.set_update_triggered('true')
+            self.notifier.show_notification(30963, 30964)
         elif mode == 'initial':
             channel = self.get_arg('channel', "")
+            channel == "" if channel == "0" else channel
             self.database.get_initials(channel, InitialUI(self))
         elif mode == 'shows':
             channel = self.get_arg('channel', "")
-            initial = self.get_arg('initial', None)
+            channel == "" if channel == "0" else channel
+            initial = self.get_arg('initial', "")
+            initial == "" if initial == "0" else initial
             self.database.get_shows(channel, initial, ShowUI(self))
         elif mode == 'films':
             show = self.get_arg('show', "")
+            show == "" if show == "0" else show
             self.database.get_films(show, FilmUI(self))
         elif mode == 'downloadmv':
             filmid = self.get_arg('id', "")
@@ -323,6 +293,8 @@ class MediathekViewPlugin(KodiPlugin):
         if mode is None or mode != 'newsearch':
             self.set_setting('lastsearch1', '')
             self.set_setting('lastsearch2', '')
+        ##
+        self.logger.info('request processed: {} sec', time.time() - start)
 
     def exit(self):
         """ Shutdown of the application """

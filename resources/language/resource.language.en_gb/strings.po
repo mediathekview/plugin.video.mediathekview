@@ -350,8 +350,8 @@ msgid "Mediathek Database Update"
 msgstr "Mediathek Database Update"
 
 msgctxt "#30957"
-msgid "Mediathek (%d): channels:%d, shows:%d, movies:%d ..."
-msgstr "Mediathek (%d): channels:%d, shows:%d, movies:%d ..."
+msgid "Mediathek (%d): read:%d, insert:%d, update:%d ..."
+msgstr "Mediathek (%d): read:%d, insert:%d, update:%d ..."
 
 msgctxt "#30958"
 msgid "Please set a download folder in the settings"
@@ -397,25 +397,13 @@ msgctxt "#30966"
 msgid "This database was never updated"
 msgstr "This database was never updated"
 
-msgctxt "#30967"
-msgid "%s in progress...\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies"
-msgstr "%s in progress...\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies"
-
-msgctxt "#30968"
-msgid "%s in progress...\nAdditions: %d channels, %d shows, %d movies"
-msgstr "%s in progress...\nAdditions: %d channels, %d shows, %d movies"
-
-msgctxt "#30969"
-msgid "Last %s: %s\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
-msgstr "Last %s: %s\nDatabase: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
-
 msgctxt "#30970"
-msgid "Last %s: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
-msgstr "Last %s: %s\nAdditions: %d channels, %d shows, %d movies\nDeletions: %d channels, %d shows, %d movies"
+msgid "Filmlist: %s\nFull: %s\nIncremental: %s"
+msgstr "Filmlist: %s\nFull Update : %s\nIncremental Update: %s"
 
 msgctxt "#30971"
-msgid "Total: %d channels, %d shows, %d movies"
-msgstr "Total: %d channels, %d shows, %d movies"
+msgid "Channels, %d shows, %d movies %d"
+msgstr "%d channels, %d shows. %d movies"
 
 msgctxt "#30972"
 msgid "Full Update"

@@ -9,15 +9,15 @@ SPDX-License-Identifier: MIT
 # pylint: disable=import-error
 import xbmc
 import xbmcgui
-import xbmcaddon
 import resources.lib.mvutils as mvutils
+import resources.lib.appContext as appContext
 
 
 class KodiUI(object):
     """ Generic helper class for Kodi UI operations """
 
     def __init__(self):
-        self.addon = xbmcaddon.Addon()
+        self.addon = appContext.ADDONCLASS
         self.language = self.addon.getLocalizedString
         self.pgdialog = KodiProgressDialog()
 
@@ -46,7 +46,7 @@ class KodiUI(object):
             enteredText = keyboard.getText();
             enteredText = mvutils.py2_decode(enteredText);
             return (enteredText, True, )
-        return (deftext, False, ) ##TODO deftext.encode('utf-8')
+        return (deftext, False, )
 
     def show_ok_dialog(self, heading=None, line1=None, line2=None, line3=None):
         """
@@ -189,7 +189,7 @@ class KodiProgressDialog(object):
     """ Kodi Progress Dialog Class """
 
     def __init__(self):
-        self.language = xbmcaddon.Addon().getLocalizedString
+        self.language = appContext.ADDONCLASS.getLocalizedString
         self.pgdialog = None
 
     def __del__(self):
