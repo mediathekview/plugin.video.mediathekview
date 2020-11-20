@@ -10,6 +10,7 @@ import sys
 
 # pylint: disable=import-error
 import xbmc
+import xbmcvfs
 import xbmcgui
 import xbmcaddon
 import xbmcplugin
@@ -36,10 +37,16 @@ class KodiAddon(KodiLogger):
         self.icon = self.addon.getAddonInfo('icon')
         self.fanart = self.addon.getAddonInfo('fanart')
         self.version = self.addon.getAddonInfo('version')
-        self.path = mvutils.py2_decode(self.addon.getAddonInfo('path')) ##TODO self.unicodePath = unicode(self.path, 'utf-8')
-        self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile'))) ### TODO.decode('utf-8')
+        self.path = mvutils.py2_decode(self.addon.getAddonInfo('path'))
+        ## TODO fix me
+        try:
+            self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile')))
+        except Exception as err:
+            self.datapath = mvutils.py2_decode(xbmcvfs.translatePath(self.addon.getAddonInfo('profile')))
+        
         self.language = self.addon.getLocalizedString
         KodiLogger.__init__(self, self.addon_id, self.version)
+        
 
     def get_addon_info(self, info_id):
         """

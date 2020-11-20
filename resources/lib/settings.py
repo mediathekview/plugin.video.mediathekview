@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 import time
 # pylint: disable=import-error
 import xbmc
+import xbmcvfs
 import xbmcaddon
 import resources.lib.mvutils as mvutils
 
@@ -26,7 +27,12 @@ class Settings(object):
         """ Loads the settings of the addon """
         # pylint: disable=attribute-defined-outside-init
         addon = xbmcaddon.Addon()
-        self.datapath = mvutils.py2_decode(xbmc.translatePath(addon.getAddonInfo('profile')))  ### TODO .decode('utf-8')
+        ## TODO fix me
+        try:
+            self.datapath = mvutils.py2_decode(xbmc.translatePath(addon.getAddonInfo('profile'))) 
+        except Exception as err:
+            self.datapath = mvutils.py2_decode(xbmcvfs.translatePath(addon.getAddonInfo('profile')))
+        ##
         self.firstrun = addon.getSetting('firstrun') == 'true'
         # general
         self.preferhd = addon.getSetting('quality') == 'true'
