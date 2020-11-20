@@ -71,6 +71,7 @@ class ShowUI(Show):
             'sorttitle': resultingname.lower()
         }
 
+        ## TODO - this looks strange - there should be different way than addon_id
         if self.channel.find(',') == -1:
             icon = 'special://home/addons/' + self.plugin.addon_id + \
                 '/resources/icons/' + self.channel.lower() + '-m.png'

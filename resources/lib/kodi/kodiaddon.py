@@ -33,14 +33,11 @@ class KodiAddon(object):
     def __init__(self):
         self.addon = appContext.ADDONCLASS
         self.addon_id = self.addon.getAddonInfo('id')
-        self.icon = self.addon.getAddonInfo('icon')
-        self.fanart = self.addon.getAddonInfo('fanart')
-        self.version = self.addon.getAddonInfo('version')
         self.path = mvutils.py2_decode(self.addon.getAddonInfo('path'))
-        self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile')))
         self.language = self.addon.getLocalizedString
         self.kodiVersion = -1
 
+    ## TODO REMOVE THIS - USE SETTINGS INSTEAD
     def get_kodi_version(self):
         """
         Get Kodi major version
