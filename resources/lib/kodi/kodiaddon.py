@@ -38,15 +38,23 @@ class KodiAddon(KodiLogger):
         self.fanart = self.addon.getAddonInfo('fanart')
         self.version = self.addon.getAddonInfo('version')
         self.path = mvutils.py2_decode(self.addon.getAddonInfo('path'))
-        ## TODO fix me
-        try:
-            self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile')))
-        except Exception as err:
+        ##
+        if self.getKodiVersion() > 18:
             self.datapath = mvutils.py2_decode(xbmcvfs.translatePath(self.addon.getAddonInfo('profile')))
-        
+        else:
+            self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile')))
+        ##
         self.language = self.addon.getLocalizedString
         KodiLogger.__init__(self, self.addon_id, self.version)
-        
+
+    def getKodiVersion(self):
+        """
+        Get Kodi major version
+        Returns:
+            int: Kodi major version (e.g. 18)
+        """
+        xbmc_version = xbmc.getInfoLabel("System.BuildVersion")
+        return int(xbmc_version.split('-')[0].split('.')[0])
 
     def get_addon_info(self, info_id):
         """

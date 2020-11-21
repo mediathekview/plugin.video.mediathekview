@@ -359,7 +359,7 @@ class MediathekViewUpdater(object):
         # cleanup downloads
         self.logger.info('Cleaning up old downloads...')
         mvutils.file_remove(compfile)
-        mvutils.file_remove(destfile)        
+        mvutils.file_remove(destfile)
 
         # download filmliste
         self.notifier.show_download_progress()
