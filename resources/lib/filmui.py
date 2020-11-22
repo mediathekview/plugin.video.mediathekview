@@ -240,7 +240,7 @@ class FilmUI(Film):
             info_labels['duration'] = film.seconds
 
         if film.aired is not None and film.aired != 0:
-            ndate = datetime(1970, 1, 1) + timedelta(seconds=(film.aired)) + self.tzDiff
+            ndate = datetime.fromtimestamp(0) + timedelta(seconds=(film.aired))
             airedstring  = ndate.isoformat().replace('T',' ')
             info_labels['date'] = airedstring[:10]
             info_labels['aired'] = airedstring[:10]
