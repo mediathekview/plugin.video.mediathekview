@@ -23,7 +23,7 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
-v.0.6.6 (2020-09-xx):
+v.0.6.6 (2020-11-21):
 - [fix] #175 fix for airdate 1969 (update mySql DB structure)
 - [other] #173 delay service startup by 10 sec to avoid error message 
 - [other] #171 / #170 improved memory usage
