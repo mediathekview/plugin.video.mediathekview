@@ -30,6 +30,7 @@ from resources.lib.initialui import InitialUI
 from resources.lib.showui import ShowUI
 from resources.lib.downloader import Downloader
 from resources.lib.searches import RecentSearches
+from resources.lib.extendedSearch import ExtendedSearch
 import resources.lib.appContext as appContext
 
 # -- Classes ------------------------------------------------
@@ -67,7 +68,7 @@ class MediathekViewPlugin(KodiPlugin):
         # Search all
         self.add_folder_item(
             30902,
-            {'mode': "search", 'extendedsearch': True},
+            {'mode': "extendedSearchScreen", 'extendedSearchAction': 'SHOW'},
             icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
         )
         # Browse livestreams
@@ -244,6 +245,8 @@ class MediathekViewPlugin(KodiPlugin):
             RecentSearches(self, extendedsearch).load().delete(
                 search).save().populate()
             self.run_builtin('Container.Refresh')
+        elif mode == 'extendedSearchScreen':
+            ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
         elif mode == 'livestreams':
             self.database.get_live_streams(
                 FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))

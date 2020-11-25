@@ -55,7 +55,7 @@ class LoggerKodi(LoggerInterface):
         parts = []
         for arg in args:
             part = arg
-            if isinstance(arg, str):
-                part = mvutils.py2_encode(arg)
+            part = mvutils.py2_encode(part)
             parts.append(part)
+        message = mvutils.py2_encode(message)
         xbmc.log(self.prefix + message.format(*parts), level=level)

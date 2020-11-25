@@ -21,6 +21,30 @@ class KodiUI(object):
         self.language = self.addon.getLocalizedString
         self.pgdialog = KodiProgressDialog()
 
+    """
+        Parameters
+        heading    string or unicode - dialog heading.
+        options    list of strings / xbmcgui.ListItems - options to choose from.
+        autoclose    [opt] integer - milliseconds to autoclose dialog. (default=do not autoclose)
+        preselect    [opt] list of int - indexes of items to preselect in list (default: do not preselect any item)
+        useDetails    [opt] bool - use detailed list instead of a compact list. (default=false) 
+    """
+    def get_entered_multiselect(self, heading=None, options=None, preselect=None):
+        heading = self.language(heading) if isinstance(heading, int) else heading if heading is not None else ''
+        #
+        dialog = xbmcgui.Dialog()
+        ret = dialog.multiselect(heading=heading, options=options, preselect=preselect)
+        #
+        return ret
+
+    def get_entered_select(self, heading=None, list=None, preselect=None):
+        heading = self.language(heading) if isinstance(heading, int) else heading if heading is not None else ''
+        #
+        dialog = xbmcgui.Dialog()
+        ret = dialog.select(heading=heading, list=list, preselect=preselect)
+        #
+        return ret
+
     def get_entered_text(self, deftext=None, heading=None, hidden=False):
         """
         Asks the user to enter a text. The method returnes a tuple with

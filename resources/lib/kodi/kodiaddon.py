@@ -83,6 +83,9 @@ class KodiAddon(object):
         #self.logger.debug('Execute builtin {}', builtin)
         xbmc.executebuiltin(builtin)
 
+    def getCaption(self, msgid):
+        return self.language(msgid);
+
 class KodiService(KodiAddon):
     """ The Kodi service addon class """
 
@@ -232,7 +235,7 @@ class KodiPlugin(KodiAddon):
             isFolder=isfolder
         )
 
-    def end_of_directory(self, succeeded=True, update_listing=False, cache_to_disc=True):
+    def end_of_directory(self, succeeded=True, update_listing=False, cache_to_disc=False):
         """
         Callback function to tell Kodi that the end of the directory
         listing is reached.
@@ -253,3 +256,6 @@ class KodiPlugin(KodiAddon):
             update_listing,
             cache_to_disc
         )
+
+    def set_content(self, pContent = ''):
+        xbmcplugin.setContent(self.addon_handle, pContent)

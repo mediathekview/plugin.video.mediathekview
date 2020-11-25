@@ -236,14 +236,94 @@ msgctxt "#30342"
 msgid "Enriched NFO File"
 msgstr "Angereicherte  NFO Datei"
 
+#############################
+# Page 4 Extended Search
+#############################
+
+msgctxt "#30401"
+msgid "Id"
+msgstr "Id"
+
+msgctxt "#30402"
+msgid "Title"
+msgstr "Titel"
+
+msgctxt "#30403"
+msgid "Show"
+msgstr "Show"
+
+msgctxt "#30404"
+msgid "Description"
+msgstr "Beschreibung"
+
+msgctxt "#30405"
+msgid "Channel"
+msgstr "Sender"
+
+msgctxt "#30406"
+msgid "Min. Duration (min)"
+msgstr "Min. Dauer (min)"
+
+msgctxt "#30407"
+msgid "No Trailer"
+msgstr "Keine Trailer"
+
+msgctxt "#30408"
+msgid "Backlist"
+msgstr "Backlist"
+
+msgctxt "#30409"
+msgid "No"
+msgstr "Nein"
+
+msgctxt "#30410"
+msgid "Yes"
+msgstr "Ja"
+
+msgctxt "#30411"
+msgid "Enter a show name"
+msgstr "Name der Sendung"
+
+msgctxt "#30412"
+msgid "Enter a title for the episode"
+msgstr "Titel der folge"
+
+msgctxt "#30413"
+msgid "Enter a part of the plot"
+msgstr "Suche nach einem Text in der Beschreibung"
+
+msgctxt "#30414"
+msgid "Choose one or multiple channels"
+msgstr "Senderauswahl"
+
+msgctxt "#30415"
+msgid "Enter a showname or title which will be excluded from the results"
+msgstr "30342"
+
+msgctxt "#30417"
+msgid "No future videos (usually trailers)"
+msgstr "Keine Filme aus der Zukunft (üblicherweise Trailer)"
+
+msgctxt "#30418"
+msgid "Minimum duration in minutes"
+msgstr "Minimale Länge in Minuten"
+
+msgctxt "#30419"
+msgid "Enter a name for the query"
+msgstr "Ein Name für die Suche"
+
+
+##############
 # Main Menu
+##############
+
 msgctxt "#30901"
-msgid "Search in Title"
-msgstr "Suchen in Titel"
+msgid "Quick Search"
+msgstr "Schnelle Suche"
 
 msgctxt "#30902"
-msgid "Search in Title and Description"
-msgstr "Suchen in Titel und Beschreibung"
+msgid "Search"
+msgstr "Suche"
 
 msgctxt "#30903"
 msgid "Livestreams"
@@ -302,6 +382,14 @@ msgstr "Neuer Suchvorgang..."
 msgctxt "#30932"
 msgid "Remove Search"
 msgstr "Suchvorgang Löschen"
+
+msgctxt "#30933"
+msgid "Edit Search"
+msgstr "Bearbeiten"
+
+msgctxt "#30934"
+msgid "Run Search"
+msgstr "Ausführen"
 
 # Database status
 msgctxt "#30941"

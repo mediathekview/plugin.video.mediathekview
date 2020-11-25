@@ -100,6 +100,12 @@ class NotifierKodi(NotifierInterface):
     def get_entered_text(self, deftext=None, heading=None, hidden=False):
         return self.kodiUi.get_entered_text(deftext, heading, hidden)
 
+    def get_entered_multiselect(self, heading=None, options=None, preselect = None):
+        return self.kodiUi.get_entered_multiselect(heading, options, preselect)
+
+    def get_entered_select(self, heading=None, list=None, preselect=None):
+        return self.kodiUi.get_entered_select(heading, list, preselect)
+    
     def show_error(self, pHeading, pMessage):
         """ Displays UI for a database error """
         self.kodiUi.show_error(pHeading, pMessage)

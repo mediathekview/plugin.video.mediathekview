@@ -124,7 +124,7 @@ class MediathekViewUpdater(object):
         if doSomething == -1 or (not (currentDate.day == lastFullUpdate.day and 
             currentDate.month == lastFullUpdate.month and 
             currentDate.year == lastFullUpdate.year) and
-            currentDate.hour >= 5
+            currentDate.hour > 5
         ):
             ##
             if self.settings.getDatabaseType() == 0 and self.settings.getDatabaseUpdateNative():
