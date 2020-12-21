@@ -302,7 +302,7 @@ msgstr "Senderauswahl"
 
 msgctxt "#30415"
 msgid "Enter a showname or title which will be excluded from the results"
-msgstr "30342"
+msgstr "Suchergebnisse die diesen Begriff enthalten werden ausgeschlossen"
 
 msgctxt "#30417"
 msgid "No future videos (usually trailers)"
@@ -491,11 +491,11 @@ msgstr "Diese Datenbank wurde noch nicht aktualisiert"
 
 msgctxt "#30970"
 msgid "Filmlist: %s\nFull: %s\nIncremental: %s"
-msgstr "Filmlist von: %s\nKomplettaktualisierung : %s\nTeilaktualisierung: %s"
+msgstr "Filmliste: %s\nKomplettaktualisierung : %s\nTeilaktualisierung: %s"
 
 msgctxt "#30971"
-msgid "Channels, %d shows, %d movies"
-msgstr "%d Sender: %d Sendungen: %d Filme"
+msgid "%d channels\n%d shows\n%d movies"
+msgstr "%d Sender\n%d Sendungen\n%d Filme"
 
 msgctxt "#30974"
 msgid "Downloading Video"

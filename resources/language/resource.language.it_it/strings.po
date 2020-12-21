@@ -494,8 +494,8 @@ msgid "Filmlist: %s\nFull: %s\nIncremental: %s"
 msgstr "lista de películas: %s\completamente update : %s\nincremental update: %s"
 
 msgctxt "#30971"
-msgid "Channels, %d shows, %d movies %d"
-msgstr "canali: %d programmi: %d film %d"
+msgid "%d channels\n%d shows\n%d movies"
+msgstr "%d canali\n%d programmi\n%d film"
 
 
 msgctxt "#30972"
