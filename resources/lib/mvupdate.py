@@ -66,7 +66,7 @@ class UpdateApp():
             default=0,
             action='count',
             help='show progress messages'
-        )        
+        )
         subparsers = parser.add_subparsers(
             dest='dbtype',
             help='target database'
@@ -98,6 +98,13 @@ class UpdateApp():
             type=int,
             action='store',
             help='minimum interval between updates'
+        )
+        sqliteopts.add_argument(
+            '-b', '--updateBatchSize',
+            default=10000,
+            type=int,
+            action='store',
+            help='insert/update batch size'
         )
         sqliteopts.add_argument(
             '-p', '--path',
@@ -138,6 +145,13 @@ class UpdateApp():
             type=int,
             action='store',
             help='minimum interval between updates'
+        )
+        mysqlopts.add_argument(
+            '-b', '--updateBatchSize',
+            default=10000,
+            type=int,
+            action='store',
+            help='insert/update batch size'
         )
         mysqlopts.add_argument(
             '-H', '--host',

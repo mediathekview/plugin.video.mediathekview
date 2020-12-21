@@ -145,16 +145,3 @@ class SettingsInterface(object):
     def user_activity(self):
         pass
 
-        
-############################################################################
-
-    @staticmethod
-    def save_update_instance(instanceid):
-        pass
-
-    def handle_update_on_start(self):
-        pass
-
-    def handle_first_run(self):
-        return False
-

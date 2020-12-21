@@ -82,6 +82,9 @@ class SettingsKodi(SettingsInterface):
     def getUpdateCheckIntervel(self):
         return int(self._addonClass.getSetting('updateCheckInterval'))
 
+    def getDatabaseImportBatchSize(self):
+        return int(self._addonClass.getSetting('updateBatchSize'))
+    
     #self.contentType
     def getContentType(self):
         contentType = ''

@@ -25,6 +25,7 @@ class SettingsCommandline(SettingsInterface):
         self.__updinterval = args.intervall
         self.__force = args.force
         self.__full = args.full
+        self.__updateBatchSize = args.updateBatchSize
         ##
         self._lastFullUpdate = 0
         self._lastUpdate = 0
@@ -68,6 +69,9 @@ class SettingsCommandline(SettingsInterface):
             return 1
         else:
             return self.__updinterval
+
+    def getDatabaseImportBatchSize(self):
+        return self.__updateBatchSize
 
     ## RUNTIME
     def is_user_alive(self):

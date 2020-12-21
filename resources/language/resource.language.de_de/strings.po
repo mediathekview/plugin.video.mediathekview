@@ -175,6 +175,10 @@ msgctxt "#30234"
 msgid "Query Caching"
 msgstr "Abfragen zwischenspeichern"
 
+msgctxt "#30235"
+msgid "Update Batch Size"
+msgstr "Update Batch Size"
+
 msgctxt "#30241"
 msgid "Disabled"
 msgstr "Abgeschaltet"
