@@ -220,7 +220,7 @@ class UpdateFileImport(object):
             ##
             ufp.close()
             self._update_end()
-            self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {}',self.count, int(time.time() - starttime), self.insertCount, self.updateCount)           
+            self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {}',self.count, int(time.time() - starttime), self.updateCount, self.insertCount)           
             self.notifier.close_update_progress()
             if self.errorCount > 0:
                 self.logger.info('Update finished with error(s)')
