@@ -491,7 +491,7 @@ msgstr "Diese Datenbank wurde noch nicht aktualisiert"
 
 msgctxt "#30970"
 msgid "Filmlist: %s\nFull: %s\nIncremental: %s"
-msgstr "Filmliste: %s\nKomplettaktualisierung : %s\nTeilaktualisierung: %s"
+msgstr "Filmliste : %s\nKomplettaktualisierung : %s\nTeilaktualisierung : %s"
 
 msgctxt "#30971"
 msgid "%d channels\n%d shows\n%d movies"
