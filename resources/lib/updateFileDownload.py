@@ -47,10 +47,11 @@ except ImportError:
 
 # -- Constants ----------------------------------------------
 FILMLISTE_URL = 'https://liste.mediathekview.de/'
-#FILMLISTE_URL = 'http://172.21.224.100/content/'
+#FILMLISTE_URL = 'http://192.168.137.100/content/'
 FILMLISTE_AKT = 'Filmliste-akt'
 FILMLISTE_DIF = 'Filmliste-diff'
 DATABASE_URL = 'https://liste.mediathekview.de/'
+#DATABASE_URL = 'http://192.168.137.100/content/'
 DATABASE_DBF = 'filmliste-v3.db'
 #DATABASE_AKT = 'filmliste-v2.db.update'
 
