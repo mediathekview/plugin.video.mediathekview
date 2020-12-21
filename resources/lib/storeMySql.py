@@ -81,7 +81,17 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
     def executemany(self, aStmt, aParams = None):
         aStmt = aStmt.replace('?','%s')
         return super(StoreMySQL,self).executemany(aStmt, aParams)
-    
+
+    def getImportPreparedStmtInsert(self):
+        aStmt = super(StoreMySQL,self).getImportPreparedStmtInsert()
+        aStmt = aStmt.replace('?','%s')
+        return aStmt
+
+    def getImportPreparedStmtUpdate(self):
+        aStmt = super(StoreMySQL,self).getImportPreparedStmtUpdate()
+        aStmt = aStmt.replace('?','%s')
+        return aStmt
+
     def exit(self):
         if self.conn is not None:
             self.conn.close();

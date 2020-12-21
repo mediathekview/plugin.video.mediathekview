@@ -22,7 +22,7 @@ PRAGMA foreign_keys = false;
 -- ----------------------------
 DROP TABLE IF EXISTS "film";
 CREATE TABLE "film" (
-     "idhash" TEXT(32,0) NOT NULL PRIMARY KEY,
+     "idhash" TEXT(32,0) NOT NULL,
      "dtCreated" integer(11,0) NOT NULL DEFAULT 0,
      "touched" integer(1,0) NOT NULL DEFAULT 1,
      "channel" TEXT(32,0) NOT NULL COLLATE NOCASE,
@@ -38,7 +38,8 @@ CREATE TABLE "film" (
      "url_video_sd" TEXT(384,0),
      "url_video_hd" TEXT(384,0)
 );
-                        
+-- ----------------------------
+CREATE INDEX idx_idhash ON film (idhash);
 -- ----------------------------
 --  Table structure for status
 -- ----------------------------
@@ -59,4 +60,5 @@ PRAGMA foreign_keys = true;
     def setupDatabase(self):
         self.logger.info('Start DB setup')
         self.conn.getConnection().executescript(self._setupScript)
+        self.conn.getConnection().commit()
         self.logger.info('End DB setup')

@@ -27,7 +27,18 @@ class StoreQuery(object):
         )
         self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if self.settings.getNoFutur() else ""
         self.sql_cond_minlength = " AND ( duration >= %d )" % self.settings.getMinLength() if self.settings.getMinLength() > 0 else ""
-
+        self.sql_pStmtInsert = """
+            INSERT INTO film (
+                idhash, touched, dtCreated, channel, showid, showname, title,
+                aired, duration, size, description,
+                url_sub, url_video, url_video_sd, url_video_hd
+            )
+            VALUES (
+                ?, 1, ?, ?, ?, ?, ?,
+                ?, ?, ?, ?,
+                ?, ?, ?, ?
+            )"""
+        self.sql_pStmtUpdate = """UPDATE film SET touched = touched+1 WHERE idhash = ?"""
     
     ## ABSTRACT
     def getConnection(self):
@@ -37,10 +48,11 @@ class StoreQuery(object):
     def exit(self):
         pass
 
-    ## ABSTRACT
+    ## OVERWRITE
     def getDatabaseStatus(self):
         return self.get_status()
     
+    ## OVERWRITE for mysql
     def execute(self, aStmt, aParams = None):
         start = time.time()
         self.logger.info('query: {} params {}', aStmt, aParams)
@@ -51,7 +63,6 @@ class StoreQuery(object):
             cursor.execute(aStmt, aParams)
         rs = cursor.fetchall()
         cursor.close()
-        self.exit()
         self.logger.info('execute: {} rows in {} sec', len(rs), time.time() - start)
         return rs
     
@@ -61,6 +72,7 @@ class StoreQuery(object):
         rs = cursor.rowcount
         #self.logger.info(" rowcount executeUpdate {}" , rs )
         cursor.close()
+        self.getConnection().commit()
         return rs
 
     def executemany(self, aStmt, aParams = None):
@@ -71,6 +83,13 @@ class StoreQuery(object):
         cursor.close()
         self.getConnection().commit()
         return rs
+
+    ### All this just because mysql is not compliant to sql standard
+    def getImportPreparedStmtInsert(self):
+            return self.sql_pStmtInsert
+
+    def getImportPreparedStmtUpdate(self):
+            return self.sql_pStmtUpdate
 
     ###
     def extendedSearchQuery(self, esModel, filmui):
@@ -623,7 +642,8 @@ class StoreQuery(object):
             
             ##
         except Exception as err:
-            self.logger.error('getStatus {}', err)
+            pass
+            #self.logger.error('getStatus {}', err)
             #self.settings.setDatabaseStatus('UNINIT')
         return status
 
@@ -642,7 +662,6 @@ class StoreQuery(object):
             sqlStmt = 'UPDATE status SET status = COALESCE(?,status), lastupdate = COALESCE(?,lastupdate), lastFullUpdate = COALESCE(?,lastFullUpdate), filmupdate = COALESCE(?,filmupdate), version = COALESCE(?,version)'
             #cursor.execute(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
             rs = self.executeUpdate(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
-            self.getConnection().commit()
             self.logger.info('Update Status {} lastupdate: {} lastFullUpdate: {} filmupdate: {} version: {}', pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion)
         except Exception as err:
             self.logger.error('Database error: {}', err)
@@ -672,61 +691,28 @@ class StoreQuery(object):
     
     def import_films(self, filmArray):
         #
-        pStmtInsert = """
-                    INSERT INTO `film` (
-                        `idhash`,
-                        `dtCreated`,
-                        `channel`,
-                        `showid`,
-                        `showname`,
-                        `title`,
-                        `aired`,
-                        `duration`,
-                        `size`,
-                        `description`,
-                        `url_sub`,
-                        `url_video`,
-                        `url_video_sd`,
-                        `url_video_hd`,
-                        touched
-                    )
-                    VALUES (
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        ?,
-                        1
-                    )"""
-        pStmtUpdate = """UPDATE film SET touched = touched+1 WHERE idhash = ?"""
+        pStmtInsert = self.getImportPreparedStmtInsert()
+        pStmtUpdate = self.getImportPreparedStmtUpdate()
+        #
         try:
-            #cursor = self.getConnection().cursor()
+            ##
+            cursor = self.getConnection().cursor()
+            ##
             insertArray = []
             updateCnt = 0
             insertCnt = 0
             for f in filmArray:
-                #cursor.execute(pStmtUpdate,(f[0],))
-                rs = self.executeUpdate(pStmtUpdate, (f[0],))
+                cursor.execute(pStmtUpdate, (f[0],))
+                rs = cursor.rowcount
                 #self.logger.info('executeUpdate rs {} for {}', rs , f[0] )
-                #if cursor.rowcount == 0:
                 if rs == 0:
                     insertArray.append(f)
                     insertCnt +=1
                 else:
                     updateCnt +=1
             #
-            #cursor.executemany(pStmtInsert,insertArray)
+            cursor.close()
             self.executemany(pStmtInsert, insertArray)
-            
             #
             return (insertCnt, updateCnt)
         except Exception as err:

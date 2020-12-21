@@ -213,7 +213,6 @@ class UpdateFileImport(object):
                     (ai,au) = self.database.import_films(recordArray)
                     self.insertCount += ai
                     self.updateCount += au
-                    self.database.getConnection().commit()
                 except Exception as err:
                     self.logger.debug('Error in data import: {}', err)
                     self.errorCount = self.errorCount + 1   

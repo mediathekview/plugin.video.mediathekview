@@ -36,9 +36,10 @@ CREATE TABLE film (
     url_sub        varchar(384)    NULL,
     url_video      varchar(384)    NULL,
     url_video_sd   varchar(384)    NULL,
-    url_video_hd   varchar(384)    NULL,
-    PRIMARY KEY                    (idhash)
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC CHARSET=utf8;
+    url_video_hd   varchar(384)    NULL
+) ENGINE=InnoDB CHARSET=utf8;
+--
+CREATE INDEX idx_idhash ON film (idhash);
 -- ----------------------------
 --  Table structure for status
 -- ----------------------------
@@ -49,10 +50,11 @@ CREATE TABLE status (
     lastFullUpdate  int(11)         NOT NULL,
     filmupdate      int(11)         NOT NULL,
     version         int(11)         NOT NULL
-) ENGINE=InnoDB ROW_FORMAT=DYNAMIC CHARSET=utf8;
+) ENGINE=InnoDB;
 -- ----------------
 INSERT INTO status values ('UNINIT',0,0,0,3);
-        """
+--
+"""
         
     def setupDatabase(self):
         self.logger.info('Start DB setup for schema {}',self.settings.getDatabaseSchema())
@@ -73,7 +75,8 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
             cursor.close()
             self.conn.database = self.settings.getDatabaseSchema()
         ##
-        cursor = self.conn.getConnection().cursor()
+        con = self.conn.getConnection()
+        cursor = con.cursor()
         for result in cursor.execute(self._setupScript, multi=True):
           if result.with_rows:
             print("Rows produced by statement '{}':".format(
@@ -84,4 +87,5 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
               result.statement, result.rowcount))
     
         cursor.close()
+        con.commit()
         self.logger.info('End DB setup')
