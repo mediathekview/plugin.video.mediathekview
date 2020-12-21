@@ -51,7 +51,7 @@ class ExtendedSearch(object):
         self.searchId = pSearchId
         self.datafile = os.path.join(
             appContext.MVSETTINGS.getDatapath(),
-            'recent_ext_searchesX.json'
+            'searchConfig.json'
         )
         self.path = appContext.MVSETTINGS.getDatapath()
         self.logger = appContext.MVLOGGER.get_new_logger('ExtendedSearch')
