@@ -8,13 +8,13 @@ ENV MYSQL_ROOT_PASSWORD='mediathekview_root'
 
 # custom variables
 ENV CRON_TIMESPEC="15 4 * * *"
-
+ENV RUN_ON_STARTUP='no'
 
 # install dependencies
-RUN apt update -y &&  apt upgrade -y && \
+RUN apt update -y && \
     apt install python3-pip cron -y && \
     apt autoclean -y && \
-     apt autoremove -y
+    apt autoremove -y
 
 RUN pip3 install mysql-connector-python
 
@@ -24,6 +24,6 @@ ADD * ./
 ADD resources/ ./resources/
 
 #add a script that configures and starts cronjob
-ADD docker/init_cron /config/custom-cont-init.d/
+ADD docker/95_mediathekview_db /etc/cont-init.d/
 
 #CMD and ENTRYPOINT are set by base image
