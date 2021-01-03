@@ -226,6 +226,7 @@ docker build -t mediathekview-kodi-db .
 | MYSQL_PASSWORD      | mediathekview       | Passwort für MYSQL_USER (minimum 4 Zeichen); sollte in ein sicheres Passwort geändert werden |
 | MYSQL_ROOT_PASSWORD | mediathekview_root  | Root Passwort für die MYSQL Datenbank (minimal 4 Zeichen); sollte in ein sicheres Passwort geändert werden|
 | CRON_TIMESPEC       | 15 4 * * *          | Zeitausdruck im Cron-Format, der angibt wann die Datenbank per `mvupdate3` aktualisiert werden soll (im Bsp.: täglich 4:15). Ein Generator für diese Ausdrücke findet sich bspw. hier: https://crontab.guru/| 
+| RUN_ON_STARTUP      | no		    | wenn 'yes', damm wird `mvupdate3` bei starten des Containers ausgeführt
 
 
 Um mit Kodi auf die Datenbank zugreifen zu können, muss der `Port 3306` nach außen geleitet werden. Bei mehereren Containern mit MYSQL Datenbank empfiehlt es sich den MYSQL-Port 3306 auf einen freien Port umzuleiten (z.B.: `-p 49153:3306`). *Achtung:* Innerhalb des Containers gilt weiterhin der Port 3306 (z.B. für den Aufruf von `mvupdate3`). Außerhalb bzw. in Kodi muss dann der konfigurierte Port (im Beispiel 49153) verwendet werden.
@@ -464,6 +465,8 @@ docker build -t mediathekview-kodi-db .
 | MYSQL_PASSWORD      | mediathekview       | password for MYSQL_USER (minimum 4 characters); should be changed to a secure password |
 | MYSQL_ROOT_PASSWORD | mediathekview_root  | root password for the MYSQL database (minimum 4 characters); should be changed to a secure password|
 | CRON_TIMESPEC       | 15 4 * * *          | time specification for cronjob; specifies when database is updated using `mvupdate3` (in example: daily at 4:15). a generator for cron time specification can be found for example here: https://crontab.guru/| 
+| RUN_ON_STARTUP      | no                  | if 'yes', `mvupdate3` will be executed on container startup
+
 
 
 In order to access the database from outside the container (e.g. by Kodi addon) the `port 3306` has to be exposed. However, if using several MYSQL Containers this port should be forwarded to a free port (e.g. `-p 49153:3306`). *Remark:* Inside the container the usual port 3306 is used (e.g. when executing `mvupdate3`). Outside the container resp. in Kodi the configured port (49153 in the example) hast to be used.
