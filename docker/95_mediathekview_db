@@ -25,8 +25,8 @@ fi
 
 # Have the main Docker process tail the files to produce stdout and stderr 
 # for the main process that Docker will actually show in docker logs.
-tail -f -n 100 /tmp/stdout &
-tail -f -n 100 /tmp/stderr >&2 &
+tail -f -n 300 /tmp/stdout &
+tail -f -n 300 /tmp/stderr >&2 &
 
 #run on startup, if configured
 if [ "$RUN_ON_STARTUP" =  "yes" ]; then
