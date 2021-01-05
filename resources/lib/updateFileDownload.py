@@ -113,7 +113,9 @@ class UpdateFileDownload(object):
         return check
     
     def updateSqliteDb(self):
+        start = time.time()
         mvutils.file_rename(self._filename, self._Dbfilename)
+        self.logger.info('renamed {} to {} in {} sec',self._filename, self._Dbfilename, (time.time() - start))
             
     def _getExtension(self):
         ext = ""
