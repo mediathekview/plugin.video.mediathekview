@@ -56,6 +56,19 @@ class ExtendedSearchModel(object):
         """
 
     ################
+    ## RESET
+    ################
+    def reset(self):
+        self.name = ''
+        self.channel = []
+        self.title = []
+        self.show = []
+        self.description = []
+        self.excludeTitle = []
+        self.minLength = 0
+        self.ignoreTrailer = False
+
+    ################
     ## GET
     ################
     

@@ -31,6 +31,9 @@ from resources.lib.showui import ShowUI
 from resources.lib.downloader import Downloader
 from resources.lib.searches import RecentSearches
 from resources.lib.extendedSearch import ExtendedSearch
+import resources.lib.ui.livestreamUi as LivestreamUi
+import resources.lib.extendedSearchModel as ExtendedSearchModel
+
 import resources.lib.appContext as appContext
 
 # -- Classes ------------------------------------------------
@@ -248,8 +251,15 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'extendedSearchScreen':
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
         elif mode == 'livestreams':
-            self.database.get_live_streams(
-                FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
+            #self.database.get_live_streams(FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
+            esModel = ExtendedSearchModel.ExtendedSearchModel('LIVESTREAM')
+            ui = LivestreamUi.LivestreamUi(self)
+            ui.begin()
+            ui.add(self.database.queryFilmResultset(esModel))
+            ui.end()
+            
+            
+            
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
