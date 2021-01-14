@@ -253,9 +253,7 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'livestreams':
             #self.database.get_live_streams(FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
             ui = LivestreamUi.LivestreamUi(self)
-            ui.begin()
-            ui.add(self.database.get_live_streams())
-            ui.end()
+            ui.generate(self.database.get_live_streams())
             
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
