@@ -252,13 +252,10 @@ class MediathekViewPlugin(KodiPlugin):
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
         elif mode == 'livestreams':
             #self.database.get_live_streams(FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
-            esModel = ExtendedSearchModel.ExtendedSearchModel('LIVESTREAM')
             ui = LivestreamUi.LivestreamUi(self)
             ui.begin()
-            ui.add(self.database.queryFilmResultset(esModel))
+            ui.add(self.database.get_live_streams())
             ui.end()
-            
-            
             
         elif mode == 'recent':
             channel = self.get_arg('channel', "")

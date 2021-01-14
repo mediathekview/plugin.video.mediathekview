@@ -93,88 +93,6 @@ class StoreQuery(object):
 
     ###
     ###
-    def queryFilmResultset(self, esModel):
-        params = []
-        sql = self.sql_query_films
-        sql += ' WHERE '
-        ##
-        if len(esModel.getShow()) + len(esModel.getTitle()) + len(esModel.getDescription()) > 0:
-            sql += '('
-        ##
-        if (len(esModel.getShow()) > 0):
-            for conditionString in esModel.getShow():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                sql += ' showname like ? or' 
-        ##
-        if (len(esModel.getTitle()) > 0):
-            for conditionString in esModel.getTitle():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                sql += ' title like ? or' 
-        ##
-        if (len(esModel.getDescription()) > 0):
-            for conditionString in esModel.getDescription():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                sql += ' description like ? or'            
-        ##
-        if sql[-2:] == 'or':
-            sql = sql[0:(len(sql)-2)]
-        if len(esModel.getShow()) + len(esModel.getTitle()) + len(esModel.getDescription()) > 0:
-            sql += ')'
-        ##
-        ##
-        if (len(esModel.getExcludeTitle()) > 0):
-            if sql[-1] == ')':
-                sql += ' and '
-            sql += '('
-            for conditionString in esModel.getExcludeTitle():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                params.append(exp)
-                sql += ' title not like ? and showname not like ? and' 
-            sql = sql[0:(len(sql)-3)]
-            sql += ")"
-        ##
-        ##
-        if (len(esModel.getChannel()) > 0):
-            if sql[-1] == ')':
-                sql += ' and '
-            sql += '( channel in ('
-            for conditionString in esModel.getChannel():
-                params.append(conditionString)
-                sql += '?,' 
-            sql = sql[0:-1]
-            sql += '))'
-        ##
-        ##
-        if sql[-1] == ')' and esModel.getMinLength() > 0:
-            sql += ' and ( duration >= %d )' % esModel.getMinLength()
-        ##
-        if sql[-1] == ")" and esModel.isIgnoreTrailer():
-            sql += " and ( aired < UNIX_TIMESTAMP() )"
-        ##
-        if sql[-6:] == 'WHERE ':
-            sql += '(1=1)'
-        ##
-        sql += ' order by aired desc LIMIT ' + str(self.settings.getMaxResults())
-        ##
-        ##
-        try:
-            cached_data = []
-            rs = self.execute(sql, params)
-            if len(rs) >= self.settings.getMaxResults():
-                self.notifier.show_limit_results(self.settings.getMaxResults())        
-            self._cache.save_cache('queryFilmResultset', sql + ''.join(params) , rs)
-            return rs
-
-        except Exception as err:
-            self.logger.error('Database error: {}', err)
-            self.notifier.show_database_error(err)
-            raise
-        return None
-    ###
     def extendedSearchQuery(self, esModel, filmui):
         params = []
         sql = self.sql_query_films
@@ -264,6 +182,26 @@ class StoreQuery(object):
         return None
     
     ###
+    ###
+    def get_live_streams(self):
+        """
+        Retrive data for livestream screen
+        """
+        self.logger.info('get_live_streams')
+        #
+        params = []
+        sql = self.sql_query_films
+        sql += " WHERE (showname = 'LIVESTREAM' )"
+        sql += " ORDER BY showname "
+        #
+        cached_data = self._cache.load_cache('livestreams', '')
+        if cached_data is not None:
+            return cached_data;
+        #
+        rs = self.execute(sql, params)
+        self._cache.save_cache('livestreams', sql, rs)
+        #
+        return rs
 
     def search(self, search, filmui, extendedsearch=False):
         """
@@ -326,26 +264,6 @@ class StoreQuery(object):
             showchannels=False,
             maxresults=self.settings.getMaxResults(),
             order='aired desc'
-        )
-
-    def get_live_streams(self, filmui):
-        """
-        Populates the current UI directory with the live
-        streams
-
-        Args:
-            filmui(FilmUI): an instance of a film model view used
-                for populating the directory
-        """
-        self.logger.info('get_live_streams')
-        return self._search_condition(
-            condition="( showname='LIVESTREAM' )",
-            params=(),
-            filmui=filmui,
-            showshows=False,
-            showchannels=False,
-            maxresults=self.settings.getMaxResults(),
-            limiting=False
         )
 
     def get_channels(self, channelui):

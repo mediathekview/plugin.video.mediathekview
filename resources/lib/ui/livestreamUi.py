@@ -28,26 +28,23 @@ class LivestreamUi(object):
         ##
         self.startTime = 0
         
-
-    def begin(self):
-        """
-        Begin a directory containing films
-        """
-        xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
-        xbmcplugin.setContent(self.handle, 'movies')
-        
-
-    def add(self, databaseRs):
+    def generate(self, databaseRs):
         """
         Add the current entry to the directory
 
         Args:
             databaseRs: database resultset
         """
+        ##
+        self.startTime = time.time()
+        ##
+        xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
+        xbmcplugin.setContent(self.handle, 'movies')
+        ##
         listOfElements = []
         ##
         for element in databaseRs:
-            (videourl, listitem, isFolder, ) = self.generateLivestream(element)
+            (videourl, listitem, isFolder, ) = self._generateLivestream(element)
             listOfElements.append((videourl, listitem, isFolder))
         ##
         xbmcplugin.addDirectoryItems(
@@ -55,16 +52,13 @@ class LivestreamUi(object):
             items=listOfElements,
             totalItems=len(listOfElements)
         )
-
-
-
-    def end(self):
-        """ Finish a directory containing films """
-        self.logger.info('Listitem generated: {} sec', time.time() - self.startTime)
+        ##
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
+        self.plugin.run_builtin('Container.SetViewMode(500)')
+        ##
+        self.logger.info('Listitem generated: {} sec', time.time() - self.startTime)
 
-
-    def generateLivestream(self, rsRow):
+    def _generateLivestream(self, rsRow):
         # 0 filmui.filmid
         # 1 filmui.title
         # 2 filmui.show, 
@@ -91,6 +85,7 @@ class LivestreamUi(object):
             self.plugin.path,
             'resources',
             'icons',
+            'livestream',
             iconFile
         )
 
