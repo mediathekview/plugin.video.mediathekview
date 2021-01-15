@@ -252,17 +252,17 @@ class MediathekViewPlugin(KodiPlugin):
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
         elif mode == 'livestreams':
             ui = LivestreamUi.LivestreamUi(self)
-            ui.generate(self.database.get_live_streams())
+            ui.generate(self.database.getLivestreams())
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
             self.database.get_recents(channel, FilmUI(self))
         elif mode == 'recentchannels':
-            ui = ChannelUi.ChannelUi(self,'recent', True)
-            ui.generate(self.database.getChannels())
+            ui = ChannelUi.ChannelUi(self,'recent')
+            ui.generate(self.database.getChannelsRecent())
         elif mode == 'channels':
             ui = ChannelUi.ChannelUi(self,'shows')
-            ui.generate(self.database.getChannels(), False)
+            ui.generate(self.database.getChannels())
         elif mode == 'action-dbinfo':
             self.run_builtin("ActivateWindow(busydialognocancel)")
             self.show_db_info()

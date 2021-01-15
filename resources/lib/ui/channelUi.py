@@ -25,12 +25,11 @@ class ChannelUi(object):
 
     """
 
-    def __init__(self, plugin, targetUrl, showNumberOfItems = False):
+    def __init__(self, plugin, targetUrl):
         self.logger = appContext.MVLOGGER.get_new_logger('ChannelUi')
         self.plugin = plugin
         self.handle = plugin.addon_handle
         self.targetUrl = targetUrl
-        self.showNumberOfItems = showNumberOfItems
         self.startTime = 0
 
     def generate(self, databaseRs):
@@ -49,8 +48,6 @@ class ChannelUi(object):
         for element in databaseRs:
             #
             nameLabel = element[1];
-            if self.showNumberOfItems:
-                nameLabel = element[2];
             #
             if self.plugin.get_kodi_version() > 17:
                 list_item = xbmcgui.ListItem(label=nameLabel, offscreen=True)
@@ -62,7 +59,7 @@ class ChannelUi(object):
                 'resources',
                 'icons',
                 'sender',
-                element[1].lower() + '-m.png'
+                element[0].lower() + '-m.png'
             )
             list_item.setArt({
                 'thumb': icon,

@@ -139,7 +139,7 @@ class ExtendedSearch(object):
                     dataModel.setDescription(txt)
     
             elif self.action == "EDIT-CHANNEL":
-                channelList = self.database.get_channel_list()
+                channelList = self.database.getChannelList()
                 ##
                 preselect = []
                 for i, channelName in enumerate(channelList):

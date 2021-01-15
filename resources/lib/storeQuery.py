@@ -183,7 +183,7 @@ class StoreQuery(object):
     
     ###
     ###
-    def get_live_streams(self):
+    def getLivestreams(self):
         """
         Retrive data for livestream screen
         """
@@ -221,6 +221,39 @@ class StoreQuery(object):
         
         return rs
     ###
+    def getChannelList(self):
+        allChannel = []
+        rs = self.getChannels()
+        for row in rs:
+            allChannel.append(row[0])
+        return allChannel
+    ###
+    def getChannelsRecent(self):
+        cached_data = self._cache.load_cache('channels_recent', '')
+        if cached_data is not None:
+            return cached_data
+
+        try:
+            sql = "SELECT channel channelid, channel || ' (' || count(*) || ')' description FROM film WHERE "
+            ## recent
+            sql += self.sql_cond_recent
+            ## duration filter
+            sql += self.sql_cond_nofuture
+            ## no future
+            sql += self.sql_cond_minlength
+            ##
+            sql += " GROUP BY channel ORDER BY channel asc"
+            ##
+            rs = self.execute(sql)
+            ##
+            self._cache.save_cache('channels_recent', sql, rs)
+
+        except Exception as err:
+            self.logger.error('Database error: {}', err)
+            self.notifier.show_database_error(err)
+            raise
+        
+        return rs
     
     def search(self, search, filmui, extendedsearch=False):
         """
@@ -284,52 +317,6 @@ class StoreQuery(object):
             maxresults=self.settings.getMaxResults(),
             order='aired desc'
         )
-
-    def get_channels(self, channelui):
-        """
-        Populates the current UI directory with the list
-        of available channels
-
-        Args:
-            channelui(ChannelUI): an instance of a channel model
-                view used for populating the directory
-        """
-        self._search_channels_condition(None, channelui)
-
-
-    def get_channel_list(self):
-        cached_data = self._cache.load_cache('extSearch_channels', '')
-        if cached_data is not None:
-            allChannel = []
-            for channel_data in cached_data:
-                allChannel.append(channel_data.channel)
-            return allChannel
-
-        try:
-            query = 'SELECT channel FROM film group by channel order by channel asc'
-            rs = self.execute(query)
-            allChannel = []
-            for row in rs:
-                allChannel.append(row[0])
-        except Exception as err:
-            self.logger.error('Database error: {}', err)
-            self.notifier.show_database_error(err)
-            raise
-        
-        return allChannel
-
-
-    def get_recent_channels(self, channelui):
-        """
-        Populates the current UI directory with the list
-        of channels having recent film additions based on
-        the configured interval.
-
-        Args:
-            channelui(ChannelUI): an instance of a channel model
-                view used for populating the directory
-        """
-        self._search_channels_condition(self.sql_cond_recent, channelui)
 
     def get_initials(self, channelid, initialui):
         """
