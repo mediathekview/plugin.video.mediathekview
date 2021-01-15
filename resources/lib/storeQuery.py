@@ -203,6 +203,25 @@ class StoreQuery(object):
         #
         return rs
 
+    ###
+    def getChannels(self):
+        cached_data = self._cache.load_cache('channels', '')
+        if cached_data is not None:
+            return cached_data
+
+        try:
+            sql = "SELECT channel channelid, channel, channel || ' (' || count(*) || ')' description FROM film group by channel order by channel asc"
+            rs = self.execute(sql)
+            self._cache.save_cache('channels', sql, rs)
+
+        except Exception as err:
+            self.logger.error('Database error: {}', err)
+            self.notifier.show_database_error(err)
+            raise
+        
+        return rs
+    ###
+    
     def search(self, search, filmui, extendedsearch=False):
         """
         Performs a search for films based on a search term

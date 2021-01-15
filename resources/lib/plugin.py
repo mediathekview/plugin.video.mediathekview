@@ -25,13 +25,13 @@ from resources.lib.storeMySql import StoreMySQL
 from resources.lib.storeSqlite import StoreSQLite
 from resources.lib.notifierKodi import NotifierKodi
 from resources.lib.filmui import FilmUI
-from resources.lib.channelui import ChannelUI
 from resources.lib.initialui import InitialUI
 from resources.lib.showui import ShowUI
 from resources.lib.downloader import Downloader
 from resources.lib.searches import RecentSearches
 from resources.lib.extendedSearch import ExtendedSearch
 import resources.lib.ui.livestreamUi as LivestreamUi
+import resources.lib.ui.channelUi as ChannelUi
 import resources.lib.extendedSearchModel as ExtendedSearchModel
 
 import resources.lib.appContext as appContext
@@ -251,19 +251,18 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'extendedSearchScreen':
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
         elif mode == 'livestreams':
-            #self.database.get_live_streams(FilmUI(self, [xbmcplugin.SORT_METHOD_LABEL]))
             ui = LivestreamUi.LivestreamUi(self)
             ui.generate(self.database.get_live_streams())
-            
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
             self.database.get_recents(channel, FilmUI(self))
         elif mode == 'recentchannels':
-            self.database.get_recent_channels(
-                ChannelUI(self, nextdir='recent'))
+            ui = ChannelUi.ChannelUi(self,'recent', True)
+            ui.generate(self.database.getChannels())
         elif mode == 'channels':
-            self.database.get_channels(ChannelUI(self, nextdir='shows'))
+            ui = ChannelUi.ChannelUi(self,'shows')
+            ui.generate(self.database.getChannels(), False)
         elif mode == 'action-dbinfo':
             self.run_builtin("ActivateWindow(busydialognocancel)")
             self.show_db_info()
