@@ -155,20 +155,16 @@ class MediathekViewPlugin(KodiPlugin):
         if search:
             # restore previous search
             #self.database.search(search, FilmUI(self), extendedsearch)
-            esModel = ExtendedSearchModel.ExtendedSearchModel(search)
-            esModel.setTitle(search)
             ui = FilmlistUi.FilmlistUi(self)
-            ui.generate(self.database.extendedSearchQuery(esModel))
+            ui.generate(self.database.getQuickSearch(search))
         else:
             # enter search term
             (search, confirmed) = self.notifier.get_entered_text('', headingid)
             if len(search) > 2 and confirmed is True:
                 RecentSearches(self, extendedsearch).load().add(search).save()
                 #
-                esModel = ExtendedSearchModel.ExtendedSearchModel(search)
-                esModel.setTitle(search)
                 ui = FilmlistUi.FilmlistUi(self)
-                rs = self.database.extendedSearchQuery(esModel)
+                rs = self.database.getQuickSearch(search)
                 ui.generate(rs)
                 if len(rs) > 0:
                     self.set_setting(settingid, search)
@@ -254,10 +250,8 @@ class MediathekViewPlugin(KodiPlugin):
             search = self.get_arg('search', '')
             extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
             #self.database.search(search, FilmUI(self), extendedsearch)
-            esModel = ExtendedSearchModel.ExtendedSearchModel(search)
-            esModel.setTitle(search)
             ui = FilmlistUi.FilmlistUi(self)
-            ui.generate(self.database.extendedSearchQuery(esModel))
+            ui.generate(self.database.getQuickSearch(search))
             RecentSearches(self, extendedsearch).load().add(search).save()
             ###
         elif mode == 'delsearch':

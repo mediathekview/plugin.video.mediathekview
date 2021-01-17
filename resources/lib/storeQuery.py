@@ -162,6 +162,24 @@ class StoreQuery(object):
         return rs
     ###
     ###
+    def getQuickSearch(self, searchTerm):
+        """
+        Retrieve data for quick search
+        """
+        self.logger.info('getQuickSearch')
+        #
+        cached_data = self._cache.load_cache('quickSearch', searchTerm)
+        if cached_data is not None:
+            rs = cached_data;
+        else:
+            esModel = ExtendedSearchModel.ExtendedSearchModel('')
+            esModel.setShow(searchTerm)
+            esModel.setTitle(searchTerm)
+            rs = self.extendedSearchQuery(esModel)
+            self._cache.save_cache('quickSearch', searchTerm, rs)
+        #
+        return rs
+    ###
     def getLivestreams(self):
         """
         Retrieve data for livestream screen
