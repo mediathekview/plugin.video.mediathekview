@@ -32,6 +32,8 @@ from resources.lib.searches import RecentSearches
 from resources.lib.extendedSearch import ExtendedSearch
 import resources.lib.ui.livestreamUi as LivestreamUi
 import resources.lib.ui.channelUi as ChannelUi
+import resources.lib.ui.showUi as ShowUi
+import resources.lib.ui.letterUi as LetterUi
 import resources.lib.extendedSearchModel as ExtendedSearchModel
 
 import resources.lib.appContext as appContext
@@ -271,15 +273,22 @@ class MediathekViewPlugin(KodiPlugin):
             self.settings.set_update_triggered('true')
             self.notifier.show_notification(30963, 30964)
         elif mode == 'initial':
-            channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
-            self.database.get_initials(channel, InitialUI(self))
+            #channel = self.get_arg('channel', "")
+            #channel == "" if channel == "0" else channel
+            #self.database.get_initials(channel, InitialUI(self))
+            ui = LetterUi.LetterUi(self)
+            ui.generate(self.database.getStartLettersOfShows())
         elif mode == 'shows':
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
             initial = self.get_arg('initial', "")
             initial == "" if initial == "0" else initial
-            self.database.get_shows(channel, initial, ShowUI(self))
+            #self.database.get_shows(channel, initial, ShowUI(self))
+            ui = ShowUi.ShowUi(self)
+            if initial == "":
+                ui.generate(self.database.getShowsByChannnel(channel))
+            else:
+                ui.generate(self.database.getShowsByLetter(initial))           
         elif mode == 'films':
             show = self.get_arg('show', "")
             show == "" if show == "0" else show

@@ -254,6 +254,91 @@ class StoreQuery(object):
             raise
         
         return rs
+    ###
+    def getShowsByChannnel(self, channelId):
+        cached_data = self._cache.load_cache('showsByChannel', channelId)
+        if cached_data is not None:
+            return cached_data
+
+        try:
+            sql = "SELECT showid, channel as channelId, showname, channel from film where (channel=?) "
+            ## duration filter
+            sql += self.sql_cond_nofuture
+            ## no future
+            sql += self.sql_cond_minlength
+            ##
+            sql += " GROUP BY showid, channel, showname ORDER BY showname asc"
+            ##
+            rs = self.execute(sql, (channelId,))
+            ##
+            self._cache.save_cache('showsByChannel', channelId, rs)
+
+        except Exception as err:
+            self.logger.error('Database error: {}', err)
+            self.notifier.show_database_error(err)
+            raise
+        
+        return rs
+    ###
+    def getShowsByLetter(self, aLetter):
+        cached_data = self._cache.load_cache('showsByLetter', aLetter)
+        if cached_data is not None:
+            return cached_data
+
+        try:
+            if self.settings.getGroupShow():
+                sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film WHERE (showname like ?) "
+            else:
+                sql = "SELECT showid, channel as channelId, showname, channel FROM film WHERE (showname like ?) "
+            ## duration filter
+            sql += self.sql_cond_nofuture
+            ## no future
+            sql += self.sql_cond_minlength
+            ##
+            if self.settings.getGroupShow():
+                sql += " GROUP BY showname ORDER BY showname asc"
+            else:
+                sql += " GROUP BY showid, channel, showname ORDER BY showname asc"
+            ##
+            rs = self.execute(sql, (aLetter+"%",))
+            ##
+            self._cache.save_cache('showsByLetter', aLetter, rs)
+    
+        except Exception as err:
+            self.logger.error('Database error: {}', err)
+            self.notifier.show_database_error(err)
+            raise
+        
+        return rs
+    ###
+    def getStartLettersOfShows(self):
+        cached_data = self._cache.load_cache('letters', '')
+        if cached_data is not None:
+            return cached_data
+
+        try:
+            sql = "SELECT UPPER(SUBSTR(showname,1,1)), COUNT(*) FROM film where SUBSTR(showname,1,1) between 'A' and 'Z' "
+            ## recent
+            sql += self.sql_cond_recent
+            ## duration filter
+            sql += self.sql_cond_nofuture
+            ## no future
+            sql += self.sql_cond_minlength
+            ##
+            sql += " GROUP BY UPPER(SUBSTR(showname,1,1)) order by UPPER(SUBSTR(showname,1,1)) asc"
+            ##
+            rs = self.execute(sql)
+            ##
+            self._cache.save_cache('letters', '', rs)
+
+        except Exception as err:
+            self.logger.error('Database error: {}', err)
+            self.notifier.show_database_error(err)
+            raise
+        
+        return rs    
+    
+    ### legacy code
     
     def search(self, search, filmui, extendedsearch=False):
         """
