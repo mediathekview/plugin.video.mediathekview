@@ -11,7 +11,7 @@ class Film(object):
     """ The film model class """
 
     def __init__(self):
-        self.filmid = 0
+        self.filmid = ''
         self.title = ''
         self.show = ''
         self.channel = ''
@@ -23,6 +23,19 @@ class Film(object):
         self.url_video = ''
         self.url_video_sd = ''
         self.url_video_hd = ''
+    
+    def init(self, pFilmId, pTitle, pShow, pChannel, pDescription, pSeconds, pSize, pAired, pSub, pVideo, pVideo_sd, pVideo_hd):
+        self.filmid = pFilmId
+        self.title = pTitle
+        self.show = pShow
+        self.channel = pChannel
+        self.description = pDescription
+        self.seconds = pSeconds
+        self.aired = pAired
+        self.url_sub = pSub
+        self.url_video = pVideo
+        self.url_video_sd = pVideo_sd
+        self.url_video_hd = pVideo_hd
 
     def get_as_dict(self):
         """ Returns the values as a map """
@@ -45,7 +58,7 @@ class Film(object):
         """ Assigns internal values from a map """
         if not isinstance(data, dict):
             return
-        self.filmid = data.get('filmid', 0)
+        self.filmid = data.get('filmid', '')
         self.title = data.get('title', '')
         self.show = data.get('show', '')
         self.channel = data.get('channel', '')

@@ -11,6 +11,7 @@ import resources.lib.appContext as appContext
 import resources.lib.mvutils as mvutils
 from resources.lib.storeCache import StoreCache
 from resources.lib.film import Film
+import resources.lib.extendedSearchModel as ExtendedSearchModel
 
 
 class StoreQuery(object):
@@ -27,6 +28,7 @@ class StoreQuery(object):
         )
         self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if self.settings.getNoFutur() else ""
         self.sql_cond_minlength = " AND ( duration >= %d )" % self.settings.getMinLength() if self.settings.getMinLength() > 0 else ""
+        ## IMPORT SQL
         self.sql_pStmtInsert = """
             INSERT INTO film (
                 idhash, touched, dtCreated, channel, showid, showname, title,
@@ -92,117 +94,134 @@ class StoreQuery(object):
             return self.sql_pStmtUpdate
 
     ###
-    ###
-    def extendedSearchQuery(self, esModel, filmui):
+    def extendedSearchQuery(self, esModel):
+        rs = None 
         params = []
         sql = self.sql_query_films
-        sql += ' WHERE '
+        sql += ' WHERE (1=1)'
         ##
-        if len(esModel.getShow()) + len(esModel.getTitle()) + len(esModel.getDescription()) > 0:
-            sql += '('
+        (mixedSearchCondition, mixedSearchParams) = esModel.generateShowTitleDescription()
+        if (mixedSearchCondition != ''):
+            sql += ' AND ' + mixedSearchCondition
+            params.extend(mixedSearchParams)
         ##
-        if (len(esModel.getShow()) > 0):
-            for conditionString in esModel.getShow():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                sql += ' showname like ? or' 
+        (excludeCondition, excludeParams) = esModel.generateExclude()
+        if (excludeCondition != ''):
+            sql += ' AND ' + excludeCondition
+            params.extend(excludeParams)
         ##
-        if (len(esModel.getTitle()) > 0):
-            for conditionString in esModel.getTitle():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                sql += ' title like ? or' 
+        (channelCondition, channelParams) = esModel.generateChannel()
+        if (channelCondition != ''):
+            sql += ' AND ' + channelCondition
+            params.extend(channelParams)
         ##
-        if (len(esModel.getDescription()) > 0):
-            for conditionString in esModel.getDescription():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                sql += ' description like ? or'            
+        (showCondition, showParams) = esModel.generateShow()
+        if (showCondition != ''):
+            sql += ' AND ' + showCondition
+            params.extend(showParams)
         ##
-        if sql[-2:] == 'or':
-            sql = sql[0:(len(sql)-2)]
-        if len(esModel.getShow()) + len(esModel.getTitle()) + len(esModel.getDescription()) > 0:
-            sql += ')'
+        (showIdCondition, showIdParams) = esModel.generateShowId()
+        if (showIdCondition != ''):
+            sql += ' AND ' + showIdCondition
+            params.extend(showIdParams)
         ##
+        (showStartLetterCondition, showStartLetterParams) = esModel.generateShowStartLetter()
+        if (showStartLetterCondition != ''):
+            sql += ' AND ' + showStartLetterCondition
+            params.extend(showStartLetterParams)
         ##
-        if (len(esModel.getExcludeTitle()) > 0):
-            if sql[-1] == ')':
-                sql += ' and '
-            sql += '('
-            for conditionString in esModel.getExcludeTitle():
-                exp = '%' + conditionString + '%'
-                params.append(exp)
-                params.append(exp)
-                sql += ' title not like ? and showname not like ? and' 
-            sql = sql[0:(len(sql)-3)]
-            sql += ")"
+        ## from settings
         ##
+        minLengthCondition = esModel.generateMinLength()
+        if minLengthCondition != '':
+            sql += ' AND ' + minLengthCondition
+        ## no future
+        noTrailerCondition = esModel.generateIgnoreTrailer()
+        if noTrailerCondition != '':
+            sql += " AND " + noTrailerCondition
         ##
-        if (len(esModel.getChannel()) > 0):
-            if sql[-1] == ')':
-                sql += ' and '
-            sql += '( channel in ('
-            for conditionString in esModel.getChannel():
-                params.append(conditionString)
-                sql += '?,' 
-            sql = sql[0:-1]
-            sql += '))'
+        recentOnlyCondition = esModel.generateRecentCondition()
+        if recentOnlyCondition != '':
+            sql += " AND " + recentOnlyCondition
         ##
+        sql += ' ORDER BY aired DESC '
         ##
-        if sql[-1] == ')' and esModel.getMinLength() > 0:
-            sql += ' and ( duration >= %d )' % esModel.getMinLength()
-        ##
-        if sql[-1] == ")" and esModel.isIgnoreTrailer():
-            sql += " and ( aired < UNIX_TIMESTAMP() )"
-        ##
-        if sql[-6:] == 'WHERE ':
-            sql += '(1=1)'
-        ##
-        sql += ' order by aired desc LIMIT ' + str(self.settings.getMaxResults())
+        maxRowsCondition = esModel.generateMaxRows()
+        if (maxRowsCondition != ''):
+             sql += maxRowsCondition
         ##
         ##
         try:
-            cached_data = []
+            #
             rs = self.execute(sql, params)
             #
-            filmui.begin(True, True)
-            for (filmui.filmid, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd) in rs:
-                cached_data.append(filmui.get_as_dict())
-                filmui.add(total_items=len(rs))
-            filmui.end()
-            ##
-            if len(rs) >= self.settings.getMaxResults():
-                self.notifier.show_limit_results(self.settings.getMaxResults())        
-            self._cache.save_cache('extendedSearchQuery', sql + ''.join(params) , cached_data)
-
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        return None
-    
+        return rs
     ###
     ###
     def getLivestreams(self):
         """
-        Retrive data for livestream screen
+        Retrieve data for livestream screen
         """
-        self.logger.info('get_live_streams')
-        #
-        params = []
-        sql = self.sql_query_films
-        sql += " WHERE (showname = 'LIVESTREAM' )"
-        sql += " ORDER BY showname "
+        self.logger.info('getLivestreams')
         #
         cached_data = self._cache.load_cache('livestreams', '')
         if cached_data is not None:
-            return cached_data;
-        #
-        rs = self.execute(sql, params)
-        self._cache.save_cache('livestreams', sql, rs)
+            rs = cached_data;
+        else:
+            esModel = ExtendedSearchModel.ExtendedSearchModel('')
+            esModel.reset()
+            esModel.setShow('LIVESTREAM')
+            esModel.setExactMatchForShow(True)
+            rs = self.extendedSearchQuery(esModel)
+            self._cache.save_cache('livestreams', '', rs)
         #
         return rs
-
+    ###
+    def getRecentFilms(self, channelId = ''):
+        """
+        Retrieve data for recent films
+        """
+        self.logger.info('getRecentFilms')
+        #
+        cached_data = self._cache.load_cache('recentFilms', channelId)
+        if cached_data is not None:
+            rs = cached_data
+        else:
+            esModel = ExtendedSearchModel.ExtendedSearchModel('')
+            esModel.setRecentOnly(1)
+            esModel.setChannel(channelId)
+            rs = self.extendedSearchQuery(esModel)
+            self._cache.save_cache('recentFilms', channelId, rs)
+        #
+        if len(rs) >= self.settings.getMaxResults():
+            self.notifier.show_limit_results(self.settings.getMaxResults())
+        #
+        return rs
+    ###
+    def getFilms(self, channel = '', showIds = ''):
+        """
+        Retrieve data for recent films
+        """
+        self.logger.info('getFilms')
+        #
+        cached_data = self._cache.load_cache('films', showIds + channel)
+        if cached_data is not None:
+            rs = cached_data
+        else:
+            esModel = ExtendedSearchModel.ExtendedSearchModel('')
+            esModel.setChannel(channel)
+            esModel.setShowId(showIds)            
+            rs = self.extendedSearchQuery(esModel)
+            self._cache.save_cache('films', showIds + channel, rs)
+        #
+        if len(rs) >= self.settings.getMaxResults():
+            self.notifier.show_limit_results(self.settings.getMaxResults())
+        #
+        return rs
     ###
     def getChannels(self):
         cached_data = self._cache.load_cache('channels', '')
@@ -319,7 +338,7 @@ class StoreQuery(object):
         try:
             sql = "SELECT UPPER(SUBSTR(showname,1,1)), COUNT(*) FROM film where SUBSTR(showname,1,1) between 'A' and 'Z' "
             ## recent
-            sql += self.sql_cond_recent
+            sql += " AND " + self.sql_cond_recent
             ## duration filter
             sql += self.sql_cond_nofuture
             ## no future
@@ -337,6 +356,17 @@ class StoreQuery(object):
             raise
         
         return rs    
+    ###
+
+    
+    
+    
+    
+    
+    
+    
+    ####
+    
     
     ### legacy code
     
@@ -677,6 +707,12 @@ class StoreQuery(object):
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
+
+
+
+
+###############################
+
 
     def retrieve_film_info(self, filmid):
         """

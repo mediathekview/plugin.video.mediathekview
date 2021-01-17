@@ -34,6 +34,7 @@ import resources.lib.ui.livestreamUi as LivestreamUi
 import resources.lib.ui.channelUi as ChannelUi
 import resources.lib.ui.showUi as ShowUi
 import resources.lib.ui.letterUi as LetterUi
+import resources.lib.ui.filmlistUi as FilmlistUi
 import resources.lib.extendedSearchModel as ExtendedSearchModel
 
 import resources.lib.appContext as appContext
@@ -153,13 +154,23 @@ class MediathekViewPlugin(KodiPlugin):
         search = self.get_setting(settingid)
         if search:
             # restore previous search
-            self.database.search(search, FilmUI(self), extendedsearch)
+            #self.database.search(search, FilmUI(self), extendedsearch)
+            esModel = ExtendedSearchModel.ExtendedSearchModel(search)
+            esModel.setTitle(search)
+            ui = FilmlistUi.FilmlistUi(self)
+            ui.generate(self.database.extendedSearchQuery(esModel))
         else:
             # enter search term
             (search, confirmed) = self.notifier.get_entered_text('', headingid)
             if len(search) > 2 and confirmed is True:
                 RecentSearches(self, extendedsearch).load().add(search).save()
-                if self.database.search(search, FilmUI(self), extendedsearch) > 0:
+                #
+                esModel = ExtendedSearchModel.ExtendedSearchModel(search)
+                esModel.setTitle(search)
+                ui = FilmlistUi.FilmlistUi(self)
+                rs = self.database.extendedSearchQuery(esModel)
+                ui.generate(rs)
+                if len(rs) > 0:
                     self.set_setting(settingid, search)
             else:
                 # pylint: disable=line-too-long
@@ -242,23 +253,33 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'research':
             search = self.get_arg('search', '')
             extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
-            self.database.search(search, FilmUI(self), extendedsearch)
+            #self.database.search(search, FilmUI(self), extendedsearch)
+            esModel = ExtendedSearchModel.ExtendedSearchModel(search)
+            esModel.setTitle(search)
+            ui = FilmlistUi.FilmlistUi(self)
+            ui.generate(self.database.extendedSearchQuery(esModel))
             RecentSearches(self, extendedsearch).load().add(search).save()
+            ###
         elif mode == 'delsearch':
             search = self.get_arg('search', '')
             extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
-            RecentSearches(self, extendedsearch).load().delete(
-                search).save().populate()
+            RecentSearches(self, extendedsearch).load().delete(search).save().populate()
             self.run_builtin('Container.Refresh')
+            ##
         elif mode == 'extendedSearchScreen':
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
+            ##
         elif mode == 'livestreams':
             ui = LivestreamUi.LivestreamUi(self)
             ui.generate(self.database.getLivestreams())
+            ##
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
-            self.database.get_recents(channel, FilmUI(self))
+            ui = FilmlistUi.FilmlistUi(self)
+            ui.generate(self.database.getRecentFilms(channel))
+            #self.database.get_recents(channel, FilmUI(self))
+            ##
         elif mode == 'recentchannels':
             ui = ChannelUi.ChannelUi(self,'recent')
             ui.generate(self.database.getChannelsRecent())
@@ -292,7 +313,12 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'films':
             show = self.get_arg('show', "")
             show == "" if show == "0" else show
-            self.database.get_films(show, FilmUI(self))
+            channel = self.get_arg('channel', "")
+            channel == "" if channel == "0" else channel
+            #self.database.get_films(show, FilmUI(self))
+            ui = FilmlistUi.FilmlistUi(self)
+            ui.generate(self.database.getFilms(channel, show))
+            ###
         elif mode == 'downloadmv':
             filmid = self.get_arg('id', "")
             quality = self.get_arg('quality', 1)

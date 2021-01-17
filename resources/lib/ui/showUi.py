@@ -82,6 +82,7 @@ class ShowUi(object):
             #
             targetUrl = mvutils.build_url({
                 'mode': 'films',
+                'channel' : element[1].replace(',','|'),
                 'show': element[0]
             })
             #

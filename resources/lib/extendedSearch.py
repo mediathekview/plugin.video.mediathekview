@@ -16,7 +16,7 @@ from operator import itemgetter
 from codecs import open
 # pylint: disable=import-error
 import xbmcplugin
-from resources.lib.filmui import FilmUI
+import resources.lib.ui.filmlistUi as FilmlistUi
 
 class ExtendedSearch(object):
     """
@@ -69,7 +69,10 @@ class ExtendedSearch(object):
             self.showList()
         elif self.action == "RUN":
             data = self._getModelById(self.searchId);
-            self.database.extendedSearchQuery(data, FilmUI(self.plugin))
+            #self.database.extendedSearchQuery(data, FilmUI(self.plugin))
+            ui = FilmlistUi.FilmlistUi(self.plugin)
+            ui.generate(self.database.extendedSearchQuery(data)) 
+            
         elif self.action == "NEW":
             (txt, confirm) = self.notifier.get_entered_text(heading=30419)
             if confirm:
