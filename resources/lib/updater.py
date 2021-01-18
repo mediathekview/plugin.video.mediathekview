@@ -126,14 +126,14 @@ class MediathekViewUpdater(object):
             currentDate.year == lastFullUpdate.year) and
             currentDate.hour > 5
         ):
-            ##
             if self.settings.getDatabaseType() == 0 and self.settings.getDatabaseUpdateNative():
+                ## replace the sqlite DB by downloaded version
                 self.logger.info('sqlite update')
                 ufd.downloadSqliteDb()
                 self.database.exit()
                 ufd.updateSqliteDb()
                 ufd.removeDownloads()
-                ## check datbase is alive
+                ## check database is alive
                 check = self.database.get_status()
                 if check['mov'] > 0:
                     self.database.set_status('IDLE', pLastupdate = int(time.time()), pLastFullUpdate = int(time.time()))
@@ -142,6 +142,7 @@ class MediathekViewUpdater(object):
                 #
                 self.settings.set_update_triggered('false')
             else:
+                ## download full filmlist and do a full update
                 self.logger.info('full update')
                 ufd.downloadFullUpdateFile()
                 UpdateFileImport(ufd.getTargetFilename(), self.database).updateFull()
@@ -151,6 +152,7 @@ class MediathekViewUpdater(object):
                 ##
                 self.settings.set_update_triggered('false')
         else:
+            ## download incremental filmlist and do the update
             self.logger.info('incremental update')
             ufd.downloadIncrementalUpdateFile()
             UpdateFileImport(ufd.getTargetFilename(), self.database).updateIncremental()
