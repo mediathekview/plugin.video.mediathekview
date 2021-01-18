@@ -24,23 +24,19 @@ class RecentSearches(object):
     Args:
         plugin(MediathekView): the plugin object
 
-        extendedsearch(bool): if `True` the class
-            stores extended searches
-
         sortmethods(array, optional): an array of sort methods
             for the directory representation. Default is
             `[ xbmcplugin.SORT_METHOD_TITLE ]`
     """
 
-    def __init__(self, plugin, extendedsearch, sortmethods=None):
+    def __init__(self, plugin, sortmethods=None):
         self.plugin = plugin
         self.handle = plugin.addon_handle
         self.sortmethods = sortmethods if sortmethods is not None else [xbmcplugin.SORT_METHOD_TITLE]
-        self.extendedsearch = extendedsearch
         self.recents = []
         self.datafile = os.path.join(
             appContext.MVSETTINGS.getDatapath(),
-            'recent_ext_searches.json' if extendedsearch else 'recent_std_searches.json'
+            'recent_std_searches.json'
         )
         self.logger = appContext.MVLOGGER.get_new_logger('RecentSearches')
 
@@ -89,8 +85,8 @@ class RecentSearches(object):
                 'Recent searches list is broken (error {}) - cleaning up', err)
             self.recents = []
         self.recents.append({
-            'search':			search,
-            'when':				int(time.time())
+            'search':            search,
+            'when':                int(time.time())
         })
         return self
 
@@ -121,8 +117,7 @@ class RecentSearches(object):
                 entry['search'],
                 {
                     'mode': "research",
-                    'search': entry['search'],
-                    'extendedsearch': self.extendedsearch
+                    'search': entry['search']
                 },
                 [
                     (
@@ -130,8 +125,7 @@ class RecentSearches(object):
                         'RunPlugin({})'.format(
                             self.plugin.build_url({
                                 'mode': "delsearch",
-                                'search': entry['search'],
-                                'extendedsearch': self.extendedsearch
+                                'search': entry['search']
                             })
                         )
                     )
