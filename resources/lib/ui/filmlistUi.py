@@ -98,7 +98,7 @@ class FilmlistUi(object):
         #
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
         #
-        self.logger.info('Listitems generated: {} sec', time.time() - self.startTime)
+        self.logger.debug('generated: {} sec', time.time() - self.startTime)
 
     def _generateListItem(self, pFilm):
         #

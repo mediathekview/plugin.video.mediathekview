@@ -58,7 +58,7 @@ PRAGMA foreign_keys = true;
         """
 
     def setupDatabase(self):
-        self.logger.info('Start DB setup')
+        self.logger.debug('Start DB setup')
         self.conn.getConnection().executescript(self._setupScript)
         self.conn.getConnection().commit()
-        self.logger.info('End DB setup')
+        self.logger.debug('End DB setup')

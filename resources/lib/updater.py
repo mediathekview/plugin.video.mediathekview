@@ -44,10 +44,10 @@ class MediathekViewUpdater(object):
         if self.database is not None:
             self.exit()
         if self.settings.getDatabaseType() == 0:
-            self.logger.info('Database driver: Internal (sqlite)')
+            self.logger.debug('Database driver: Internal (sqlite)')
             self.database = StoreSQLite()
         elif self.settings.getDatabaseType() == 1:
-            self.logger.info('Database driver: External (mysql)')
+            self.logger.debug('Database driver: External (mysql)')
             self.database = StoreMySQL()
         else:
             self.logger.warn('Unknown Database driver selected')
@@ -74,16 +74,16 @@ class MediathekViewUpdater(object):
             currentDate.year == lastUpdateDatetime.year)
         ##
         self.logger.info('Last Update {}',datetime.fromtimestamp(databaseStatus['lastUpdate']))
-        self.logger.info('Last Full Update {}',datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
-        self.logger.info('version {}',databaseStatus['version'])
-        self.logger.info('status {}',databaseStatus['status'])
+        self.logger.debug('Last Full Update {}',datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
+        self.logger.debug('version {}',databaseStatus['version'])
+        self.logger.debug('status {}',databaseStatus['status'])
         ##
         updateConfigName = {0:"Disabled", 1:"Manual", 2:"On Start", 3:"Automatic", 4:"continuous"}
-        self.logger.info('Update Mode "{}"',updateConfigName.get(updateConfig))
+        self.logger.debug('Update Mode "{}"',updateConfigName.get(updateConfig))
         ##
         doSomething = 0
         if (int(databaseStatus['version']) != 3 or databaseStatus['status'] == 'UNINIT'):
-            self.logger.info('Version update or not initialized')
+            self.logger.debug('Version update or not initialized')
             doSomething = -1
             ###
             if self.settings.getDatabaseType() == 0:
@@ -95,22 +95,22 @@ class MediathekViewUpdater(object):
             databaseStatus = self.database.getDatabaseStatus()
             ###
         elif updateConfig == 1 and self.settings.is_update_triggered():
-            self.logger.info('Manual update')
+            self.logger.debug('Manual update')
             doSomething = 1
         elif updateConfig == 2 and self.settings.is_update_triggered():
-            self.logger.info('On Start update - was triggered manual')
+            self.logger.debug('On Start update - was triggered manual')
             doSomething = 1
         elif updateConfig == 2 and not(sameDay) and self.settings.is_user_alive():
-            self.logger.info('On Start update and no update today')
+            self.logger.debug('On Start update and no update today')
             doSomething = 1
         elif updateConfig == 3 and self.settings.is_user_alive() and outdated:
-            self.logger.info('auto update')
+            self.logger.debug('auto update')
             doSomething = 1
         elif updateConfig == 4 and outdated:
-            self.logger.info('continuous update')
+            self.logger.debug('continuous update')
             doSomething = 1
         elif updateConfig == 9:
-            self.logger.info('mvupdate --full')
+            self.logger.debug('mvupdate --full')
             doSomething = -1
         ##
         if (doSomething == 0):
@@ -128,7 +128,7 @@ class MediathekViewUpdater(object):
         ):
             if self.settings.getDatabaseType() == 0 and self.settings.getDatabaseUpdateNative():
                 ## replace the sqlite DB by downloaded version
-                self.logger.info('sqlite update')
+                self.logger.debug('sqlite update')
                 ufd.downloadSqliteDb()
                 self.database.exit()
                 ufd.updateSqliteDb()
@@ -143,7 +143,7 @@ class MediathekViewUpdater(object):
                 self.settings.set_update_triggered('false')
             else:
                 ## download full filmlist and do a full update
-                self.logger.info('full update')
+                self.logger.debug('full update')
                 ufd.downloadFullUpdateFile()
                 UpdateFileImport(ufd.getTargetFilename(), self.database).updateFull()
                 ufd.removeDownloads()
@@ -153,7 +153,7 @@ class MediathekViewUpdater(object):
                 self.settings.set_update_triggered('false')
         else:
             ## download incremental filmlist and do the update
-            self.logger.info('incremental update')
+            self.logger.debug('incremental update')
             ufd.downloadIncrementalUpdateFile()
             UpdateFileImport(ufd.getTargetFilename(), self.database).updateIncremental()
             ufd.removeDownloads()

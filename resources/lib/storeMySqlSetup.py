@@ -57,18 +57,18 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
 """
         
     def setupDatabase(self):
-        self.logger.info('Start DB setup for schema {}',self.settings.getDatabaseSchema())
+        self.logger.debug('Start DB setup for schema {}',self.settings.getDatabaseSchema())
         ##
         ##
         try:
             self.conn.database = self.settings.getDatabaseSchema()
             rs = self.conn.execute("SHOW DATABASES LIKE '{}'".format(self.settings.getDatabaseSchema()))
             if len(rs) > 0:
-                self.logger.info('MySql Schema exists - no action')
+                self.logger.debug('MySql Schema exists - no action')
             else:
                 raise Exception('DB', 'DB')
         except Exception:
-            self.logger.info('MySql Schema does not exists - setup schema')
+            self.logger.debug('MySql Schema does not exists - setup schema')
             cursor = self.conn.getConnection().cursor()
             cursor.execute(self._setupSchema)
             cursor.execute("USE {}".format(self.settings.getDatabaseSchema()))
@@ -88,4 +88,4 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
     
         cursor.close()
         con.commit()
-        self.logger.info('End DB setup')
+        self.logger.debug('End DB setup')

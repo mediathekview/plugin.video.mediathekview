@@ -19,24 +19,24 @@ class UpdateFileParser(object):
         self.filename = inputFilename
         self.buffer = ""
         self.cPosition = 0
-        #self.logger.info('UpdateFileParser constructed' )
+        #self.logger.debug('UpdateFileParser constructed' )
 
     def init(self):
         self.filehandle = open(self.filename, 'rb', encoding="utf-8")
         self.buffer = self.filehandle.read(self.bufferSize)
-        #self.logger.info('UpdateFileParser init reading ' + str(len(self.buffer)) + ' bytes to buffer' )
+        #self.logger.debug('UpdateFileParser init reading ' + str(len(self.buffer)) + ' bytes to buffer' )
     
     def next(self, aWord):
         ##
         if (self.cPosition == -1):
-            #self.logger.info("EOF")
+            #self.logger.debug("EOF")
             return ""
         index = self.buffer.find(aWord, self.cPosition)
         #print("index " + str(index))
         if (index > -1):
             rtBuffer = self.buffer[self.cPosition:index]
             self.cPosition = (index + len(aWord)) 
-            #self.logger.info("Found at " + str(index))
+            #self.logger.debug("Found at " + str(index))
             return rtBuffer
         else:
             nbuffer = self.filehandle.read(self.bufferSize)
@@ -44,12 +44,12 @@ class UpdateFileParser(object):
             if (len(nbuffer) == 0):
                 rStr = self.buffer[self.cPosition:]
                 self.cPosition = -1
-                #self.logger.info("no more buffer")
+                #self.logger.debug("no more buffer")
                 return rStr
             else:
                 self.buffer = self.buffer[self.cPosition:] + nbuffer
                 self.cPosition = 0
-                #self.logger.info("refill buffer - next iteration")
+                #self.logger.debug("refill buffer - next iteration")
                 return self.next(aWord)        
         return ""
     

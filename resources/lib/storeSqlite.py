@@ -31,13 +31,13 @@ class StoreSQLite(StoreQuery):
         # internals
         self.conn = None
         self.dbfile = os.path.join(self.settings.getDatapath(), self.databaseFilename)
-        self.logger.info('StoreSQLite DBFile: {}',self.dbfile)
+        self.logger.debug('StoreSQLite DBFile: {}',self.dbfile)
 
     def getConnection(self):
         if self.conn is None:
             if (not mvutils.file_exists(self.dbfile)):
                 self.settings.setDatabaseStatus('UNINIT')
-                self.logger.info('Missing StoreSQLite DBFile: {}',self.dbfile)
+                self.logger.debug('Missing StoreSQLite DBFile: {}',self.dbfile)
             self.conn = sqlite3.connect(self.dbfile, timeout=60)
             self.conn.execute('pragma synchronous=off')
             self.conn.execute('pragma journal_mode=off')

@@ -42,6 +42,9 @@ class RecentSearches(object):
 
     def load(self):
         """ Loads the recent searches list """
+        self.logger.debug('load')
+        start = time.time()
+        #
         try:
             with closing(open(self.datafile, encoding='utf-8')) as json_file:
                 data = json.load(json_file)
@@ -52,10 +55,14 @@ class RecentSearches(object):
         except Exception as err:
             self.logger.error(
                 'Failed to load last searches file {}: {}', self.datafile, err)
+        self.logger.debug('loaded search: {} sec', time.time() - start)
         return self
 
     def save(self):
         """ Saves the recent searches list """
+        self.logger.debug('load')
+        start = time.time()
+        #
         data = sorted(self.recents, key=itemgetter('when'), reverse=True)
         try:
             with closing(open(self.datafile, 'w', encoding='utf-8')) as json_file:
@@ -64,6 +71,7 @@ class RecentSearches(object):
         except Exception as err:
             self.logger.error(
                 'Failed to write last searches file {}: {}', self.datafile, err)
+        self.logger.debug('saved search: {} sec', time.time() - start)
         return self
 
     def add(self, search):
@@ -73,11 +81,15 @@ class RecentSearches(object):
         Args:
             search(str): search string
         """
+        self.logger.debug('add')
+        start = time.time()
+        #
         slow = search.lower()
         try:
             for entry in self.recents:
                 if entry['search'].lower() == slow:
                     entry['when'] = int(time.time())
+                    self.logger.debug('added search: {} sec', time.time() - start)
                     return self
         # pylint: disable=broad-except
         except Exception as err:
@@ -86,8 +98,9 @@ class RecentSearches(object):
             self.recents = []
         self.recents.append({
             'search':            search,
-            'when':                int(time.time())
+            'when':              int(time.time())
         })
+        self.logger.debug('added search: {} sec', time.time() - start)
         return self
 
     def delete(self, search):
@@ -97,21 +110,29 @@ class RecentSearches(object):
         Args:
             search(str): search string
         """
+        self.logger.debug('delete')
+        start = time.time()
+        #
         slow = search.lower()
         try:
             for entry in self.recents:
                 if entry['search'].lower() == slow:
                     self.recents.remove(entry)
+                    self.logger.debug('deleted search: {} sec', time.time() - start)
                     return self
         # pylint: disable=broad-except
         except Exception as err:
             self.logger.error(
                 'Recent searches list is broken (error {}) - cleaning up', err)
             self.recents = []
+        self.logger.debug('deleted search: {} sec', time.time() - start)
         return self
 
     def populate(self):
         """ Populates a directory with the recent serach list """
+        self.logger.debug('delete')
+        start = time.time()
+        #
         for entry in self.recents:
             self.plugin.add_folder_item(
                 entry['search'],
@@ -137,3 +158,4 @@ class RecentSearches(object):
                     'results-m.png'
                 )
             )
+        self.logger.debug('deleted search: {} sec', time.time() - start)

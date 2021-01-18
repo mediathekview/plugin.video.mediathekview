@@ -46,13 +46,13 @@ except ImportError:
     pass
 
 # -- Constants ----------------------------------------------
-#FILMLISTE_URL = 'https://liste.mediathekview.de/'
-FILMLISTE_URL = 'http://192.168.137.100/content/'
+FILMLISTE_URL = 'https://liste.mediathekview.de/'
+#FILMLISTE_URL = 'http://192.168.137.100/content/'
 #FILMLISTE_URL = 'http://192.168.137.100/content/test/'
 FILMLISTE_AKT = 'Filmliste-akt'
 FILMLISTE_DIF = 'Filmliste-diff'
 DATABASE_URL = 'https://liste.mediathekview.de/'
-DATABASE_URL = 'http://192.168.137.100/content/'
+#DATABASE_URL = 'http://192.168.137.100/content/'
 #DATABASE_URL = 'http://192.168.137.100/content/test/'
 DATABASE_DBF = 'filmliste-v3.db'
 #DATABASE_AKT = 'filmliste-v2.db.update'
@@ -127,7 +127,7 @@ class UpdateFileDownload(object):
     def updateSqliteDb(self):
         start = time.time()
         mvutils.file_rename(self._filename, self._Dbfilename)
-        self.logger.info('renamed {} to {} in {} sec',self._filename, self._Dbfilename, (time.time() - start))
+        self.logger.debug('renamed {} to {} in {} sec',self._filename, self._Dbfilename, (time.time() - start))
             
     def _getExtension(self):
         ext = ""
@@ -145,7 +145,7 @@ class UpdateFileDownload(object):
     def _download(self, url, compressedFilename, targetFilename):
         # cleanup downloads
         start = time.time()
-        self.logger.info('Cleaning up old downloads...')
+        self.logger.debug('Cleaning up old downloads...')
         mvutils.file_remove(compressedFilename)
         mvutils.file_remove(targetFilename)
         #
@@ -154,7 +154,7 @@ class UpdateFileDownload(object):
 
         # pylint: disable=broad-except
         try:
-            self.logger.info('Trying to download {} from {}...',
+            self.logger.debug('Trying to download {} from {}...',
                              os.path.basename(compressedFilename), url)
             self.notifier.update_download_progress(0, url)
             mvutils.url_retrieve(
@@ -163,7 +163,7 @@ class UpdateFileDownload(object):
                 reporthook=self.notifier.hook_download_progress,
                 aborthook=self.monitor.abort_requested
             )
-            self.logger.info('downloaded {} in {} sec',compressedFilename, (time.time() - start))
+            self.logger.debug('downloaded {} in {} sec',compressedFilename, (time.time() - start))
         except URLError as err:
             self.logger.error('Failure downloading {} - {}', url, err)
             self.notifier.close_download_progress()
@@ -185,17 +185,17 @@ class UpdateFileDownload(object):
         start = time.time()
         try:
             if self.use_xz is True:
-                self.logger.info('Trying to decompress xz file...')
+                self.logger.debug('Trying to decompress xz file...')
                 retval = subprocess.call([mvutils.find_xz(), '-d', compressedFilename])
-                self.logger.info('decompress xz {} in {} sec', retval, (time.time() - start))
+                self.logger.debug('decompress xz {} in {} sec', retval, (time.time() - start))
             elif UPD_CAN_BZ2 is True:
-                self.logger.info('Trying to decompress bz2 file...')
+                self.logger.debug('Trying to decompress bz2 file...')
                 retval = self._decompress_bz2(compressedFilename, targetFilename)
-                self.logger.info('decompress bz2 {} in {} sec', retval, (time.time() - start))
+                self.logger.debug('decompress bz2 {} in {} sec', retval, (time.time() - start))
             elif UPD_CAN_GZ is True:
-                self.logger.info('Trying to decompress gz file...')
+                self.logger.debug('Trying to decompress gz file...')
                 retval = self._decompress_gz(compressedFilename, targetFilename)
-                self.logger.info('decompress gz {} in {} sec', retval, (time.time() - start))
+                self.logger.debug('decompress gz {} in {} sec', retval, (time.time() - start))
             else:
                 # should never reach
                 pass
@@ -234,12 +234,12 @@ class UpdateFileDownload(object):
                 'gz decompression of "{}" to "{}" failed: {}', sourcefile, destfile, err)
             if mvutils.find_gzip() is not None:
                 gzip_binary = mvutils.find_gzip()
-                self.logger.info(
+                self.logger.debug(
                     'Trying to decompress gzip file "{}" using {}...', sourcefile, gzip_binary)
                 try:
                     mvutils.file_remove(destfile)
                     retval = subprocess.call([gzip_binary, '-d', sourcefile])
-                    self.logger.info('Calling {} -d {} returned {}',
+                    self.logger.debug('Calling {} -d {} returned {}',
                                      gzip_binary, sourcefile, retval)
                     return retval
                 except Exception as err:

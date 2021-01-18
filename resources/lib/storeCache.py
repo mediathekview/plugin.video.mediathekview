@@ -37,12 +37,12 @@ class StoreCache(object):
     def load_cache(self, reqtype, condition):
         start = time.time()
         if not self.settings.getCaching():
-            self.logger.info('loading cache is disabled')
+            self.logger.debug('loading cache is disabled')
             return None
         ##
         filename = os.path.join( self.settings.getDatapath() , reqtype + '.cache')
         if not mvutils.file_exists(filename):
-            self.logger.info('no cache file request "{}" and condition "{}"', reqtype, condition)
+            self.logger.debug('no cache file request "{}" and condition "{}"', reqtype, condition)
             return None
         ##              
         dbLastUpdate = self.settings.getLastUpdate()
@@ -58,28 +58,28 @@ class StoreCache(object):
                         return None
                     data = data.get('data', [])
                     if isinstance(data, list):
-                        self.logger.info('return cache after {} sec for request "{}" and condition "{}"', (time.time() - start), reqtype, condition)
+                        self.logger.debug('return cache after {} sec for request "{}" and condition "{}"', (time.time() - start), reqtype, condition)
                         return data
         # pylint: disable=broad-except
         except Exception as err:
             self.logger.error('Failed to load cache file {}: {}', filename, err)
             mvutils.file_remove(filename)
             raise
-        self.logger.info('no cache found')
+        self.logger.debug('no cache found')
         return None
 
     def save_cache(self, reqtype, condition, data):
         if not self.settings.getCaching():
-            self.logger.info('saving cache is disabled')
+            self.logger.debug('saving cache is disabled')
             return None
         if data is None:
-            self.logger.info('cache data is NONE')
+            self.logger.debug('cache data is NONE')
             return None
         if len(data) == 0:
-            self.logger.info('no data to cache')
+            self.logger.debug('no data to cache')
             return None
         if not isinstance(data, list):
-            self.logger.info('not a proper instance for caching')
+            self.logger.debug('not a proper instance for caching')
             return None
         start = time.time()
         filename = os.path.join( self.settings.getDatapath() , reqtype + '.cache')
@@ -96,4 +96,4 @@ class StoreCache(object):
         except Exception as err:
             self.logger.error('Failed to write cache file {}: {}', filename, err)
             raise
-        self.logger.info('cache saved after {} sec for request "{}" and condition "{}"', (time.time() - start), reqtype, condition)
+        self.logger.debug('cache saved after {} sec for request "{}" and condition "{}"', (time.time() - start), reqtype, condition)

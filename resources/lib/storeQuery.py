@@ -64,7 +64,7 @@ class StoreQuery(object):
     def execute(self, aStmt, aParams = None):
         """ execute a single sql stmt and return the resultset """
         start = time.time()
-        self.logger.info('query: {} params {}', aStmt, aParams)
+        self.logger.debug('query: {} params {}', aStmt, aParams)
         cursor = self.getConnection().cursor()
         if aParams is None:
             cursor.execute(aStmt)
@@ -72,7 +72,7 @@ class StoreQuery(object):
             cursor.execute(aStmt, aParams)
         rs = cursor.fetchall()
         cursor.close()
-        self.logger.info('execute: {} rows in {} sec', len(rs), time.time() - start)
+        self.logger.debug('execute: {} rows in {} sec', len(rs), time.time() - start)
         return rs
     
     def executeUpdate(self, aStmt, aParams):
@@ -80,7 +80,7 @@ class StoreQuery(object):
         cursor = self.getConnection().cursor()
         cursor.execute(aStmt, aParams)
         rs = cursor.rowcount
-        #self.logger.info(" rowcount executeUpdate {}" , rs )
+        #self.logger.debug(" rowcount executeUpdate {}" , rs )
         cursor.close()
         self.getConnection().commit()
         return rs
@@ -90,7 +90,7 @@ class StoreQuery(object):
         cursor = self.getConnection().cursor()
         cursor.executemany(aStmt, aParams)
         rs = cursor.rowcount
-        #self.logger.info(" rowcount executemany {}" , rs )
+        #self.logger.debug(" rowcount executemany {}" , rs )
         cursor.close()
         self.getConnection().commit()
         return rs
@@ -103,6 +103,18 @@ class StoreQuery(object):
             return self.sql_pStmtUpdate
 
     ###
+    def extendedSearch(self, esModel):
+        self.logger.debug('extendedSearch')
+        #
+        cached_data = self._cache.load_cache('extendedSearch', esModel.toDict())
+        if cached_data is not None:
+            rs = cached_data;
+        else:
+            rs = self.extendedSearchQuery(esModel)
+            self._cache.save_cache('extendedSearch', esModel.toDict(), rs)
+        #
+        return rs
+        
     def extendedSearchQuery(self, esModel):
         rs = None 
         params = []
@@ -185,7 +197,7 @@ class StoreQuery(object):
         Array
             Resultset of the query
         """
-        self.logger.info('getQuickSearch')
+        self.logger.debug('getQuickSearch')
         #
         cached_data = self._cache.load_cache('quickSearch', searchTerm)
         if cached_data is not None:
@@ -203,7 +215,7 @@ class StoreQuery(object):
         """
         Retrieve data for livestream screen
         """
-        self.logger.info('getLivestreams')
+        self.logger.debug('getLivestreams')
         #
         cached_data = self._cache.load_cache('livestreams', '')
         if cached_data is not None:
@@ -222,7 +234,7 @@ class StoreQuery(object):
         """
         Retrieve data for recent films
         """
-        self.logger.info('getRecentFilms')
+        self.logger.debug('getRecentFilms')
         #
         cached_data = self._cache.load_cache('recentFilms', channelId)
         if cached_data is not None:
@@ -243,7 +255,7 @@ class StoreQuery(object):
         """
         Retrieve data for recent films
         """
-        self.logger.info('getFilms')
+        self.logger.debug('getFilms')
         #
         cached_data = self._cache.load_cache('films', showIds + channel)
         if cached_data is not None:
@@ -261,10 +273,13 @@ class StoreQuery(object):
         return rs
     ###
     def getChannels(self):
+        """ getChannels for listing """
+        self.logger.debug('getChannels')
+        #
         cached_data = self._cache.load_cache('channels', '')
         if cached_data is not None:
             return cached_data
-
+        #
         try:
             sql = "SELECT channel AS channelid, channel FROM film GROUP BY channel ORDER BY channel ASC"
             rs = self.execute(sql)
@@ -274,10 +289,13 @@ class StoreQuery(object):
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        
+        #
         return rs
     ###
     def getChannelList(self):
+        """ getChannelList for extended search channel ui """
+        self.logger.debug('getChannelList')
+        #
         allChannel = []
         rs = self.getChannels()
         for row in rs:
@@ -285,6 +303,9 @@ class StoreQuery(object):
         return allChannel
     ###
     def getChannelsRecent(self):
+        """ getChannelsRecent for recent view """
+        self.logger.debug('getChannelsRecent')
+        #
         cached_data = self._cache.load_cache('channels_recent', '')
         if cached_data is not None:
             return cached_data
@@ -312,6 +333,9 @@ class StoreQuery(object):
         return rs
     ###
     def getShowsByChannnel(self, channelId):
+        """ getShowsByChannnel for channel view """
+        self.logger.debug('getShowsByChannnel')
+        #
         cached_data = self._cache.load_cache('showsByChannel', channelId)
         if cached_data is not None:
             return cached_data
@@ -337,6 +361,9 @@ class StoreQuery(object):
         return rs
     ###
     def getShowsByLetter(self, aLetter):
+        """ getShowsByLetter for channel view """
+        self.logger.debug('getShowsByLetter')
+        #
         cached_data = self._cache.load_cache('showsByLetter', aLetter)
         if cached_data is not None:
             return cached_data
@@ -368,6 +395,9 @@ class StoreQuery(object):
         return rs
     ###
     def getStartLettersOfShows(self):
+        """ getStartLettersOfShows for show view """
+        self.logger.debug('getStartLettersOfShows')
+        #
         cached_data = self._cache.load_cache('letters', '')
         if cached_data is not None:
             return cached_data
@@ -403,6 +433,8 @@ class StoreQuery(object):
         Args:
             filmid(id): database id of the requested film
         """
+        self.logger.debug('retrieve_film_info')
+        #
         try:
             condition = "( idhash='{}' )".format(filmid)
             rs = self.execute(
@@ -421,6 +453,7 @@ class StoreQuery(object):
 
     def get_status(self):
         """ Retrieves the database status information """
+        self.logger.debug('get_status')
         status = {
             'status': 'UNINIT',
             'lastUpdate': 0,
@@ -457,6 +490,7 @@ class StoreQuery(object):
         return status
 
     def set_status(self, pStatus = None, pLastupdate = None, pLastFullUpdate = None, pFilmupdate = None, pVersion = None):
+        self.logger.debug('set_status')
         ## status in settings
         if pStatus is not None:
             self.settings.setDatabaseStatus(pStatus)
@@ -471,7 +505,7 @@ class StoreQuery(object):
             sqlStmt = 'UPDATE status SET status = COALESCE(?,status), lastupdate = COALESCE(?,lastupdate), lastFullUpdate = COALESCE(?,lastFullUpdate), filmupdate = COALESCE(?,filmupdate), version = COALESCE(?,version)'
             #cursor.execute(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
             rs = self.executeUpdate(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
-            self.logger.info('Update Status {} lastupdate: {} lastFullUpdate: {} filmupdate: {} version: {}', pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion)
+            self.logger.debug('Update Status {} lastupdate: {} lastFullUpdate: {} filmupdate: {} version: {}', pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion)
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
@@ -479,6 +513,7 @@ class StoreQuery(object):
         ###
    
     def import_begin(self):
+        self.logger.debug('import_begin')
         try:
             cursor = self.getConnection().cursor()
             cursor.execute("update film set touched = 0")
@@ -489,6 +524,7 @@ class StoreQuery(object):
             raise
 
     def import_end(self):
+        self.logger.debug('import_end')
         try:
             cursor = self.getConnection().cursor()
             cursor.execute("delete from film where touched = 0")
@@ -499,6 +535,7 @@ class StoreQuery(object):
             raise
     
     def import_films(self, filmArray):
+        self.logger.debug('import_films')
         #
         pStmtInsert = self.getImportPreparedStmtInsert()
         pStmtUpdate = self.getImportPreparedStmtUpdate()
@@ -513,7 +550,7 @@ class StoreQuery(object):
             for f in filmArray:
                 cursor.execute(pStmtUpdate, (f[0],))
                 rs = cursor.rowcount
-                #self.logger.info('executeUpdate rs {} for {}', rs , f[0] )
+                #self.logger.debug('executeUpdate rs {} for {}', rs , f[0] )
                 if rs == 0:
                     insertArray.append(f)
                     insertCnt +=1

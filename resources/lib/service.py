@@ -40,11 +40,11 @@ class MediathekViewService(KodiService):
         
     def init(self):
         """ Initialisation of the service """
-        self.logger.info('init')
+        self.logger.debug('init')
 
     def run(self):
         """ Execution of the service """
-        self.logger.info('Service Startup...')
+        self.logger.debug('Service Startup...')
         # Wait for Kodi to retrieve network
         self.monitor.wait_for_abort(self.settings.getDelayStartupSec())
         # error counter to slow down
@@ -55,7 +55,7 @@ class MediathekViewService(KodiService):
             delayInSec = (self.errorCount * 60)+1
             self.monitor.wait_for_abort(delayInSec)
             if delayInSec > 1:
-                self.logger.info('Delayed service agent by {} sec due to error count {}', delayInSec, self.errorCount)
+                self.logger.warn('Delayed service agent by {} sec due to error count {}', delayInSec, self.errorCount)
             #
             self.updater = MediathekViewUpdater()
             self.updater.init()

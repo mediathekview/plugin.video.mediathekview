@@ -85,11 +85,11 @@ class UpdateFileImport(object):
             # this is the timestamp of this database update
             #value = jsonDoc['Filmliste'][0]
             value = fileHeader[15:32]
-            #self.logger.info( 'update date ' + value )
+            #self.logger.debug( 'update date ' + value )
             try:
                 fldt = datetime.datetime.strptime(value.strip(), "%d.%m.%Y, %H:%M")
                 flts = int(time.mktime(fldt.timetuple()))
-                self.logger.info('Filmliste dated {}', value.strip())
+                self.logger.debug('Filmliste dated {}', value.strip())
                 self.database.set_status('UPDATING', pFilmupdate=flts )
             except TypeError:
                 # pylint: disable=line-too-long
@@ -98,7 +98,7 @@ class UpdateFileImport(object):
                 try:
                     flts = int(time.mktime(time.strptime(value.strip(), "%d.%m.%Y, %H:%M")))
                     self.database.set_status('UPDATING', pFilmupdate=flts )
-                    self.logger.info('Filmliste dated {}', value.strip())
+                    self.logger.debug('Filmliste dated {}', value.strip())
                     # pylint: disable=broad-except
                 except Exception as err:
                     # If the universe hates us...
@@ -195,13 +195,13 @@ class UpdateFileImport(object):
                             self.insertCount += ai
                             self.updateCount += au
                         except Exception as err:
-                            self.logger.debug('Error in data import: {}', err)
+                            self.logger.error('Error in data import: {}', err)
                             self.errorCount = self.errorCount + 1
                         recordArray = []                        
                         # update status
                         percent = int(self.count * 100 / records)
                         percent = percent if percent <= 100 else 100
-                        self.logger.info('In progress (%d%%): insert:%d, update:%d' % (percent, self.insertCount, self.updateCount))
+                        self.logger.debug('In progress (%d%%): insert:%d, update:%d' % (percent, self.insertCount, self.updateCount))
                         self.notifier.update_update_progress(percent, self.count, self.insertCount, self.updateCount)
             if len(recordArray) > 0:
                 try:
@@ -209,7 +209,7 @@ class UpdateFileImport(object):
                     self.insertCount += ai
                     self.updateCount += au
                 except Exception as err:
-                    self.logger.debug('Error in data import: {}', err)
+                    self.logger.error('Error in data import: {}', err)
                     self.errorCount = self.errorCount + 1   
             ##
             ufp.close()
@@ -217,7 +217,7 @@ class UpdateFileImport(object):
             self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {}',self.count, int(time.time() - starttime), self.updateCount, self.insertCount)           
             self.notifier.close_update_progress()
             if self.errorCount > 0:
-                self.logger.info('Update finished with error(s)')
+                self.logger.warn('Update finished with error(s)')
         except Exception as err:
             self.logger.error(
                 'Error {} while processing {}', err, targetFilename)
@@ -232,7 +232,7 @@ class UpdateFileImport(object):
 ######################################################################
 
     def _update_start(self):
-        self.logger.info('Initializing update...')
+        self.logger.debug('Initializing update...')
         self.count = 0
         self.insertCount = 0
         self.updateCount = 0

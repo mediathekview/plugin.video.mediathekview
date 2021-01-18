@@ -49,10 +49,10 @@ class MediathekViewPlugin(KodiPlugin):
         self.notifier = appContext.MVNOTIFIER
         self.logger = appContext.MVLOGGER.get_new_logger('MediathekViewPlugin')
         if self.settings.getDatabaseType() == 0:
-            self.logger.info('Database driver: Internal (sqlite)')
+            self.logger.debug('Database driver: Internal (sqlite)')
             self.database = StoreSQLite()
         elif self.settings.getDatabaseType() == 1:
-            self.logger.info('Database driver: External (mysql)')
+            self.logger.debug('Database driver: External (mysql)')
             self.database = StoreMySQL()
         else:
             self.logger.warn('Unknown Database driver selected')
@@ -116,6 +116,10 @@ class MediathekViewPlugin(KodiPlugin):
             self.add_action_item(30909, {'mode': "action-dbupdate"})
         self.end_of_directory()
         self._check_outdate()
+        self.run_builtin('Container.SetViewMode(55)')
+        window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+        viewid = window.getFocusId()
+        self.logger.debug(" View id {}", viewid)
 
     def show_searches(self):
         """
@@ -157,7 +161,7 @@ class MediathekViewPlugin(KodiPlugin):
                     self.set_setting(settingid, search)
             else:
                 # pylint: disable=line-too-long
-                self.logger.info(
+                self.logger.debug(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
                 self.end_of_directory(False, cache_to_disc=True)
 

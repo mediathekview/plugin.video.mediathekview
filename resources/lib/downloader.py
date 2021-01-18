@@ -66,7 +66,7 @@ class Downloader(object):
             subs.append(srtname)
         #(_, listitem) = FilmUI(self.plugin).get_list_item(None, film)
         (_, listitem) = FilmlistUi(self.plugin)._generateListItem(film)
-        self.logger.info('SUBTITLE FOUND {} from url {}' , subs, film.url_sub )
+        self.logger.debug('SUBTITLE FOUND {} from url {}' , subs, film.url_sub )
         if listitem:
             if subs:
                 listitem.setSubtitles(subs)
@@ -104,7 +104,7 @@ class Downloader(object):
                              xbmcvfs.File(srtname, 'w'))
                     ret = True
                 except Exception as err:
-                    self.logger.info('Failed to convert to srt: {}', err)
+                    self.logger.error('Failed to convert to srt: {}', err)
                 progress.close()
             except Exception as err:
                 progress.close()

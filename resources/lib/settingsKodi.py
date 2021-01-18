@@ -20,7 +20,7 @@ class SettingsKodi(SettingsInterface):
     """ The settings class """
 
     def __init__(self, pAddonClass):
-        xbmc.log("SettingsKodi:init", xbmc.LOGINFO)
+        xbmc.log("SettingsKodi:init", xbmc.LOGDEBUG)
         self._addonClass = pAddonClass
         pass
     

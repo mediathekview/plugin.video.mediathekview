@@ -56,7 +56,7 @@ class LivestreamUi(object):
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
         self.plugin.run_builtin('Container.SetViewMode(500)')
         ##
-        self.logger.info('Listitem generated: {} sec', time.time() - self.startTime)
+        self.logger.debug('generated: {} sec', time.time() - self.startTime)
 
     def _generateLivestream(self, rsRow):
         # 0 filmui.filmid

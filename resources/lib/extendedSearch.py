@@ -63,15 +63,17 @@ class ExtendedSearch(object):
 
 
     def show(self):
-        ##
-        ###
+        """ populate UI with extended search elements """
+        self.logger.debug('show action: {} searchId:{}', self.action, self.searchId)
+        start = time.time()
+        #
         if self.action == "SHOW":
             self.showList()
         elif self.action == "RUN":
             data = self._getModelById(self.searchId);
             #self.database.extendedSearchQuery(data, FilmUI(self.plugin))
             ui = FilmlistUi.FilmlistUi(self.plugin)
-            ui.generate(self.database.extendedSearchQuery(data)) 
+            ui.generate(self.database.extendedSearch(data)) 
             
         elif self.action == "NEW":
             (txt, confirm) = self.notifier.get_entered_text(heading=30419)
@@ -177,11 +179,14 @@ class ExtendedSearch(object):
             #
             self.plugin.end_of_directory(True,False,False)
             self.plugin.run_builtin(cmd)
-
+        self.logger.debug('show processed: {} sec', time.time() - start)
 
 
     def showList(self):
-        ##
+        """ populate all elements from extended search """
+        self.logger.debug('showList')
+        start = time.time()
+        #
         self.plugin.add_folder_item(
             30931,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'NEW'},
@@ -227,10 +232,14 @@ class ExtendedSearch(object):
             )
         ##
         self.plugin.end_of_directory()
+        ##
+        self.logger.debug('showList processed: {} sec', time.time() - start)
 
     def showEntry(self, extSearchModel):
         #
-        ##
+        self.logger.debug('showEntry')
+        start = time.time()
+        #
         self.plugin.add_folder_item(
             30934,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'RUN', 'searchId': extSearchModel.getId()},
@@ -323,7 +332,7 @@ class ExtendedSearch(object):
                 icon=os.path.join( self.plugin.path, 'resources', 'icons', 'results-m.png')
             )
         self.plugin.end_of_directory()
-
+        self.logger.debug('showEntry processed: {} sec', time.time() - start)
 
 
 
@@ -345,6 +354,9 @@ class ExtendedSearch(object):
 
     def _load(self):
         """ Loads the recent searches list """
+        self.logger.debug('_load')
+        start = time.time()
+        #
         listOfItems=[]
         try:
             with closing(open(self.datafile, encoding='utf-8')) as json_file:
@@ -356,9 +368,14 @@ class ExtendedSearch(object):
             self.logger.error(
                 'Failed to load last searches file {}: {}', self.datafile, err)
         self.recents = listOfItems
+        #
+        self.logger.debug('_load processed: {} sec', time.time() - start)
     
     def _save(self):
         """ Saves the recent searches list """
+        self.logger.debug('_save')
+        start = time.time()
+        #
         data = sorted(self.recents, key=itemgetter('when'), reverse=True)
         try:
             with closing(open(self.datafile, 'w', encoding='utf-8')) as json_file:
@@ -367,11 +384,19 @@ class ExtendedSearch(object):
         except Exception as err:
             self.logger.error(
                 'Failed to write last searches file {}: {}', self.datafile, err)
+        #
+        self.logger.debug('_save processed: {} sec', time.time() - start)
+        #
         return self
 
     def _saveModel(self, extendedSearchModel):
+        self.logger.debug('_saveModel')
+        start = time.time()
+        #
         data = self._getItemById(extendedSearchModel.getId())
         self.recents.remove(data)
         data = extendedSearchModel.toDict()
         self.recents.append(data)
-        self._save() 
+        self._save()
+        #
+        self.logger.debug('_saveModel processed: {} sec', time.time() - start)

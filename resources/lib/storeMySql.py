@@ -34,7 +34,7 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
        
     def getConnection(self):
         if self.conn is None:
-            self.logger.info('Using MySQL connector version {}',
+            self.logger.debug('Using MySQL connector version {}',
                              mysql.connector.__version__)
             # TODO Kodi 19 - we can update to mysql connector which supports auth_plugin parameter
             connectargs = {
@@ -56,11 +56,11 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
                 cursor = self.conn.cursor()
                 cursor.execute('SELECT VERSION()')
                 (version, ) = cursor.fetchone()
-                self.logger.info(
+                self.logger.debug(
                     'Connected to server {} running {}', self.settings.getDatabaseHost(), version)
             # pylint: disable=broad-except
             except Exception:
-                self.logger.info('Connected to server {}', self.settings.getDatabaseHost())
+                self.logger.debug('Connected to server {}', self.settings.getDatabaseHost())
             ## select database
             try:
                 self.conn.database = self.settings.getDatabaseSchema()
