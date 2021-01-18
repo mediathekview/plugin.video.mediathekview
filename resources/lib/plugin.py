@@ -113,9 +113,13 @@ class MediathekViewPlugin(KodiPlugin):
         )
         # Manual database update
         if self.settings.getDatabaseUpateMode() == 1 or self.settings.getDatabaseUpateMode() == 2:
-            self.add_action_item(30909, {'mode': "action-dbupdate"})
+            self.add_action_item(
+                30909, 
+                {'mode': "action-dbupdate"},
+                icon=os.path.join(self.path, 'resources', 'icons', 'download-m.png')
+            )
+        #
         self.end_of_directory()
-        self._check_outdate()
         self.run_builtin('Container.SetViewMode(55)')
         window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
         viewid = window.getFocusId()
@@ -194,28 +198,6 @@ class MediathekViewPlugin(KodiPlugin):
             totinfo + '\n\n' +
             updinfo
         )
-
-    def _check_outdate(self, maxage=172800):
-        if self.settings.getDatabaseUpateMode() != 1 and self.settings.getDatabaseUpateMode() != 2:
-            # no check with update disabled or update automatic
-            return
-        if self.database is None:
-            # should never happen
-            self.notifier.show_outdated_unknown()
-            return
-        status = self.database.get_status()
-        if status['status'] == 'NONE' or status['status'] == 'UNINIT':
-            # should never happen
-            self.notifier.show_outdated_unknown()
-            return
-        elif status['status'] == 'UPDATING':
-            # great... we are updating. nuthin to show
-            return
-        # lets check how old we are
-        tsnow = int(time.time())
-        tsold = int(status['lastUpdate'])
-        if tsnow - tsold > maxage:
-            self.notifier.show_outdated_known(status)
 
     def init(self):
         """ Initialisation of the plugin """
@@ -310,9 +292,8 @@ class MediathekViewPlugin(KodiPlugin):
             Downloader(self).play_movie_with_subs(filmid)
 
         # cleanup saved searches
-        if mode is None or mode != 'newsearch':
+        if self.get_setting('lastsearch1') != '' and (mode is None or mode != 'newsearch'):
             self.set_setting('lastsearch1', '')
-            self.set_setting('lastsearch2', '')
         ##
         self.logger.info('request processed: {} sec', time.time() - start)
 

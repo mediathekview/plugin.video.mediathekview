@@ -60,7 +60,7 @@ class RecentSearches(object):
 
     def save(self):
         """ Saves the recent searches list """
-        self.logger.debug('load')
+        self.logger.debug('save')
         start = time.time()
         #
         data = sorted(self.recents, key=itemgetter('when'), reverse=True)
@@ -130,7 +130,7 @@ class RecentSearches(object):
 
     def populate(self):
         """ Populates a directory with the recent serach list """
-        self.logger.debug('delete')
+        self.logger.debug('populate')
         start = time.time()
         #
         for entry in self.recents:
@@ -158,4 +158,4 @@ class RecentSearches(object):
                     'results-m.png'
                 )
             )
-        self.logger.debug('deleted search: {} sec', time.time() - start)
+        self.logger.debug('populate search: {} sec', time.time() - start)

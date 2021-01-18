@@ -403,15 +403,15 @@ class StoreQuery(object):
             return cached_data
 
         try:
-            sql = "SELECT UPPER(SUBSTR(showname,1,1)), COUNT(*) FROM film where SUBSTR(showname,1,1) between 'A' and 'Z' "
+            sql = "SELECT UPPER(SUBSTR(showname,1,1)), COUNT(DISTINCT(SHOWID)) FROM film where SUBSTR(showname,1,1) between 'A' and 'Z' "
             ## recent
-            sql += " AND " + self.sql_cond_recent
+            #sql += " AND " + self.sql_cond_recent
             ## duration filter
             sql += self.sql_cond_nofuture
             ## no future
             sql += self.sql_cond_minlength
             ##
-            sql += " GROUP BY UPPER(SUBSTR(showname,1,1)) order by UPPER(SUBSTR(showname,1,1)) asc"
+            sql += " GROUP BY UPPER(SUBSTR(showname,1,1)) ORDER BY UPPER(SUBSTR(showname,1,1)) asc"
             ##
             rs = self.execute(sql)
             ##

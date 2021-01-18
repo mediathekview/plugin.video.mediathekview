@@ -54,6 +54,9 @@ class Downloader(object):
         Args:
             filmid(id): database id of the film to play
         """
+        self.logger.debug('play_movie_with_subs')
+        start = time.time()
+        #
         film = self.database.retrieve_film_info(filmid)
         if film is None:
             self.logger.error("no film for download " + self.plugin.language(30991)) 
@@ -71,6 +74,7 @@ class Downloader(object):
             if subs:
                 listitem.setSubtitles(subs)
             self.plugin.set_resolved_url(True, listitem)
+        self.logger.debug('play_movie_with_subs processed: {} sec', time.time() - start)
 
     def download_subtitle(self, film, ttmname, srtname, filename):
         """
@@ -89,6 +93,7 @@ class Downloader(object):
             filename(str): a filename stub without extension for
                 UI display
         """
+        self.logger.debug('download_subtitle')
         ret = False
         if film.url_sub:
             progress = KodiProgressDialog()
@@ -123,6 +128,7 @@ class Downloader(object):
 
             quality(int): quality to download (0 = SD, 1 = Normal, 2 = HD)
         """
+        self.logger.debug('download_movie')
         if not self._test_download_path(self.settings.getDownloadPathMovie()):
             return
         film = self.database.retrieve_film_info(filmid)
@@ -183,6 +189,7 @@ class Downloader(object):
 
             quality(int): quality to download (0 = SD, 1 = Normal, 2 = HD)
         """
+        self.logger.debug('download_episode')
         if not self._test_download_path(self.settings.getDownloadPathEpisode()):
             return
         film = self.database.retrieve_film_info(filmid)
@@ -230,6 +237,7 @@ class Downloader(object):
                 film, filmurl, pathname, filename, season, episode, sequence)
 
     def _download_files(self, film, filmurl, pathname, filename, extension):
+        self.logger.debug('_download_files')
         # make sure the destination directory exists
         if not xbmcvfs.exists(pathname):
             xbmcvfs.mkdir(pathname)
@@ -291,6 +299,7 @@ class Downloader(object):
             return (filmurl, suffix, u'.mp4', )
 
     def _make_movie_nfo_file(self, film, filmurl, pathname, filename):
+        self.logger.debug('_make_movie_nfo_file')
         # create movie NFO file
         # See: https://kodi.wiki/view/NFO_files/Movies
         # pylint: disable=broad-except
@@ -332,6 +341,7 @@ class Downloader(object):
                 raise
 
     def _make_series_nfo_files(self, film, filmurl, pathname, filename, season, episode, sequence):
+        self.logger.debug('_make_series_nfo_files')
         # create series NFO files
         # See: https://kodi.wiki/view/NFO_files/TV_shows
         # pylint: disable=broad-except
@@ -411,6 +421,7 @@ class Downloader(object):
                     'Failure creating episode NFO file for {}: {}', filmurl, err)
 
     def _season_and_episode_detect(self, film):
+        self.logger.debug('_season_and_episode_detect')
         # initial trivial implementation
         self.logger.error('film.show is type {}', type(film.show))
         self.logger.error('film.title is type {}', type(film.title))

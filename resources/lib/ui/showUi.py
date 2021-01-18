@@ -64,7 +64,7 @@ class ShowUi(object):
                     self.plugin.path,
                     'resources',
                     'icons',
-                    'default-m.png'
+                    'default2-m.png'
                 )
             #
             if self.plugin.get_kodi_version() > 17:
