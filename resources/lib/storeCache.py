@@ -37,7 +37,7 @@ class StoreCache(object):
     def load_cache(self, reqtype, condition):
         start = time.time()
         if not self.settings.getCaching():
-            self.logger.info('caching is disabled')
+            self.logger.info('loading cache is disabled')
             return None
         ##
         filename = os.path.join( self.settings.getDatapath() , reqtype + '.cache')
@@ -70,7 +70,7 @@ class StoreCache(object):
 
     def save_cache(self, reqtype, condition, data):
         if not self.settings.getCaching():
-            self.logger.info('caching is disabled')
+            self.logger.info('saving cache is disabled')
             return None
         if data is None:
             self.logger.info('cache data is NONE')
