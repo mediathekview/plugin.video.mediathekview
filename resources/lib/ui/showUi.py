@@ -14,6 +14,7 @@ import xbmcgui
 import xbmcplugin
 
 import resources.lib.mvutils as mvutils
+from resources.lib.model.show import Show
 
 
 class ShowUi(object):
@@ -42,8 +43,11 @@ class ShowUi(object):
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.setContent(self.handle, '')
         #
+        showModel = Show()
         listOfElements = []
         for element in databaseRs:
+            #
+            showModel.init(element[0],element[1],element[2],element[3])
             #
             if element[1].find(',') == -1:
                 nameLabel = element[2];

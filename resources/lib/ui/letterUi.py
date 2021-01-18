@@ -12,9 +12,8 @@ import resources.lib.appContext as appContext
 import os
 import xbmcgui
 import xbmcplugin
-
 import resources.lib.mvutils as mvutils
-
+from resources.lib.model.letter import Letter
 
 class LetterUi(object):
     """
@@ -40,10 +39,13 @@ class LetterUi(object):
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.setContent(self.handle, '')
         #
+        letterModel = Letter()
         listOfElements = []
         for element in databaseRs:
             #
-            nameLabel = element[0] + " (" + str(element[1]) + ")" ;
+            letterModel.init(element[0],element[1])
+            
+            nameLabel = letterModel.letter + " (" + str(letterModel.count) + ")" ;
             #
             if self.plugin.get_kodi_version() > 17:
                 list_item = xbmcgui.ListItem(label=nameLabel, offscreen=True)
@@ -58,7 +60,7 @@ class LetterUi(object):
             #
             targetUrl = mvutils.build_url({
                 'mode': 'shows',
-                'initial': element[0]
+                'initial': letterModel.letter
             })
             #
             listOfElements.append((targetUrl, list_item, True))

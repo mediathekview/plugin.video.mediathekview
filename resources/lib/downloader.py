@@ -21,7 +21,8 @@ import resources.lib.mvutils as mvutils
 import resources.lib.appContext as appContext
 
 from resources.lib.kodi.kodiui import KodiProgressDialog
-from resources.lib.filmui import FilmUI
+from resources.lib.model.film import Film
+from resources.lib.ui.filmlistUi import FilmlistUi
 from resources.lib.ttml2srt import ttml2srt
 
 
@@ -63,7 +64,9 @@ class Downloader(object):
         subs = []
         if self.download_subtitle(film, ttmname, srtname, 'subtitle'):
             subs.append(srtname)
-        (_, listitem) = FilmUI(self.plugin).get_list_item(None, film)
+        #(_, listitem) = FilmUI(self.plugin).get_list_item(None, film)
+        (_, listitem) = FilmlistUi(self.plugin)._generateListItem(film)
+        self.logger.info('SUBTITLE FOUND {} from url {}' , subs, film.url_sub )
         if listitem:
             if subs:
                 listitem.setSubtitles(subs)

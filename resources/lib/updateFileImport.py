@@ -21,11 +21,6 @@ import json
 
 import resources.lib.mvutils as mvutils
 
-# from resources.lib.utils import *
-from resources.lib.exceptions import DatabaseCorrupted
-from resources.lib.exceptions import DatabaseLost
-from resources.lib.exceptions import ExitRequested
-
 
 # -- Classes ------------------------------------------------
 # pylint: disable=bad-whitespace

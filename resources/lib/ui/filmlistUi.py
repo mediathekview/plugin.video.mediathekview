@@ -13,7 +13,7 @@ from datetime import timedelta
 import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
-from resources.lib.film import Film
+from resources.lib.model.film import Film
 
 
 class FilmlistUi(object):
@@ -78,7 +78,7 @@ class FilmlistUi(object):
             aFilm.init( element[0], element[1], element[2], element[3], element[4], element[5],  
                         element[6], element[7], element[8], element[9], element[10], element[11])
             #
-            (targetUrl, list_item, ) = self._generateListItem(aFilm)
+            (targetUrl, list_item) = self._generateListItem(aFilm)
             #            
             list_item.addContextMenuItems(self._generateContextMenu(aFilm))
             #
@@ -166,15 +166,17 @@ class FilmlistUi(object):
 
     def _generateContextMenu(self, pFilm):
         contextmenu = []
-        contextmenu.append((
-            self.plugin.language(30921),
-            'PlayMedia({})'.format(
-                self.plugin.build_url({
-                    'mode': "playwithsrt",
-                    'id': pFilm.filmid
-                })
-            )
-        ))
+        
+        if pFilm.url_sub != '':
+            contextmenu.append((
+                self.plugin.language(30921),
+                'PlayMedia({})'.format(
+                    self.plugin.build_url({
+                        'mode': "playwithsrt",
+                        'id': pFilm.filmid
+                    })
+                )
+            ))
 
         # Download movie
         contextmenu.append((

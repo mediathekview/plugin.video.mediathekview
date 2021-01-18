@@ -13,21 +13,23 @@ import xbmcplugin
 import resources.lib.mvutils as mvutils
 
 
-class Initial(object):
+class Letter(object):
     """
     The initial grouping model view class
     """
 
-    def __init__(self, plugin, sortmethods=None):
-        self.channelid = 0
-        self.initial = ''
+    def __init__(self):
+        self.letter = ''
         self.count = 0
+
+    def init(self, pLetter, pCount):
+        self.letter = pLetter
+        self.count = pCount
 
     def get_as_dict(self):
         """ Returns the values as a map """
         return {
-            "channelid": self.channelid,
-            "initial": self.initial,
+            "letter": self.letter,
             "count": self.count
         }
 
@@ -35,7 +37,6 @@ class Initial(object):
         """ Assigns internal values from a map """
         if not isinstance(data, dict):
             return
-        self.channelid = data.get('channelid', 0)
-        self.initial = data.get('initial', '')
+        self.initial = data.get('letter', '')
         self.count = data.get('count', 0)
 

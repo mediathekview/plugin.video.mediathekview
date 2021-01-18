@@ -11,16 +11,22 @@ class Show(object):
     """ The show model class """
 
     def __init__(self):
-        self.showid = 0
-        self.channelid = 0
+        self.showId = ''
+        self.channelId = ''
         self.show = ''
         self.channel = ''
+
+    def init(self, pShowId, pChannelId, pShow, pChannel):
+        self.showId = pShowId
+        self.channelId = pChannelId
+        self.show = pShow
+        self.channel = pChannel
 
     def get_as_dict(self):
         """ Returns the values as a map """
         return {
-            "showid": self.showid,
-            "channelid": self.channelid,
+            "showId": self.showId,
+            "channelId": self.channelId,
             "show": self.show,
             "channel": self.channel
         }
@@ -29,7 +35,7 @@ class Show(object):
         """ Assigns internal values from a map """
         if not isinstance(data, dict):
             return
-        self.showid = data.get('showid', 0)
-        self.channelid = data.get('channelid', 0)
+        self.showId = data.get('showId', '')
+        self.channelId = data.get('channelId', '')
         self.show = data.get('show', '')
         self.channel = data.get('channel', '')

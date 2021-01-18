@@ -10,7 +10,7 @@ import time
 import resources.lib.appContext as appContext
 import resources.lib.mvutils as mvutils
 from resources.lib.storeCache import StoreCache
-from resources.lib.film import Film
+from resources.lib.model.film import Film
 import resources.lib.extendedSearchModel as ExtendedSearchModel
 
 
@@ -44,18 +44,25 @@ class StoreQuery(object):
     
     ## ABSTRACT
     def getConnection(self):
+        """ Abstract method to implement the database specific connect """
         return None
 
     ## ABSTRACT
     def exit(self):
+        """ Abstract method to implement the database specific disconnect """
         pass
 
     ## OVERWRITE
     def getDatabaseStatus(self):
+        """ 
+        Hook to overwrite the database specific get status function. 
+        The output is used in the update trigger to find out needed operations
+        """
         return self.get_status()
     
     ## OVERWRITE for mysql
     def execute(self, aStmt, aParams = None):
+        """ execute a single sql stmt and return the resultset """
         start = time.time()
         self.logger.info('query: {} params {}', aStmt, aParams)
         cursor = self.getConnection().cursor()
@@ -69,6 +76,7 @@ class StoreQuery(object):
         return rs
     
     def executeUpdate(self, aStmt, aParams):
+        """ execute a single update stmt and commit """
         cursor = self.getConnection().cursor()
         cursor.execute(aStmt, aParams)
         rs = cursor.rowcount
@@ -78,6 +86,7 @@ class StoreQuery(object):
         return rs
 
     def executemany(self, aStmt, aParams = None):
+        """ execute a bulk prepared Stmt """
         cursor = self.getConnection().cursor()
         cursor.executemany(aStmt, aParams)
         rs = cursor.rowcount
@@ -165,6 +174,16 @@ class StoreQuery(object):
     def getQuickSearch(self, searchTerm):
         """
         Retrieve data for quick search
+        We will check for search term to be (partially) present in showname or title
+         
+        Parameters
+        ----------
+        searchTerm : str, optional
+            search term which is contained in showname or title
+        Returns
+        -------
+        Array
+            Resultset of the query
         """
         self.logger.info('getQuickSearch')
         #
@@ -247,7 +266,7 @@ class StoreQuery(object):
             return cached_data
 
         try:
-            sql = "SELECT channel channelid, channel, channel || ' (' || count(*) || ')' description FROM film group by channel order by channel asc"
+            sql = "SELECT channel AS channelid, channel FROM film GROUP BY channel ORDER BY channel ASC"
             rs = self.execute(sql)
             self._cache.save_cache('channels', sql, rs)
 
@@ -375,362 +394,6 @@ class StoreQuery(object):
         
         return rs    
     ###
-
-    
-    
-    
-    
-    
-    
-    
-    ####
-    
-    
-    ### legacy code
-    
-    def search(self, search, filmui, extendedsearch=False):
-        """
-        Performs a search for films based on a search term
-        and adds the results to the current UI directory
-
-        Args:
-            search(str): search term
-
-            filmui(FilmUI): an instance of a film model view used
-                for populating the directory
-
-            extendedsearch(bool, optional): if `True` the search is
-                performed also on film descriptions. Default is
-                `False`
-        """
-        self.logger.info('search')
-        searchmask = '%' + search + '%'
-        searchcond = '( ( title LIKE ? ) OR ( showname LIKE ? ) OR ( description LIKE ? ) )' if extendedsearch is True else '( ( title LIKE ? ) OR ( showname LIKE ? ) )'
-        searchparm = (searchmask, searchmask, searchmask) if extendedsearch is True else (
-            searchmask, searchmask, )
-        return self._search_condition(
-            condition=searchcond,
-            params=searchparm,
-            filmui=filmui,
-            showshows=True,
-            showchannels=True,
-            maxresults=self.settings.getMaxResults(),
-            order='aired desc')
-
-    def get_recents(self, channelid, filmui):
-        """
-        Populates the current UI directory with the recent
-        film additions based on the configured interval.
-
-        Args:
-            channelid(id): database id of the selected channel.
-                If 0, films from all channels are listed
-
-            filmui(FilmUI): an instance of a film model view used
-                for populating the directory
-        """
-        self.logger.info('get_recents')
-        if channelid != "":
-            return self._search_condition(
-                condition=self.sql_cond_recent + " AND ( channel = ? )",
-                params=(channelid, ),
-                filmui=filmui,
-                showshows=True,
-                showchannels=False,
-                maxresults=self.settings.getMaxResults(),
-                order='aired desc'
-            )
-
-        return self._search_condition(
-            condition=self.sql_cond_recent,
-            params=(),
-            filmui=filmui,
-            showshows=True,
-            showchannels=False,
-            maxresults=self.settings.getMaxResults(),
-            order='aired desc'
-        )
-
-    def get_initials(self, channelid, initialui):
-        """
-        Populates the current UI directory with a list
-        of initial grouped entries.
-
-        Args:
-            channelid(id): database id of the selected channel.
-                If 0, groups from all channels are listed
-
-            initialui(InitialUI): an instance of a grouped entry
-                model view used for populating the directory
-        """
-        self.logger.info('get_initials')
-        cached_data = self._cache.load_cache('get_initials', channelid)
-        if cached_data is not None:
-            initialui.begin(channelid)
-            for initial_data in cached_data:
-                initialui.set_from_dict(initial_data)
-                initialui.add()
-            initialui.end()
-            return
-        cached_data = []
-        if channelid != "":
-            sqlStmt = """
-                SELECT      UPPER(SUBSTR(showname,1,1)),COUNT(*)
-                FROM        film
-                WHERE       ( channel=? ) and (SUBSTR(showname,1,1) between 'A' and 'Z')
-            """ + self.sql_cond_nofuture + self.sql_cond_minlength + """
-                GROUP BY    UPPER(SUBSTR(showname,1,1))
-            """
-            rs = self.execute(sqlStmt, (channelid, ))
-        else:
-            sqlStmt = """
-                SELECT      UPPER(SUBSTR(showname,1,1)),COUNT(*)
-                FROM        film
-                WHERE SUBSTR(showname,1,1) between 'A' and 'Z'
-            """ + self.sql_cond_nofuture + self.sql_cond_minlength + """
-                GROUP BY    UPPER(SUBSTR(showname,1,1))
-            """
-            rs = self.execute(sqlStmt)
-        initialui.begin(channelid)
-        for (initialui.initial, initialui.count) in rs:
-            initialui.add()
-            cached_data.append(initialui.get_as_dict())
-        initialui.end()
-        self._cache.save_cache('get_initials', channelid, cached_data)
-
-    def get_shows(self, channelid, initial, showui, caching=True):
-        """
-        Populates the current UI directory with a list
-        of shows limited to a specific channel or not.
-
-        Args:
-            channelid(id): database id of the selected channel.
-                If 0, shows from all channels are listed
-
-            initial(str): search term for shows
-
-            showui(ShowUI): an instance of a show model view
-                used for populating the directory
-        """
-        self.logger.info('get_shows')
-        ##
-        if channelid == "" and self.settings.getGroupShow():
-            cache_condition = "SHOW:1:" + initial
-        elif channelid == "":
-            cache_condition = "SHOW:2:" + initial
-        elif initial:
-            cache_condition = "SHOW:3:" + channelid + ':' + initial
-        else:
-            cache_condition = "SHOW:3:" + channelid
-        cached_data = self._cache.load_cache('get_shows', cache_condition)
-        if cached_data is not None:
-            showui.begin(channelid)
-            for show_data in cached_data:
-                showui.set_from_dict(show_data)
-                showui.add()
-            showui.end()
-            return
-
-        try:
-            channelid = channelid
-            cached_data = []
-            if channelid == "" and self.settings.getGroupShow():
-                sqlstmt = """
-                    SELECT      GROUP_CONCAT(DISTINCT(showid)),
-                                GROUP_CONCAT(DISTINCT(channel)),
-                                showname,
-                                GROUP_CONCAT(DISTINCT(channel))
-                    FROM        film
-                    WHERE       ( showname LIKE ? )
-                """ + self.sql_cond_nofuture + self.sql_cond_minlength + """
-                    GROUP BY    showname
-                """
-                rs = self.execute(sqlstmt, (initial + '%', ))
-            elif channelid == "":
-                sqlstmt = """
-                    SELECT      showid,
-                                channel,
-                                showname,
-                                channel
-                    FROM        film
-                    WHERE       ( showname LIKE ? )
-                """ + self.sql_cond_nofuture + self.sql_cond_minlength + """
-                    GROUP BY showid, channel, showname, channel
-                """
-                rs = self.execute(sqlstmt, (initial + '%', ))
-            elif initial:
-                sqlstmt = """
-                    SELECT      showid,
-                                channel,
-                                showname,
-                                channel
-                    FROM        film
-                    WHERE
-                                ( channel=? ) AND ( showname LIKE ? )
-                    """ + self.sql_cond_nofuture + self.sql_cond_minlength + """
-                    GROUP BY showid, channel, showname, channel
-                """
-                rs = self.execute(sqlstmt, (channelid, initial + '%', ))
-            else:
-                sqlstmt ="""
-                    SELECT      showid,
-                                channel,
-                                showname,
-                                channel
-                    FROM        film
-                    WHERE       ( channel=? )
-                """ + self.sql_cond_nofuture + self.sql_cond_minlength + """
-                    GROUP BY showid, channel, showname, channel
-                """
-                rs = self.execute(sqlstmt, (channelid, ))
-            ##
-            ##
-            showui.begin(channelid)
-            for (showui.showid, showui.channelid, showui.show, showui.channel) in rs:
-                showui.add()
-                if caching and self.settings.getCaching():
-                    cached_data.append(showui.get_as_dict())
-            showui.end()
-            self._cache.save_cache('get_shows', cache_condition, cached_data)
-        except Exception as err:
-            self.logger.error('Database error: {}', err)
-            self.notifier.show_database_error(err)
-            raise
-
-    def get_films(self, showid, filmui):
-        """
-        Populates the current UI directory with a list
-        of films of a specific show.
-
-        Args:
-            showid(id): database id of the selected show.
-
-            filmui(FilmUI): an instance of a film model view
-                used for populating the directory
-        """
-        self.logger.info('get_films')
-        if showid.find(',') == -1:
-            # only one channel id
-            self.logger.info('get_films for one show')
-            return self._search_condition(
-                condition="( showid = ? )",
-                params=(showid,),
-                filmui=filmui,
-                showshows=False,
-                showchannels=False,
-                maxresults=self.settings.getMaxResults(),
-                order='aired desc'
-            )
-
-        # multiple channel ids
-        self.logger.info('get_films for one show')
-        self.logger.info(showid)
-        parts = showid.split(',')
-        sql_list = ','.join("'{0}'".format(w) for w in parts)
-        return self._search_condition(
-            condition='( showid IN ( {} ) )'.format(sql_list),
-            params=(),
-            filmui=filmui,
-            showshows=False,
-            showchannels=True,
-            maxresults=self.settings.getMaxResults(),
-            order='aired desc'
-        )
-
-    def _search_channels_condition(self, condition, channelui, caching=True):
-        cached_data = self._cache.load_cache('search_channels', condition)
-        if cached_data is not None:
-            channelui.begin()
-            for channel_data in cached_data:
-                channelui.set_from_dict(channel_data)
-                channelui.add()
-            channelui.end()
-            return
-
-        try:
-            if condition is None:
-                query = 'SELECT channel, channel, 0 as c FROM film group by channel order by channel asc'
-                qtail = ''
-            else:
-                query = 'SELECT channel, channel, COUNT(*) as c FROM film'
-                qtail = ' WHERE ' + condition + self.sql_cond_nofuture + self.sql_cond_minlength + ' GROUP BY channel  order by channel asc'
-            cached_data = []
-            rs = self.execute(query + qtail)
-            channelui.begin()
-            for (channelui.channelid, channelui.channel, channelui.count) in rs:
-                channelui.add()
-                if caching and self.settings.getCaching():
-                    cached_data.append(channelui.get_as_dict())
-            channelui.end()
-            self._cache.save_cache('search_channels', condition, cached_data)
-        except Exception as err:
-            self.logger.error('Database error: {}', err)
-            self.notifier.show_database_error(err)
-            raise
-
-    def _search_condition(self, condition, params, filmui, showshows, showchannels, maxresults, limiting=True, caching=True, order=None):
-        maxresults = int(maxresults)
-        if limiting:
-            sql_cond_limit = self.sql_cond_nofuture + self.sql_cond_minlength
-        else:
-            sql_cond_limit = ''
-
-        cache_condition = condition + sql_cond_limit + \
-            (' LIMIT {}'.format(maxresults + 1)
-             if maxresults else '') + ':{}'.format(params)
-        cached_data = self._cache.load_cache('search_films', cache_condition)
-        if cached_data is not None:
-            results = len(cached_data)
-            filmui.begin(showshows, showchannels)
-            for film_data in cached_data:
-                filmui.set_from_dict(film_data)
-                filmui.add(total_items=results)
-            ##
-            if len(cached_data) >= self.settings.getMaxResults():
-                self.notifier.show_limit_results(maxresults)
-            ##
-            filmui.end()
-            return results
-
-        try:
-            cached_data = []
-            order = (' ORDER BY ' + order) if order is not None else ''
-            rs = self.execute(
-                self.sql_query_films +
-                ' WHERE ' +
-                condition +
-                sql_cond_limit +
-                order +
-                (' LIMIT {}'.format(maxresults + 1) if maxresults else ''),
-                params
-            )
-            resultCount = 0
-            for (filmui.filmid, filmui.title, filmui.show, filmui.channel, filmui.description, filmui.seconds, filmui.size, filmui.aired, filmui.url_sub, filmui.url_video, filmui.url_video_sd, filmui.url_video_hd) in rs:
-                resultCount += 1
-                if maxresults and resultCount > maxresults:
-                    break;
-                cached_data.append(filmui.get_as_dict()) #write data to dict anyway because we want the total number of rows to be passed to add function
-            ###
-            results = len(cached_data)
-            filmui.begin(showshows, showchannels)
-            for film_data in cached_data:
-                filmui.set_from_dict(film_data)
-                filmui.add(total_items=results)
-            filmui.end()
-            if resultCount >= maxresults:
-                self.notifier.show_limit_results(maxresults)        
-            self._cache.save_cache('search_films', cache_condition, cached_data)
-            return results
-        except Exception as err:
-            self.logger.error('Database error: {}', err)
-            self.notifier.show_database_error(err)
-            raise
-
-
-
-
-###############################
-
 
     def retrieve_film_info(self, filmid):
         """

@@ -24,9 +24,6 @@ from resources.lib.kodi.kodiaddon import KodiPlugin
 from resources.lib.storeMySql import StoreMySQL
 from resources.lib.storeSqlite import StoreSQLite
 from resources.lib.notifierKodi import NotifierKodi
-from resources.lib.filmui import FilmUI
-from resources.lib.initialui import InitialUI
-from resources.lib.showui import ShowUI
 from resources.lib.downloader import Downloader
 from resources.lib.searches import RecentSearches
 from resources.lib.extendedSearch import ExtendedSearch
@@ -154,7 +151,6 @@ class MediathekViewPlugin(KodiPlugin):
         search = self.get_setting(settingid)
         if search:
             # restore previous search
-            #self.database.search(search, FilmUI(self), extendedsearch)
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getQuickSearch(search))
         else:
@@ -249,7 +245,6 @@ class MediathekViewPlugin(KodiPlugin):
         elif mode == 'research':
             search = self.get_arg('search', '')
             extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
-            #self.database.search(search, FilmUI(self), extendedsearch)
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getQuickSearch(search))
             RecentSearches(self, extendedsearch).load().add(search).save()
@@ -288,9 +283,6 @@ class MediathekViewPlugin(KodiPlugin):
             self.settings.set_update_triggered('true')
             self.notifier.show_notification(30963, 30964)
         elif mode == 'initial':
-            #channel = self.get_arg('channel', "")
-            #channel == "" if channel == "0" else channel
-            #self.database.get_initials(channel, InitialUI(self))
             ui = LetterUi.LetterUi(self)
             ui.generate(self.database.getStartLettersOfShows())
         elif mode == 'shows':

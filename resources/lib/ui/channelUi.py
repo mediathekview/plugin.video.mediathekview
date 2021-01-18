@@ -12,8 +12,10 @@ import resources.lib.appContext as appContext
 import os
 import xbmcgui
 import xbmcplugin
-
 import resources.lib.mvutils as mvutils
+
+from resources.lib.model.channel import Channel
+
 
 
 class ChannelUi(object):
@@ -44,22 +46,24 @@ class ChannelUi(object):
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.setContent(self.handle, '')
         #
+        channelModel = Channel()
         listOfElements = []
         for element in databaseRs:
             #
-            nameLabel = element[1];
+            channelModel.init(element[0],element[1])
+            #
             #
             if self.plugin.get_kodi_version() > 17:
-                list_item = xbmcgui.ListItem(label=nameLabel, offscreen=True)
+                list_item = xbmcgui.ListItem(label=channelModel.channelCaption, offscreen=True)
             else:
-                list_item = xbmcgui.ListItem(label=nameLabel)
+                list_item = xbmcgui.ListItem(label=channelModel.channelCaption)
             #
             icon = os.path.join(
                 self.plugin.path,
                 'resources',
                 'icons',
                 'sender',
-                element[0].lower() + '-m.png'
+                channelModel.channelId.lower() + '-m.png'
             )
             list_item.setArt({
                 'thumb': icon,
@@ -67,14 +71,14 @@ class ChannelUi(object):
             })
     
             info_labels = {
-                'title': element[1],
-                'sorttitle': element[1].lower()
+                'title': channelModel.channelCaption,
+                'sorttitle': channelModel.channelCaption.lower()
             }
             list_item.setInfo(type='video', infoLabels=info_labels)
             #
             targetUrl = mvutils.build_url({
                 'mode': self.targetUrl,
-                'channel': element[0]
+                'channel': channelModel.channelId
             })
             #
             listOfElements.append((targetUrl, list_item, True))
