@@ -40,19 +40,22 @@ class MediathekViewService(KodiService):
         
     def init(self):
         """ Initialisation of the service """
-        self.logger.info('Init')
+        self.logger.info('init')
 
     def run(self):
         """ Execution of the service """
-        self.logger.info('Starting up...')
+        self.logger.info('Service Startup...')
         # Wait for Kodi to retrieve network
-        self.monitor.wait_for_abort(1)
-        #
+        self.monitor.wait_for_abort(self.settings.getDelayStartupSec())
+        # error counter to slow down
         self.errorCount = 0
         #
         while not self.monitor.abort_requested():
-            # slow down in case of errors (0 is unlimited!)
-            self.monitor.wait_for_abort((self.errorCount * 60)+1)
+            # slow down in case of errors (+1 because 0 is unlimited!)
+            delayInSec = (self.errorCount * 60)+1
+            self.monitor.wait_for_abort(delayInSec)
+            if delayInSec > 1:
+                self.logger.info('Delayed service agent by {} sec due to error count {}', delayInSec, self.errorCount)
             #
             self.updater = MediathekViewUpdater()
             self.updater.init()
@@ -71,10 +74,10 @@ class MediathekViewService(KodiService):
             if self.monitor.wait_for_abort(appContext.MVSETTINGS.getUpdateCheckIntervel()):
                 # Abort was requested while waiting. We should exit
                 break
-        self.logger.info('Shutting down')
+        self.logger.info('Shutting down Service')
 
     def exit(self):
         """ Shutdown of the service """
-        self.logger.info('Exit')
+        self.logger.info('Exit Service')
         self.updater.exit()
 

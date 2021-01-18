@@ -46,12 +46,14 @@ except ImportError:
     pass
 
 # -- Constants ----------------------------------------------
-FILMLISTE_URL = 'https://liste.mediathekview.de/'
-#FILMLISTE_URL = 'http://192.168.137.100/content/'
+#FILMLISTE_URL = 'https://liste.mediathekview.de/'
+FILMLISTE_URL = 'http://192.168.137.100/content/'
+#FILMLISTE_URL = 'http://192.168.137.100/content/test/'
 FILMLISTE_AKT = 'Filmliste-akt'
 FILMLISTE_DIF = 'Filmliste-diff'
 DATABASE_URL = 'https://liste.mediathekview.de/'
-#DATABASE_URL = 'http://192.168.137.100/content/'
+DATABASE_URL = 'http://192.168.137.100/content/'
+#DATABASE_URL = 'http://192.168.137.100/content/test/'
 DATABASE_DBF = 'filmliste-v3.db'
 #DATABASE_AKT = 'filmliste-v2.db.update'
 
@@ -98,6 +100,11 @@ class UpdateFileDownload(object):
         ##
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
         ##
+        if check:
+            filesize = mvutils.file_size(self._filename)
+            if filesize < 200000000:
+                raise Exception('FullUpdate file size {} smaller than allowed (200MB)'.format(filesize))
+        ##
         return check
     
     def downloadSqliteDb(self):
@@ -109,6 +116,11 @@ class UpdateFileDownload(object):
 
         ##
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
+        ##
+        if check:
+            filesize = mvutils.file_size(self._filename)
+            if filesize < 200000000:
+                raise Exception('FullUpdate file size {} smaller than allowed (200MB)'.format(filesize))
         ##
         return check
     
