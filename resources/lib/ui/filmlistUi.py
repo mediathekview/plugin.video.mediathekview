@@ -116,7 +116,7 @@ class FilmlistUi(object):
         if videourl == "":
             return None
 
-        videourl = videourl + u'|User-Agent=Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%3B%20rv%3A84.0%29%20Gecko%2F20100101%20Firefox%2F84.0'
+        videourl = videourl + self.settings.getUserAgentString()
         
         resultingtitle = pFilm.title + videohds
         

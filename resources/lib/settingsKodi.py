@@ -208,3 +208,9 @@ class SettingsKodi(SettingsInterface):
         """ Signals that a user activity has occurred """
         self._addonClass.setSetting('lastactivity', '{}'.format(int(time.time())))
     
+    def getUserAgentString(self):
+        return self._addonClass.getSetting('userAgentString')
+
+    def getDelayStartupSec(self):
+        return int(self._addonClass.getSetting('delayStartupSec'))
+

@@ -145,5 +145,8 @@ class SettingsInterface(object):
     def user_activity(self):
         pass
 
-    def userAgentString(self):
-        return u'|user-agent=Mozilla%2F5.0%20%28X11%3B%20Ubuntu%3B%20Linux%20x86_64%29%20AppleWebKit%2F537.36%20%28KHTML%2C%20like%20Gecko%29%20Chrome%2F79.0.3945.130%20Safari%2F537.36%20RuxitSynthetic%2F1.0%20v4800390946%20t55095'
+    def getUserAgentString(self):
+        return ''
+
+    def getDelayStartupSec(self):
+        return 1

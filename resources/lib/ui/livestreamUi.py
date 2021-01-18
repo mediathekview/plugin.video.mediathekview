@@ -72,7 +72,7 @@ class LivestreamUi(object):
         #10 filmui.url_video_sd, 
         #11 filmui.url_video_hd
 
-        videourl = rsRow[9] + self.settings.userAgentString()
+        videourl = rsRow[9] + self.settings.getUserAgentString()
 
         info_labels = {
             'title': rsRow[1],

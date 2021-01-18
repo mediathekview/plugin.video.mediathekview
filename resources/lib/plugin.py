@@ -27,12 +27,13 @@ from resources.lib.notifierKodi import NotifierKodi
 from resources.lib.downloader import Downloader
 from resources.lib.searches import RecentSearches
 from resources.lib.extendedSearch import ExtendedSearch
+import resources.lib.extendedSearchModel as ExtendedSearchModel
 import resources.lib.ui.livestreamUi as LivestreamUi
 import resources.lib.ui.channelUi as ChannelUi
 import resources.lib.ui.showUi as ShowUi
 import resources.lib.ui.letterUi as LetterUi
 import resources.lib.ui.filmlistUi as FilmlistUi
-import resources.lib.extendedSearchModel as ExtendedSearchModel
+
 
 import resources.lib.appContext as appContext
 
@@ -62,13 +63,13 @@ class MediathekViewPlugin(KodiPlugin):
     def show_main_menu(self):
         """ Creates the main menu of the plugin """
         xbmcplugin.setContent(self.addon_handle, '')
-        # Search
+        # quick search
         self.add_folder_item(
             30901,
-            {'mode': "search", 'extendedsearch': False},
+            {'mode': "search"},
             icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
         )
-        # Search all
+        # search
         self.add_folder_item(
             30902,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'SHOW'},
@@ -116,37 +117,27 @@ class MediathekViewPlugin(KodiPlugin):
         self.end_of_directory()
         self._check_outdate()
 
-    def show_searches(self, extendedsearch=False):
+    def show_searches(self):
         """
         Fill the search screen with "New Search..." and the
         list of recent searches
-
-        Args:
-            extendedsearch(bool, optionsl): If `True`, the searches
-                are performed both in show title and description.
-                Default is `False`
         """
         xbmcplugin.setContent(self.addon_handle, '')
         self.add_folder_item(
             30931,
-            {'mode': "newsearch", 'extendedsearch': extendedsearch},
+            {'mode': "newsearch"},
             icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
         )
-        RecentSearches(self, extendedsearch).load().populate()
+        RecentSearches(self).load().populate()
         self.end_of_directory()
 
-    def new_search(self, extendedsearch=False):
+    def new_search(self):
         """
         Asks the user to enter his search terms and then
         performs the search and displays the results.
-
-        Args:
-            extendedsearch(bool, optionsl): If `True`, the searches
-                are performed both in show title and description.
-                Default is `False`
         """
-        settingid = 'lastsearch2' if extendedsearch is True else 'lastsearch1'
-        headingid = 30902 if extendedsearch is True else 30901
+        settingid = 'lastsearch1'
+        headingid = 30901
         # are we returning from playback ?
         search = self.get_setting(settingid)
         if search:
@@ -157,7 +148,7 @@ class MediathekViewPlugin(KodiPlugin):
             # enter search term
             (search, confirmed) = self.notifier.get_entered_text('', headingid)
             if len(search) > 2 and confirmed is True:
-                RecentSearches(self, extendedsearch).load().add(search).save()
+                RecentSearches(self).load().add(search).save()
                 #
                 ui = FilmlistUi.FilmlistUi(self)
                 rs = self.database.getQuickSearch(search)
@@ -238,21 +229,18 @@ class MediathekViewPlugin(KodiPlugin):
         if mode is None:
             self.show_main_menu()
         elif mode == 'search':
-            extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
-            self.show_searches(extendedsearch)
+            self.show_searches()
         elif mode == 'newsearch':
-            self.new_search(self.get_arg('extendedsearch', 'False') == 'True')
+            self.new_search()
         elif mode == 'research':
             search = self.get_arg('search', '')
-            extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getQuickSearch(search))
-            RecentSearches(self, extendedsearch).load().add(search).save()
+            RecentSearches(self).load().add(search).save()
             ###
         elif mode == 'delsearch':
             search = self.get_arg('search', '')
-            extendedsearch = self.get_arg('extendedsearch', 'False') == 'True'
-            RecentSearches(self, extendedsearch).load().delete(search).save().populate()
+            RecentSearches(self).load().delete(search).save().populate()
             self.run_builtin('Container.Refresh')
             ##
         elif mode == 'extendedSearchScreen':
