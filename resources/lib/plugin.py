@@ -81,27 +81,15 @@ class MediathekViewPlugin(KodiPlugin):
             {'mode': "livestreams"},
             icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png')
         )
-        # Browse recently added
-        self.add_folder_item(
-            30904,
-            {'mode': "recent", 'channel': ""},
-            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
-        )
         # Browse recently added by channel
         self.add_folder_item(
-            30905,
+            30904,
             {'mode': "recentchannels"},
             icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
         )
-        # Browse by Initial->Show
+        # Browse Shows (Channel > Show > Film | Channel > letter > show > Film)
         self.add_folder_item(
-            30906,
-            {'mode': "initial", 'channel': ""},
-            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
-        )
-        # Browse by Channel->Initial->Shows
-        self.add_folder_item(
-            30907,
+            30905,
             {'mode': "channels"},
             icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
         )
@@ -164,9 +152,22 @@ class MediathekViewPlugin(KodiPlugin):
             #self.database.get_recents(channel, FilmUI(self))
             ##
         elif mode == 'recentchannels':
+            #
+            self.add_folder_item(
+                30906,
+                {'mode': 'recent' },
+                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
+            )
             ui = ChannelUi.ChannelUi(self,'recent')
             ui.generate(self.database.getChannelsRecent())
         elif mode == 'channels':
+            #
+            self.add_folder_item(
+                30906,
+                {'mode': 'initial' },
+                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
+            )
+            #
             ui = ChannelUi.ChannelUi(self,'shows')
             ui.generate(self.database.getChannels())
         elif mode == 'action-dbinfo':

@@ -338,16 +338,12 @@ msgid "Recently Added"
 msgstr "Vor Kurzem hinzugefügt"
 
 msgctxt "#30905"
-msgid "Recently Added by Channel"
-msgstr "Vor Kurzem hinzugefügt nach Sender"
+msgid "Browse Shows"
+msgstr "Durchsuchen"
 
 msgctxt "#30906"
-msgid "Browse by Show in all Channels"
-msgstr "Alle Sendungen"
-
-msgctxt "#30907"
-msgid "Browse Shows by Channel"
-msgstr "Alle Sendungen nach Sender"
+msgid "All Channels"
+msgstr "Alle Sender"
 
 msgctxt "#30908"
 msgid "Database Information"
