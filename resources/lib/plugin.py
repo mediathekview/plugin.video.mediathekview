@@ -125,85 +125,6 @@ class MediathekViewPlugin(KodiPlugin):
         viewid = window.getFocusId()
         self.logger.debug(" View id {}", viewid)
 
-    def show_searches(self):
-        """
-        Fill the search screen with "New Search..." and the
-        list of recent searches
-        """
-        xbmcplugin.setContent(self.addon_handle, '')
-        self.add_folder_item(
-            30931,
-            {'mode': "newsearch"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
-        )
-        RecentSearches(self).load().populate()
-        self.end_of_directory()
-
-    def new_search(self):
-        """
-        Asks the user to enter his search terms and then
-        performs the search and displays the results.
-        """
-        settingid = 'lastsearch1'
-        headingid = 30901
-        # are we returning from playback ?
-        search = self.get_setting(settingid)
-        if search:
-            # restore previous search
-            ui = FilmlistUi.FilmlistUi(self)
-            ui.generate(self.database.getQuickSearch(search))
-        else:
-            # enter search term
-            (search, confirmed) = self.notifier.get_entered_text('', headingid)
-            if len(search) > 2 and confirmed is True:
-                RecentSearches(self).load().add(search).save()
-                #
-                ui = FilmlistUi.FilmlistUi(self)
-                rs = self.database.getQuickSearch(search)
-                ui.generate(rs)
-                if len(rs) > 0:
-                    self.set_setting(settingid, search)
-            else:
-                # pylint: disable=line-too-long
-                self.logger.debug(
-                    'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
-                self.end_of_directory(False, cache_to_disc=True)
-
-    def show_db_info(self):
-        """ Displays current information about the database """
-        info = self.database.get_status()
-        heading = self.language(30908)
-        infostr = self.language({
-            'NONE': 30941,
-            'UNINIT': 30942,
-            'IDLE': 30943,
-            'UPDATING': 30944,
-            'ABORTED': 30945
-        }.get(info['status'], 30941))
-        infostr = self.language(30965) % infostr
-        totinfo = self.language(30971) % (
-            info['chn'],
-            info['shw'],
-            info['mov']
-            )
-        updinfo = self.language(30970) % (
-            datetime.fromtimestamp(info['filmUpdate']).isoformat().replace('T',' '),
-            datetime.fromtimestamp(info['lastFullUpdate']).isoformat().replace('T',' '),
-            datetime.fromtimestamp(info['lastUpdate']).isoformat().replace('T',' ')
-            )
-        ##
-        xbmcgui.Dialog().textviewer(
-            heading,
-            infostr + '\n\n' +
-            totinfo + '\n\n' +
-            updinfo
-        )
-
-    def init(self):
-        """ Initialisation of the plugin """
-        pass
-
-
     def run(self):
         """ Execution of the plugin """
         start = time.time()
@@ -300,3 +221,77 @@ class MediathekViewPlugin(KodiPlugin):
     def exit(self):
         """ Shutdown of the application """
         self.database.exit()
+
+    def show_db_info(self):
+        """ Displays current information about the database """
+        info = self.database.get_status()
+        heading = self.language(30908)
+        infostr = self.language({
+            'NONE': 30941,
+            'UNINIT': 30942,
+            'IDLE': 30943,
+            'UPDATING': 30944,
+            'ABORTED': 30945
+        }.get(info['status'], 30941))
+        infostr = self.language(30965) % infostr
+        totinfo = self.language(30971) % (
+            info['chn'],
+            info['shw'],
+            info['mov']
+            )
+        updinfo = self.language(30970) % (
+            datetime.fromtimestamp(info['filmUpdate']).isoformat().replace('T',' '),
+            datetime.fromtimestamp(info['lastFullUpdate']).isoformat().replace('T',' '),
+            datetime.fromtimestamp(info['lastUpdate']).isoformat().replace('T',' ')
+            )
+        ##
+        xbmcgui.Dialog().textviewer(
+            heading,
+            infostr + '\n\n' +
+            totinfo + '\n\n' +
+            updinfo
+        )
+
+    def show_searches(self):
+        """
+        Fill the search screen with "New Search..." and the
+        list of recent searches
+        """
+        xbmcplugin.setContent(self.addon_handle, '')
+        self.add_folder_item(
+            30931,
+            {'mode': "newsearch"},
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+        )
+        RecentSearches(self).load().populate()
+        self.end_of_directory()
+
+    def new_search(self):
+        """
+        Asks the user to enter his search terms and then
+        performs the search and displays the results.
+        """
+        settingid = 'lastsearch1'
+        headingid = 30901
+        # are we returning from playback ?
+        search = self.get_setting(settingid)
+        if search:
+            # restore previous search
+            ui = FilmlistUi.FilmlistUi(self)
+            ui.generate(self.database.getQuickSearch(search))
+        else:
+            # enter search term
+            (search, confirmed) = self.notifier.get_entered_text('', headingid)
+            if len(search) > 2 and confirmed is True:
+                RecentSearches(self).load().add(search).save()
+                #
+                ui = FilmlistUi.FilmlistUi(self)
+                rs = self.database.getQuickSearch(search)
+                ui.generate(rs)
+                if len(rs) > 0:
+                    self.set_setting(settingid, search)
+            else:
+                # pylint: disable=line-too-long
+                self.logger.debug(
+                    'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
+                self.end_of_directory(False, cache_to_disc=True)

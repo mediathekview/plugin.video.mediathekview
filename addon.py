@@ -23,7 +23,6 @@ if __name__ == '__main__':
     appContext.initSettings(SettingsKodi(appContext.ADDONCLASS))
     appContext.initNotifier(NotifierKodi(appContext.ADDONCLASS))
     PLUGIN = MediathekViewPlugin()
-    PLUGIN.init()
     PLUGIN.run()
     PLUGIN.exit()
     del PLUGIN

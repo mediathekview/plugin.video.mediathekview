@@ -207,7 +207,7 @@ class SettingsKodi(SettingsInterface):
     def user_activity(self):
         """ Signals that a user activity has occurred """
         if not(self.is_user_alive()):
-        self._addonClass.setSetting('lastactivity', '{}'.format(int(time.time())))
+            self._addonClass.setSetting('lastactivity', '{}'.format(int(time.time())))
     
     def getUserAgentString(self):
         return self._addonClass.getSetting('userAgentString')
