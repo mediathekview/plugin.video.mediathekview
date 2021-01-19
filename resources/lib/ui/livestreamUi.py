@@ -98,7 +98,11 @@ class LivestreamUi(object):
         listitem.setInfo(type='video', infoLabels=info_labels)
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({
-            'thumb': icon,
-            'icon': icon
+                'thumb': icon,
+                'icon': icon,
+                'banner': icon,
+                'fanart': icon,
+                'clearart': icon,
+                'clearlogo': icon
         })
         return (videourl, listitem, False)

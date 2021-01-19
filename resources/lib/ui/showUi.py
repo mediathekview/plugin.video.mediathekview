@@ -56,7 +56,7 @@ class ShowUi(object):
                     'resources',
                     'icons',
                     'sender',
-                    element[1].lower() + '-m.png'
+                    element[1].lower() + '-c.png'
                 )
             else:
                 nameLabel = element[2] + ' [' + element[3] + ']';
@@ -75,7 +75,11 @@ class ShowUi(object):
             
             list_item.setArt({
                 'thumb': icon,
-                'icon': icon
+                'icon': icon,
+                'banner': icon,
+                'fanart': icon,
+                'clearart': icon,
+                'clearlogo': icon
             })
     
             info_labels = {

@@ -86,6 +86,36 @@ class KodiAddon(object):
     def getCaption(self, msgid):
         return self.language(msgid);
 
+    def getSkinName(self):
+        return xbmc.getSkinDir();
+
+    def getCurrentViewId(self):
+        window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+        return window.getFocusId()
+
+    def setViewId(self, viewId):
+        if viewId > -1:
+            self.run_builtin('Container.SetViewMode({})'.format(viewId))
+        
+    def resolveViewId(self, pViewname):
+        skinName = self.getSkinName()
+        viewId = -1
+        # skin.estuary
+        
+        if pViewname == 'THUMBNAIL':
+            viewId = 500
+        elif skinName == 'skin.estuary' and pViewname == 'MAIN':
+            viewId = 0
+        elif skinName == 'skin.estuary' and pViewname == 'LIST':
+            viewId = 55
+        elif skinName == 'skin.confluence' and pViewname == 'LIST':
+            viewId = 51
+        elif skinName == 'skin.confluence' and pViewname == 'MAIN':
+            viewId = 550
+        elif skinName == 'skin.esturay' and pViewname == 'LIST':
+            viewId = 55
+        return viewId;
+
 class KodiService(KodiAddon):
     """ The Kodi service addon class """
 
@@ -216,7 +246,12 @@ class KodiPlugin(KodiAddon):
         """
         if isinstance(name, int):
             name = self.language(name)
-        list_item = xbmcgui.ListItem(name)
+        #
+        if self.get_kodi_version() > 17:
+            list_item = xbmcgui.ListItem(label=name, offscreen=True)
+        else:
+            list_item = xbmcgui.ListItem(label=name)
+        #
         if contextmenu is not None:
             list_item.addContextMenuItems(contextmenu)
         if icon is not None or thumb is not None:
@@ -226,7 +261,11 @@ class KodiPlugin(KodiAddon):
                 thumb = icon
             list_item.setArt({
                 'thumb': icon,
-                'icon': icon
+                'icon': icon,
+                'banner': icon,
+                'fanart': icon,
+                'clearart': icon,
+                'clearlogo': icon
             })
         xbmcplugin.addDirectoryItem(
             handle=self.addon_handle,

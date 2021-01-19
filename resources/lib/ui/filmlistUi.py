@@ -146,7 +146,7 @@ class FilmlistUi(object):
             'resources',
             'icons',
             'sender',
-            pFilm.channel.lower() + '-m.png'
+            pFilm.channel.lower() + '-c.png'
         )
 
         ##
@@ -159,7 +159,11 @@ class FilmlistUi(object):
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({
             'thumb': icon,
-            'icon': icon
+                'icon': icon,
+                'banner': icon,
+                'fanart': icon,
+                'clearart': icon,
+                'clearlogo': icon
         })
         return (videourl, listitem)        
 

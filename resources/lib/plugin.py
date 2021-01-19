@@ -120,10 +120,9 @@ class MediathekViewPlugin(KodiPlugin):
             )
         #
         self.end_of_directory()
-        self.run_builtin('Container.SetViewMode(55)')
-        window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
-        viewid = window.getFocusId()
-        self.logger.debug(" View id {}", viewid)
+        #self.run_builtin('Container.SetViewMode(55)')
+        self.logger.debug(" View id {}", self.getCurrentViewId())
+        self.logger.debug(" Skin {}", self.getSkinName())
 
     def run(self):
         """ Execution of the plugin """
@@ -217,6 +216,9 @@ class MediathekViewPlugin(KodiPlugin):
             self.set_setting('lastsearch1', '')
         ##
         self.logger.info('request processed: {} sec', time.time() - start)
+        ##
+        self.logger.debug(" View id {}", self.getCurrentViewId())
+        self.logger.debug(" Skin {}", self.getSkinName())
 
     def exit(self):
         """ Shutdown of the application """
