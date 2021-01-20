@@ -103,5 +103,6 @@ class ShowUi(object):
         )
         #
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
+        self.plugin.setViewId(self.plugin.resolveViewId('SHOWS'))
         #
         self.logger.debug('generated: {} sec', time.time() - self.startTime)

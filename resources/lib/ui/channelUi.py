@@ -94,6 +94,7 @@ class ChannelUi(object):
         )
         #
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
+        self.plugin.setViewId(self.plugin.resolveViewId('THUMBNAIL'))
         #
         self.logger.debug('generated: {} sec', time.time() - self.startTime)
 

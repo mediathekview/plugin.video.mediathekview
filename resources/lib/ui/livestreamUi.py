@@ -54,7 +54,7 @@ class LivestreamUi(object):
         )
         ##
         xbmcplugin.endOfDirectory(self.handle, cacheToDisc=False)
-        self.plugin.run_builtin('Container.SetViewMode(500)')
+        self.plugin.setViewId(self.plugin.resolveViewId('THUMBNAIL'))
         ##
         self.logger.debug('generated: {} sec', time.time() - self.startTime)
 

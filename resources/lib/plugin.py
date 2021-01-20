@@ -108,9 +108,6 @@ class MediathekViewPlugin(KodiPlugin):
             )
         #
         self.end_of_directory()
-        #self.run_builtin('Container.SetViewMode(55)')
-        self.logger.debug(" View id {}", self.getCurrentViewId())
-        self.logger.debug(" Skin {}", self.getSkinName())
 
     def run(self):
         """ Execution of the plugin """
@@ -119,11 +116,16 @@ class MediathekViewPlugin(KodiPlugin):
         self.settings.user_activity()
         # process operation
         self.logger.info("Plugin invoked with parameters {}", self.args)
+        self.logger.debug("start View id {}", self.getCurrentViewId())
+        self.logger.debug("start Skin {}", self.getSkinName())
+        #
         mode = self.get_arg('mode', None)
         if mode is None:
             self.show_main_menu()
+            self.setViewId(self.resolveViewId('MAIN'))
         elif mode == 'search':
             self.show_searches()
+            self.setViewId(self.resolveViewId('MAIN'))
         elif mode == 'newsearch':
             self.new_search()
         elif mode == 'research':
@@ -136,6 +138,7 @@ class MediathekViewPlugin(KodiPlugin):
             search = self.get_arg('search', '')
             RecentSearches(self).load().delete(search).save().populate()
             self.run_builtin('Container.Refresh')
+            self.setViewId(self.resolveViewId('MAIN'))
             ##
         elif mode == 'extendedSearchScreen':
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
@@ -297,4 +300,4 @@ class MediathekViewPlugin(KodiPlugin):
                 # pylint: disable=line-too-long
                 self.logger.debug(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
-                self.end_of_directory(False, cache_to_disc=True)
+                self.end_of_directory(False, cache_to_disc=False)
