@@ -5,6 +5,7 @@ The film model UI module
 Copyright 2017-2019, Leo Moll and Dominik Schlösser
 SPDX-License-Identifier: MIT
 """
+
 import time
 import os
 from datetime import datetime
@@ -59,11 +60,10 @@ class FilmlistUi(object):
         self.tzDiff = datetime.now() - datetime.utcnow()
         self.tzBase = datetime.fromtimestamp(0)
 
-
     def generate(self, databaseRs):
         #
-        # 0 - idhash, 1 - title, 2 - showname, 3 - channel, 
-        # 4 - description, 5 - duration, 6 - size, 7 - aired, 
+        # 0 - idhash, 1 - title, 2 - showname, 3 - channel,
+        # 4 - description, 5 - duration, 6 - size, 7 - aired,
         # 8- url_sub, 9- url_video, 10 - url_video_sd, 11 - url_video_hd
         #
         self.startTime = time.time()
@@ -76,11 +76,11 @@ class FilmlistUi(object):
         listOfElements = []
         for element in databaseRs:
             #
-            aFilm.init( element[0], element[1], element[2], element[3], element[4], element[5],  
+            aFilm.init(element[0], element[1], element[2], element[3], element[4], element[5],
                         element[6], element[7], element[8], element[9], element[10], element[11])
             #
             (targetUrl, list_item) = self._generateListItem(aFilm)
-            #            
+            #
             list_item.addContextMenuItems(self._generateContextMenu(aFilm))
             #
             if self.settings.getAutoSub() and aFilm.url_sub:
@@ -112,16 +112,15 @@ class FilmlistUi(object):
             videourl = pFilm.url_video_sd
         else:
             videourl = pFilm.url_video
-            
-        
+
         # exit if no url supplied
         if videourl == "":
             return None
 
         videourl = videourl + self.settings.getUserAgentString()
-        
+
         resultingtitle = pFilm.title + videohds
-        
+
         info_labels = {
             'title': resultingtitle,
             'sorttitle': resultingtitle.lower(),
@@ -137,7 +136,7 @@ class FilmlistUi(object):
 
         if pFilm.aired is not None and pFilm.aired != 0:
             ndate = self.tzBase + timedelta(seconds=(pFilm.aired))
-            airedstring  = ndate.isoformat().replace('T',' ')
+            airedstring = ndate.isoformat().replace('T', ' ')
             info_labels['date'] = airedstring[:10]
             info_labels['aired'] = airedstring[:10]
             info_labels['dateadded'] = airedstring
@@ -151,12 +150,12 @@ class FilmlistUi(object):
             pFilm.channel.lower() + '-c.png'
         )
 
-        ##
+        #
         if self.plugin.get_kodi_version() > 17:
             listitem = xbmcgui.ListItem(label=resultingtitle, path=videourl, offscreen=True)
         else:
             listitem = xbmcgui.ListItem(label=resultingtitle, path=videourl)
-        ##
+        #
         listitem.setInfo(type='video', infoLabels=info_labels)
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({
@@ -167,12 +166,11 @@ class FilmlistUi(object):
                 'clearart': icon,
                 'clearlogo': icon
         })
-        return (videourl, listitem)        
-
+        return (videourl, listitem)
 
     def _generateContextMenu(self, pFilm):
         contextmenu = []
-        
+
         if pFilm.url_sub != '':
             contextmenu.append((
                 self.plugin.language(30921),
@@ -231,5 +229,4 @@ class FilmlistUi(object):
                 )
             ))
         return contextmenu
-
 

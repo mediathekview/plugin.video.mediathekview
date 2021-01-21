@@ -5,6 +5,7 @@ The addon settings module
 Copyright 2017-2018, Leo Moll and Dominik Schlösser
 SPDX-License-Identifier: MIT
 """
+
 # -- Imports ------------------------------------------------
 import time
 # pylint: disable=import-error
@@ -15,7 +16,6 @@ from resources.lib.settingsInterface import SettingsInterface
 # -- Classes ------------------------------------------------
 
 
-
 class SettingsKodi(SettingsInterface):
     """ The settings class """
 
@@ -23,14 +23,14 @@ class SettingsKodi(SettingsInterface):
         xbmc.log("SettingsKodi:init", xbmc.LOGDEBUG)
         self._addonClass = pAddonClass
         pass
-    
-    #self.datapath
+
+    # self.datapath
     def getDatapath(self):
         if self.getKodiVersion() > 18:
             return mvutils.py2_decode(xbmcvfs.translatePath(self._addonClass.getAddonInfo('profile')))
         else:
             return mvutils.py2_decode(xbmc.translatePath(self._addonClass.getAddonInfo('profile')))
-    
+
     def getKodiVersion(self):
         """
         Get Kodi major version
@@ -40,52 +40,52 @@ class SettingsKodi(SettingsInterface):
         xbmc_version = xbmc.getInfoLabel("System.BuildVersion")
 
         return int(xbmc_version.split('-')[0].split('.')[0])
-    
-    ## General
-    #self.preferhd
+
+    # General
+    # self.preferhd
     def getPreferHd(self):
         return self._addonClass.getSetting('quality') == 'true'
 
-    #self.autosub
+    # self.autosub
     def getAutoSub(self):
         return self._addonClass.getSetting('autosub') == 'true'
 
-    #self.nofuture
+    # self.nofuture
     def getNoFutur(self):
         return self._addonClass.getSetting('nofuture') == 'true'
 
-    #self.minlength
+    # self.minlength
     def getMinLength(self):
         return int(float(self._addonClass.getSetting('minlength'))) * 60
-    
-    #self.groupshows
+
+    # self.groupshows
     def getGroupShow(self):
         return self._addonClass.getSetting('groupshows') == 'true'
 
-    #self.maxresults
+    # self.maxresults
     def getMaxResults(self):
         return int(self._addonClass.getSetting('maxresults'))
 
-    #self.maxage
+    # self.maxage
     def getMaxAge(self):
         return int(self._addonClass.getSetting('maxage')) * 86400
 
-    #self.recentmode
+    # self.recentmode
     def getRecentMode(self):
         return int(self._addonClass.getSetting('recentmode'))
 
-    #self.filmSortMethod
+    # self.filmSortMethod
     def getFilmSortMethod(self):
         return int(self._addonClass.getSetting('filmuisortmethod'))
 
-    #self.updateCheckInterval
+    # self.updateCheckInterval
     def getUpdateCheckIntervel(self):
         return int(self._addonClass.getSetting('updateCheckInterval'))
 
     def getDatabaseImportBatchSize(self):
         return int(self._addonClass.getSetting('updateBatchSize'))
-    
-    #self.contentType
+
+    # self.contentType
     def getContentType(self):
         contentType = ''
         if self._addonClass.getSetting('contentType') == '1':
@@ -97,97 +97,97 @@ class SettingsKodi(SettingsInterface):
         elif self._addonClass.getSetting('contentType') == '4':
             contentType = 'tvshows'
         return contentType
-    ## Database
-    
-    #self.type
+    # Database
+
+    # self.type
     def getDatabaseType(self):
         return int(self._addonClass.getSetting('dbtype'))
 
-    #self.host
+    # self.host
     def getDatabaseHost(self):
         return self._addonClass.getSetting('dbhost')
 
-    #self.port
+    # self.port
     def getDatabasePort(self):
         return int(self._addonClass.getSetting('dbport'))
 
-    #self.user
+    # self.user
     def getDatabaseUser(self):
         return self._addonClass.getSetting('dbuser')
 
-    #self.password
+    # self.password
     def getDatabasePassword(self):
         return self._addonClass.getSetting('dbpass')
 
-    #self.database
+    # self.database
     def getDatabaseSchema(self):
         return self._addonClass.getSetting('dbdata')
 
-    #self.updmode
+    # self.updmode
     def getDatabaseUpateMode(self):
         return int(self._addonClass.getSetting('updmode'))
 
-    #self.updnative
+    # self.updnative
     def getDatabaseUpdateNative(self):
         return self._addonClass.getSetting('updnative') == 'true'
 
-    #self.caching
+    # self.caching
     def getCaching(self):
         return self._addonClass.getSetting('caching') == 'true'
 
-    #self.updinterval
+    # self.updinterval
     def getDatabaseUpdateInvterval(self):
         return int(float(self._addonClass.getSetting('updinterval'))) * 3600
 
-    #### Download
+    # Download
 
-    #self.downloadpathep
+    # self.downloadpathep
     def getDownloadPathEpisode(self):
         return mvutils.py2_decode(self._addonClass.getSetting('downloadpathep'))
 
-    #self.downloadpathmv
+    # self.downloadpathmv
     def getDownloadPathMovie(self):
         return mvutils.py2_decode(self._addonClass.getSetting('downloadpathmv'))
 
-    #self.moviefolders
+    # self.moviefolders
     def getUseMovieFolder(self):
         return self._addonClass.getSetting('moviefolders') == 'true'
 
-    #self.movienamewithshow
+    # self.movienamewithshow
     def getMovieNameWithShow(self):
         return self._addonClass.getSetting('movienamewithshow') == 'true'
 
-    #self.reviewname
+    # self.reviewname
     def getReviewName(self):
         return self._addonClass.getSetting('reviewname') == 'true'
 
-    #self.downloadsrt
+    # self.downloadsrt
     def getDownloadSubtitle(self):
         return self._addonClass.getSetting('downloadsrt') == 'true'
 
-    #self.makenfo
+    # self.makenfo
     def getMakeInfo(self):
         return int(self._addonClass.getSetting('makenfo'))
 
-    ## RUNTIME
+    # RUNTIME
     def is_update_triggered(self):
         return self._addonClass.getSetting('updatetrigger') == 'true'
 
     def set_update_triggered(self, aValue):
-        self._addonClass.setSetting('updatetrigger',aValue)
+        self._addonClass.setSetting('updatetrigger', aValue)
 
     def getLastFullUpdate(self):
        return int(self._addonClass.getSetting('lastFullUpdate'))
 
     def setLastFullUpdate(self, aLastFullUpdate):
         self._addonClass.setSetting('lastFullUpdate', str(aLastFullUpdate))
-    
+
     def getLastUpdate(self):
         return int(self._addonClass.getSetting('lastUpdate'))
 
     def setLastUpdate(self, aLastUpdate):
         self._addonClass.setSetting('lastUpdate', str(aLastUpdate))
-    
+
     def getDatabaseStatus(self):
         return self._addonClass.getSetting('databaseStatus')
 
@@ -208,7 +208,7 @@ class SettingsKodi(SettingsInterface):
         """ Signals that a user activity has occurred """
         if not(self.is_user_alive()):
             self._addonClass.setSetting('lastactivity', '{}'.format(int(time.time())))
-    
+
     def getUserAgentString(self):
         return self._addonClass.getSetting('userAgentString')
 

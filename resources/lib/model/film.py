@@ -23,7 +23,7 @@ class Film(object):
         self.url_video = ''
         self.url_video_sd = ''
         self.url_video_hd = ''
-    
+
     def init(self, pFilmId, pTitle, pShow, pChannel, pDescription, pSeconds, pSize, pAired, pSub, pVideo, pVideo_sd, pVideo_hd):
         self.filmid = pFilmId
         self.title = pTitle

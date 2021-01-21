@@ -5,6 +5,7 @@ The local SQlite database module
 Copyright 2017-2019, Leo Moll
 SPDX-License-Identifier: MIT
 """
+
 # pylint: disable=too-many-lines,line-too-long
 
 import os
@@ -19,7 +20,6 @@ from codecs import open
 import resources.lib.mvutils as mvutils
 
 import resources.lib.appContext as appContext
-
 
 
 class StoreCache(object):
@@ -39,12 +39,12 @@ class StoreCache(object):
         if not self.settings.getCaching():
             self.logger.debug('loading cache is disabled')
             return None
-        ##
-        filename = os.path.join( self.settings.getDatapath() , reqtype + '.cache')
+        #
+        filename = os.path.join(self.settings.getDatapath() , reqtype + '.cache')
         if not mvutils.file_exists(filename):
             self.logger.debug('no cache file request "{}" and condition "{}"', reqtype, condition)
             return None
-        ##              
+        #
         dbLastUpdate = self.settings.getLastUpdate()
         try:
             with closing(open(filename, encoding='utf-8')) as json_file:
@@ -82,7 +82,7 @@ class StoreCache(object):
             self.logger.debug('not a proper instance for caching')
             return None
         start = time.time()
-        filename = os.path.join( self.settings.getDatapath() , reqtype + '.cache')
+        filename = os.path.join(self.settings.getDatapath() , reqtype + '.cache')
         dbLastUpdate = self.settings.getLastUpdate()
         cache = {
             "type": reqtype,

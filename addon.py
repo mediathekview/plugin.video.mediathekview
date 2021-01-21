@@ -18,8 +18,8 @@ import resources.lib.appContext as appContext
 # -- Main Code ----------------------------------------------
 if __name__ == '__main__':
     appContext.init()
-    appContext.initAddon(xbmcaddon.Addon()) 
-    appContext.initLogger(LoggerKodi(appContext.ADDONCLASS.getAddonInfo('id'),appContext.ADDONCLASS.getAddonInfo('version')))
+    appContext.initAddon(xbmcaddon.Addon())
+    appContext.initLogger(LoggerKodi(appContext.ADDONCLASS.getAddonInfo('id'), appContext.ADDONCLASS.getAddonInfo('version')))
     appContext.initSettings(SettingsKodi(appContext.ADDONCLASS))
     appContext.initNotifier(NotifierKodi(appContext.ADDONCLASS))
     PLUGIN = MediathekViewPlugin()

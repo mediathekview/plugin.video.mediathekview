@@ -45,7 +45,6 @@ class Downloader(object):
         self.notifier = appContext.MVNOTIFIER
         self.logger = appContext.MVLOGGER.get_new_logger('Downloader')
 
-
     def play_movie_with_subs(self, filmid):
         """
         Play the specified film with subtitles. Since the subtitles
@@ -60,7 +59,7 @@ class Downloader(object):
         #
         film = self.database.retrieve_film_info(filmid)
         if film is None:
-            self.logger.error("no film for download " + self.plugin.language(30991)) 
+            self.logger.error("no film for download " + self.plugin.language(30991))
             self.notifier.show_error(30990, self.plugin.language(30991))
             return
         ttmname = os.path.join(self.settings.getDatapath(), 'subtitle.ttml')
@@ -68,9 +67,9 @@ class Downloader(object):
         subs = []
         if self.download_subtitle(film, ttmname, srtname, 'subtitle'):
             subs.append(srtname)
-        #(_, listitem) = FilmUI(self.plugin).get_list_item(None, film)
+        # (_, listitem) = FilmUI(self.plugin).get_list_item(None, film)
         (_, listitem) = FilmlistUi(self.plugin)._generateListItem(film)
-        self.logger.debug('SUBTITLE FOUND {} from url {}' , subs, film.url_sub )
+        self.logger.debug('SUBTITLE FOUND {} from url {}' , subs, film.url_sub)
         if listitem:
             if subs:
                 listitem.setSubtitles(subs)
@@ -135,7 +134,7 @@ class Downloader(object):
         film = self.database.retrieve_film_info(filmid)
         if film is None:
             return
-        (filmurl, suffix, extension, ) = self._get_film_url_and_extension(film, quality)
+        (filmurl, suffix, extension,) = self._get_film_url_and_extension(film, quality)
         # try to create a good name for the downloaded file
         namestem = mvutils.cleanup_filename(film.title)[:80]
         if not namestem:
@@ -197,10 +196,10 @@ class Downloader(object):
         if film is None:
             return
 
-        (filmurl, suffix, extension, ) = self._get_film_url_and_extension(film, quality)
+        (filmurl, suffix, extension,) = self._get_film_url_and_extension(film, quality)
 
         # detect season and episode
-        (season, episode, fninfo, ) = self._season_and_episode_detect(film)
+        (season, episode, fninfo,) = self._season_and_episode_detect(film)
 
         # determine names
         showname = mvutils.cleanup_filename(film.show)[:64]
@@ -221,7 +220,7 @@ class Downloader(object):
         pathname = self.settings.getDownloadPathEpisode() + showname + '/'
         sequence = 1
         if xbmcvfs.exists(pathname):
-            (_, epfiles, ) = xbmcvfs.listdir(pathname)
+            (_, epfiles,) = xbmcvfs.listdir(pathname)
             for epfile in epfiles:
                 match = re.search(r'^.* - \(([0-9]*)\)\.[^/]*$', epfile)
                 if match and match.groups():
@@ -295,9 +294,9 @@ class Downloader(object):
             filmurl = film.url_video
         extension = os.path.splitext(filmurl)[1]
         if extension:
-            return (filmurl, suffix, extension, )
+            return (filmurl, suffix, extension,)
         else:
-            return (filmurl, suffix, u'.mp4', )
+            return (filmurl, suffix, u'.mp4',)
 
     def _make_movie_nfo_file(self, film, filmurl, pathname, filename):
         self.logger.debug('_make_movie_nfo_file')
@@ -444,11 +443,11 @@ class Downloader(object):
             episode = self._matches(r'\(([0-9]+)\/[0-9]', film.title)
         # generate filename info
         if season is not None and episode is not None:
-            return (season, episode, 'S%02dE%02d - ' % (int(season), int(episode)), )
+            return (season, episode, 'S%02dE%02d - ' % (int(season), int(episode)),)
         elif episode is not None:
             return (None, episode, 'EP%03d - ' % int(episode))
         else:
-            return (None, None, '', )
+            return (None, None, '',)
 
     @staticmethod
     def _matches(regex, test):

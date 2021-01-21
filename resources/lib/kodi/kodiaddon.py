@@ -15,7 +15,6 @@ import xbmcplugin
 import resources.lib.mvutils as mvutils
 import resources.lib.appContext as appContext
 
-
 try:
     # Python 3.x
     from urllib.parse import urlencode
@@ -24,7 +23,6 @@ except ImportError:
     # Python 2.x
     from urllib import urlencode
     from urlparse import parse_qs
-
 
 
 class KodiAddon(object):
@@ -37,7 +35,7 @@ class KodiAddon(object):
         self.language = self.addon.getLocalizedString
         self.kodiVersion = -1
 
-    ## TODO REMOVE THIS - USE SETTINGS INSTEAD
+    # TODO REMOVE THIS - USE SETTINGS INSTEAD
     def get_kodi_version(self):
         """
         Get Kodi major version
@@ -80,7 +78,7 @@ class KodiAddon(object):
         Args:
             builtin(str): command to execute
         """
-        #self.logger.debug('Execute builtin {}', builtin)
+        # self.logger.debug('Execute builtin {}', builtin)
         xbmc.executebuiltin(builtin)
 
     def getCaption(self, msgid):
@@ -97,12 +95,12 @@ class KodiAddon(object):
         if viewId > -1:
             xbmc.sleep(10)
             self.run_builtin('Container.SetViewMode({})'.format(viewId))
-        
+
     def resolveViewId(self, pViewname):
         skinName = self.getSkinName()
         viewId = -1
         # skin.estuary
-        
+
         if skinName == 'skin.estuary' and pViewname == 'MAIN':
             viewId = 55
         elif skinName == 'skin.estuary' and pViewname == 'SHOWS':
@@ -129,6 +127,7 @@ class KodiAddon(object):
             viewId = 500
         self.logger.debug('proposed view id {} for {} in mode {}', viewId, skinName, pViewname)
         return viewId;
+
 
 class KodiService(KodiAddon):
     """ The Kodi service addon class """
@@ -173,7 +172,7 @@ class KodiPlugin(KodiAddon):
         Args:
             params(object): an object containing parameters
         """
-        ### BUG in urlencode which is solved in python 3
+        # BUG in urlencode which is solved in python 3
         utfEnsuredParams = mvutils.dict_to_utf(params)
         return self.base_url + '?' + urlencode(utfEnsuredParams)
 
@@ -310,5 +309,5 @@ class KodiPlugin(KodiAddon):
             cache_to_disc
         )
 
-    def set_content(self, pContent = ''):
+    def set_content(self, pContent=''):
         xbmcplugin.setContent(self.addon_handle, pContent)

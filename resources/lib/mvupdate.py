@@ -37,14 +37,14 @@ class UpdateApp():
         except Exception:
             # cannot self.warn before super.__init__, so store for later
             storederr = sys.exc_info()
-        ##
+        #
         appContext.init()
         self.logger = LoggerCommandline(self.scriptname, self.version)
         appContext.initLogger(self.logger)
-        ##
+        #
         self.notifier = None
         appContext.initNotifier(NotifierInterface())
-        ##
+        #
         self.args = None
         self.verbosity = 0
         self.monitor = None
@@ -52,7 +52,6 @@ class UpdateApp():
         self.settings = None
         if storederr is not None:
             self.logger.error("Unable to find version information: {} {}", storederr[0].__name__, storederr[1])
-
 
     def init(self):
         """ Startup of the application """
@@ -185,19 +184,19 @@ class UpdateApp():
         )
         self.args = parser.parse_args()
         self.verbosity = self.args.verbose
-        ## do it again to have proper loglevel (verbosity)
-        self.logger = LoggerCommandline(self.scriptname, self.version, 'mvupdate',self.verbosity)
+        # do it again to have proper loglevel (verbosity)
+        self.logger = LoggerCommandline(self.scriptname, self.version, 'mvupdate', self.verbosity)
         appContext.initLogger(self.logger)
-        ##
+        #
         self.logger.info('Startup')
         appContext.initSettings(SettingsCommandline(self.args))
-        ##
+        #
         self.monitor = MonitorInterface()
         appContext.initMonitor(self.monitor)
         self.updater = MediathekViewUpdater()
-        ##
+        #
         self.logger.info('Python Version' + sys.version)
-        ##
+        #
         return self.updater.init()
 
     def run(self):

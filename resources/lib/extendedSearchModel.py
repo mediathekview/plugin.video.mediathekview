@@ -4,8 +4,10 @@ Management of recent searches
 Copyright (c) 2018, Leo Moll
 SPDX-License-Identifier: MIT
 """
+
 import time
 import resources.lib.appContext as appContext
+
 
 class ExtendedSearchModel(object):
     """
@@ -29,8 +31,8 @@ class ExtendedSearchModel(object):
         self.maxResults = self.settings.getMaxResults()
         self.recentOnly = 0
         self.when = self.id
-        ##
-        ##
+        #
+        #
         """
         self.recents = [
                 { 
@@ -54,7 +56,7 @@ class ExtendedSearchModel(object):
         """
 
     ################
-    ## RESET
+    # RESET
     ################
     def reset(self):
         self.name = ''
@@ -71,20 +73,19 @@ class ExtendedSearchModel(object):
         self.maxResults = 0
         self.recentOnly = 0
 
+    ################
+    # GET
+    ################
 
-    ################
-    ## GET
-    ################
-    
     def getId(self):
         return self.id;
-    
+
     def getName(self):
         return self.name;
 
     def getChannel(self):
         return self.channel
-    
+
     def getShow(self):
         return self.show
 
@@ -96,16 +97,16 @@ class ExtendedSearchModel(object):
 
     def getTitle(self):
         return self.title
-    
+
     def getDescription(self):
         return self.description
-    
+
     def getExcludeTitle(self):
         return self.excludeTitle
-    
+
     def getMinLength(self):
         return self.minLength
-    
+
     def isIgnoreTrailer(self):
         return self.ignoreTrailer == 1
 
@@ -119,9 +120,9 @@ class ExtendedSearchModel(object):
         return self.recentOnly == 1
 
     ################
-    ## GET
+    # GET
     ################
-    
+
     def getIdAsString(self):
         return self.id;
 
@@ -142,16 +143,16 @@ class ExtendedSearchModel(object):
 
     def getTitleAsString(self):
         return '|'.join(self.title)
-    
+
     def getDescriptionAsString(self):
         return '|'.join(self.description)
-    
+
     def getExcludeTitleAsString(self):
         return '|'.join(self.excludeTitle)
-    
+
     def getMinLengthAsString(self):
-        return str((self.minLength/60))
-    
+        return str((self.minLength / 60))
+
     def getIgnoreTrailerAsString(self):
         return str(self.ignoreTrailer)
 
@@ -162,10 +163,10 @@ class ExtendedSearchModel(object):
         return str(self.exactMatchForShow)
 
     def getRecentOnly(self):
-        return str(self.recentOnly)    
+        return str(self.recentOnly)
 
     ################
-    ## SET
+    # SET
     ################
     def setId(self, pValue):
         self.id = pValue
@@ -179,7 +180,7 @@ class ExtendedSearchModel(object):
         else:
             pValue = pValue.split('|')
         self.channel = pValue
-    
+
     def setShow(self, pValue):
         if pValue is None or pValue == "":
             pValue = []
@@ -207,26 +208,26 @@ class ExtendedSearchModel(object):
         else:
             pValue = pValue.split('|')
         self.title = pValue
-    
+
     def setDescription(self, pValue):
         if pValue is None or pValue == "":
             pValue = []
         else:
             pValue = pValue.split('|')
         self.description = pValue
-    
+
     def setExcludeTitle(self, pValue):
         if pValue is None or pValue == "":
             pValue = []
         else:
             pValue = pValue.split('|')
         self.excludeTitle = pValue
-    
+
     def setMinLength(self, pValue):
         if pValue is None or pValue == '' or not pValue.isnumeric():
             pValue = '0'
-        self.minLength = int(pValue)*60
-    
+        self.minLength = int(pValue) * 60
+
     def setIgnoreTrailer(self, pValue):
         if pValue == True:
             pValue = 1
@@ -247,9 +248,10 @@ class ExtendedSearchModel(object):
 
     def setRecentOnly(self, pValue):
         self.recentOnly = pValue
-    ##
+
+    #
     ##################################
-    ##
+    #
     def generateRecentCondition(self):
         sql = ""
         if self.isRecentOnly():
@@ -258,30 +260,34 @@ class ExtendedSearchModel(object):
                 self.settings.getMaxAge()
             )
         return sql
-    ##
+
+    #
     def generateIgnoreTrailer(self):
         sql = ""
         if self.isIgnoreTrailer():
             sql += "( aired < UNIX_TIMESTAMP() )"
         return sql
-    ##
+
+    #
     def generateMinLength(self):
         sql = ""
         if self.getMinLength() > 0:
             sql += '( duration >= %d )' % self.getMinLength()
         return sql
-    ##
+
+    #
     def generateMaxRows(self):
         sql = ""
         if (self.getMaxResults() > 0):
             sql += 'LIMIT ' + self.getMaxResultsAsString()
         return sql
-    ##
-    ##
-    ##
+
+    #
+    #
+    #
     def generateChannel(self):
         sql = ""
-        params= []
+        params = []
         if (len(self.getChannel()) > 0):
             sql += '( channel in ('
             for conditionString in self.getChannel():
@@ -289,25 +295,27 @@ class ExtendedSearchModel(object):
                 params.append(conditionString)
             sql = sql[0:-1]
             sql += '))'
-        return (sql,params)
-    ##
+        return (sql, params)
+
+    #
     def generateExclude(self):
         sql = ""
-        params= []
+        params = []
         if (len(self.getExcludeTitle()) > 0):
             sql += '('
             for conditionString in self.getExcludeTitle():
                 exp = '%' + conditionString + '%'
                 params.append(exp)
                 params.append(exp)
-                sql += ' title not like ? and showname not like ? and' 
-            sql = sql[0:(len(sql)-3)]
+                sql += ' title not like ? and showname not like ? and'
+            sql = sql[0:(len(sql) - 3)]
             sql += ")"
-        return (sql,params)
-    ##
+        return (sql, params)
+
+    #
     def generateShowTitleDescription(self):
         sql = ""
-        params= []
+        params = []
         if (len(self.getShow()) > 0 and not(self.isExactMatchForShow())) or len(self.getTitle()) > 0 or len(self.getDescription()) > 0:
             sql += ' ('
             if (len(self.getShow()) > 0 and not(self.isExactMatchForShow())):
@@ -315,27 +323,28 @@ class ExtendedSearchModel(object):
                     exp = '%' + conditionString + '%'
                     params.append(exp)
                     sql += ' showname like ? or'
-            ##
+            #
             if (len(self.getTitle()) > 0):
                 for conditionString in self.getTitle():
                     exp = '%' + conditionString + '%'
                     params.append(exp)
                     sql += ' title like ? or'
-            ##
+            #
             if (len(self.getDescription()) > 0):
                 for conditionString in self.getDescription():
                     exp = '%' + conditionString + '%'
                     params.append(exp)
                     sql += ' description like ? or'
-            ##
+            #
             if sql[-2:] == 'or':
-                sql = sql[0:(len(sql)-2)]
+                sql = sql[0:(len(sql) - 2)]
             sql += ')'
-        return (sql,params)
-    ##
+        return (sql, params)
+
+    #
     def generateShow(self):
         sql = ""
-        params= []
+        params = []
         if (len(self.getShow()) > 0 and self.isExactMatchForShow()):
             sql += '( showname in ('
             for conditionString in self.getShow():
@@ -343,11 +352,12 @@ class ExtendedSearchModel(object):
                 params.append(conditionString)
             sql = sql[0:-1]
             sql += '))'
-        return (sql,params)
-    ##
+        return (sql, params)
+
+    #
     def generateShowId(self):
         sql = ""
-        params= []
+        params = []
         if (len(self.getShowId()) > 0):
             sql += '( showId in ('
             for conditionString in self.getShowId():
@@ -355,11 +365,12 @@ class ExtendedSearchModel(object):
                 params.append(conditionString)
             sql = sql[0:-1]
             sql += '))'
-        return (sql,params)
-    ##
+        return (sql, params)
+
+    #
     def generateShowStartLetter(self):
         sql = ""
-        params= []
+        params = []
         if (len(self.getShowStartLetter()) > 0):
             for conditionString in self.getShowStartLetter():
                 exp = conditionString + '%'
@@ -367,10 +378,11 @@ class ExtendedSearchModel(object):
                 sql += ' showname like ? or'
             sql = sql[0:-2]
             sql += ')'
-        return (sql,params)
-    ##
+        return (sql, params)
+
+    #
     ################
-    ## SET
+    # SET
     ################
     def toDict(self):
         return {
@@ -389,7 +401,7 @@ class ExtendedSearchModel(object):
             "recentOnly" : self.recentOnly,
             "when" : self.when
             }
-    
+
     def fromDict(self, aObject):
         self.id = aObject["id"]
         self.name = aObject["name"]

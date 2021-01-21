@@ -35,8 +35,8 @@ try:
 except ImportError:
     IS_KODI = False
 
-
 PY2 = sys.version_info[0] == 2
+
 
 def py2_encode(s, encoding='utf-8'):
    """
@@ -59,6 +59,7 @@ def py2_decode(s, encoding='utf-8'):
        s = s.decode(encoding)
    return s
 
+
 def array_to_utf(a):
     autf = []
     i = 0
@@ -73,9 +74,10 @@ def array_to_utf(a):
             autf.append(v)
     return autf
 
+
 def dict_to_utf(d):
     dutf = {}
-    for k,v in list(d.items()):
+    for k, v in list(d.items()):
         if PY2 and isinstance(v, unicode):
             dutf[k] = py2_encode(v)
         elif PY2 and isinstance(v, list):
@@ -85,6 +87,7 @@ def dict_to_utf(d):
         else:
             dutf[k] = v
     return dutf
+
 
 def dir_exists(name):
     """
@@ -143,6 +146,7 @@ def file_remove(name):
             pass
     return False
 
+
 def deleteFiles(rootDir, regexp):
     """
     Delete a file via regexp (e.g. 'Filmliste-akt-Test$' )
@@ -163,6 +167,7 @@ def deleteFiles(rootDir, regexp):
                     pass
                     return -1
     return cnt
+
 
 def file_rename(srcname, dstname):
     """
@@ -275,7 +280,7 @@ def url_retrieve(url, filename, reporthook, chunk_size=8192, aborthook=None):
             each block read thereafter. If specified the operation will be
             aborted if the hook function returns `True`
     """
-    with closing(urlopen(url, timeout = 10)) as src, closing(open(filename, 'wb')) as dst:
+    with closing(urlopen(url, timeout=10)) as src, closing(open(filename, 'wb')) as dst:
         _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook)
 
 
@@ -303,7 +308,7 @@ def url_retrieve_vfs(url, filename, reporthook, chunk_size=8192, aborthook=None)
             each block read thereafter. If specified the operation will be
             aborted if the hook function returns `True`
     """
-    with closing(urlopen(url, timeout = 10)) as src, closing(xbmcvfs.File(filename, 'wb')) as dst:
+    with closing(urlopen(url, timeout=10)) as src, closing(xbmcvfs.File(filename, 'wb')) as dst:
         _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook)
 
 
@@ -315,6 +320,7 @@ def build_url(query):
         query(object): a query object
     """
     return sys.argv[0] + '?' + urlencode(query)
+
 
 def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):
     aborthook = aborthook if aborthook is not None else lambda: False

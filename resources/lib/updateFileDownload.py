@@ -23,7 +23,6 @@ except ImportError:
 from contextlib import closing
 from codecs import open
 
-
 import resources.lib.mvutils as mvutils
 
 # from resources.lib.utils import *
@@ -47,15 +46,15 @@ except ImportError:
 
 # -- Constants ----------------------------------------------
 FILMLISTE_URL = 'https://liste.mediathekview.de/'
-#FILMLISTE_URL = 'http://192.168.137.100/content/'
-#FILMLISTE_URL = 'http://192.168.137.100/content/test/'
+# FILMLISTE_URL = 'http://192.168.137.100/content/'
+# FILMLISTE_URL = 'http://192.168.137.100/content/test/'
 FILMLISTE_AKT = 'Filmliste-akt'
 FILMLISTE_DIF = 'Filmliste-diff'
 DATABASE_URL = 'https://liste.mediathekview.de/'
-#DATABASE_URL = 'http://192.168.137.100/content/'
-#DATABASE_URL = 'http://192.168.137.100/content/test/'
+# DATABASE_URL = 'http://192.168.137.100/content/'
+# DATABASE_URL = 'http://192.168.137.100/content/test/'
 DATABASE_DBF = 'filmliste-v3.db'
-#DATABASE_AKT = 'filmliste-v2.db.update'
+# DATABASE_AKT = 'filmliste-v2.db.update'
 
 # -- Classes ------------------------------------------------
 # pylint: disable=bad-whitespace
@@ -80,55 +79,54 @@ class UpdateFileDownload(object):
         mvutils.file_remove(self._filename)
 
     def downloadIncrementalUpdateFile(self):
-        ##
+        #
         ext = self._getExtension()
         downloadUrl = FILMLISTE_URL + FILMLISTE_DIF + ext
-        self._compressedFilename = os.path.join( self.settings.getDatapath() , FILMLISTE_DIF + ext)
-        self._filename = os.path.join( self.settings.getDatapath() , FILMLISTE_DIF)
-        ##
+        self._compressedFilename = os.path.join(self.settings.getDatapath() , FILMLISTE_DIF + ext)
+        self._filename = os.path.join(self.settings.getDatapath() , FILMLISTE_DIF)
+        #
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
-        ##
+        #
         return check
 
-    
     def downloadFullUpdateFile(self):
-        ##
+        #
         ext = self._getExtension()
         downloadUrl = FILMLISTE_URL + FILMLISTE_AKT + ext
-        self._compressedFilename = os.path.join( self.settings.getDatapath() , FILMLISTE_AKT + ext)
-        self._filename = os.path.join( self.settings.getDatapath() , FILMLISTE_AKT)
-        ##
+        self._compressedFilename = os.path.join(self.settings.getDatapath() , FILMLISTE_AKT + ext)
+        self._filename = os.path.join(self.settings.getDatapath() , FILMLISTE_AKT)
+        #
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
-        ##
+        #
         if check:
             filesize = mvutils.file_size(self._filename)
             if filesize < 200000000:
                 raise Exception('FullUpdate file size {} smaller than allowed (200MB)'.format(filesize))
-        ##
+        #
         return check
-    
+
     def downloadSqliteDb(self):
         ext = self._getExtension()
         downloadUrl = DATABASE_URL + DATABASE_DBF + ext
-        self._compressedFilename = os.path.join( self.settings.getDatapath() , 'tmp_' + DATABASE_DBF + ext)
-        self._filename = os.path.join( self.settings.getDatapath() , 'tmp_' + DATABASE_DBF)
-        self._Dbfilename = os.path.join( self.settings.getDatapath() , DATABASE_DBF)
+        self._compressedFilename = os.path.join(self.settings.getDatapath() , 'tmp_' + DATABASE_DBF + ext)
+        self._filename = os.path.join(self.settings.getDatapath() , 'tmp_' + DATABASE_DBF)
+        self._Dbfilename = os.path.join(self.settings.getDatapath() , DATABASE_DBF)
 
-        ##
+        #
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
-        ##
+        #
         if check:
             filesize = mvutils.file_size(self._filename)
             if filesize < 200000000:
                 raise Exception('FullUpdate file size {} smaller than allowed (200MB)'.format(filesize))
-        ##
+        #
         return check
-    
+
     def updateSqliteDb(self):
         start = time.time()
         mvutils.file_rename(self._filename, self._Dbfilename)
-        self.logger.debug('renamed {} to {} in {} sec',self._filename, self._Dbfilename, (time.time() - start))
-            
+        self.logger.debug('renamed {} to {} in {} sec', self._filename, self._Dbfilename, (time.time() - start))
+
     def _getExtension(self):
         ext = ""
         if self.use_xz is True:
@@ -163,7 +161,7 @@ class UpdateFileDownload(object):
                 reporthook=self.notifier.hook_download_progress,
                 aborthook=self.monitor.abort_requested
             )
-            self.logger.debug('downloaded {} in {} sec',compressedFilename, (time.time() - start))
+            self.logger.debug('downloaded {} in {} sec', compressedFilename, (time.time() - start))
         except URLError as err:
             self.logger.error('Failure downloading {} - {}', url, err)
             self.notifier.close_download_progress()
@@ -180,7 +178,6 @@ class UpdateFileDownload(object):
             self.notifier.close_download_progress()
             self.notifier.show_download_error(url, err)
             raise
-        ###
         # decompress filmliste
         start = time.time()
         try:

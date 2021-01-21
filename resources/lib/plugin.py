@@ -34,7 +34,6 @@ import resources.lib.ui.showUi as ShowUi
 import resources.lib.ui.letterUi as LetterUi
 import resources.lib.ui.filmlistUi as FilmlistUi
 
-
 import resources.lib.appContext as appContext
 
 # -- Classes ------------------------------------------------
@@ -57,8 +56,8 @@ class MediathekViewPlugin(KodiPlugin):
         else:
             self.logger.warn('Unknown Database driver selected')
             self.database = None
-        ##
-        ##self.database = Store()
+        #
+        # self.database = Store()
 
     def show_main_menu(self):
         """ Creates the main menu of the plugin """
@@ -102,7 +101,7 @@ class MediathekViewPlugin(KodiPlugin):
         # Manual database update
         if self.settings.getDatabaseUpateMode() == 1 or self.settings.getDatabaseUpateMode() == 2:
             self.add_action_item(
-                30909, 
+                30909,
                 {'mode': "action-dbupdate"},
                 icon=os.path.join(self.path, 'resources', 'icons', 'download-m.png')
             )
@@ -133,27 +132,27 @@ class MediathekViewPlugin(KodiPlugin):
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getQuickSearch(search))
             RecentSearches(self).load().add(search).save()
-            ###
+            #
         elif mode == 'delsearch':
             search = self.get_arg('search', '')
             RecentSearches(self).load().delete(search).save().populate()
             self.run_builtin('Container.Refresh')
             self.setViewId(self.resolveViewId('MAIN'))
-            ##
+            #
         elif mode == 'extendedSearchScreen':
             ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None)).show()
-            ##
+            #
         elif mode == 'livestreams':
             ui = LivestreamUi.LivestreamUi(self)
             ui.generate(self.database.getLivestreams())
-            ##
+            #
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getRecentFilms(channel))
-            #self.database.get_recents(channel, FilmUI(self))
-            ##
+            # self.database.get_recents(channel, FilmUI(self))
+            #
         elif mode == 'recentchannels':
             #
             self.add_folder_item(
@@ -161,7 +160,7 @@ class MediathekViewPlugin(KodiPlugin):
                 {'mode': 'recent' },
                 icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
             )
-            ui = ChannelUi.ChannelUi(self,'recent')
+            ui = ChannelUi.ChannelUi(self, 'recent')
             ui.generate(self.database.getChannelsRecent())
         elif mode == 'channels':
             #
@@ -171,12 +170,12 @@ class MediathekViewPlugin(KodiPlugin):
                 icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
             )
             #
-            ui = ChannelUi.ChannelUi(self,'shows')
+            ui = ChannelUi.ChannelUi(self, 'shows')
             ui.generate(self.database.getChannels())
         elif mode == 'action-dbinfo':
             self.run_builtin("ActivateWindow(busydialognocancel)")
             self.show_db_info()
-            self.run_builtin("Dialog.Close(busydialognocancel)")            
+            self.run_builtin("Dialog.Close(busydialognocancel)")
         elif mode == 'action-dbupdate':
             self.settings.set_update_triggered('true')
             self.notifier.show_notification(30963, 30964)
@@ -188,21 +187,21 @@ class MediathekViewPlugin(KodiPlugin):
             channel == "" if channel == "0" else channel
             initial = self.get_arg('initial', "")
             initial == "" if initial == "0" else initial
-            #self.database.get_shows(channel, initial, ShowUI(self))
+            # self.database.get_shows(channel, initial, ShowUI(self))
             ui = ShowUi.ShowUi(self)
             if initial == "":
                 ui.generate(self.database.getShowsByChannnel(channel))
             else:
-                ui.generate(self.database.getShowsByLetter(initial))           
+                ui.generate(self.database.getShowsByLetter(initial))
         elif mode == 'films':
             show = self.get_arg('show', "")
             show == "" if show == "0" else show
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
-            #self.database.get_films(show, FilmUI(self))
+            # self.database.get_films(show, FilmUI(self))
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getFilms(channel, show))
-            ###
+            #
         elif mode == 'downloadmv':
             filmid = self.get_arg('id', "")
             quality = self.get_arg('quality', 1)
@@ -218,9 +217,9 @@ class MediathekViewPlugin(KodiPlugin):
         # cleanup saved searches
         if self.get_setting('lastsearch1') != '' and (mode is None or mode != 'newsearch'):
             self.set_setting('lastsearch1', '')
-        ##
+        #
         self.logger.info('request processed: {} sec', time.time() - start)
-        ##
+        #
         self.logger.debug(" View id {}", self.getCurrentViewId())
         self.logger.debug(" Skin {}", self.getSkinName())
 
@@ -246,11 +245,11 @@ class MediathekViewPlugin(KodiPlugin):
             info['mov']
             )
         updinfo = self.language(30970) % (
-            datetime.fromtimestamp(info['filmUpdate']).isoformat().replace('T',' '),
-            datetime.fromtimestamp(info['lastFullUpdate']).isoformat().replace('T',' '),
-            datetime.fromtimestamp(info['lastUpdate']).isoformat().replace('T',' ')
+            datetime.fromtimestamp(info['filmUpdate']).isoformat().replace('T', ' '),
+            datetime.fromtimestamp(info['lastFullUpdate']).isoformat().replace('T', ' '),
+            datetime.fromtimestamp(info['lastUpdate']).isoformat().replace('T', ' ')
             )
-        ##
+        #
         xbmcgui.Dialog().textviewer(
             heading,
             infostr + '\n\n' +

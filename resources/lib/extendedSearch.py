@@ -18,6 +18,7 @@ from codecs import open
 import xbmcplugin
 import resources.lib.ui.filmlistUi as FilmlistUi
 
+
 class ExtendedSearch(object):
     """
     The recent searches class
@@ -32,7 +33,7 @@ class ExtendedSearch(object):
             for the directory representation. Default is
             `[ xbmcplugin.SORT_METHOD_TITLE ]`
     """
-    
+
     """
     ActivateWindow(window[,dir,return]) -- 
     ReplaceWindow(window,dir) --  This is the same as ActivateWindow() but it doesn't update the window history list,
@@ -56,11 +57,10 @@ class ExtendedSearch(object):
         self.path = appContext.MVSETTINGS.getDatapath()
         self.logger = appContext.MVLOGGER.get_new_logger('ExtendedSearch')
         self.notifier = appContext.MVNOTIFIER
-        ##
+        #
         self.recents = []
         self._load()
-        ##
-
+        #
 
     def show(self):
         """ populate UI with extended search elements """
@@ -72,10 +72,10 @@ class ExtendedSearch(object):
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
         elif self.action == "RUN":
             data = self._getModelById(self.searchId);
-            #self.database.extendedSearchQuery(data, FilmUI(self.plugin))
+            # self.database.extendedSearchQuery(data, FilmUI(self.plugin))
             ui = FilmlistUi.FilmlistUi(self.plugin)
-            ui.generate(self.database.extendedSearch(data)) 
-            
+            ui.generate(self.database.extendedSearch(data))
+
         elif self.action == "NEW":
             (txt, confirm) = self.notifier.get_entered_text(heading=30419)
             if confirm:
@@ -91,7 +91,7 @@ class ExtendedSearch(object):
                                     'searchId' : x.getId()
                                 })
                             )
-                self.plugin.end_of_directory(True,False,False)
+                self.plugin.end_of_directory(True, False, False)
                 self.plugin.run_builtin(cmd)
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
 
@@ -99,11 +99,11 @@ class ExtendedSearch(object):
             data = self._getModelById(self.searchId);
             self.showEntry(data)
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
-            
+
         elif self.action == "DELETE":
             self.recents.remove(self._getItemById(self.searchId))
             self._save()
-            ##
+            #
             cmd = 'Container.refresh({})'.format(
                             self.plugin.build_url({
                                 'mode': "extendedSearchScreen",
@@ -111,10 +111,10 @@ class ExtendedSearch(object):
                             })
                         )
             # def end_of_directory(self, succeeded=True, update_listing=False, cache_to_disc=False):
-            self.plugin.end_of_directory(True,False,False)
+            self.plugin.end_of_directory(True, False, False)
             self.plugin.run_builtin(cmd)
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
-        
+
         if self.action[:5] == 'EDIT-':
             #
             cmd = 'Container.update({}, replace)'.format(
@@ -126,50 +126,50 @@ class ExtendedSearch(object):
             )
             #
             dataModel = self._getModelById(self.searchId)
-            #   
+            #
             if self.action == "EDIT-NAME":
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getNameAsString(), heading=30419)
                 if confirm:
                     dataModel.setName(txt)
-    
+
             elif self.action == "EDIT-TITLE":
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getTitleAsString(), heading=30412)
                 if confirm:
                     dataModel.setTitle(txt)
-                    
+
             elif self.action == "EDIT-SHOW":
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getShowAsString(), heading=30411)
                 if confirm:
                     dataModel.setShow(txt)
-    
+
             elif self.action == "EDIT-DESCRIPTION":
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getDescriptionAsString(), heading=30413)
                 if confirm:
                     dataModel.setDescription(txt)
-    
+
             elif self.action == "EDIT-CHANNEL":
                 channelList = self.database.getChannelList()
-                ##
+                #
                 preselect = []
                 for i, channelName in enumerate(channelList):
                     for selectedChannelName in dataModel.getChannel():
                         if selectedChannelName == channelName:
                             preselect.append(i)
-                ##
+                #
                 selectedIdxList = self.notifier.get_entered_multiselect(heading=30414, options=channelList, preselect=preselect)
                 if selectedIdxList is not None:
                     selectedChannels = []
                     for idx in selectedIdxList:
                         selectedChannels.append(channelList[idx])
                     dataModel.setChannel("|".join(selectedChannels))
-    
+
             elif self.action == "EDIT-MINLENGTH":
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getMinLengthAsString(), heading=30418)
                 if confirm:
                     dataModel.setMinLength(txt)
 
             elif self.action == "EDIT-NOFUTURE":
-                selectedIdx = self.notifier.get_entered_select(heading=30417, list=[self.plugin.language(30409),self.plugin.language(30410)], preselect=int(dataModel.getIgnoreTrailerAsString()))
+                selectedIdx = self.notifier.get_entered_select(heading=30417, list=[self.plugin.language(30409), self.plugin.language(30410)], preselect=int(dataModel.getIgnoreTrailerAsString()))
                 if selectedIdx is not None and selectedIdx > -1:
                     dataModel.setIgnoreTrailer(selectedIdx)
 
@@ -177,14 +177,13 @@ class ExtendedSearch(object):
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getExcludeTitleAsString(), heading=30415)
                 if confirm:
                     dataModel.setExcludeTitle(txt)
-            ##
-            ##
+            #
+            #
             self._saveModel(dataModel)
             #
-            self.plugin.end_of_directory(True,False,False)
+            self.plugin.end_of_directory(True, False, False)
             self.plugin.run_builtin(cmd)
         self.logger.debug('show processed: {} sec', time.time() - start)
-
 
     def showList(self):
         """ populate all elements from extended search """
@@ -196,7 +195,7 @@ class ExtendedSearch(object):
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'NEW'},
             icon=os.path.join(self.plugin.path, 'resources', 'icons', 'search-m.png')
         )
-        ##
+        #
         for entry in self.recents:
             self.plugin.add_folder_item(
                 entry['name'],
@@ -234,9 +233,9 @@ class ExtendedSearch(object):
                     'results-m.png'
                 )
             )
-        ##
+        #
         self.plugin.end_of_directory()
-        ##
+        #
         self.logger.debug('showList processed: {} sec', time.time() - start)
 
     def showEntry(self, extSearchModel):
@@ -249,7 +248,7 @@ class ExtendedSearch(object):
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'RUN', 'searchId': extSearchModel.getId()},
             icon=os.path.join(self.plugin.path, 'resources', 'icons', 'search-m.png')
         )
-        ##
+        #
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30401) + " : " + extSearchModel.getName(),
                 {
@@ -258,7 +257,7 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-NAME'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30403) + " : " + extSearchModel.getShowAsString(),
@@ -268,7 +267,7 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-SHOW'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30402) + " : " + extSearchModel.getTitleAsString(),
@@ -278,7 +277,7 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-TITLE'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30404) + " : " + extSearchModel.getDescriptionAsString(),
@@ -288,7 +287,7 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-DESCRIPTION'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30405) + " : " + extSearchModel.getChannelAsString(),
@@ -298,7 +297,7 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-CHANNEL'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30408) + " : " + extSearchModel.getExcludeTitleAsString(),
@@ -308,7 +307,7 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-BLACKLIST'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30406) + " : " + extSearchModel.getMinLengthAsString(),
@@ -318,13 +317,13 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-MINLENGTH'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         if extSearchModel.isIgnoreTrailer():
             languageString = self.plugin.language(30410)
         else:
             languageString = self.plugin.language(30409)
-        
+
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30407) + " : " + languageString,
                 {
@@ -333,12 +332,10 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-NOFUTURE'
                 },
                 None,
-                icon=os.path.join( self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
             )
         self.plugin.end_of_directory()
         self.logger.debug('showEntry processed: {} sec', time.time() - start)
-
-
 
 ######################################
 
@@ -361,7 +358,7 @@ class ExtendedSearch(object):
         self.logger.debug('_load')
         start = time.time()
         #
-        listOfItems=[]
+        listOfItems = []
         try:
             with closing(open(self.datafile, encoding='utf-8')) as json_file:
                 data = json.load(json_file)
@@ -374,7 +371,7 @@ class ExtendedSearch(object):
         self.recents = listOfItems
         #
         self.logger.debug('_load processed: {} sec', time.time() - start)
-    
+
     def _save(self):
         """ Saves the recent searches list """
         self.logger.debug('_save')

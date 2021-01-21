@@ -5,59 +5,61 @@ The base settings module
 
 Copyright 2020, Mediathekview
 """
+
+
 class SettingsInterface(object):
 
     def __init__(self):
         pass
-    
+
     def getDatapath(self):
         return ""
 
     def getKodiVersion(self):
         return 0
-    ## General
-    
+    # General
+
     def getPreferHd(self):
         return True
-    
+
     def getAutoSub(self):
         return True
-    
+
     def getNoFutur(self):
         return True
-    
+
     def getMinLength(self):
         return 0
-    
+
     def getGroupShow(self):
         return True
-    
+
     def getMaxResults(self):
         return 1000
-    
+
     def getMaxAge(self):
         return 84400
-    
+
     def getRecentMode(self):
         return 0
-    
+
     def getFilmSortMethod(self):
         return 1
-    
+
     def getUpdateCheckIntervel(self):
         return 10
 
     def getContentType(self):
         return ''
 
-    ## Database
-    
+    # Database
+
     def getDatabaseType(self):
         return 0
 
     def getDatabaseHost(self):
         return 'localhost'
-    
+
     def getDatabasePort(self):
         return 3306
 
@@ -85,7 +87,7 @@ class SettingsInterface(object):
     def getDatabaseImportBatchSize(self):
         return 10000
 
-    #### Download
+    # Download
 
     def getDownloadPathEpisode(self):
         return ''
@@ -108,10 +110,10 @@ class SettingsInterface(object):
     def getMakeInfo(self):
         return 2
 
-    #### FLOW CONTROL
+    # FLOW CONTROL
     def is_update_triggered(self):
         return False
-    
+
     def set_update_triggered(self, aValue):
         pass
 
@@ -135,13 +137,13 @@ class SettingsInterface(object):
 
     def getDatabaseVersion(self):
         return '0'
-    
+
     def setDatabaseVersion(self, aVersion):
         pass
-    
+
     def is_user_alive(self):
         pass
-    
+
     def user_activity(self):
         pass
 

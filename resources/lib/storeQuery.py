@@ -5,6 +5,7 @@ The local SQlite database module
 Copyright 2017-2019, Leo Moll
 SPDX-License-Identifier: MIT
 """
+
 # pylint: disable=too-many-lines,line-too-long
 import time
 import resources.lib.appContext as appContext
@@ -28,7 +29,7 @@ class StoreQuery(object):
         )
         self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if self.settings.getNoFutur() else ""
         self.sql_cond_minlength = " AND ( duration >= %d )" % self.settings.getMinLength() if self.settings.getMinLength() > 0 else ""
-        ## IMPORT SQL
+        # IMPORT SQL
         self.sql_pStmtInsert = """
             INSERT INTO film (
                 idhash, touched, dtCreated, channel, showid, showname, title,
@@ -41,27 +42,27 @@ class StoreQuery(object):
                 ?, ?, ?, ?
             )"""
         self.sql_pStmtUpdate = """UPDATE film SET touched = touched+1 WHERE idhash = ?"""
-    
-    ## ABSTRACT
+
+    # ABSTRACT
     def getConnection(self):
         """ Abstract method to implement the database specific connect """
         return None
 
-    ## ABSTRACT
+    # ABSTRACT
     def exit(self):
         """ Abstract method to implement the database specific disconnect """
         pass
 
-    ## OVERWRITE
+    # OVERWRITE
     def getDatabaseStatus(self):
         """ 
         Hook to overwrite the database specific get status function. 
         The output is used in the update trigger to find out needed operations
         """
         return self.get_status()
-    
-    ## OVERWRITE for mysql
-    def execute(self, aStmt, aParams = None):
+
+    # OVERWRITE for mysql
+    def execute(self, aStmt, aParams=None):
         """ execute a single sql stmt and return the resultset """
         start = time.time()
         self.logger.debug('query: {} params {}', aStmt, aParams)
@@ -74,35 +75,35 @@ class StoreQuery(object):
         cursor.close()
         self.logger.debug('execute: {} rows in {} sec', len(rs), time.time() - start)
         return rs
-    
+
     def executeUpdate(self, aStmt, aParams):
         """ execute a single update stmt and commit """
         cursor = self.getConnection().cursor()
         cursor.execute(aStmt, aParams)
         rs = cursor.rowcount
-        #self.logger.debug(" rowcount executeUpdate {}" , rs )
+        # self.logger.debug(" rowcount executeUpdate {}" , rs )
         cursor.close()
         self.getConnection().commit()
         return rs
 
-    def executemany(self, aStmt, aParams = None):
+    def executemany(self, aStmt, aParams=None):
         """ execute a bulk prepared Stmt """
         cursor = self.getConnection().cursor()
         cursor.executemany(aStmt, aParams)
         rs = cursor.rowcount
-        #self.logger.debug(" rowcount executemany {}" , rs )
+        # self.logger.debug(" rowcount executemany {}" , rs )
         cursor.close()
         self.getConnection().commit()
         return rs
 
-    ### All this just because mysql is not compliant to sql standard
+    # # All this just because mysql is not compliant to sql standard
     def getImportPreparedStmtInsert(self):
             return self.sql_pStmtInsert
 
     def getImportPreparedStmtUpdate(self):
             return self.sql_pStmtUpdate
 
-    ###
+    #
     def extendedSearch(self, esModel):
         self.logger.debug('extendedSearch')
         #
@@ -114,64 +115,64 @@ class StoreQuery(object):
             self._cache.save_cache('extendedSearch', esModel.toDict(), rs)
         #
         return rs
-        
+
     def extendedSearchQuery(self, esModel):
-        rs = None 
+        rs = None
         params = []
         sql = self.sql_query_films
         sql += ' WHERE (1=1)'
-        ##
+        #
         (mixedSearchCondition, mixedSearchParams) = esModel.generateShowTitleDescription()
         if (mixedSearchCondition != ''):
             sql += ' AND ' + mixedSearchCondition
             params.extend(mixedSearchParams)
-        ##
+        #
         (excludeCondition, excludeParams) = esModel.generateExclude()
         if (excludeCondition != ''):
             sql += ' AND ' + excludeCondition
             params.extend(excludeParams)
-        ##
+        #
         (channelCondition, channelParams) = esModel.generateChannel()
         if (channelCondition != ''):
             sql += ' AND ' + channelCondition
             params.extend(channelParams)
-        ##
+        #
         (showCondition, showParams) = esModel.generateShow()
         if (showCondition != ''):
             sql += ' AND ' + showCondition
             params.extend(showParams)
-        ##
+        #
         (showIdCondition, showIdParams) = esModel.generateShowId()
         if (showIdCondition != ''):
             sql += ' AND ' + showIdCondition
             params.extend(showIdParams)
-        ##
+        #
         (showStartLetterCondition, showStartLetterParams) = esModel.generateShowStartLetter()
         if (showStartLetterCondition != ''):
             sql += ' AND ' + showStartLetterCondition
             params.extend(showStartLetterParams)
-        ##
-        ## from settings
-        ##
+        #
+        # from settings
+        #
         minLengthCondition = esModel.generateMinLength()
         if minLengthCondition != '':
             sql += ' AND ' + minLengthCondition
-        ## no future
+        # no future
         noTrailerCondition = esModel.generateIgnoreTrailer()
         if noTrailerCondition != '':
             sql += " AND " + noTrailerCondition
-        ##
+        #
         recentOnlyCondition = esModel.generateRecentCondition()
         if recentOnlyCondition != '':
             sql += " AND " + recentOnlyCondition
-        ##
+        #
         sql += ' ORDER BY aired DESC '
-        ##
+        #
         maxRowsCondition = esModel.generateMaxRows()
         if (maxRowsCondition != ''):
              sql += maxRowsCondition
-        ##
-        ##
+        #
+        #
         try:
             #
             rs = self.execute(sql, params)
@@ -181,8 +182,7 @@ class StoreQuery(object):
             self.notifier.show_database_error(err)
             raise
         return rs
-    ###
-    ###
+
     def getQuickSearch(self, searchTerm):
         """
         Retrieve data for quick search
@@ -210,7 +210,7 @@ class StoreQuery(object):
             self._cache.save_cache('quickSearch', searchTerm, rs)
         #
         return rs
-    ###
+
     def getLivestreams(self):
         """
         Retrieve data for livestream screen
@@ -229,8 +229,8 @@ class StoreQuery(object):
             self._cache.save_cache('livestreams', '', rs)
         #
         return rs
-    ###
-    def getRecentFilms(self, channelId = ''):
+
+    def getRecentFilms(self, channelId=''):
         """
         Retrieve data for recent films
         """
@@ -250,8 +250,8 @@ class StoreQuery(object):
             self.notifier.show_limit_results(self.settings.getMaxResults())
         #
         return rs
-    ###
-    def getFilms(self, channel = '', showIds = ''):
+
+    def getFilms(self, channel='', showIds=''):
         """
         Retrieve data for recent films
         """
@@ -263,7 +263,7 @@ class StoreQuery(object):
         else:
             esModel = ExtendedSearchModel.ExtendedSearchModel('')
             esModel.setChannel(channel)
-            esModel.setShowId(showIds)            
+            esModel.setShowId(showIds)
             rs = self.extendedSearchQuery(esModel)
             self._cache.save_cache('films', showIds + channel, rs)
         #
@@ -271,7 +271,7 @@ class StoreQuery(object):
             self.notifier.show_limit_results(self.settings.getMaxResults())
         #
         return rs
-    ###
+
     def getChannels(self):
         """ getChannels for listing """
         self.logger.debug('getChannels')
@@ -291,7 +291,7 @@ class StoreQuery(object):
             raise
         #
         return rs
-    ###
+
     def getChannelList(self):
         """ getChannelList for extended search channel ui """
         self.logger.debug('getChannelList')
@@ -301,36 +301,36 @@ class StoreQuery(object):
         for row in rs:
             allChannel.append(row[0])
         return allChannel
-    ###
+
     def getChannelsRecent(self):
         """ getChannelsRecent for recent view """
         self.logger.debug('getChannelsRecent')
         #
         try:
             sql = "SELECT channel channelid, channel, count(*) as count FROM film WHERE "
-            ## recent
+            # recent
             sql += self.sql_cond_recent
-            ## duration filter
+            # duration filter
             sql += self.sql_cond_nofuture
-            ## no future
+            # no future
             sql += self.sql_cond_minlength
-            ##
+            #
             sql += " GROUP BY channel ORDER BY channel asc"
-            ##
+            #
             cached_data = self._cache.load_cache('channels_recent', sql)
             if cached_data is not None:
                 return cached_data
             rs = self.execute(sql)
-            ##
+            #
             self._cache.save_cache('channels_recent', sql, rs)
 
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        
+
         return rs
-    ###
+
     def getShowsByChannnel(self, channelId):
         """ getShowsByChannnel for channel view """
         self.logger.debug('getShowsByChannnel')
@@ -341,24 +341,24 @@ class StoreQuery(object):
 
         try:
             sql = "SELECT showid, channel as channelId, showname, channel from film where (channel=?) "
-            ## duration filter
+            # duration filter
             sql += self.sql_cond_nofuture
-            ## no future
+            # no future
             sql += self.sql_cond_minlength
-            ##
+            #
             sql += " GROUP BY showid, channel, showname ORDER BY showname asc"
-            ##
+            #
             rs = self.execute(sql, (channelId,))
-            ##
+            #
             self._cache.save_cache('showsByChannel', channelId, rs)
 
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        
+
         return rs
-    ###
+
     def getShowsByLetter(self, aLetter):
         """ getShowsByLetter for channel view """
         self.logger.debug('getShowsByLetter')
@@ -372,27 +372,27 @@ class StoreQuery(object):
                 sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film WHERE (showname like ?) "
             else:
                 sql = "SELECT showid, channel as channelId, showname, channel FROM film WHERE (showname like ?) "
-            ## duration filter
+            # duration filter
             sql += self.sql_cond_nofuture
-            ## no future
+            # no future
             sql += self.sql_cond_minlength
-            ##
+            #
             if self.settings.getGroupShow():
                 sql += " GROUP BY showname ORDER BY showname asc"
             else:
                 sql += " GROUP BY showid, channel, showname ORDER BY showname asc"
-            ##
-            rs = self.execute(sql, (aLetter+"%",))
-            ##
+            #
+            rs = self.execute(sql, (aLetter + "%",))
+            #
             self._cache.save_cache('showsByLetter', aLetter, rs)
-    
+
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        
+
         return rs
-    ###
+
     def getStartLettersOfShows(self):
         """ getStartLettersOfShows for show view """
         self.logger.debug('getStartLettersOfShows')
@@ -403,26 +403,25 @@ class StoreQuery(object):
 
         try:
             sql = "SELECT UPPER(SUBSTR(showname,1,1)), COUNT(DISTINCT(SHOWID)) FROM film where SUBSTR(showname,1,1) between 'A' and 'Z' "
-            ## recent
-            #sql += " AND " + self.sql_cond_recent
-            ## duration filter
+            # recent
+            # sql += " AND " + self.sql_cond_recent
+            # duration filter
             sql += self.sql_cond_nofuture
-            ## no future
+            # no future
             sql += self.sql_cond_minlength
-            ##
+            #
             sql += " GROUP BY UPPER(SUBSTR(showname,1,1)) ORDER BY UPPER(SUBSTR(showname,1,1)) asc"
-            ##
+            #
             rs = self.execute(sql)
-            ##
+            #
             self._cache.save_cache('letters', '', rs)
 
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        
-        return rs    
-    ###
+
+        return rs
 
     def retrieve_film_info(self, filmid):
         """
@@ -470,27 +469,27 @@ class StoreQuery(object):
             status['lastFullUpdate'] = result[0][2]
             status['filmUpdate'] = result[0][3]
             status['version'] = result[0][4]
-            ##
+            #
             result = self.execute('SELECT count(distinct(channel)),count(distinct(showid)),count(*) FROM film')
             status['chn'] = result[0][0]
             status['shw'] = result[0][1]
             status['mov'] = result[0][2]
-            ##
+            #
             self.settings.setDatabaseStatus(status['status'])
             self.settings.setLastUpdate(status['lastUpdate'])
             self.settings.setLastFullUpdate(status['lastFullUpdate'])
             self.settings.setDatabaseVersion(status['version'])
-            
-            ##
+
+            #
         except Exception as err:
             pass
-            #self.logger.error('getStatus {}', err)
-            #self.settings.setDatabaseStatus('UNINIT')
+            # self.logger.error('getStatus {}', err)
+            # self.settings.setDatabaseStatus('UNINIT')
         return status
 
-    def set_status(self, pStatus = None, pLastupdate = None, pLastFullUpdate = None, pFilmupdate = None, pVersion = None):
+    def set_status(self, pStatus=None, pLastupdate=None, pLastFullUpdate=None, pFilmupdate=None, pVersion=None):
         self.logger.debug('set_status')
-        ## status in settings
+        # status in settings
         if pStatus is not None:
             self.settings.setDatabaseStatus(pStatus)
         if pLastupdate is not None:
@@ -499,18 +498,17 @@ class StoreQuery(object):
             self.settings.setLastFullUpdate(pLastFullUpdate)
         if pVersion is not None:
             self.settings.setDatabaseVersion(pVersion)
-        ## DB status table
+        # DB status table
         try:
             sqlStmt = 'UPDATE status SET status = COALESCE(?,status), lastupdate = COALESCE(?,lastupdate), lastFullUpdate = COALESCE(?,lastFullUpdate), filmupdate = COALESCE(?,filmupdate), version = COALESCE(?,version)'
-            #cursor.execute(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
+            # cursor.execute(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
             rs = self.executeUpdate(sqlStmt, (pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion))
             self.logger.debug('Update Status {} lastupdate: {} lastFullUpdate: {} filmupdate: {} version: {}', pStatus, pLastupdate, pLastFullUpdate, pFilmupdate, pVersion)
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-        ###
-   
+
     def import_begin(self):
         self.logger.debug('import_begin')
         try:
@@ -532,7 +530,7 @@ class StoreQuery(object):
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
             raise
-    
+
     def import_films(self, filmArray):
         self.logger.debug('import_films')
         #
@@ -540,21 +538,21 @@ class StoreQuery(object):
         pStmtUpdate = self.getImportPreparedStmtUpdate()
         #
         try:
-            ##
+            #
             cursor = self.getConnection().cursor()
-            ##
+            #
             insertArray = []
             updateCnt = 0
             insertCnt = 0
             for f in filmArray:
                 cursor.execute(pStmtUpdate, (f[0],))
                 rs = cursor.rowcount
-                #self.logger.debug('executeUpdate rs {} for {}', rs , f[0] )
+                # self.logger.debug('executeUpdate rs {} for {}', rs , f[0] )
                 if rs == 0:
                     insertArray.append(f)
-                    insertCnt +=1
+                    insertCnt += 1
                 else:
-                    updateCnt +=1
+                    updateCnt += 1
             #
             cursor.close()
             self.executemany(pStmtInsert, insertArray)
@@ -563,4 +561,4 @@ class StoreQuery(object):
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
-            raise 
+            raise

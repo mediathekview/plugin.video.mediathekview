@@ -47,7 +47,7 @@ class ShowUi(object):
         listOfElements = []
         for element in databaseRs:
             #
-            showModel.init(element[0],element[1],element[2],element[3])
+            showModel.init(element[0], element[1], element[2], element[3])
             #
             if element[1].find(',') == -1:
                 nameLabel = element[2];
@@ -72,7 +72,7 @@ class ShowUi(object):
             else:
                 list_item = xbmcgui.ListItem(label=nameLabel)
             #
-            
+
             list_item.setArt({
                 'thumb': icon,
                 'icon': icon,
@@ -81,7 +81,7 @@ class ShowUi(object):
                 'clearart': icon,
                 'clearlogo': icon
             })
-    
+
             info_labels = {
                 'title': nameLabel,
                 'sorttitle': nameLabel.lower()
@@ -90,7 +90,7 @@ class ShowUi(object):
             #
             targetUrl = mvutils.build_url({
                 'mode': 'films',
-                'channel' : element[1].replace(',','|'),
+                'channel' : element[1].replace(',', '|'),
                 'show': element[0]
             })
             #

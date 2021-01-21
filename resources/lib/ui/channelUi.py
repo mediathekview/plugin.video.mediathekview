@@ -17,7 +17,6 @@ import resources.lib.mvutils as mvutils
 from resources.lib.model.channel import Channel
 
 
-
 class ChannelUi(object):
     """
     The channel model view class
@@ -50,7 +49,7 @@ class ChannelUi(object):
         listOfElements = []
         for element in databaseRs:
             #
-            channelModel.init(element[0],element[1], element[2])
+            channelModel.init(element[0], element[1], element[2])
             #
             labelname = channelModel.channelCaption
             if channelModel.count > 0:
@@ -76,7 +75,7 @@ class ChannelUi(object):
                 'clearart': icon,
                 'clearlogo': icon
             })
-    
+
             info_labels = {
                 'title': labelname,
                 'sorttitle': channelModel.channelCaption.lower()

@@ -5,6 +5,7 @@ The local SQlite database module
 Copyright 2017-2019, Leo Moll
 SPDX-License-Identifier: MIT
 """
+
 # pylint: disable=too-many-lines,line-too-long
 import os
 import time
@@ -14,8 +15,6 @@ import resources.lib.appContext as appContext
 from resources.lib.storeQuery import StoreQuery
 
 
-
-
 class StoreSQLite(StoreQuery):
     """
     The local SQlite database class
@@ -23,7 +22,7 @@ class StoreSQLite(StoreQuery):
     """
 
     def __init__(self):
-        super(StoreSQLite,self).__init__()
+        super(StoreSQLite, self).__init__()
         self.logger = appContext.MVLOGGER.get_new_logger('StoreSQLite')
         self.notifier = appContext.MVNOTIFIER
         self.settings = appContext.MVSETTINGS
@@ -31,13 +30,13 @@ class StoreSQLite(StoreQuery):
         # internals
         self.conn = None
         self.dbfile = os.path.join(self.settings.getDatapath(), self.databaseFilename)
-        self.logger.debug('StoreSQLite DBFile: {}',self.dbfile)
+        self.logger.debug('StoreSQLite DBFile: {}', self.dbfile)
 
     def getConnection(self):
         if self.conn is None:
             if (not mvutils.file_exists(self.dbfile)):
                 self.settings.setDatabaseStatus('UNINIT')
-                self.logger.debug('Missing StoreSQLite DBFile: {}',self.dbfile)
+                self.logger.debug('Missing StoreSQLite DBFile: {}', self.dbfile)
             self.conn = sqlite3.connect(self.dbfile, timeout=60)
             self.conn.execute('pragma synchronous=off')
             self.conn.execute('pragma journal_mode=off')
@@ -55,7 +54,7 @@ class StoreSQLite(StoreQuery):
     def reset(self):
         mvutils.file_remove(self.dbfile)
 
-    ## ABSTRACT
+    # ABSTRACT
     def getDatabaseStatus(self):
         updateStatus = {
             'lastUpdate': self.settings.getLastUpdate(),
@@ -64,7 +63,8 @@ class StoreSQLite(StoreQuery):
             'version': self.settings.getDatabaseVersion()
         }
         return updateStatus
-    
+
+
 class GroupConcatClass(object):
     """ Aggregate class for SQLite """
 

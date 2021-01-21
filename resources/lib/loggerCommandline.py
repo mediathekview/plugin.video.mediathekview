@@ -5,16 +5,18 @@ The base logger module
 
 Copyright 2017-2018, Leo Moll and Dominik Schlösser
 """
+
 import datetime
 import sys
 import resources.lib.mvutils as mvutils
 from resources.lib.loggerInterface import LoggerInterface
 
+
 class LoggerCommandline(LoggerInterface):
     """ Standalone implementation of the logger class """
 
     def __init__(self, name, version, topic=None, verbosity=0):
-        super(LoggerCommandline,self).__init__(name,version,topic)
+        super(LoggerCommandline, self).__init__(name, version, topic)
         self.verbosity = verbosity
 
     def get_new_logger(self, topic=None):

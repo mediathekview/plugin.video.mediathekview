@@ -9,6 +9,7 @@ SPDX-License-Identifier: MIT
 
 import resources.lib.appContext as appContext
 
+
 class StoreMySQLSetup(object):
 
     def __init__(self, dbCon):
@@ -55,11 +56,11 @@ CREATE TABLE status (
 INSERT INTO status values ('UNINIT',0,0,0,3);
 --
 """
-        
+
     def setupDatabase(self):
-        self.logger.debug('Start DB setup for schema {}',self.settings.getDatabaseSchema())
-        ##
-        ##
+        self.logger.debug('Start DB setup for schema {}', self.settings.getDatabaseSchema())
+        #
+        #
         try:
             self.conn.database = self.settings.getDatabaseSchema()
             rs = self.conn.execute("SHOW DATABASES LIKE '{}'".format(self.settings.getDatabaseSchema()))
@@ -74,7 +75,7 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
             cursor.execute("USE {}".format(self.settings.getDatabaseSchema()))
             cursor.close()
             self.conn.database = self.settings.getDatabaseSchema()
-        ##
+        #
         con = self.conn.getConnection()
         cursor = con.cursor()
         for result in cursor.execute(self._setupScript, multi=True):
@@ -85,7 +86,7 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
           else:
             print("Number of rows affected by statement '{}': {}".format(
               result.statement, result.rowcount))
-    
+
         cursor.close()
         con.commit()
         self.logger.debug('End DB setup')

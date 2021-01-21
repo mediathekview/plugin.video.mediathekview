@@ -5,7 +5,9 @@ The base settings module
 
 Copyright 2020, Mediathekview
 """
+
 from resources.lib.settingsInterface import SettingsInterface
+
 
 class SettingsCommandline(SettingsInterface):
     """ Standalone implementation of the settings class """
@@ -26,23 +28,23 @@ class SettingsCommandline(SettingsInterface):
         self.__force = args.force
         self.__full = args.full
         self.__updateBatchSize = args.updateBatchSize
-        ##
+        #
         self._lastFullUpdate = 0
         self._lastUpdate = 0
         self._databaseStatus = 'UNINIT'
         self._databaseVersion = 0
-        
+
     def getDatapath(self):
         return self.__datapath
-    
-    ## Database
-    
+
+    # Database
+
     def getDatabaseType(self):
         return self.__type
 
     def getDatabaseHost(self):
         return self.__host
-    
+
     def getDatabasePort(self):
         return self.__port
 
@@ -73,23 +75,23 @@ class SettingsCommandline(SettingsInterface):
     def getDatabaseImportBatchSize(self):
         return self.__updateBatchSize
 
-    ## RUNTIME
+    # RUNTIME
     def is_user_alive(self):
         return True
 
-    ##
+    #
     def getLastFullUpdate(self):
        return self._lastFullUpdate
 
     def setLastFullUpdate(self, aLastFullUpdate):
         self._lastFullUpdate = (aLastFullUpdate)
-    
+
     def getLastUpdate(self):
         return self._lastUpdate
 
     def setLastUpdate(self, aLastUpdate):
         self._lastUpdate = (aLastUpdate)
-    
+
     def getDatabaseStatus(self):
         return self._databaseStatus
 
@@ -101,5 +103,4 @@ class SettingsCommandline(SettingsInterface):
 
     def setDatabaseVersion(self, aVersion):
         self._databaseVersion = aVersion
-
 

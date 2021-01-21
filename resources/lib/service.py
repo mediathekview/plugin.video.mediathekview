@@ -18,12 +18,13 @@ import resources.lib.appContext as appContext
 
 # -- Classes ------------------------------------------------
 
+
 class MediathekViewService(KodiService):
     """ The main service class """
 
     def __init__(self):
         super(MediathekViewService, self).__init__()
-        #self.set_topic('Service')
+        # self.set_topic('Service')
         self.logger = appContext.MVLOGGER.get_new_logger('MediathekViewService')
         self.settings = appContext.MVSETTINGS
         self.notifier = appContext.MVNOTIFIER
@@ -37,7 +38,7 @@ class MediathekViewService(KodiService):
         self.notifier = None
         self.monitor = None
         self.updater = None
-        
+
     def init(self):
         """ Initialisation of the service """
         self.logger.debug('init')
@@ -52,7 +53,7 @@ class MediathekViewService(KodiService):
         #
         while not self.monitor.abort_requested():
             # slow down in case of errors (+1 because 0 is unlimited!)
-            delayInSec = (self.errorCount * 60)+1
+            delayInSec = (self.errorCount * 60) + 1
             self.monitor.wait_for_abort(delayInSec)
             if delayInSec > 1:
                 self.logger.warn('Delayed service agent by {} sec due to error count {}', delayInSec, self.errorCount)

@@ -14,22 +14,27 @@ def init():
     global MVMONITOR
     global ADDONCLASS
 
-def initAddon( aAddon ):
+
+def initAddon(aAddon):
     global ADDONCLASS
     ADDONCLASS = aAddon
 
-def initLogger( aLogger ):
+
+def initLogger(aLogger):
     global MVLOGGER
     MVLOGGER = aLogger
 
-def initSettings( aSettings ):    
+
+def initSettings(aSettings):
     global MVSETTINGS
     MVSETTINGS = aSettings
 
-def initNotifier( aNotifier ):    
+
+def initNotifier(aNotifier):
     global MVNOTIFIER
     MVNOTIFIER = aNotifier
 
-def initMonitor( aMonitor ):
+
+def initMonitor(aMonitor):
     global MVMONITOR
     MVMONITOR = aMonitor

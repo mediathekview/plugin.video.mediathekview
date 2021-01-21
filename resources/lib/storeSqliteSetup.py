@@ -5,9 +5,11 @@ The local SQlite database module
 Copyright 2017-2019, Leo Moll
 SPDX-License-Identifier: MIT
 """
+
 # pylint: disable=too-many-lines,line-too-long
 
 import resources.lib.appContext as appContext
+
 
 class StoreSQLiteSetup(object):
 

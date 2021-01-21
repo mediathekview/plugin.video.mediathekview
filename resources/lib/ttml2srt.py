@@ -7,6 +7,7 @@ See https://github.com/codingcatgirl/ttml2srt
 
 SPDX-License-Identifier: MIT
 """
+
 # Latest commit 2c361b5 on 29 Sep 2018
 
 import re
@@ -15,6 +16,7 @@ import io
 from datetime import timedelta
 from xml.etree import ElementTree as ET
 from codecs import open
+
 
 class ttml2srt(object):
 
@@ -88,7 +90,7 @@ class ttml2srt(object):
             clock_time_frames = re.match(r'^([0-9]{2,}):([0-9]{2,}):([0-9]{2,}):([0-9]{2,}(\.[0-9]+)?)$', expression)
             if clock_time_frames:
                 raise NotImplementedError('Parsing time expressions by frame is not supported!')
-            fraction = fraction #stop Codacy to complain
+            fraction = fraction  # stop Codacy to complain
             raise ValueError('unknown time expression: %s' % expression)
 
         def _parse_times(elem, default_begin=timedelta(0)):
@@ -215,8 +217,7 @@ class ttml2srt(object):
                                           timestamp.total_seconds() // 60 % 60,
                                           timestamp.total_seconds() % 60)).replace('.', ',')
 
-
-        #TODO #if isinstance(outfile, str) or isinstance(outfile, unicode):
+        # TODO #if isinstance(outfile, str) or isinstance(outfile, unicode):
         if isinstance(outfile, str):
             dstfile = io.open(outfile, 'w', encoding='utf-8')
         else:

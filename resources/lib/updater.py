@@ -19,8 +19,6 @@ from resources.lib.storeMySqlSetup import StoreMySQLSetup
 from resources.lib.updateFileDownload import UpdateFileDownload
 from resources.lib.updateFileImport import UpdateFileImport
 
-
-
 # -- Classes ------------------------------------------------
 # pylint: disable=bad-whitespace
 
@@ -67,33 +65,33 @@ class MediathekViewUpdater(object):
         tsnow = int(time.time())
         currentDate = datetime.now()
         lastUpdateDatetime = datetime.fromtimestamp(databaseStatus['lastUpdate'])
-        ##
+        #
         outdated = ((databaseStatus['lastUpdate'] + self.settings.getDatabaseUpdateInvterval()) < tsnow)
-        sameDay = (currentDate.day == lastUpdateDatetime.day and 
-            currentDate.month == lastUpdateDatetime.month and 
+        sameDay = (currentDate.day == lastUpdateDatetime.day and
+            currentDate.month == lastUpdateDatetime.month and
             currentDate.year == lastUpdateDatetime.year)
-        ##
-        self.logger.info('Last Update {}',datetime.fromtimestamp(databaseStatus['lastUpdate']))
-        self.logger.debug('Last Full Update {}',datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
-        self.logger.debug('version {}',databaseStatus['version'])
-        self.logger.debug('status {}',databaseStatus['status'])
-        ##
+        #
+        self.logger.info('Last Update {}', datetime.fromtimestamp(databaseStatus['lastUpdate']))
+        self.logger.debug('Last Full Update {}', datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
+        self.logger.debug('version {}', databaseStatus['version'])
+        self.logger.debug('status {}', databaseStatus['status'])
+        #
         updateConfigName = {0:"Disabled", 1:"Manual", 2:"On Start", 3:"Automatic", 4:"continuous"}
-        self.logger.debug('Update Mode "{}"',updateConfigName.get(updateConfig))
-        ##
+        self.logger.debug('Update Mode "{}"', updateConfigName.get(updateConfig))
+        #
         doSomething = 0
         if (int(databaseStatus['version']) != 3 or databaseStatus['status'] == 'UNINIT'):
             self.logger.debug('Version update or not initialized')
             doSomething = -1
-            ###
+            #
             if self.settings.getDatabaseType() == 0:
                 StoreSQLiteSetup(self.database).setupDatabase()
             else:
                 StoreMySQLSetup(self.database).setupDatabase()
-            ##
+            #
             self.database.set_status(pStatus='IDLE', pLastupdate=0, pLastFullUpdate=0, pFilmupdate=0, pVersion='3')
             databaseStatus = self.database.getDatabaseStatus()
-            ###
+            #
         elif updateConfig == 1 and self.settings.is_update_triggered():
             self.logger.debug('Manual update')
             doSomething = 1
@@ -112,58 +110,51 @@ class MediathekViewUpdater(object):
         elif updateConfig == 9:
             self.logger.debug('mvupdate --full')
             doSomething = -1
-        ##
+        #
         if (doSomething == 0):
             self.logger.info('nothing to do')
             return
-        ##
+        #
         lastFullUpdate = datetime.fromtimestamp(databaseStatus['lastFullUpdate'])
-        ##
+        #
         ufd = UpdateFileDownload()
-        ##
-        if doSomething == -1 or (not (currentDate.day == lastFullUpdate.day and 
-            currentDate.month == lastFullUpdate.month and 
+        #
+        if doSomething == -1 or (not (currentDate.day == lastFullUpdate.day and
+            currentDate.month == lastFullUpdate.month and
             currentDate.year == lastFullUpdate.year) and
             currentDate.hour > 5
         ):
             if self.settings.getDatabaseType() == 0 and self.settings.getDatabaseUpdateNative():
-                ## replace the sqlite DB by downloaded version
+                # replace the sqlite DB by downloaded version
                 self.logger.debug('sqlite update')
                 ufd.downloadSqliteDb()
                 self.database.exit()
                 ufd.updateSqliteDb()
                 ufd.removeDownloads()
-                ## check database is alive
+                # check database is alive
                 check = self.database.get_status()
                 if check['mov'] > 0:
-                    self.database.set_status('IDLE', pLastupdate = int(time.time()), pLastFullUpdate = int(time.time()))
+                    self.database.set_status('IDLE', pLastupdate=int(time.time()), pLastFullUpdate=int(time.time()))
                 else:
                     self.database.set_status('UNINIT')
                 #
                 self.settings.set_update_triggered('false')
             else:
-                ## download full filmlist and do a full update
+                # download full filmlist and do a full update
                 self.logger.debug('full update')
                 ufd.downloadFullUpdateFile()
                 UpdateFileImport(ufd.getTargetFilename(), self.database).updateFull()
                 ufd.removeDownloads()
-                ##
-                self.database.set_status('IDLE', pLastupdate = int(time.time()), pLastFullUpdate = int(time.time()))
-                ##
+                #
+                self.database.set_status('IDLE', pLastupdate=int(time.time()), pLastFullUpdate=int(time.time()))
+                #
                 self.settings.set_update_triggered('false')
         else:
-            ## download incremental filmlist and do the update
+            # download incremental filmlist and do the update
             self.logger.debug('incremental update')
             ufd.downloadIncrementalUpdateFile()
             UpdateFileImport(ufd.getTargetFilename(), self.database).updateIncremental()
             ufd.removeDownloads()
             self.database.set_status('IDLE', pLastupdate=int(time.time()))
             self.settings.set_update_triggered('false')
-            
-        
-
-
-
-
-
 

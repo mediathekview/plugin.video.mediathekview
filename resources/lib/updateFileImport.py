@@ -21,7 +21,6 @@ import json
 
 import resources.lib.mvutils as mvutils
 
-
 # -- Classes ------------------------------------------------
 # pylint: disable=bad-whitespace
 
@@ -49,7 +48,7 @@ class UpdateFileImport(object):
         self._update_start()
         self._importFile(self.targetFilename)
         self._update_end()
-    
+
     def updateFull(self):
         self._update_start()
         self.database.import_begin()
@@ -58,66 +57,66 @@ class UpdateFileImport(object):
         self._update_end()
 
     def _importFile(self, targetFilename):
-        ##
+        #
         if not mvutils.file_exists(targetFilename):
             self.logger.error('File {} does not exists', targetFilename)
             return False
         # estimate number of records in update file
         fileSizeInByte = mvutils.file_size(targetFilename)
         records = int(fileSizeInByte / 600)
-        self.logger.info( 'Starting import of {} records from {}', records, targetFilename )
+        self.logger.info('Starting import of {} records from {}', records, targetFilename)
         #
         # pylint: disable=broad-except
         try:
             starttime = time.time()
             flsm = 0
             flts = 0
-            ####
+            #
             sender = ""
             thema = ""
             self.notifier.show_update_progress()
-            ##
+            #
             ufp = UpdateFileParser.UpdateFileParser(self.logger, 512000, targetFilename)
             ufp.init()
             fileHeader = ufp.next(',"X":');
-            ### META
-            ## {"Filmliste":["30.08.2020, 11:13","30.08.2020, 09:13","3","MSearch [Vers.: 3.1.139]","d93c9794acaf3e482d42c24e513f78a8"],"Filmliste":["Sender","Thema","Titel","Datum","Zeit","Dauer","Größe [MB]","Beschreibung","Url","Website","Url Untertitel","Url RTMP","Url Klein","Url RTMP Klein","Url HD","Url RTMP HD","DatumL","Url History","Geo","neu"]
+            # META
+            # {"Filmliste":["30.08.2020, 11:13","30.08.2020, 09:13","3","MSearch [Vers.: 3.1.139]","d93c9794acaf3e482d42c24e513f78a8"],"Filmliste":["Sender","Thema","Titel","Datum","Zeit","Dauer","Größe [MB]","Beschreibung","Url","Website","Url Untertitel","Url RTMP","Url Klein","Url RTMP Klein","Url HD","Url RTMP HD","DatumL","Url History","Geo","neu"]
             # this is the timestamp of this database update
-            #value = jsonDoc['Filmliste'][0]
+            # value = jsonDoc['Filmliste'][0]
             value = fileHeader[15:32]
-            #self.logger.debug( 'update date ' + value )
+            # self.logger.debug( 'update date ' + value )
             try:
                 fldt = datetime.datetime.strptime(value.strip(), "%d.%m.%Y, %H:%M")
                 flts = int(time.mktime(fldt.timetuple()))
                 self.logger.debug('Filmliste dated {}', value.strip())
-                self.database.set_status('UPDATING', pFilmupdate=flts )
+                self.database.set_status('UPDATING', pFilmupdate=flts)
             except TypeError:
                 # pylint: disable=line-too-long
                 # SEE: https://forum.kodi.tv/showthread.php?tid=112916&pid=1214507#pid1214507
                 # Wonderful. His name is also Leopold
                 try:
                     flts = int(time.mktime(time.strptime(value.strip(), "%d.%m.%Y, %H:%M")))
-                    self.database.set_status('UPDATING', pFilmupdate=flts )
+                    self.database.set_status('UPDATING', pFilmupdate=flts)
                     self.logger.debug('Filmliste dated {}', value.strip())
                     # pylint: disable=broad-except
                 except Exception as err:
                     # If the universe hates us...
                     self.logger.debug('Could not determine date "{}" of filmliste: {}', value.strip(), err)
             except ValueError as err:
-                pass            
+                pass
 
-            ###
+            #
             recordArray = [];
-            ###
+            #
             while (True):
                 aPart = ufp.next(',"X":');
                 if (len(aPart) == 0):
                     break;
-                ##
+                #
                 aPart = '{"X":' + aPart;
                 if (not(aPart.endswith("}"))):
                     aPart = aPart + "}";
-                ##
+                #
                 jsonDoc = json.loads(aPart)
                 jsonDoc = jsonDoc['X']
                 self._init_record()
@@ -131,16 +130,16 @@ class UpdateFileImport(object):
                     thema = jsonDoc[1][:128]
                 else:
                     jsonDoc[1] = thema
-                ##
+                #
                 self.film['channel'] = sender
                 self.film['show'] = thema
                 self.film["title"] = jsonDoc[2][:128]
-                ##
+                #
                 if len(jsonDoc[3]) == 10:
-                    self.film["aired"] = jsonDoc[3][6:] + '-' + jsonDoc[3][3:5] + '-' + jsonDoc[3][:2]  
+                    self.film["aired"] = jsonDoc[3][6:] + '-' + jsonDoc[3][3:5] + '-' + jsonDoc[3][:2]
                     if (len(jsonDoc[4]) == 8):
                         self.film["aired"] = self.film["aired"] + " " + jsonDoc[4]
-                ##
+                #
                 if len(jsonDoc[5]) > 0:
                     self.film["duration"] = jsonDoc[5]
                 if len(jsonDoc[6]) > 0:
@@ -149,21 +148,21 @@ class UpdateFileImport(object):
                     self.film["description"] = jsonDoc[7][:1024]
                 self.film["url_video"] = jsonDoc[8]
                 self.film["website"] = jsonDoc[9]
-                self.film["url_sub"] = jsonDoc[10]    
+                self.film["url_sub"] = jsonDoc[10]
                 self.film["url_video_sd"] = self._make_url(jsonDoc[12])
                 self.film["url_video_hd"] = self._make_url(jsonDoc[14])
                 if len(jsonDoc[16]) > 0:
                     self.film["airedepoch"] = int(jsonDoc[16])
                 self.film["geo"] = jsonDoc[18]
-                ##
+                #
                 # check if the movie is there
                 #
                 checkString = sender + thema + self.film["title"] + self.film['url_video']
                 idhash = hashlib.md5(checkString.encode('utf-8')).hexdigest()
-                ##
+                #
                 showid = hashlib.md5(thema.encode('utf-8')).hexdigest()
                 showid = showid[:8]
-                ##
+                #
                 recordArray.append((
                         idhash,
                         int(time.time()),
@@ -180,8 +179,8 @@ class UpdateFileImport(object):
                         self.film['url_video_sd'],
                         self.film['url_video_hd']
                     ))
-                self.count = self.count +1
-                ## check
+                self.count = self.count + 1
+                # check
                 if self.count % self.settings.getDatabaseImportBatchSize() == 0:
                     if self.monitor.abort_requested():
                         # kodi is shutting down. Close all
@@ -191,13 +190,13 @@ class UpdateFileImport(object):
                     else:
                         # run insert
                         try:
-                            (ai,au) = self.database.import_films(recordArray)
+                            (ai, au) = self.database.import_films(recordArray)
                             self.insertCount += ai
                             self.updateCount += au
                         except Exception as err:
                             self.logger.error('Error in data import: {}', err)
                             self.errorCount = self.errorCount + 1
-                        recordArray = []                        
+                        recordArray = []
                         # update status
                         percent = int(self.count * 100 / records)
                         percent = percent if percent <= 100 else 100
@@ -205,16 +204,16 @@ class UpdateFileImport(object):
                         self.notifier.update_update_progress(percent, self.count, self.insertCount, self.updateCount)
             if len(recordArray) > 0:
                 try:
-                    (ai,au) = self.database.import_films(recordArray)
+                    (ai, au) = self.database.import_films(recordArray)
                     self.insertCount += ai
                     self.updateCount += au
                 except Exception as err:
                     self.logger.error('Error in data import: {}', err)
-                    self.errorCount = self.errorCount + 1   
-            ##
+                    self.errorCount = self.errorCount + 1
+            #
             ufp.close()
             self._update_end()
-            self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {}',self.count, int(time.time() - starttime), self.updateCount, self.insertCount)           
+            self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {}', self.count, int(time.time() - starttime), self.updateCount, self.insertCount)
             self.notifier.close_update_progress()
             if self.errorCount > 0:
                 self.logger.warn('Update finished with error(s)')
@@ -225,9 +224,6 @@ class UpdateFileImport(object):
             self.database.set_status('ABORTED')
             self.notifier.close_update_progress()
             raise
-
-
-
 
 ######################################################################
 

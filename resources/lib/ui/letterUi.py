@@ -15,6 +15,7 @@ import xbmcplugin
 import resources.lib.mvutils as mvutils
 from resources.lib.model.letter import Letter
 
+
 class LetterUi(object):
     """
     The show model view class
@@ -43,8 +44,8 @@ class LetterUi(object):
         listOfElements = []
         for element in databaseRs:
             #
-            letterModel.init(element[0],element[1])
-            
+            letterModel.init(element[0], element[1])
+
             nameLabel = letterModel.letter + " (" + str(letterModel.count) + ")" ;
             #
             if self.plugin.get_kodi_version() > 17:

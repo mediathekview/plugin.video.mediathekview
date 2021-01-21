@@ -20,7 +20,7 @@ class Channel(object):
         self.channelId = pId
         self.channelCaption = pName
         self.count = pCount
-        
+
     def get_as_dict(self):
         """ Returns the values as a map """
         return {

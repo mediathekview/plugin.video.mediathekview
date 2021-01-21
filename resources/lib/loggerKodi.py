@@ -12,6 +12,7 @@ import xbmc
 import resources.lib.mvutils as mvutils
 from resources.lib.loggerInterface import LoggerInterface
 
+
 class LoggerKodi(LoggerInterface):
     """
     The Kodi logger class
