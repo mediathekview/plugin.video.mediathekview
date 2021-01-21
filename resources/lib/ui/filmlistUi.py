@@ -57,6 +57,7 @@ class FilmlistUi(object):
         #
         self.startTime = 0
         self.tzDiff = datetime.now() - datetime.utcnow()
+        self.tzBase = datetime.fromtimestamp(0)
 
 
     def generate(self, databaseRs):
@@ -71,10 +72,10 @@ class FilmlistUi(object):
         for method in self.sortmethods:
             xbmcplugin.addSortMethod(self.handle, method)
         #
+        aFilm = Film()
         listOfElements = []
         for element in databaseRs:
             #
-            aFilm = Film()
             aFilm.init( element[0], element[1], element[2], element[3], element[4], element[5],  
                         element[6], element[7], element[8], element[9], element[10], element[11])
             #
@@ -135,7 +136,7 @@ class FilmlistUi(object):
             info_labels['duration'] = pFilm.seconds
 
         if pFilm.aired is not None and pFilm.aired != 0:
-            ndate = datetime.fromtimestamp(0) + timedelta(seconds=(pFilm.aired))
+            ndate = self.tzBase + timedelta(seconds=(pFilm.aired))
             airedstring  = ndate.isoformat().replace('T',' ')
             info_labels['date'] = airedstring[:10]
             info_labels['aired'] = airedstring[:10]

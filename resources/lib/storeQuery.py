@@ -283,7 +283,7 @@ class StoreQuery(object):
         try:
             sql = "SELECT channel AS channelid, channel FROM film GROUP BY channel ORDER BY channel ASC"
             rs = self.execute(sql)
-            self._cache.save_cache('channels', sql, rs)
+            self._cache.save_cache('channels', '', rs)
 
         except Exception as err:
             self.logger.error('Database error: {}', err)
@@ -306,10 +306,6 @@ class StoreQuery(object):
         """ getChannelsRecent for recent view """
         self.logger.debug('getChannelsRecent')
         #
-        cached_data = self._cache.load_cache('channels_recent', '')
-        if cached_data is not None:
-            return cached_data
-
         try:
             sql = "SELECT channel channelid, channel || ' (' || count(*) || ')' description FROM film WHERE "
             ## recent
@@ -321,6 +317,9 @@ class StoreQuery(object):
             ##
             sql += " GROUP BY channel ORDER BY channel asc"
             ##
+            cached_data = self._cache.load_cache('channels_recent', sql)
+            if cached_data is not None:
+                return cached_data
             rs = self.execute(sql)
             ##
             self._cache.save_cache('channels_recent', sql, rs)

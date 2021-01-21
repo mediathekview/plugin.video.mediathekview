@@ -69,6 +69,7 @@ class ExtendedSearch(object):
         #
         if self.action == "SHOW":
             self.showList()
+            self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
         elif self.action == "RUN":
             data = self._getModelById(self.searchId);
             #self.database.extendedSearchQuery(data, FilmUI(self.plugin))
@@ -92,10 +93,12 @@ class ExtendedSearch(object):
                             )
                 self.plugin.end_of_directory(True,False,False)
                 self.plugin.run_builtin(cmd)
+            self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
 
         elif self.action == "EDIT":
             data = self._getModelById(self.searchId);
             self.showEntry(data)
+            self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
             
         elif self.action == "DELETE":
             self.recents.remove(self._getItemById(self.searchId))
@@ -110,6 +113,7 @@ class ExtendedSearch(object):
             # def end_of_directory(self, succeeded=True, update_listing=False, cache_to_disc=False):
             self.plugin.end_of_directory(True,False,False)
             self.plugin.run_builtin(cmd)
+            self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
         
         if self.action[:5] == 'EDIT-':
             #
