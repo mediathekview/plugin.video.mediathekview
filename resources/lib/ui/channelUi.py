@@ -50,13 +50,16 @@ class ChannelUi(object):
         listOfElements = []
         for element in databaseRs:
             #
-            channelModel.init(element[0],element[1])
+            channelModel.init(element[0],element[1], element[2])
             #
+            labelname = channelModel.channelCaption
+            if channelModel.count > 0:
+                labelname += ' (' + str(channelModel.count) + ')'
             #
             if self.plugin.get_kodi_version() > 17:
-                list_item = xbmcgui.ListItem(label=channelModel.channelCaption, offscreen=True)
+                list_item = xbmcgui.ListItem(label=labelname, offscreen=True)
             else:
-                list_item = xbmcgui.ListItem(label=channelModel.channelCaption)
+                list_item = xbmcgui.ListItem(label=labelname)
             #
             icon = os.path.join(
                 self.plugin.path,
@@ -75,7 +78,7 @@ class ChannelUi(object):
             })
     
             info_labels = {
-                'title': channelModel.channelCaption,
+                'title': labelname,
                 'sorttitle': channelModel.channelCaption.lower()
             }
             list_item.setInfo(type='video', infoLabels=info_labels)

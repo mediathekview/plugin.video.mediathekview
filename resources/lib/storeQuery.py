@@ -281,7 +281,7 @@ class StoreQuery(object):
             return cached_data
         #
         try:
-            sql = "SELECT channel AS channelid, channel FROM film GROUP BY channel ORDER BY channel ASC"
+            sql = "SELECT channel AS channelid, channel, 0 as count FROM film GROUP BY channel ORDER BY channel ASC"
             rs = self.execute(sql)
             self._cache.save_cache('channels', '', rs)
 
@@ -307,7 +307,7 @@ class StoreQuery(object):
         self.logger.debug('getChannelsRecent')
         #
         try:
-            sql = "SELECT channel channelid, channel || ' (' || count(*) || ')' description FROM film WHERE "
+            sql = "SELECT channel channelid, channel, count(*) as count FROM film WHERE "
             ## recent
             sql += self.sql_cond_recent
             ## duration filter

@@ -42,6 +42,7 @@ class StoreSQLite(StoreQuery):
             self.conn.execute('pragma synchronous=off')
             self.conn.execute('pragma journal_mode=off')
             self.conn.execute('pragma page_size=65536')
+            self.conn.execute('pragma encoding="UTF-8"')
             self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
             self.conn.create_aggregate('GROUP_CONCAT', 1, GroupConcatClass)
         return self.conn
@@ -50,6 +51,9 @@ class StoreSQLite(StoreQuery):
         if self.conn is not None:
             self.conn.close();
             self.conn = None
+
+    def reset(self):
+        mvutils.file_remove(self.dbfile)
 
     ## ABSTRACT
     def getDatabaseStatus(self):

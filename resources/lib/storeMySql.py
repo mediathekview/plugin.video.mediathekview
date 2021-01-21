@@ -42,7 +42,10 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
                 'port': self.settings.getDatabasePort(),
                 'user': self.settings.getDatabaseUser(),
                 'password': self.settings.getDatabasePassword(),
-                'connect_timeout':24*60*60
+                'connect_timeout':24*60*60,
+                'charset':'utf8',
+                'use_unicode':True
+                
             }
             if mysql.connector.__version_info__ > (1, 2):
                 connectargs['auth_plugin'] = 'mysql_native_password'

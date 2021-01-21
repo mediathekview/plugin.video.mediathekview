@@ -12,7 +12,7 @@ import resources.lib.appContext as appContext
 class StoreSQLiteSetup(object):
 
     def __init__(self, dbCon):
-        self.logger = appContext.MVLOGGER.get_new_logger('StoreSQLite')
+        self.logger = appContext.MVLOGGER.get_new_logger('StoreSQLiteSetup')
         self.conn = dbCon
         self._setupScript = """
 PRAGMA foreign_keys = false;
@@ -59,6 +59,7 @@ PRAGMA foreign_keys = true;
 
     def setupDatabase(self):
         self.logger.debug('Start DB setup')
+        self.conn.reset()
         self.conn.getConnection().executescript(self._setupScript)
         self.conn.getConnection().commit()
         self.logger.debug('End DB setup')

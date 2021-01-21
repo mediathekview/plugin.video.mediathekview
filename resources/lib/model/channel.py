@@ -13,17 +13,20 @@ class Channel(object):
     def __init__(self):
         self.channelId = ''
         self.channelCaption = ''
+        self.count = 0
 
-    def init(self, pId, pName):
+    def init(self, pId, pName, pCount):
         """ init the object with new values """
         self.channelId = pId
         self.channelCaption = pName
+        self.count = pCount
         
     def get_as_dict(self):
         """ Returns the values as a map """
         return {
             "channelId": self.channelId,
-            "channelCaption": self.channelCaption
+            "channelCaption": self.channelCaption,
+            "count": self.count
         }
 
     def set_from_dict(self, data):
@@ -32,3 +35,4 @@ class Channel(object):
             return
         self.channelId = data.get('channelId', '')
         self.channelCaption = data.get('channelCaption', '')
+        self.count = data.get('count', '')
