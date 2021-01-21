@@ -32,7 +32,6 @@ CREATE TABLE film (
     title          varchar(128)    NOT NULL,
     aired          integer(11)     NOT NULL,
     duration       integer(11)     NOT NULL,
-    size           integer(11)     NOT NULL,
     description    varchar(1024)   NULL,
     url_sub        varchar(384)    NULL,
     url_video      varchar(384)    NULL,

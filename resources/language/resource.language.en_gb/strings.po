@@ -82,10 +82,6 @@ msgctxt "#30122"
 msgid "Sort by added"
 msgstr "Added Date"
 
-msgctxt "#30123"
-msgid "Sort by size"
-msgstr "Size"
-
 msgctxt "#30124"
 msgid "Sort by duration"
 msgstr "Duration"

@@ -22,7 +22,7 @@ class StoreQuery(object):
         self.notifier = appContext.MVNOTIFIER
         self.settings = appContext.MVSETTINGS
         self._cache = StoreCache()
-        self.sql_query_films = "SELECT idhash, title, showname, channel, description, duration, size, aired, url_sub, url_video, url_video_sd, url_video_hd FROM film"
+        self.sql_query_films = "SELECT idhash, title, showname, channel, description, duration, aired, url_sub, url_video, url_video_sd, url_video_hd FROM film"
         self.sql_cond_recent = "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format(
             "aired" if self.settings.getRecentMode() == 0 else "dtCreated",
             self.settings.getMaxAge()
@@ -33,12 +33,12 @@ class StoreQuery(object):
         self.sql_pStmtInsert = """
             INSERT INTO film (
                 idhash, touched, dtCreated, channel, showid, showname, title,
-                aired, duration, size, description,
+                aired, duration, description,
                 url_sub, url_video, url_video_sd, url_video_hd
             )
             VALUES (
                 ?, 1, ?, ?, ?, ?, ?,
-                ?, ?, ?, ?,
+                ?, ?, ?,
                 ?, ?, ?, ?
             )"""
         self.sql_pStmtUpdate = """UPDATE film SET touched = touched+1 WHERE idhash = ?"""
@@ -441,7 +441,7 @@ class StoreQuery(object):
                 condition
             )
             film = Film()
-            for (film.filmid, film.title, film.show, film.channel, film.description, film.seconds, film.size, film.aired, film.url_sub, film.url_video, film.url_video_sd, film.url_video_hd) in rs:
+            for (film.filmid, film.title, film.show, film.channel, film.description, film.seconds, film.aired, film.url_sub, film.url_video, film.url_video_sd, film.url_video_hd) in rs:
                 return film
         except Exception as err:
             self.logger.error('Database error: {}', err)

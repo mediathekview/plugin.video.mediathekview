@@ -14,6 +14,7 @@ from datetime import timedelta
 import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
+from resources.lib.model.livestream import Livestream
 
 
 class LivestreamUi(object):
@@ -37,16 +38,62 @@ class LivestreamUi(object):
             databaseRs: database resultset
         """
         #
+        # 0 filmui.filmid
+        # 1 filmui.title
+        # 2 filmui.show,
+        # 3 filmui.channel,
+        # 4 filmui.description,
+        # 5 filmui.seconds,
+        # 6 filmui.aired,
+        # 7 filmui.url_sub,
+        # 8 filmui.url_video,
+        # 9 filmui.url_video_sd,
+        # 10 filmui.url_video_hd
+        #
         self.startTime = time.time()
         #
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
         xbmcplugin.setContent(self.handle, 'movies')
         #
+        livestreamModel = Livestream()
         listOfElements = []
         #
         for element in databaseRs:
-            (videourl, listitem, isFolder,) = self._generateLivestream(element)
-            listOfElements.append((videourl, listitem, isFolder))
+            livestreamModel.init(element[1], element[8])
+            #
+            videourl = livestreamModel.url + self.settings.getUserAgentString()
+            #
+            info_labels = {
+                'title': livestreamModel.name,
+                'sorttitle': livestreamModel.name.lower()
+            }
+            #
+            iconFile = livestreamModel.name.replace(' ', '') + '.png'
+            icon = os.path.join(
+                self.plugin.path,
+                'resources',
+                'icons',
+                'livestream',
+                iconFile
+            )
+            #
+            if self.plugin.get_kodi_version() > 17:
+                listitem = xbmcgui.ListItem(label=livestreamModel.name, path=videourl, offscreen=True)
+            else:
+                listitem = xbmcgui.ListItem(label=livestreamModel.name, path=videourl)
+            #
+            listitem.setInfo(type='video', infoLabels=info_labels)
+            listitem.setProperty('IsPlayable', 'true')
+            listitem.setArt({
+                    'thumb': icon,
+                    'icon': icon,
+                    'banner': icon,
+                    'fanart': icon,
+                    'clearart': icon,
+                    'clearlogo': icon
+            })
+            #
+            listOfElements.append((videourl, listitem, False))
         #
         xbmcplugin.addDirectoryItems(
             handle=self.handle,
@@ -58,52 +105,3 @@ class LivestreamUi(object):
         self.plugin.setViewId(self.plugin.resolveViewId('THUMBNAIL'))
         #
         self.logger.debug('generated: {} sec', time.time() - self.startTime)
-
-    def _generateLivestream(self, rsRow):
-        # 0 filmui.filmid
-        # 1 filmui.title
-        # 2 filmui.show,
-        # 3 filmui.channel,
-        # 4 filmui.description,
-        # 5 filmui.seconds,
-        # 6 filmui.size,
-        # 7 filmui.aired,
-        # 8 filmui.url_sub,
-        # 9 filmui.url_video,
-        # 10 filmui.url_video_sd,
-        # 11 filmui.url_video_hd
-
-        videourl = rsRow[9] + self.settings.getUserAgentString()
-
-        info_labels = {
-            'title': rsRow[1],
-            'sorttitle': rsRow[1].lower()
-        }
-
-        iconFile = rsRow[1].replace(' ', '') + '.png'
-
-        icon = os.path.join(
-            self.plugin.path,
-            'resources',
-            'icons',
-            'livestream',
-            iconFile
-        )
-
-        #
-        if self.plugin.get_kodi_version() > 17:
-            listitem = xbmcgui.ListItem(label=rsRow[1], path=videourl, offscreen=True)
-        else:
-            listitem = xbmcgui.ListItem(label=rsRow[1], path=videourl)
-        #
-        listitem.setInfo(type='video', infoLabels=info_labels)
-        listitem.setProperty('IsPlayable', 'true')
-        listitem.setArt({
-                'thumb': icon,
-                'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
-        })
-        return (videourl, listitem, False)

@@ -142,8 +142,6 @@ class UpdateFileImport(object):
                 #
                 if len(jsonDoc[5]) > 0:
                     self.film["duration"] = jsonDoc[5]
-                if len(jsonDoc[6]) > 0:
-                    self.film["size"] = int(jsonDoc[6])
                 if len(jsonDoc[7]) > 0:
                     self.film["description"] = jsonDoc[7][:1024]
                 self.film["url_video"] = jsonDoc[8]
@@ -172,7 +170,6 @@ class UpdateFileImport(object):
                         self.film["title"],
                         self.film['airedepoch'],
                         mvutils.make_duration(self.film['duration']),
-                        self.film['size'],
                         self.film['description'],
                         self.film['url_sub'],
                         self.film['url_video'],
@@ -244,7 +241,6 @@ class UpdateFileImport(object):
         self.film["title"] = ""
         self.film["aired"] = "1980-01-01 00:00:00"
         self.film["duration"] = "00:00:00"
-        self.film["size"] = 0
         self.film["description"] = ""
         self.film["url_sub"] = ""
         self.film["url_video"] = ""

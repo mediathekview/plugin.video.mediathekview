@@ -33,7 +33,6 @@ CREATE TABLE "film" (
      "title" TEXT(128,0) NOT NULL COLLATE NOCASE,
      "aired" integer(11,0),
      "duration" integer(11,0),
-     "size" integer(11,0),
      "description" TEXT(1024,0) COLLATE NOCASE,
      "url_sub" TEXT(384,0),
      "url_video" TEXT(384,0),

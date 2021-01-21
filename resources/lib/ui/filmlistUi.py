@@ -19,21 +19,10 @@ from resources.lib.model.film import Film
 
 class FilmlistUi(object):
     """
-    The film model view class
+    The filmui which generates a film list from data
 
     Args:
         plugin(MediathekView): the plugin object
-
-        sortmethods(array, optional): an array of sort methods
-            for the directory representation. Default is
-            ```
-            [
-                xbmcplugin.SORT_METHOD_TITLE,
-                xbmcplugin.SORT_METHOD_DATE`
-                xbmcplugin.SORT_METHOD_DURATION,
-                xbmcplugin.SORT_METHOD_SIZE
-            ]
-            ```
     """
 
     def __init__(self, plugin):
@@ -48,7 +37,6 @@ class FilmlistUi(object):
             xbmcplugin.SORT_METHOD_TITLE,
             xbmcplugin.SORT_METHOD_DATE,
             xbmcplugin.SORT_METHOD_DATEADDED,
-            xbmcplugin.SORT_METHOD_SIZE,
             xbmcplugin.SORT_METHOD_DURATION
         ]
         method = allSortMethods[0]
@@ -63,8 +51,8 @@ class FilmlistUi(object):
     def generate(self, databaseRs):
         #
         # 0 - idhash, 1 - title, 2 - showname, 3 - channel,
-        # 4 - description, 5 - duration, 6 - size, 7 - aired,
-        # 8- url_sub, 9- url_video, 10 - url_video_sd, 11 - url_video_hd
+        # 4 - description, 5 - duration, 6 - aired,
+        # 7- url_sub, 8- url_video, 9 - url_video_sd, 10 - url_video_hd
         #
         self.startTime = time.time()
         #
@@ -77,7 +65,7 @@ class FilmlistUi(object):
         for element in databaseRs:
             #
             aFilm.init(element[0], element[1], element[2], element[3], element[4], element[5],
-                        element[6], element[7], element[8], element[9], element[10], element[11])
+                        element[6], element[7], element[8], element[9], element[10])
             #
             (targetUrl, list_item) = self._generateListItem(aFilm)
             #
@@ -127,9 +115,6 @@ class FilmlistUi(object):
             'tvshowtitle': pFilm.show,
             'plot': pFilm.description
         }
-
-        if pFilm.size is not None and pFilm.size > 0:
-            info_labels['size'] = pFilm.size * 1024 * 1024
 
         if pFilm.seconds is not None and pFilm.seconds > 0:
             info_labels['duration'] = pFilm.seconds

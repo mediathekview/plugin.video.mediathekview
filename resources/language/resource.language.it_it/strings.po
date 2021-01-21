@@ -82,10 +82,6 @@ msgctxt "#30122"
 msgid "Sort by added"
 msgstr "Entrata"
 
-msgctxt "#30123"
-msgid "Sort by size"
-msgstr "Ordina per dimensione"
-
 msgctxt "#30124"
 msgid "Sort by duration"
 msgstr "Ordina per durata"

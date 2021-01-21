@@ -17,14 +17,13 @@ class Film(object):
         self.channel = ''
         self.description = ''
         self.seconds = 0
-        self.size = 0
         self.aired = ''
         self.url_sub = ''
         self.url_video = ''
         self.url_video_sd = ''
         self.url_video_hd = ''
 
-    def init(self, pFilmId, pTitle, pShow, pChannel, pDescription, pSeconds, pSize, pAired, pSub, pVideo, pVideo_sd, pVideo_hd):
+    def init(self, pFilmId, pTitle, pShow, pChannel, pDescription, pSeconds, pAired, pSub, pVideo, pVideo_sd, pVideo_hd):
         self.filmid = pFilmId
         self.title = pTitle
         self.show = pShow
@@ -46,7 +45,6 @@ class Film(object):
             "channel": self.channel,
             "description": self.description,
             "seconds": self.seconds,
-            "size": self.size,
             "aired": self.aired,
             "url_sub": self.url_sub,
             "url_video": self.url_video,
@@ -64,7 +62,6 @@ class Film(object):
         self.channel = data.get('channel', '')
         self.description = data.get('description', '')
         self.seconds = data.get('seconds', 0)
-        self.size = data.get('size', 0)
         self.aired = data.get('aired', '')
         self.url_sub = data.get('url_sub', '')
         self.url_video = data.get('url_video', '')
