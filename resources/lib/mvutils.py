@@ -146,32 +146,6 @@ def file_remove(name):
             pass
     return False
 
-<<<<<<< HEAD
-=======
-
-def deleteFiles(rootDir, regexp):
-    """
-    Delete a file via regexp (e.g. 'Filmliste-akt-Test$' )
-
-    Args:
-        rootDir(str): pathname
-        regexp(str): regexp
-    """
-    regex = re.compile(regexp)
-    cnt = 0
-    for root, dirs, files in os.walk(rootDir):
-        for file in files:
-            if regex.match(file):
-                try:
-                    os.remove(os.path.join(root, file))
-                    cnt += 1
-                except OSError:
-                    pass
-                    return -1
-    return cnt
-
-
->>>>>>> refs/heads/newLivestreamUI
 def file_rename(srcname, dstname):
     """
     Rename a file
