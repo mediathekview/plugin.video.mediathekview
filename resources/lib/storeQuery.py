@@ -28,7 +28,7 @@ class StoreQuery(object):
             self.settings.getMaxAge()
         )
         self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if self.settings.getNoFutur() else ""
-        self.sql_cond_minlength = " AND ( duration >= %d )" % self.settings.getMinLength() if self.settings.getMinLength() > 0 else ""
+        self.sql_cond_minlength = " AND ( duration >= %d )" % (self.settings.getMinLength() * 60) if self.settings.getMinLength() > 0 else ""
         # IMPORT SQL
         self.sql_pStmtInsert = """
             INSERT INTO film (

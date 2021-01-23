@@ -56,7 +56,7 @@ class SettingsKodi(SettingsInterface):
 
     # self.minlength
     def getMinLength(self):
-        return int(float(self._addonClass.getSetting('minlength'))) * 60
+        return int(float(self._addonClass.getSetting('minlength')))
 
     # self.groupshows
     def getGroupShow(self):

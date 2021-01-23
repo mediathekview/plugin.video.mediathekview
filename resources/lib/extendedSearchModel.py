@@ -28,7 +28,7 @@ class ExtendedSearchModel(object):
         self.excludeTitle = []
         self.setExcludeTitle(self.settings.getBlacklist())
         self.minLength = 0
-        self.setMinLength(self.settings.getMinLength())
+        self.setMinLength((self.settings.getMinLength()))
         self.ignoreTrailer = 1
         self.setIgnoreTrailer(self.settings.getNoFutur())
         self.maxResults = 0
@@ -155,7 +155,7 @@ class ExtendedSearchModel(object):
         return '|'.join(self.excludeTitle)
 
     def getMinLengthAsString(self):
-        return str((self.minLength / 60))
+        return str(self.minLength)
 
     def getIgnoreTrailerAsString(self):
         return str(self.ignoreTrailer)
@@ -229,7 +229,7 @@ class ExtendedSearchModel(object):
 
     def setMinLength(self, pValue):
         pValue = self.convertToNumber(pValue)
-        self.minLength = pValue * 60
+        self.minLength = pValue
 
     def setIgnoreTrailer(self, pValue):
         self.ignoreTrailer = 1 if self.convertToBoolean(pValue) else 0
@@ -303,7 +303,7 @@ class ExtendedSearchModel(object):
     def generateMinLength(self):
         sql = ""
         if self.getMinLength() > 0:
-            sql += '( duration >= %d )' % self.getMinLength()
+            sql += '( duration >= %d )' % (self.getMinLength() * 60)
         return sql
 
     #
