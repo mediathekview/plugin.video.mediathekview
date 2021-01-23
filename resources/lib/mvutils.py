@@ -312,6 +312,7 @@ def url_retrieve_vfs(url, filename, reporthook, chunk_size=8192, aborthook=None)
         _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook)
 
 
+# TODO: Review if it can be merged with kodiaddon.build_url
 def build_url(query):
     """
     Builds a valid plugin url based on the supplied query object
@@ -319,7 +320,8 @@ def build_url(query):
     Args:
         query(object): a query object
     """
-    return sys.argv[0] + '?' + urlencode(query)
+    utfEnsuredParams = dict_to_utf(query)
+    return sys.argv[0] + '?' + urlencode(utfEnsuredParams)
 
 
 def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):

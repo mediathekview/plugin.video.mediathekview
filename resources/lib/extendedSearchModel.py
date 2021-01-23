@@ -372,12 +372,12 @@ class ExtendedSearchModel(object):
         sql = ""
         params = []
         if (len(self.getShowStartLetter()) > 0):
+            sql += "( CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END in ("
             for conditionString in self.getShowStartLetter():
-                exp = conditionString + '%'
-                params.append(exp)
-                sql += ' showname like ? or'
-            sql = sql[0:-2]
-            sql += ')'
+                sql += '?,'
+                params.append(conditionString)
+            sql = sql[0:-1]
+            sql += '))'
         return (sql, params)
 
     #

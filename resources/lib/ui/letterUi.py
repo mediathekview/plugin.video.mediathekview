@@ -58,7 +58,7 @@ class LetterUi(object):
                 'resources',
                 'icons',
                 'letter',
-                'letter-' + element[0] + '-m.png'
+                'letter-' + letterModel.letter + '-m.png'
             )
             list_item.setArt({
                 'thumb': icon,

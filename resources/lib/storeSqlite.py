@@ -48,11 +48,13 @@ class StoreSQLite(StoreQuery):
 
     def exit(self):
         if self.conn is not None:
-            self.conn.close();
+            self.conn.commit()
+            self.conn.close()
             self.conn = None
 
     def reset(self):
         mvutils.file_remove(self.dbfile)
+        self.conn = None
 
     # ABSTRACT
     def getDatabaseStatus(self):

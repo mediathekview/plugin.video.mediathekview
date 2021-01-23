@@ -176,6 +176,8 @@ class Downloader(object):
         # download the stuff
         if self._download_files(film, filmurl, pathname, filename, extension):
             self._make_movie_nfo_file(film, filmurl, pathname, filename)
+        else:
+            self.logger.debug('download_movie ERROR')
 
     def download_episode(self, filmid, quality):
         """
