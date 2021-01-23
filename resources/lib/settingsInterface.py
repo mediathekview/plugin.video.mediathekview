@@ -52,6 +52,9 @@ class SettingsInterface(object):
     def getContentType(self):
         return ''
 
+    def getBlacklist(self):
+        return ''
+
     # Database
 
     def getDatabaseType(self):

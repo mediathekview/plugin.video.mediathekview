@@ -29,6 +29,10 @@ msgctxt "#30003"
 msgid "Downloads"
 msgstr "Downloads"
 
+msgctxt "#30004"
+msgid "Advanced Settings"
+msgstr "Advanced Settings"
+
 # Settings Page 1
 msgctxt "#30110"
 msgid "Prefer HD streams"
@@ -85,6 +89,10 @@ msgstr "Added Date"
 msgctxt "#30124"
 msgid "Sort by duration"
 msgstr "Duration"
+
+msgctxt "#30125"
+msgid "Blacklist"
+msgstr "Exclude from search"
 
 msgctxt "#30130"
 msgid "Content Type Movie list"

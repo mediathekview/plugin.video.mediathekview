@@ -26,9 +26,13 @@ class ExtendedSearchModel(object):
         self.exactMatchForShow = 0
         self.description = []
         self.excludeTitle = []
-        self.minLength = self.settings.getMinLength()
-        self.ignoreTrailer = 1 if self.settings.getNoFutur() else 0
-        self.maxResults = self.settings.getMaxResults()
+        self.setExcludeTitle(self.settings.getBlacklist())
+        self.minLength = 0
+        self.setMinLength(self.settings.getMinLength())
+        self.ignoreTrailer = 1
+        self.setIgnoreTrailer(self.settings.getNoFutur())
+        self.maxResults = 0
+        self.setMaxResults(self.settings.getMaxResults())
         self.recentOnly = 0
         self.when = self.id
         #
@@ -224,30 +228,57 @@ class ExtendedSearchModel(object):
         self.excludeTitle = pValue
 
     def setMinLength(self, pValue):
-        if pValue is None or pValue == '' or not pValue.isnumeric():
-            pValue = '0'
-        self.minLength = int(pValue) * 60
+        pValue = self.convertToNumber(pValue)
+        self.minLength = pValue * 60
 
     def setIgnoreTrailer(self, pValue):
-        if pValue == True:
-            pValue = 1
-        elif pValue is None or pValue == False or pValue == '' or not pValue.isnumeric():
-            pValue = 0
-
-        self.ignoreTrailer = pValue
+        self.ignoreTrailer = 1 if self.convertToBoolean(pValue) else 0
 
     def setMaxResults(self, pValue):
-        self.maxResults = pValue
+        self.maxResults = self.convertToNumber(pValue)
 
     def setExactMatchForShow(self, pValue):
-        if pValue == True:
-            pValue = 1
-        elif pValue is None or pValue == False or pValue == '' or not pValue.isnumeric():
-            pValue = 0
-        self.exactMatchForShow = pValue
+        self.exactMatchForShow = 1 if self.convertToBoolean(pValue) else 0
 
     def setRecentOnly(self, pValue):
-        self.recentOnly = pValue
+        self.recentOnly = 1 if self.convertToBoolean(pValue) else 0
+
+    #
+    ##################################
+    #
+    def convertToNumber(self, pValue, pNoneValue=0):
+        rtValue = None
+        if pValue == None:
+            rtValue = pNoneValue
+        elif type(pValue) == int or type(pValue) == float:
+            rtValue = pValue
+        elif pValue == '':
+            rtValue = 0
+        elif not(pValue.isnumeric()):
+            rtValue = 0
+        else:
+            rtValue = int(pValue)
+        return rtValue
+
+    def convertToBoolean(self, pValue, pNoneValue=False):
+        rtValue = None
+        if pValue == None:
+            rtValue = pNoneValue
+        elif type(pValue) == bool:
+            rtValue = pValue
+        elif (type(pValue) == int or type(pValue) == float) and pValue == 0:
+            rtValue = False
+        elif (type(pValue) == int or type(pValue) == float) and pValue == 1:
+            rtValue = True
+        elif pValue == '':
+            rtValue = False
+        elif pValue == '1':
+            rtValue = True
+        elif pValue == '0':
+            rtValue = False
+        else:
+            rtValue = pNoneValue
+        return rtValue
 
     #
     ##################################

@@ -97,6 +97,10 @@ class SettingsKodi(SettingsInterface):
         elif self._addonClass.getSetting('contentType') == '4':
             contentType = 'tvshows'
         return contentType
+
+    def getBlacklist(self):
+        return self._addonClass.getSetting('blacklist')
+
     # Database
 
     # self.type

@@ -31,6 +31,7 @@ class MediathekViewService(KodiService):
         self.monitor = MonitorKodi()
         appContext.initMonitor(self.monitor)
         self.updater = MediathekViewUpdater()
+        self._lastDatabaseType = self.settings.getDatabaseType()
 
     def __del__(self):
         self.logger = None
@@ -62,6 +63,12 @@ class MediathekViewService(KodiService):
             self.updater.init()
             #
             try:
+                # we need this for database change and update variable cache
+                if self._lastDatabaseType != self.settings.getDatabaseType():
+                    self.logger.debug('database change from {} to {}', self._lastDatabaseType, self.settings.getDatabaseType())
+                    self._lastDatabaseType = self.settings.getDatabaseType()
+                    self.updater.database.get_status()
+
                 self.updater.doUpdate()
                 self.errorCount = 0
             except Exception as err:

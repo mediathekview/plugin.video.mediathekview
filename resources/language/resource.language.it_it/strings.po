@@ -29,6 +29,10 @@ msgctxt "#30003"
 msgid "Downloads"
 msgstr "Scaricamento"
 
+msgctxt "#30004"
+msgid "Advanced Settings"
+msgstr "Avanzate"
+
 # Settings Page 1
 msgctxt "#30110"
 msgid "Prefer HD streams"
@@ -85,6 +89,10 @@ msgstr "Entrata"
 msgctxt "#30124"
 msgid "Sort by duration"
 msgstr "Ordina per durata"
+
+msgctxt "#30125"
+msgid "Blacklist"
+msgstr "Ignora i titoli"
 
 msgctxt "#30130"
 msgid "Content Type Elenco Dei Film"
