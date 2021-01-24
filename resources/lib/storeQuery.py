@@ -107,12 +107,13 @@ class StoreQuery(object):
     def extendedSearch(self, esModel):
         self.logger.debug('extendedSearch')
         #
-        cached_data = self._cache.load_cache('extendedSearch', esModel.toDict())
+        cacheKey = esModel.getCacheKey()
+        cached_data = self._cache.load_cache('extendedSearch', cacheKey)
         if cached_data is not None:
             rs = cached_data;
         else:
             rs = self.extendedSearchQuery(esModel)
-            self._cache.save_cache('extendedSearch', esModel.toDict(), rs)
+            self._cache.save_cache('extendedSearch', cacheKey, rs)
         #
         return rs
 
@@ -199,7 +200,8 @@ class StoreQuery(object):
         """
         self.logger.debug('getQuickSearch')
         #
-        cached_data = self._cache.load_cache('quickSearch', searchTerm)
+        cacheKey = searchTerm + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateMaxRows()
+        cached_data = self._cache.load_cache('quickSearch', cacheKey)
         if cached_data is not None:
             rs = cached_data;
         else:
@@ -207,7 +209,7 @@ class StoreQuery(object):
             esModel.setShow(searchTerm)
             esModel.setTitle(searchTerm)
             rs = self.extendedSearchQuery(esModel)
-            self._cache.save_cache('quickSearch', searchTerm, rs)
+            self._cache.save_cache('quickSearch', cacheKey, rs)
         #
         return rs
 
@@ -236,15 +238,17 @@ class StoreQuery(object):
         """
         self.logger.debug('getRecentFilms')
         #
-        cached_data = self._cache.load_cache('recentFilms', channelId)
+        esModel = ExtendedSearchModel.ExtendedSearchModel('')
+        esModel.setRecentOnly(1)
+        esModel.setChannel(channelId)
+        #
+        cacheKey = channelId + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateRecentCondition() + esModel.generateMaxRows()
+        cached_data = self._cache.load_cache('recentFilms', cacheKey)
         if cached_data is not None:
             rs = cached_data
         else:
-            esModel = ExtendedSearchModel.ExtendedSearchModel('')
-            esModel.setRecentOnly(1)
-            esModel.setChannel(channelId)
             rs = self.extendedSearchQuery(esModel)
-            self._cache.save_cache('recentFilms', channelId, rs)
+            self._cache.save_cache('recentFilms', cacheKey, rs)
         #
         if len(rs) >= self.settings.getMaxResults():
             self.notifier.show_limit_results(self.settings.getMaxResults())
@@ -257,15 +261,17 @@ class StoreQuery(object):
         """
         self.logger.debug('getFilms')
         #
-        cached_data = self._cache.load_cache('films', showIds + channel)
+        esModel = ExtendedSearchModel.ExtendedSearchModel('')
+        esModel.setChannel(channel)
+        esModel.setShowId(showIds)
+        #
+        cacheKey = channel + showIds + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateRecentCondition() + esModel.generateMaxRows()
+        cached_data = self._cache.load_cache('films', cacheKey)
         if cached_data is not None:
             rs = cached_data
         else:
-            esModel = ExtendedSearchModel.ExtendedSearchModel('')
-            esModel.setChannel(channel)
-            esModel.setShowId(showIds)
             rs = self.extendedSearchQuery(esModel)
-            self._cache.save_cache('films', showIds + channel, rs)
+            self._cache.save_cache('films', cacheKey, rs)
         #
         if len(rs) >= self.settings.getMaxResults():
             self.notifier.show_limit_results(self.settings.getMaxResults())
@@ -323,7 +329,7 @@ class StoreQuery(object):
             rs = self.execute(sql)
             #
             self._cache.save_cache('channels_recent', sql, rs)
-
+            #
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
@@ -335,10 +341,6 @@ class StoreQuery(object):
         """ getShowsByChannnel for channel view """
         self.logger.debug('getShowsByChannnel')
         #
-        cached_data = self._cache.load_cache('showsByChannel', channelId)
-        if cached_data is not None:
-            return cached_data
-
         try:
             sql = "SELECT showid, channel as channelId, showname, channel from film where (channel=?) "
             # duration filter
@@ -348,10 +350,14 @@ class StoreQuery(object):
             #
             sql += " GROUP BY showid, channel, showname ORDER BY showname asc"
             #
+            cacheKey = channelId + sql
+            cached_data = self._cache.load_cache('showsByChannel', cacheKey)
+            if cached_data is not None:
+                return cached_data
             rs = self.execute(sql, (channelId,))
             #
-            self._cache.save_cache('showsByChannel', channelId, rs)
-
+            self._cache.save_cache('showsByChannel', cacheKey, rs)
+            #
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
@@ -363,10 +369,6 @@ class StoreQuery(object):
         """ getShowsByLetter for channel view """
         self.logger.debug('getShowsByLetter')
         #
-        cached_data = self._cache.load_cache('showsByLetter', aLetter)
-        if cached_data is not None:
-            return cached_data
-
         try:
             if self.settings.getGroupShow():
                 sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film WHERE (CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
@@ -382,10 +384,14 @@ class StoreQuery(object):
             else:
                 sql += " GROUP BY showid, channel, showname ORDER BY showname asc"
             #
+            cacheKey = aLetter + sql
+            cached_data = self._cache.load_cache('showsByLetter', cacheKey)
+            if cached_data is not None:
+                return cached_data
             rs = self.execute(sql, (aLetter,))
             #
-            self._cache.save_cache('showsByLetter', aLetter, rs)
-
+            self._cache.save_cache('showsByLetter', cacheKey, rs)
+            #
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
@@ -397,10 +403,6 @@ class StoreQuery(object):
         """ getStartLettersOfShows for show view """
         self.logger.debug('getStartLettersOfShows')
         #
-        cached_data = self._cache.load_cache('letters', '')
-        if cached_data is not None:
-            return cached_data
-
         try:
             sql = "SELECT CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END, COUNT(DISTINCT(SHOWID)) FROM film where (1=1) "
             # recent
@@ -413,10 +415,13 @@ class StoreQuery(object):
             sql += " GROUP BY CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END"
             sql += " ORDER BY CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END asc"
             #
+            cached_data = self._cache.load_cache('letters', sql)
+            if cached_data is not None:
+                return cached_data
             rs = self.execute(sql)
             #
-            self._cache.save_cache('letters', '', rs)
-
+            self._cache.save_cache('letters', sql, rs)
+            #
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)

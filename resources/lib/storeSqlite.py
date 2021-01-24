@@ -54,6 +54,8 @@ class StoreSQLite(StoreQuery):
 
     def reset(self):
         mvutils.file_remove(self.dbfile)
+        # last version
+        mvutils.file_remove(os.path.join(self.settings.getDatapath(), 'filmliste-v2.db'))
         self.conn = None
 
     # ABSTRACT

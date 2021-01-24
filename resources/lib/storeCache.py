@@ -51,10 +51,13 @@ class StoreCache(object):
                 data = json.load(json_file)
                 if isinstance(data, dict):
                     if data.get('type', '') != reqtype:
+                        self.logger.debug('no matching cache for type {} vs {}', data.get('type', ''), reqtype)
                         return None
                     if data.get('condition', '') != condition:
+                        self.logger.debug('no matching cache for condition {} vs {}', data.get('condition', ''), condition)
                         return None
                     if int(dbLastUpdate) != data.get('time', 0):
+                        self.logger.debug('outdated cache')
                         return None
                     data = data.get('data', [])
                     if isinstance(data, list):
