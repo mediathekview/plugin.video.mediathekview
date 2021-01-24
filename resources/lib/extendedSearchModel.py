@@ -166,7 +166,7 @@ class ExtendedSearchModel(object):
     def getExactMatchForShowAsString(self):
         return str(self.exactMatchForShow)
 
-    def getRecentOnly(self):
+    def getRecentOnlyAsString(self):
         return str(self.recentOnly)
 
     ################
@@ -413,8 +413,24 @@ class ExtendedSearchModel(object):
 
     #
     ################
-    # SET
+    # serialize for json
     ################
+    #
+    def getCacheKey(self):
+        return 'C' + self.getChannelAsString() + \
+            'S' + self.getShowAsString() + \
+            'SID' + self.getShowIdAsString() + \
+            'L' + self.getShowStartLetterAsString() + \
+            'T' + self.getTitleAsString() + \
+            'D' + self.getDescriptionAsString() + \
+            'E' + self.getExcludeTitleAsString() + \
+            'L' + self.getMinLengthAsString() + \
+            'F' + self.getIgnoreTrailerAsString() + \
+            'M' + self.getMaxResultsAsString() + \
+            'N' + self.getExactMatchForShowAsString() + \
+            'R' + self.getRecentOnlyAsString()
+
+    #
     def toDict(self):
         return {
             "id" : self.id,
