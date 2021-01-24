@@ -239,7 +239,7 @@ class Downloader(object):
                 film, filmurl, pathname, filename, season, episode, sequence)
 
     def _download_files(self, film, filmurl, pathname, filename, extension):
-        self.logger.debug('_download_files')
+        self.logger.debug('_download_files url {} to ' , filmurl)
         # make sure the destination directory exists
         if not xbmcvfs.exists(pathname):
             xbmcvfs.mkdir(pathname)

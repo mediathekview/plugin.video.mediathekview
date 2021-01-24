@@ -64,6 +64,7 @@ class ttml2srt(object):
         # parse correct start and end times
         def _parse_time_expression(expression, default_offset=timedelta(0)):
             offset_time = re.match(r'^([0-9]+(\.[0-9]+)?)(h|m|s|ms|f|t)$', expression)
+            fraction = None
             if offset_time:
                 time_value, fraction, metric = offset_time.groups()
                 time_value = float(time_value)
@@ -90,6 +91,9 @@ class ttml2srt(object):
             clock_time_frames = re.match(r'^([0-9]{2,}):([0-9]{2,}):([0-9]{2,}):([0-9]{2,}(\.[0-9]+)?)$', expression)
             if clock_time_frames:
                 raise NotImplementedError('Parsing time expressions by frame is not supported!')
+            if expression[0:1] == '-':
+                return timedelta(0)
+
             fraction = fraction  # stop Codacy to complain
             raise ValueError('unknown time expression: %s' % expression)
 
