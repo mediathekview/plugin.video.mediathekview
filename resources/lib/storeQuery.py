@@ -107,21 +107,12 @@ class StoreQuery(object):
     def extendedSearch(self, esModel):
         self.logger.debug('extendedSearch')
         #
-<<<<<<< Upstream, based on origin/develop
-        cacheKey = esModel.getCacheKey()
-        cached_data = self._cache.load_cache('extendedSearch', cacheKey)
-=======
         cached_data = self._cache.load_cache('extendedSearch', esModel.getCacheKey())
->>>>>>> 1f9dc85 update to cache module
         if cached_data is not None:
             rs = cached_data;
         else:
             rs = self.extendedSearchQuery(esModel)
-<<<<<<< Upstream, based on origin/develop
-            self._cache.save_cache('extendedSearch', cacheKey, rs)
-=======
             self._cache.save_cache('extendedSearch', esModel.getCacheKey(), rs)
->>>>>>> 1f9dc85 update to cache module
         #
         return rs
 
