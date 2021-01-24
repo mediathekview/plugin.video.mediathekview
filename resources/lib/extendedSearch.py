@@ -177,6 +177,11 @@ class ExtendedSearch(object):
                 (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getExcludeTitleAsString(), heading=30415)
                 if confirm:
                     dataModel.setExcludeTitle(txt)
+
+            elif self.action == "EDIT-MAXROWS":
+                (txt, confirm) = self.notifier.get_entered_text(deftext=dataModel.getMaxResultsAsString(), heading=30115)
+                if confirm:
+                    dataModel.setMaxResults(txt)
             #
             #
             self._saveModel(dataModel)
@@ -315,6 +320,16 @@ class ExtendedSearch(object):
                     'mode': "extendedSearchScreen",
                     'searchId': extSearchModel.getId(),
                     'extendedSearchAction': 'EDIT-MINLENGTH'
+                },
+                None,
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+            )
+        self.plugin.add_folder_item(
+                self.plugin.getCaption(30115) + " : " + extSearchModel.getMaxResultsAsString(),
+                {
+                    'mode': "extendedSearchScreen",
+                    'searchId': extSearchModel.getId(),
+                    'extendedSearchAction': 'EDIT-MAXROWS'
                 },
                 None,
                 icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
