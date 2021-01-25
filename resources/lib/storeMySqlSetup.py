@@ -79,13 +79,10 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
         cursor = con.cursor()
         for result in cursor.execute(self._setupScript, multi=True):
           if result.with_rows:
-            print("Rows produced by statement '{}':".format(
-              result.statement))
-            print(result.fetchall())
+            self.logger.debug("Rows produced by statement '{}':".format(result.statement))
+            self.logger.debug(result.fetchall())
           else:
-            print("Number of rows affected by statement '{}': {}".format(
-              result.statement, result.rowcount))
-
+            self.logger.debug("Number of rows affected by statement '{}': {}".format(result.statement, result.rowcount))
         cursor.close()
         con.commit()
         self.logger.debug('End DB setup')

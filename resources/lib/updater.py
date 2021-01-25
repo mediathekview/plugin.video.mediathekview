@@ -75,6 +75,7 @@ class MediathekViewUpdater(object):
         self.logger.debug('Last Full Update {}', datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
         self.logger.debug('version {}', databaseStatus['version'])
         self.logger.debug('status {}', databaseStatus['status'])
+        self.logger.debug('update interval {}', self.settings.getDatabaseUpdateInvterval())
         #
         updateConfigName = {0:"Disabled", 1:"Manual", 2:"On Start", 3:"Automatic", 4:"continuous"}
         self.logger.debug('Update Mode "{}"', updateConfigName.get(updateConfig))

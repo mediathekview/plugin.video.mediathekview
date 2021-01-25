@@ -188,7 +188,7 @@ class UpdateApp():
         self.logger = LoggerCommandline(self.scriptname, self.version, 'mvupdate', self.verbosity)
         appContext.initLogger(self.logger)
         #
-        self.logger.info('Startup')
+        self.logger.debug('Startup')
         appContext.initSettings(SettingsCommandline(self.args))
         #
         self.monitor = MonitorInterface()
@@ -201,10 +201,10 @@ class UpdateApp():
 
     def run(self):
         """ Execution of the application """
-        self.logger.info('Starting up...')
+        self.logger.debug('Starting up...')
         self.updater.database.get_status()
         updateop = self.updater.doUpdate()
-        self.logger.info('Exiting...')
+        self.logger.debug('Exiting...')
 
     def exit(self):
         """ Shutdown of the application """

@@ -53,7 +53,7 @@ class UpdateFileImport(object):
         self._update_start()
         self.database.import_begin()
         self._importFile(self.targetFilename)
-        self.database.import_end()
+        self.deletedCount = self.database.import_end()
         self._update_end()
 
     def _importFile(self, targetFilename):
@@ -64,11 +64,10 @@ class UpdateFileImport(object):
         # estimate number of records in update file
         fileSizeInByte = mvutils.file_size(targetFilename)
         records = int(fileSizeInByte / 600)
-        self.logger.info('Starting import of {} records from {}', records, targetFilename)
+        self.logger.info('Starting import of approximately {} records from {}', records, targetFilename)
         #
         # pylint: disable=broad-except
         try:
-            starttime = time.time()
             flsm = 0
             flts = 0
             #
@@ -209,8 +208,6 @@ class UpdateFileImport(object):
                     self.errorCount = self.errorCount + 1
             #
             ufp.close()
-            self._update_end()
-            self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {}', self.count, int(time.time() - starttime), self.updateCount, self.insertCount)
             self.notifier.close_update_progress()
             if self.errorCount > 0:
                 self.logger.warn('Update finished with error(s)')
@@ -229,11 +226,13 @@ class UpdateFileImport(object):
         self.count = 0
         self.insertCount = 0
         self.updateCount = 0
+        self.deletedCount = 0
+        self.startTime = time.time()
         self.film = {}
         self._init_record()
 
     def _update_end(self):
-        pass
+        self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {} deleted: {}', self.count, int(time.time() - self.startTime), self.updateCount, self.insertCount, self.deletedCount)
 
     def _init_record(self):
         self.film["channel"] = ""

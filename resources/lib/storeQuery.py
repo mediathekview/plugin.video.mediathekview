@@ -519,7 +519,9 @@ class StoreQuery(object):
         try:
             cursor = self.getConnection().cursor()
             cursor.execute("update film set touched = 0")
+            cnt = cursor.rowcount
             cursor.close()
+            return cnt
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
@@ -530,7 +532,9 @@ class StoreQuery(object):
         try:
             cursor = self.getConnection().cursor()
             cursor.execute("delete from film where touched = 0")
+            cnt = cursor.rowcount
             cursor.close()
+            return cnt
         except Exception as err:
             self.logger.error('Database error: {}', err)
             self.notifier.show_database_error(err)
