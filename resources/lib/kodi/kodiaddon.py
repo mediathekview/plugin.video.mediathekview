@@ -12,6 +12,7 @@ import sys
 import xbmc
 import xbmcgui
 import xbmcplugin
+import xbmcvfs
 import resources.lib.mvutils as mvutils
 import resources.lib.appContext as appContext
 
@@ -111,14 +112,16 @@ class KodiAddon(object):
 
     def setViewId(self, viewId):
         if viewId > -1:
-            xbmc.sleep(10)
+            # xbmc.sleep(1000)
+            self.run_builtin('Container.SetViewMode({})'.format(viewId))
             self.run_builtin('Container.SetViewMode({})'.format(viewId))
 
     def resolveViewId(self, pViewname):
         skinName = self.getSkinName()
         viewId = -1
         # Kill switch
-        if self.addon.getSetting('staticViewIds') == 'true':
+        self.logger.debug('static View Id {}', self.addon.getSetting('staticViewIds'))
+        if self.addon.getSetting('staticViewIds') == False or self.addon.getSetting('staticViewIds') == 'false':
             return viewId
 
         if skinName == 'skin.estuary' and pViewname == 'MAIN':
