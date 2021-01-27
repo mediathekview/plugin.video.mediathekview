@@ -79,7 +79,10 @@ class StoreQuery(object):
     def executeUpdate(self, aStmt, aParams):
         """ execute a single update stmt and commit """
         cursor = self.getConnection().cursor()
-        cursor.execute(aStmt, aParams)
+        if aParams is None:
+            cursor.execute(aStmt)
+        else:
+            cursor.execute(aStmt, aParams)
         rs = cursor.rowcount
         # self.logger.debug(" rowcount executeUpdate {}" , rs )
         cursor.close()
@@ -199,14 +202,14 @@ class StoreQuery(object):
         """
         self.logger.debug('getQuickSearch')
         #
+        esModel = ExtendedSearchModel.ExtendedSearchModel('')
+        esModel.setShow(searchTerm)
+        esModel.setTitle(searchTerm)
         cacheKey = searchTerm + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateMaxRows()
         cached_data = self._cache.load_cache('quickSearch', cacheKey)
         if cached_data is not None:
             rs = cached_data;
         else:
-            esModel = ExtendedSearchModel.ExtendedSearchModel('')
-            esModel.setShow(searchTerm)
-            esModel.setTitle(searchTerm)
             rs = self.extendedSearchQuery(esModel)
             self._cache.save_cache('quickSearch', cacheKey, rs)
         #
