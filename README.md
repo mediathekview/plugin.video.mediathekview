@@ -252,8 +252,9 @@ docker run -d \
 ````
 
 
-**Hinweis:**
-Die Log-Ausgabe von `mvupdate3` wird im Docker-Log teilweise erst nach Abschluss der Aktualisierung angezeigt.
+**Hinweise:**
+* Die Log-Ausgabe von `mvupdate3` wird im Docker-Log teilweise erst nach Abschluss der Aktualisierung angezeigt.
+* Um Speicherplatz zu sparen kann das binlog der maria-db abgeschaltet werden. Dazu in `/config/custom.cnf` die Zeile `log_bin = /config/log/mysql/mariadb-bin` durch `skip-log-bin` ersetzen. Weitere Informationen zum Thema binlog gibt es [hier](https://mariadb.com/kb/en/binary-log/).
 
 
 English Version
@@ -492,8 +493,9 @@ docker run -d \
 ````
 
 
-**Remark:**
-The log output of `mvupdate3` might be shown with a delay in the docker log.
+**Remarks:**
+* The log output of `mvupdate3` might be shown with a delay in the docker log.
+* In order to safe memory maria-db binlog can be disabled by editing `/config/custom.cnf`: Replace `log_bin = /config/log/mysql/mariadb-bin` with `skip-log-bin`. Further information about binlog can be found [here](https://mariadb.com/kb/en/binary-log/).
 
 
 
