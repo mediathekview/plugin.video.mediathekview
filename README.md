@@ -225,7 +225,7 @@ docker build -t mediathekview-kodi-db .
 | MYSQL_USER          | mediathekview       | Superuser-Benutzer der o.g. MYSQLS Datenbank|
 | MYSQL_PASSWORD      | mediathekview       | Passwort für MYSQL_USER (minimum 4 Zeichen); sollte in ein sicheres Passwort geändert werden |
 | MYSQL_ROOT_PASSWORD | mediathekview_root  | Root Passwort für die MYSQL Datenbank (minimal 4 Zeichen); sollte in ein sicheres Passwort geändert werden|
-| CRON_TIMESPEC       | 15 4 * * *          | Zeitausdruck im Cron-Format, der angibt wann die Datenbank per `mvupdate3` aktualisiert werden soll (im Bsp.: täglich 4:15). Ein Generator für diese Ausdrücke findet sich bspw. hier: https://crontab.guru/| 
+| CRON_TIMESPEC       | 0 * * * *           | Zeitausdruck im Cron-Format, der angibt wann die Datenbank per `mvupdate3` aktualisiert werden soll (Default: zu jeder vollen Stunde). Ein Generator für diese Ausdrücke findet sich bspw. hier: https://crontab.guru/| 
 | RUN_ON_STARTUP      | no		    | wenn 'yes', damm wird `mvupdate3` bei starten des Containers ausgeführt
 
 
@@ -245,7 +245,7 @@ docker run -d \
   -e MYSQL_USER='mediathekview' \
   -e MYSQL_PASSWORD='mediathekview' \
   -e MYSQL_ROOT_PASSWORD='mediathekview_root' \
-  -e CRON_TIMESPEC='15 4 * * *' \
+  -e CRON_TIMESPEC='0 * * * *' \
   -p 3306:3306 \
   -v path_to_data:/config \
    mediathekview-kodi-db
@@ -464,7 +464,7 @@ docker build -t mediathekview-kodi-db .
 | MYSQL_USER          | mediathekview       | superuser of the MYSQL database|
 | MYSQL_PASSWORD      | mediathekview       | password for MYSQL_USER (minimum 4 characters); should be changed to a secure password |
 | MYSQL_ROOT_PASSWORD | mediathekview_root  | root password for the MYSQL database (minimum 4 characters); should be changed to a secure password|
-| CRON_TIMESPEC       | 15 4 * * *          | time specification for cronjob; specifies when database is updated using `mvupdate3` (in example: daily at 4:15). a generator for cron time specification can be found for example here: https://crontab.guru/| 
+| CRON_TIMESPEC       | 0 * * * *           | time specification for cronjob; specifies when database is updated using `mvupdate3` (default: hourly). a generator for cron time specification can be found for example here: https://crontab.guru/| 
 | RUN_ON_STARTUP      | no                  | if 'yes', `mvupdate3` will be executed on container startup
 
 
@@ -485,7 +485,7 @@ docker run -d \
   -e MYSQL_USER='mediathekview' \
   -e MYSQL_PASSWORD='mediathekview' \
   -e MYSQL_ROOT_PASSWORD='mediathekview_root' \
-  -e CRON_TIMESPEC='15 4 * * *' \
+  -e CRON_TIMESPEC='0 * * * *' \
   -p 3306:3306 \
   -v path_to_data:/config \
    mediathekview-kodi-db
