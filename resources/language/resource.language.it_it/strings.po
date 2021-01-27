@@ -244,6 +244,10 @@ msgctxt "#30342"
 msgid "Enriched NFO File"
 msgstr "File NFO arricchito"
 
+msgctxt "#30343"
+msgid "staticViewId"
+msgstr "Usa visualizzazioni predefinite"
+
 #############################
 # Page 4 Extended Search
 #############################

@@ -101,6 +101,9 @@ class SettingsKodi(SettingsInterface):
     def getBlacklist(self):
         return self._addonClass.getSetting('blacklist')
 
+    def getUseStaticViewId(self):
+        return self._addonClass.getSetting('staticViewIds') == 'true'
+
     # Database
 
     # self.type

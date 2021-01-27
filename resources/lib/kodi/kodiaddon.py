@@ -35,12 +35,12 @@ class KodiAddon(object):
         self.fanart = self.addon.getAddonInfo('fanart')
         self.version = self.addon.getAddonInfo('version')
         self.path = mvutils.py2_decode(self.addon.getAddonInfo('path'))
-        ##
+        #
         if self.getKodiVersion() > 18:
             self.datapath = mvutils.py2_decode(xbmcvfs.translatePath(self.addon.getAddonInfo('profile')))
         else:
             self.datapath = mvutils.py2_decode(xbmc.translatePath(self.addon.getAddonInfo('profile')))
-        ##
+        #
         self.language = self.addon.getLocalizedString
         self.kodiVersion = -1
 
@@ -117,7 +117,9 @@ class KodiAddon(object):
     def resolveViewId(self, pViewname):
         skinName = self.getSkinName()
         viewId = -1
-        # skin.estuary
+        # Kill switch
+        if self.addon.getSetting('staticViewIds') == 'true':
+            return viewId
 
         if skinName == 'skin.estuary' and pViewname == 'MAIN':
             viewId = 55
