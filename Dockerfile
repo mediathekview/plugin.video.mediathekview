@@ -7,7 +7,7 @@ ENV MYSQL_PASSWORD='mediathekview'
 ENV MYSQL_ROOT_PASSWORD='mediathekview_root'
 
 # custom variables
-ENV CRON_TIMESPEC="0 * * * *"
+ENV CRON_TIMESPEC="0 4-22/1 * * *"
 ENV RUN_ON_STARTUP='no'
 
 # install dependencies
