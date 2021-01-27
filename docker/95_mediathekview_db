@@ -3,7 +3,7 @@
 echo "[mediathekview_db] Export environment for use in crontab"
 declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
 
-CRON_CMD="python3 /plugin.video.mediathekview/mvupdate3 mysql -vv -d $MYSQL_DATABASE -u $MYSQL_USER -p $MYSQL_PASSWORD -f"
+CRON_CMD="python3 /plugin.video.mediathekview/mvupdate3 mysql -v -d $MYSQL_DATABASE -u $MYSQL_USER -p $MYSQL_PASSWORD"
 CRONTAB="$CRON_TIMESPEC $CRON_CMD"
 echo "[mediathekview_db] Install crontab:  $CRONTAB"
 echo "SHELL=/bin/bash
