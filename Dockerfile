@@ -12,7 +12,7 @@ ENV RUN_ON_STARTUP='no'
 
 # install dependencies
 RUN apt update -y && \
-    apt install python3-pip cron -y && \
+    apt install python3-pip cron vim -y && \
     apt autoclean -y && \
     apt autoremove -y
 
