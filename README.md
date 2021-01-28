@@ -245,7 +245,7 @@ docker run -d \
   -e MYSQL_USER='mediathekview' \
   -e MYSQL_PASSWORD='mediathekview' \
   -e MYSQL_ROOT_PASSWORD='mediathekview_root' \
-  -e CRON_TIMESPEC='0 * * * *' \
+  -e CRON_TIMESPEC='0 4-22/1 * * *' \
   -p 3306:3306 \
   -v path_to_data:/config \
    mediathekview-kodi-db
@@ -486,7 +486,7 @@ docker run -d \
   -e MYSQL_USER='mediathekview' \
   -e MYSQL_PASSWORD='mediathekview' \
   -e MYSQL_ROOT_PASSWORD='mediathekview_root' \
-  -e CRON_TIMESPEC='0 * * * *' \
+  -e CRON_TIMESPEC='0 4-22/1 * * *' \
   -p 3306:3306 \
   -v path_to_data:/config \
    mediathekview-kodi-db
