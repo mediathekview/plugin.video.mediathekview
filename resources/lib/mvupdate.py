@@ -93,7 +93,7 @@ class UpdateApp():
         )
         sqliteopts.add_argument(
             '-i', '--intervall',
-            default=3600,
+            default=3500,
             type=int,
             action='store',
             help='minimum interval between updates'
