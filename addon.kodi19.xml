@@ -26,10 +26,10 @@
 v.1.0.0 (2021-02-xx):
 - [fix] #125 fix for add to favorits
 - [new] #56 simple black list
-- [other] Database structure between mysql and sqlite aligned
-- [other] New UI icons and adjusted view
-- [other] Navigation for all channels moved into channel view
+- [other] New UI icons and adjusted view (Wall view)
 - [other] New extended search to filter all criteria
+- [other] Database structure between mysql and sqlite aligned
+- [other] Navigation for all channels moved into channel view
 - [other] Settings split into general (UI settings) and advanced settings for UI behaviour
 - [other] Code restructring
 
