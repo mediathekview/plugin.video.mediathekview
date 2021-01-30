@@ -19,6 +19,16 @@ class StoreMySQLSetup(object):
         self._setupSchema = 'CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8;'.format(self.settings.getDatabaseSchema())
         self._setupScript = """
 -- ----------------------------
+-- DB V2 
+DROP PROCEDURE IF EXISTS `ftUpdateStart`;
+DROP PROCEDURE IF EXISTS `ftUpdateEnd`;
+DROP PROCEDURE IF EXISTS `ftInsertShow`;
+DROP PROCEDURE IF EXISTS `ftInsertChannel`;
+DROP TABLE IF EXISTS `status`;
+DROP TABLE IF EXISTS `show`;
+DROP TABLE IF EXISTS `film`;
+DROP TABLE IF EXISTS `channel`;
+-- ----------------------------
 --  Table structure for film
 -- ----------------------------
 DROP TABLE IF EXISTS film;

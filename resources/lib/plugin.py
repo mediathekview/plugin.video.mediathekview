@@ -57,6 +57,7 @@ class MediathekViewPlugin(KodiPlugin):
             self.logger.warn('Unknown Database driver selected')
             self.database = None
         #
+        self.migrateExtendedSearch()
         # self.database = Store()
 
     def show_main_menu(self):
@@ -300,3 +301,38 @@ class MediathekViewPlugin(KodiPlugin):
                 self.logger.debug(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
                 self.end_of_directory(False, cache_to_disc=False)
+
+    def migrateExtendedSearch(self):
+        import resources.lib.mvutils as mvutils
+        oldExtSearchFilename = os.path.join(
+            appContext.MVSETTINGS.getDatapath(),
+            'recent_ext_searches.json'
+        )
+        self.logger.debug("migrateExtendedSearch {}", mvutils.file_exists(oldExtSearchFilename))
+        if mvutils.file_exists(oldExtSearchFilename):
+            oldData = mvutils.loadJsonFile(oldExtSearchFilename)
+            self.logger.debug("Found legacy ext search entries to be migrated")
+            if (oldData != None):
+                newData = []
+                lid = int(time.time())
+                for entry in oldData:
+                    esm = ExtendedSearchModel.ExtendedSearchModel(entry.get('search'))
+                    esm.setId(lid)
+                    lid += 1
+                    esm.setTitle(entry.get('search'))
+                    esm.setDescription(entry.get('search'))
+                    esm.setWhen(int(entry.get('when')))
+                    newData.append(esm.toDict())
+                #
+                newExtSearchFilename = os.path.join(
+                    appContext.MVSETTINGS.getDatapath(),
+                    'searchConfig.json'
+                )
+                mvutils.saveJsonFile(newExtSearchFilename, newData)
+                self.logger.debug("Migrated {} legacy ext search entries to new format", len(newData))
+            #
+            oldExtSearchFilenameBackup = os.path.join(
+                appContext.MVSETTINGS.getDatapath(),
+                'recent_ext_searches.json.bk'
+            )
+            mvutils.file_rename(oldExtSearchFilename, oldExtSearchFilenameBackup)

@@ -243,6 +243,9 @@ class ExtendedSearchModel(object):
     def setRecentOnly(self, pValue):
         self.recentOnly = 1 if self.convertToBoolean(pValue) else 0
 
+    def setWhen(self, pValue):
+        self.when = pValue
+
     #
     ##################################
     #

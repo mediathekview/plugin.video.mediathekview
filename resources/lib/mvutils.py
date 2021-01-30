@@ -13,6 +13,7 @@ import re
 import sys
 import stat
 import string
+import json
 from contextlib import closing
 from codecs import open
 
@@ -319,3 +320,26 @@ def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):
     # abort requested
     raise ExitRequested('Reception interrupted.')
 
+
+def loadJsonFile(filename):
+    #
+    data = None
+    # try:
+    with closing(open(filename, encoding='utf-8')) as json_file:
+        data = json.load(json_file)
+    # pylint: disable=broad-except
+    # except Exception as err:
+    #    pass
+    return data
+
+
+def saveJsonFile(filename, pData):
+    #
+    try:
+        with closing(open(filename, 'w', encoding='utf-8')) as json_file:
+            json.dump(pData, json_file)
+    # pylint: disable=broad-except
+    except Exception as err:
+        return False
+    #
+    return True
