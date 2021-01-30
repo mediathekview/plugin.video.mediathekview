@@ -200,6 +200,63 @@ optional arguments:
 ````
 
 
+Docker Container (mit interner MYSQL Datenbank)
+-----------------------------------------------
+Die Standalone Datenbank inkl. regelmäßiger Aktualisierung (Cronjob) über `mvupdate3` kann in einem Docker Container gehalten werden. Das Image basiert auf auf dem mariadb Container von linuxserver.io (siehe https://docs.linuxserver.io/images/docker-mariadb).
+
+
+**Container bauen:**
+
+Zunächst muss das Repository als zip heruntergeladen und enpackt oder via git clone auf den Rechner mit installierten docker gebracht werden. Danach in das Verseichnis `plugin.video.mediathekview` gehen und das Container Image erstellen:
+
+````
+docker build -t mediathekview-kodi-db .
+````
+
+
+**Container Konfiguration:**
+
+| Umgebungsvariable   | Standard Wert       | Erklärung       |
+| -----------------   | --------------      | --------------- |
+| PUID                | 1000                | für UserID; siehe auch Erklärung auf linuxserver.io| 
+| GUID                | 1000                | für GroupID; siehe auch Erklärung auf linuxserver.io| 
+| TZ                  | Europe/London       | verwendete Zeitzone im Container |
+| MYSQL_DATABASE      | mediathekview       | Name der MYSQL Datenbank; diese Datenbank wird beim ersten Starten des Containers angelegt|
+| MYSQL_USER          | mediathekview       | Superuser-Benutzer der o.g. MYSQLS Datenbank|
+| MYSQL_PASSWORD      | mediathekview       | Passwort für MYSQL_USER (minimum 4 Zeichen); sollte in ein sicheres Passwort geändert werden |
+| MYSQL_ROOT_PASSWORD | mediathekview_root  | Root Passwort für die MYSQL Datenbank (minimal 4 Zeichen); sollte in ein sicheres Passwort geändert werden|
+| CRON_TIMESPEC       | 0 4-22/1 * * *      | Zeitausdruck im Cron-Format, der angibt wann die Datenbank per `mvupdate3` aktualisiert werden soll (Default: zu jeder vollen Stunde zwischen 4 und 22 Uhr). Ein Generator für diese Ausdrücke findet sich bspw. hier: https://crontab.guru/| 
+| RUN_ON_STARTUP      | no		    | wenn 'yes', damm wird `mvupdate3` bei starten des Containers ausgeführt
+
+
+Um mit Kodi auf die Datenbank zugreifen zu können, muss der `Port 3306` nach außen geleitet werden. Bei mehereren Containern mit MYSQL Datenbank empfiehlt es sich den MYSQL-Port 3306 auf einen freien Port umzuleiten (z.B.: `-p 49153:3306`). *Achtung:* Innerhalb des Containers gilt weiterhin der Port 3306 (z.B. für den Aufruf von `mvupdate3`). Außerhalb bzw. in Kodi muss dann der konfigurierte Port (im Beispiel 49153) verwendet werden.
+
+Die Datenbank selbst sowie weitere Konfigurationsdaten werden im Ordner `/config` gespeichert. Dieser ist als Docker-Volume konfiguriert (`-v path_to_data:/config`) und seine Daten bleiben auch beim Neuaufsetzen des Containers erhalten.
+
+
+**Container Starten (Beispielkonfiguration):**
+````
+docker run -d \
+  --name mediathekview-kodi-db \
+  -e PUID=1000 \
+  -e GUID=1000 \
+  -e TZ='Europe/Berlin' \
+  -e MYSQL_DATABASE='mediathekview' \
+  -e MYSQL_USER='mediathekview' \
+  -e MYSQL_PASSWORD='mediathekview' \
+  -e MYSQL_ROOT_PASSWORD='mediathekview_root' \
+  -e CRON_TIMESPEC='0 4-22/1 * * *' \
+  -p 3306:3306 \
+  -v path_to_data:/config \
+   mediathekview-kodi-db
+````
+
+
+**Hinweise:**
+* Die Log-Ausgabe von `mvupdate3` wird im Docker-Log teilweise erst nach Abschluss der Aktualisierung angezeigt.
+* Um Speicherplatz zu sparen kann das binlog der maria-db abgeschaltet werden. Dazu in `/config/custom.cnf` die Zeile `log_bin = /config/log/mysql/mariadb-bin` durch `skip-log-bin` ersetzen. Weitere Informationen zum Thema binlog gibt es [hier](https://mariadb.com/kb/en/binary-log/).
+
+
 English Version
 ===============
 
@@ -380,6 +437,65 @@ optional arguments:
   -d DATABASE, --database DATABASE
                         database name (default: mediathekview)
 ````
+
+
+
+Docker Container (with internal MYSQL database)
+-----------------------------------------------
+The standalone database inkl. regular update (cronjob) via `mvupdate3` can be run inside a docker container. The image is based on the mariadb container from linuxserver.io (see https://docs.linuxserver.io/images/docker-mariadb).
+
+
+**Build Container:**
+
+Download the repository via zip (+ unpack) or git clone to the computer with installed docker. Then go to `plugin.video.mediathekview` and build the Image :
+
+````
+docker build -t mediathekview-kodi-db .
+````
+
+
+**Container Configuration:**
+
+| Env                 | Default Value       | Function        |
+| -----------------   | --------------      | --------------- |
+| PUID                | 1000                | for UserID; also see explanation on linuxserver.io| 
+| GUID                | 1000                | for GroupID; also see explanation on linuxserver.io| 
+| TZ                  | Europe/London       | used timezone in the Container |
+| MYSQL_DATABASE      | mediathekview       | name of the MYSQL database; this database will be created during first startup of the Container|
+| MYSQL_USER          | mediathekview       | superuser of the MYSQL database|
+| MYSQL_PASSWORD      | mediathekview       | password for MYSQL_USER (minimum 4 characters); should be changed to a secure password |
+| MYSQL_ROOT_PASSWORD | mediathekview_root  | root password for the MYSQL database (minimum 4 characters); should be changed to a secure password|
+| CRON_TIMESPEC       | 0 4-22/1 * * *      | time specification for cronjob; specifies when database is updated using `mvupdate3` (default: hourly between 4am and 10pm). A generator for cron time specification can be found for example here: https://crontab.guru/| 
+| RUN_ON_STARTUP      | no                  | if 'yes', `mvupdate3` will be executed on container startup
+
+
+
+In order to access the database from outside the container (e.g. by Kodi addon) the `port 3306` has to be exposed. However, if using several MYSQL Containers this port should be forwarded to a free port (e.g. `-p 49153:3306`). *Remark:* Inside the container the usual port 3306 is used (e.g. when executing `mvupdate3`). Outside the container resp. in Kodi the configured port (49153 in the example) hast to be used.
+
+The database itselve as well as other configuration data is stored in the folder `/config`. This folder is configured as docker volume (`-v path_to_data:/config`) and its content is persistent even if re-initialize the container.
+
+
+**Start the container (exemplaric):**
+````
+docker run -d \
+  --name mediathekview-kodi-db \
+  -e PUID=1000 \
+  -e GUID=1000 \
+  -e TZ='Europe/Berlin' \
+  -e MYSQL_DATABASE='mediathekview' \
+  -e MYSQL_USER='mediathekview' \
+  -e MYSQL_PASSWORD='mediathekview' \
+  -e MYSQL_ROOT_PASSWORD='mediathekview_root' \
+  -e CRON_TIMESPEC='0 4-22/1 * * *' \
+  -p 3306:3306 \
+  -v path_to_data:/config \
+   mediathekview-kodi-db
+````
+
+
+**Remarks:**
+* The log output of `mvupdate3` might be shown with a delay in the docker log.
+* In order to safe memory maria-db binlog can be disabled by editing `/config/custom.cnf`: Replace `log_bin = /config/log/mysql/mariadb-bin` with `skip-log-bin`. Further information about binlog can be found [here](https://mariadb.com/kb/en/binary-log/).
 
 
 
