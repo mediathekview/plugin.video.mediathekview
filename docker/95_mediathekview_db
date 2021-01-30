@@ -1,0 +1,40 @@
+#!/usr/bin/with-contenv bash
+
+echo "[mediathekview_db] Export environment for use in crontab"
+declare -p | grep -Ev 'BASHOPTS|BASH_VERSINFO|EUID|PPID|SHELLOPTS|UID' > /container.env
+
+CRON_CMD="python3 /plugin.video.mediathekview/mvupdate3 mysql -v -d $MYSQL_DATABASE -u $MYSQL_USER -p $MYSQL_PASSWORD"
+CRONTAB="$CRON_TIMESPEC $CRON_CMD"
+echo "[mediathekview_db] Install crontab:  $CRONTAB"
+echo "SHELL=/bin/bash
+BASH_ENV=/container.env
+$CRONTAB > /tmp/stdout 2> /tmp/stderr
+# This extra line makes it a valid cron
+" | crontab -
+
+echo "[mediathekview_db] Create custom stdout and stderr named pipes"
+if [ ! -p /tmp/stdout ]; then 
+	mkfifo /tmp/stdout
+	chmod 0666 /tmp/stdout
+fi
+
+if [ ! -p /tmp/stderr ]; then 
+        mkfifo /tmp/stderr
+        chmod 0666 /tmp/stderr
+fi
+
+# Have the main Docker process tail the files to produce stdout and stderr 
+# for the main process that Docker will actually show in docker logs.
+tail -f -n 300 /tmp/stdout &
+tail -f -n 300 /tmp/stderr >&2 &
+
+#run on startup, if configured
+if [ "$RUN_ON_STARTUP" =  "yes" ]; then
+	echo "[mediathekview_db] Schedule run on startup in 10s"
+	sleep 10 && echo "[mediathekview_db] Run on startup: $CRON_CMD" && $CRON_CMD &
+else
+	echo "[mediathekview_db] Do not run on startup"
+fi
+
+echo "[mediathekview_db] Start cron"
+/usr/sbin/cron -f -L 1 &
