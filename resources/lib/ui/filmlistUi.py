@@ -25,11 +25,12 @@ class FilmlistUi(object):
         plugin(MediathekView): the plugin object
     """
 
-    def __init__(self, plugin):
+    def __init__(self, plugin, pLongTitle=True):
         self.logger = appContext.MVLOGGER.get_new_logger('FilmlistUI')
         self.plugin = plugin
         self.handle = plugin.addon_handle
         self.settings = appContext.MVSETTINGS
+        self.useLongTitle = pLongTitle
         # define sortmethod for films
         # all av. sort method and put the default sortmethod on first place to be used by UI
         allSortMethods = [
@@ -107,7 +108,10 @@ class FilmlistUi(object):
 
         videourl = videourl + self.settings.getUserAgentString()
 
-        resultingtitle = pFilm.title + videohds
+        if self.useLongTitle:
+            resultingtitle = pFilm.show + ': ' + pFilm.title + videohds
+        else:
+            resultingtitle = pFilm.title + videohds
 
         info_labels = {
             'title': resultingtitle,

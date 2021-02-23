@@ -200,7 +200,7 @@ class MediathekViewPlugin(KodiPlugin):
             channel = self.get_arg('channel', "")
             channel == "" if channel == "0" else channel
             # self.database.get_films(show, FilmUI(self))
-            ui = FilmlistUi.FilmlistUi(self)
+            ui = FilmlistUi.FilmlistUi(self, pLongTitle=False)
             ui.generate(self.database.getFilms(channel, show))
             #
         elif mode == 'downloadmv':
