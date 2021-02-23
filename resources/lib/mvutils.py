@@ -235,7 +235,7 @@ def cleanup_filename(val):
     return search.strip()
 
 
-def url_retrieve(url, filename, reporthook, chunk_size=8192, aborthook=None):
+def url_retrieve(url, filename, reporthook, chunk_size=65536, aborthook=None):
     """
     Copy a network object denoted by a URL to a local file
 
@@ -262,7 +262,7 @@ def url_retrieve(url, filename, reporthook, chunk_size=8192, aborthook=None):
         _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook)
 
 
-def url_retrieve_vfs(url, filename, reporthook, chunk_size=8192, aborthook=None):
+def url_retrieve_vfs(url, filename, reporthook, chunk_size=65536, aborthook=None):
     """
     Copy a network object denoted by a URL to a local file using
     Kodi's VFS functions
