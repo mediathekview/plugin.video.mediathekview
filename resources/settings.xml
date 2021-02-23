@@ -54,7 +54,7 @@
 		<setting id="databaseVersion"	type="text"					    default="0"		visible="false"						/>
 		<setting id="databaseStatus"	type="text"					    default="0"		visible="false"						/>
 		<!--  delay startup by x secs to avoid issue with missing network connections -->
-		<setting id="delayStartupSec"   type="number"                   default="1"     visible="false"                     />
+		<setting id="delayStartupSec"   type="number"                   default="10"     visible="false"                     />
 		<setting id="userAgentString"   type="text"                     default="|User-Agent=Mozilla%2F5.0%20%28Windows%20NT%2010.0%3B%20Win64%3B%20x64%3B%20rv%3A84.0%29%20Gecko%2F20100101%20Firefox%2F84.0"     visible="false" />
         
         
