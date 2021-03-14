@@ -82,13 +82,13 @@ Installation
 
 Das Mediathekviewplugin kann für Kodi 17, Kodi 18 und Kodi 19 aus eigens dafür
 angelegten Repositories bezogen werden. So können stable releases oder auch Beta-Versionen
-automstiach bezogen werden.
+automatisch bezogen werden.
 
-Ein ausführliche beschreibung findet sich im [GITHUB Repository] [5]
+Ein ausführliche Beschreibung findet sich im [GITHUB Repository][5]
 
 Beim bauen aus GITHUB, muss man die addon.xml entsprechend anpassen (Kodi 17 &
 Kodi 18 > addon.kodi18.xml / Kodi 19 > addon.kodi19.xml). Dies ist aber nicht empfohlen,
-da so Update und fixen von Hand installiert werden müssen.
+da so Updates und Fixes von Hand installiert werden müssen.
 
 
 Funktionsweise der Aktualisierungsmethoden
