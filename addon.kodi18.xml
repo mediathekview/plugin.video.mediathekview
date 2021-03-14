@@ -24,7 +24,7 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
-v.1.0.0 (2021-02-xx):
+v.1.0.0 (2021-03-14):
 - [fix] #125 fix for add to favorits
 - [new] #56 simple black list
 - [other] New UI icons and adjusted view (Wall view)
