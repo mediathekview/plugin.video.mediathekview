@@ -254,7 +254,7 @@ msgstr "Datei existiert beim Download"
 
 msgctxt "#30345"
 msgid "DownloadActionOnExistsPrompt"
-msgstr "Neuen Namen und Aktion abfragen"
+msgstr "Umbennen"
 
 msgctxt "#30346"
 msgid "DownloadActionOnExistsIgnore"

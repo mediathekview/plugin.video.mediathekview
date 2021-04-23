@@ -165,7 +165,7 @@ class Downloader(object):
         if self.settings.getFileExistsAction() == 1 and xbmcvfs.exists(pathname + filename + extension):
             return
         # prompt
-        if self.settings.getFileExistsAction() == 3:
+        if self.settings.getFileExistsAction() == 0:
             while xbmcvfs.exists(pathname + filename + extension):
                 (filename, confirmed) = self.notifier.get_entered_text(filename, 30987)
                 filename = mvutils.cleanup_filename(filename)
