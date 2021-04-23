@@ -62,6 +62,10 @@ class ExtendedSearch(object):
         self._load()
         #
 
+    def getFilmData(self, searchId):
+        data = self._getModelById(self.searchId);
+        return self.database.extendedSearch(data)
+
     def show(self):
         """ populate UI with extended search elements """
         self.logger.debug('show action: {} searchId:{}', self.action, self.searchId)
@@ -227,6 +231,26 @@ class ExtendedSearch(object):
                                 'mode': "extendedSearchScreen",
                                 'searchId': str(entry['id']),
                                 'extendedSearchAction': 'DELETE'
+                            })
+                        )
+                    ),
+                    (
+                        self.plugin.language(30922),
+                        'Container.update({})'.format(
+                            self.plugin.build_url({
+                                'mode': "downloadmv",
+                                'searchId': str(entry['id']),
+                                'quality': 1
+                            })
+                        )
+                    ),
+                    (
+                        self.plugin.language(30924),
+                        'Container.update({})'.format(
+                            self.plugin.build_url({
+                                'mode': "downloadep",
+                                'searchId': str(entry['id']),
+                                'quality': 1
                             })
                         )
                     )

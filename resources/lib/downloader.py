@@ -153,25 +153,24 @@ class Downloader(object):
             namestem = mvutils.cleanup_filename(namestem)
             if len(namestem) < 1 or confirmed is False:
                 return
-        # build year postfix
-        year = self._matches('([12][0-9][0-9][0-9])', str(film.aired))
-        if year is not None:
-            postfix = ' (%s)' % year
-        else:
-            postfix = ''
         # determine destination path and film filename
         if self.settings.getUseMovieFolder():
-            pathname = self.settings.getDownloadPathMovie() + namestem + postfix + '/'
+            pathname = self.settings.getDownloadPathMovie() + namestem + '/'
             filename = namestem + suffix
         else:
             pathname = self.settings.getDownloadPathMovie()
-            filename = namestem + postfix + suffix
+            filename = namestem + suffix
         # check for duplicate
-        while xbmcvfs.exists(pathname + filename + extension):
-            (filename, confirmed) = self.notifier.get_entered_text(filename, 30987)
-            filename = mvutils.cleanup_filename(filename)
-            if len(filename) < 1 or confirmed is False:
-                return
+        # keep
+        if self.settings.getFileExistsAction() == 1 and xbmcvfs.exists(pathname + filename + extension):
+            return
+        # prompt
+        if self.settings.getFileExistsAction() == 3:
+            while xbmcvfs.exists(pathname + filename + extension):
+                (filename, confirmed) = self.notifier.get_entered_text(filename, 30987)
+                filename = mvutils.cleanup_filename(filename)
+                if len(filename) < 1 or confirmed is False:
+                    return
 
         # download the stuff
         if self._download_files(film, filmurl, pathname, filename, extension):

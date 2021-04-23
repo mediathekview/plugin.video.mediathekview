@@ -248,6 +248,23 @@ msgctxt "#30343"
 msgid "staticViewId"
 msgstr "Vordefinierte Views verwenden"
 
+msgctxt "#30344"
+msgid "DownloadActionOnExists"
+msgstr "Datei existiert beim Download"
+
+msgctxt "#30345"
+msgid "DownloadActionOnExistsPrompt"
+msgstr "Neuen Namen und Aktion abfragen"
+
+msgctxt "#30346"
+msgid "DownloadActionOnExistsIgnore"
+msgstr "Nicht runterladen"
+
+msgctxt "#30347"
+msgid "DownloadActionOnExistsOverwrite"
+msgstr "Überschreiben"
+
+
 #############################
 # Page 4 Extended Search
 #############################

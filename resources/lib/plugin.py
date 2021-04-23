@@ -204,13 +204,35 @@ class MediathekViewPlugin(KodiPlugin):
             ui.generate(self.database.getFilms(channel, show))
             #
         elif mode == 'downloadmv':
-            filmid = self.get_arg('id', "")
+            filmIdArray = []
             quality = self.get_arg('quality', 1)
-            Downloader(self).download_movie(filmid, quality)
+            searchId = self.get_arg('searchId', None)
+            if not searchId is None:
+                ex = ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None))
+                filmDataArray = ex.getFilmData(searchId)
+                for id in filmDataArray:
+                    filmIdArray.append(id[0])
+            else:
+                filmIdArray.append(self.get_arg('id', ""))
+            #
+            for id in filmIdArray:
+                Downloader(self).download_movie(id, quality)
+            #
         elif mode == 'downloadep':
-            filmid = self.get_arg('id', "")
+            filmIdArray = []
             quality = self.get_arg('quality', 1)
-            Downloader(self).download_episode(filmid, quality)
+            searchId = self.get_arg('searchId', None)
+            if not searchId is None:
+                ex = ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None))
+                filmDataArray = ex.getFilmData(searchId)
+                for id in filmDataArray:
+                    filmIdArray.append(id[0])
+            else:
+                filmIdArray.append(self.get_arg('id', ""))
+            #
+            for id in filmIdArray:
+                Downloader(self).download_episode(id, quality)
+            #
         elif mode == 'playwithsrt':
             filmid = self.get_arg('id', "")
             Downloader(self).play_movie_with_subs(filmid)

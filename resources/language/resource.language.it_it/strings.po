@@ -248,6 +248,22 @@ msgctxt "#30343"
 msgid "staticViewId"
 msgstr "Usa visualizzazioni predefinite"
 
+msgctxt "#30344"
+msgid "DownloadActionOnExists"
+msgstr "El archivo de descarga existe"
+
+msgctxt "#30345"
+msgid "DownloadActionOnExistsPrompt"
+msgstr "Consulta"
+
+msgctxt "#30346"
+msgid "DownloadActionOnExistsIgnore"
+msgstr "Sigue existiendo"
+
+msgctxt "#30347"
+msgid "DownloadActionOnExistsOverwrite"
+msgstr "Sobrescribir existentes"
+
 #############################
 # Page 4 Extended Search
 #############################

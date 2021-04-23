@@ -116,6 +116,9 @@ class SettingsInterface(object):
     def getMakeInfo(self):
         return 2
 
+    def getFileExistsAction(self):
+        return 1
+
     # FLOW CONTROL
     def is_update_triggered(self):
         return False
