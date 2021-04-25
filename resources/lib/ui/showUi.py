@@ -94,6 +94,31 @@ class ShowUi(object):
                 'show': element[0]
             })
             #
+            contextmenu = []
+            contextmenu.append((
+            self.plugin.language(30922),
+            'RunPlugin({})'.format(
+                self.plugin.build_url({
+                    'mode': "downloadmv",
+                    'channel' : element[1].replace(',', '|'),
+                    'show': element[0]
+                })
+            )
+            ))
+            # Download TV episode
+            contextmenu.append((
+                self.plugin.language(30924),
+                'RunPlugin({})'.format(
+                    self.plugin.build_url({
+                        'mode': "downloadep",
+                        'channel' : element[1].replace(',', '|'),
+                        'show': element[0]
+                    })
+                )
+            ))
+            #
+            list_item.addContextMenuItems(contextmenu)
+            #
             listOfElements.append((targetUrl, list_item, True))
         #
         xbmcplugin.addDirectoryItems(

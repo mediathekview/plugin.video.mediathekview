@@ -117,7 +117,10 @@ class SettingsInterface(object):
         return 2
 
     def getFileExistsAction(self):
-        return 1
+        return 0
+
+    def getDownloadQuality(self):
+        return 0
 
     # FLOW CONTROL
     def is_update_triggered(self):

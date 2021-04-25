@@ -264,6 +264,22 @@ msgctxt "#30347"
 msgid "DownloadActionOnExistsOverwrite"
 msgstr "Overwrite existing"
 
+msgctxt "#30348"
+msgid "DownloadQuality"
+msgstr "Download Quality"
+
+msgctxt "#30349"
+msgid "DownloadQualityHigh"
+msgstr "High"
+
+msgctxt "#30350"
+msgid "DownloadQualityMedium"
+msgstr "Normal"
+
+msgctxt "#30351"
+msgid "DownloadQualityLow"
+msgstr "Low"
+
 #############################
 # Page 4 Extended Search
 #############################
@@ -385,17 +401,9 @@ msgctxt "#30922"
 msgid "Download as Movie"
 msgstr "Download as Movie"
 
-msgctxt "#30923"
-msgid "Download as HD Movie"
-msgstr "Download as HD Movie"
-
 msgctxt "#30924"
 msgid "Download as TV episode"
 msgstr "Download as TV episode"
-
-msgctxt "#30925"
-msgid "Download as HD TV episode"
-msgstr "Download as HD TV episode"
 
 # Search Context Menu
 msgctxt "#30931"

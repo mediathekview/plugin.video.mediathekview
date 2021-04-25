@@ -204,34 +204,28 @@ class MediathekViewPlugin(KodiPlugin):
             ui.generate(self.database.getFilms(channel, show))
             #
         elif mode == 'downloadmv':
-            filmIdArray = []
-            quality = self.get_arg('quality', 1)
-            searchId = self.get_arg('searchId', None)
-            if not searchId is None:
-                ex = ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None))
-                filmDataArray = ex.getFilmData(searchId)
-                for id in filmDataArray:
-                    filmIdArray.append(id[0])
-            else:
-                filmIdArray.append(self.get_arg('id', ""))
+            filmIdArray = self._resolveFilmIdsFromParams(
+                self.get_arg('id', None),
+                self.get_arg('search', None),
+                self.get_arg('searchId', None),
+                self.get_arg('channel', None),
+                self.get_arg('show', None)
+            )
             #
             for id in filmIdArray:
-                Downloader(self).download_movie(id, quality)
+                Downloader(self).download_movie(id)
             #
         elif mode == 'downloadep':
-            filmIdArray = []
-            quality = self.get_arg('quality', 1)
-            searchId = self.get_arg('searchId', None)
-            if not searchId is None:
-                ex = ExtendedSearch(self, self.database, self.get_arg('extendedSearchAction', None), self.get_arg('searchId', None))
-                filmDataArray = ex.getFilmData(searchId)
-                for id in filmDataArray:
-                    filmIdArray.append(id[0])
-            else:
-                filmIdArray.append(self.get_arg('id', ""))
+            filmIdArray = self._resolveFilmIdsFromParams(
+                self.get_arg('id', None),
+                self.get_arg('search', None),
+                self.get_arg('searchId', None),
+                self.get_arg('channel', None),
+                self.get_arg('show', None)
+            )
             #
             for id in filmIdArray:
-                Downloader(self).download_episode(id, quality)
+                Downloader(self).download_episode(id)
             #
         elif mode == 'playwithsrt':
             filmid = self.get_arg('id', "")
@@ -323,6 +317,25 @@ class MediathekViewPlugin(KodiPlugin):
                 self.logger.debug(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
                 self.end_of_directory(False, cache_to_disc=False)
+
+    def _resolveFilmIdsFromParams(self, filmId, quickSearch, searchId, channelId, showId):
+        filmIdArray = []
+        if filmId is not None:
+            filmIdArray.append(filmId)
+        elif quickSearch is not None:
+            rs = self.database.getQuickSearch(quickSearch)
+            for id in rs:
+                filmIdArray.append(id[0])
+        elif searchId is not None:
+            ex = ExtendedSearch(self, self.database, None, searchId)
+            rs = ex.getFilmData(searchId)
+            for id in rs:
+                filmIdArray.append(id[0])
+        elif showId is not None:
+            rs = self.database.getFilms(channelId, showId)
+            for id in rs:
+                filmIdArray.append(id[0])
+        return filmIdArray;
 
     def migrateExtendedSearch(self):
         import resources.lib.mvutils as mvutils

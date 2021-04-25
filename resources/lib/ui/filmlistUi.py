@@ -177,45 +177,19 @@ class FilmlistUi(object):
             'RunPlugin({})'.format(
                 self.plugin.build_url({
                     'mode': "downloadmv",
-                    'id': pFilm.filmid,
-                    'quality': 1
+                    'id': pFilm.filmid
                 })
             )
         ))
-        if pFilm.url_video_hd:
-            # Download HD movie
-            contextmenu.append((
-                self.plugin.language(30923),
-                'RunPlugin({})'.format(
-                    self.plugin.build_url({
-                        'mode': "downloadmv",
-                        'id': pFilm.filmid,
-                        'quality': 2
-                    })
-                )
-            ))
         # Download TV episode
         contextmenu.append((
             self.plugin.language(30924),
             'RunPlugin({})'.format(
                 self.plugin.build_url({
                     'mode': "downloadep",
-                    'id': pFilm.filmid,
-                    'quality': 1
+                    'id': pFilm.filmid
                 })
             )
         ))
-        if pFilm.url_video_hd:
-            # Download HD TV episode
-            contextmenu.append((
-                self.plugin.language(30925),
-                'RunPlugin({})'.format(
-                    self.plugin.build_url({
-                        'mode': "downloadep",
-                        'id': pFilm.filmid,
-                        'quality': 2
-                    })
-                )
-            ))
         return contextmenu
 

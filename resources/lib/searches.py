@@ -149,6 +149,24 @@ class RecentSearches(object):
                                 'search': entry['search']
                             })
                         )
+                    ),
+                    (
+                        self.plugin.language(30922),
+                        'RunPlugin({})'.format(
+                            self.plugin.build_url({
+                                'mode': "downloadmv",
+                                'search': entry['search']
+                            })
+                        )
+                    ),
+                    (
+                        self.plugin.language(30924),
+                        'RunPlugin({})'.format(
+                            self.plugin.build_url({
+                                'mode': "downloadep",
+                                'search': entry['search']
+                            })
+                        )
                     )
                 ],
                 icon=os.path.join(

@@ -117,7 +117,7 @@ class Downloader(object):
                     'Failure downloading {}: {}', film.url_sub, err)
         return ret
 
-    def download_movie(self, filmid, quality):
+    def download_movie(self, filmid):
         """
         Downloads a film as a movie in the movie download
         directory. This implies a specific naming scheme
@@ -126,7 +126,6 @@ class Downloader(object):
         Args:
             filmid(id): database id of the film to download
 
-            quality(int): quality to download (0 = SD, 1 = Normal, 2 = HD)
         """
         self.logger.debug('download_movie')
         if not self._test_download_path(self.settings.getDownloadPathMovie()):
@@ -134,7 +133,7 @@ class Downloader(object):
         film = self.database.retrieve_film_info(filmid)
         if film is None:
             return
-        (filmurl, suffix, extension,) = self._get_film_url_and_extension(film, quality)
+        (filmurl, extension,) = self._get_film_url_and_extension(film)
         # try to create a good name for the downloaded file
         namestem = mvutils.cleanup_filename(film.title)[:80]
         if not namestem:
@@ -156,10 +155,10 @@ class Downloader(object):
         # determine destination path and film filename
         if self.settings.getUseMovieFolder():
             pathname = self.settings.getDownloadPathMovie() + namestem + '/'
-            filename = namestem + suffix
+            filename = namestem
         else:
             pathname = self.settings.getDownloadPathMovie()
-            filename = namestem + suffix
+            filename = namestem
         # check for duplicate
         # keep
         if self.settings.getFileExistsAction() == 1 and xbmcvfs.exists(pathname + filename + extension):
@@ -178,7 +177,7 @@ class Downloader(object):
         else:
             self.logger.debug('download_movie ERROR')
 
-    def download_episode(self, filmid, quality):
+    def download_episode(self, filmid):
         """
         Downloads a film as a series episode in the series
         download directory. This implies a specific naming
@@ -188,7 +187,6 @@ class Downloader(object):
         Args:
             filmid(id): database id of the film to download
 
-            quality(int): quality to download (0 = SD, 1 = Normal, 2 = HD)
         """
         self.logger.debug('download_episode')
         if not self._test_download_path(self.settings.getDownloadPathEpisode()):
@@ -197,7 +195,7 @@ class Downloader(object):
         if film is None:
             return
 
-        (filmurl, suffix, extension,) = self._get_film_url_and_extension(film, quality)
+        (filmurl, extension,) = self._get_film_url_and_extension(film)
 
         # detect season and episode
         (season, episode, fninfo,) = self._season_and_episode_detect(film)
@@ -231,7 +229,7 @@ class Downloader(object):
             xbmcvfs.mkdir(pathname)
 
         filename = showname + ' - ' + fninfo + \
-            namestem + (u' - (%04d)' % sequence) + suffix
+            namestem + (u' - (%04d)' % sequence)
         # download the stuff
         if self._download_files(film, filmurl, pathname, filename, extension):
             self._make_series_nfo_files(
@@ -281,23 +279,20 @@ class Downloader(object):
             return False
         return True
 
-    @staticmethod
-    def _get_film_url_and_extension(film, quality):
-        # get the best url
-        if quality == '0' and film.url_video_sd:
-            suffix = ''
-            filmurl = film.url_video_sd
-        elif quality == '2' and film.url_video_hd:
-            suffix = '.720p'
-            filmurl = film.url_video_hd
+    def _get_film_url_and_extension(self, film):
+        # try best
+        if (self.settings.getDownloadQuality() == 2):
+            filmurl = mvutils.coalesce(film.url_video_hd, film.url_video_sd, film.url_video)
+        elif (self.settings.getDownloadQuality() == 0):
+            filmurl = mvutils.coalesce(film.url_video_sd, film.url_video, film.url_video_hd)
         else:
-            suffix = ''
-            filmurl = film.url_video
+            filmurl = mvutils.coalesce(film.url_video, film.url_video_sd, film.url_video_hd)
+        #
         extension = os.path.splitext(filmurl)[1]
         if extension:
-            return (filmurl, suffix, extension,)
+            return (filmurl, extension,)
         else:
-            return (filmurl, suffix, u'.mp4',)
+            return (filmurl, u'.mp4',)
 
     def _make_movie_nfo_file(self, film, filmurl, pathname, filename):
         self.logger.debug('_make_movie_nfo_file')

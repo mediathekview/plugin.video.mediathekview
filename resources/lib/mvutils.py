@@ -16,6 +16,7 @@ import string
 import json
 from contextlib import closing
 from codecs import open
+from functools import reduce
 
 # pylint: disable=import-error
 try:
@@ -37,6 +38,10 @@ except ImportError:
     IS_KODI = False
 
 PY2 = sys.version_info[0] == 2
+
+
+def coalesce(*arg):
+  return reduce(lambda x, y: x if x is not None else y, arg)
 
 
 def py2_encode(s, encoding='utf-8'):
@@ -146,6 +151,7 @@ def file_remove(name):
         except OSError:
             pass
     return False
+
 
 def file_rename(srcname, dstname):
     """

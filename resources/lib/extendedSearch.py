@@ -239,8 +239,7 @@ class ExtendedSearch(object):
                         'Container.update({})'.format(
                             self.plugin.build_url({
                                 'mode': "downloadmv",
-                                'searchId': str(entry['id']),
-                                'quality': 1
+                                'searchId': str(entry['id'])
                             })
                         )
                     ),
@@ -249,8 +248,7 @@ class ExtendedSearch(object):
                         'Container.update({})'.format(
                             self.plugin.build_url({
                                 'mode': "downloadep",
-                                'searchId': str(entry['id']),
-                                'quality': 1
+                                'searchId': str(entry['id'])
                             })
                         )
                     )
