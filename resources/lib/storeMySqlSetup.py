@@ -47,7 +47,7 @@ CREATE TABLE film (
     url_video      varchar(384)    NULL,
     url_video_sd   varchar(384)    NULL,
     url_video_hd   varchar(384)    NULL
-) ENGINE=InnoDB CHARSET=utf8;
+) ENGINE=InnoDB CHARSET=utf8mb4;
 --
 CREATE INDEX idx_idhash ON film (idhash);
 -- ----------------------------
