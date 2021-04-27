@@ -59,7 +59,7 @@ class UpdateFileImport(object):
     def _importFile(self, targetFilename):
         #
         if not mvutils.file_exists(targetFilename):
-            self.logger.error('File {} does not exists', targetFilename)
+            self.logger.error('File {} does not exists!', targetFilename)
             return False
         # estimate number of records in update file
         fileSizeInByte = mvutils.file_size(targetFilename)
@@ -77,13 +77,13 @@ class UpdateFileImport(object):
             #
             ufp = UpdateFileParser.UpdateFileParser(self.logger, 512000, targetFilename)
             ufp.init()
-            fileHeader = ufp.next(',"X":');
+            fileHeader = ufp.next('"X":');
             # META
             # {"Filmliste":["30.08.2020, 11:13","30.08.2020, 09:13","3","MSearch [Vers.: 3.1.139]","d93c9794acaf3e482d42c24e513f78a8"],"Filmliste":["Sender","Thema","Titel","Datum","Zeit","Dauer","Größe [MB]","Beschreibung","Url","Website","Url Untertitel","Url RTMP","Url Klein","Url RTMP Klein","Url HD","Url RTMP HD","DatumL","Url History","Geo","neu"]
             # this is the timestamp of this database update
             # value = jsonDoc['Filmliste'][0]
             value = fileHeader[15:32]
-            # self.logger.debug( 'update date ' + value )
+            self.logger.debug('update date {}', value)
             try:
                 fldt = datetime.datetime.strptime(value.strip(), "%d.%m.%Y, %H:%M")
                 flts = int(time.mktime(fldt.timetuple()))
@@ -108,14 +108,15 @@ class UpdateFileImport(object):
             recordArray = [];
             #
             while (True):
-                aPart = ufp.next(',"X":');
+                aPart = ufp.next('"X":')
+                aPart = aPart.strip()
                 if (len(aPart) == 0):
                     break;
                 #
-                aPart = '{"X":' + aPart;
-                if (not(aPart.endswith("}"))):
-                    aPart = aPart + "}";
+                aPart = '{"X":' + aPart
+                aPart = aPart[0:-1] + '}'
                 #
+                #self.logger.debug('PARSE {}', aPart)
                 jsonDoc = json.loads(aPart)
                 jsonDoc = jsonDoc['X']
                 self._init_record()
