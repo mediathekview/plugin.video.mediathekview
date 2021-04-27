@@ -16,7 +16,7 @@ class StoreMySQLSetup(object):
         self.logger = appContext.MVLOGGER.get_new_logger('StoreMySQLSetup')
         self.settings = appContext.MVSETTINGS
         self.conn = dbCon
-        self._setupSchema = 'CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8;'.format(self.settings.getDatabaseSchema())
+        self._setupSchema = 'CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8mb4;'.format(self.settings.getDatabaseSchema())
         self._setupScript = """
 -- ----------------------------
 -- DB V2 
