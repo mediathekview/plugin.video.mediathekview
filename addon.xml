@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
     name="MediathekView"
-    version="1.0.2+matrix.1"
+    version="1.0.4+matrix.1"
     provider-name="MediathekView.de, Leo Moll">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
@@ -23,9 +23,13 @@
         <description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
         <description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
         <news>
-v.1.0.2 (2021-xx-xx):
-- [new] 196 download extended search items via context menue
+v.1.0.4 (2021-xx-xx):
+- [fix] Kodi settings for batchSize must be int (Kodi 17 issue)
+- [fix] 197 change connect settings and MySqlDB settings to utf8mb4
+- [new] 196 download all items in one folder via context menue
+- [other] remove HD download option and add config setting for quality
 - [other] Add missing livestream icons (SWR RP / BW)
+- [other] internal update to file parsing
 v.1.0.0 (2021-03-14):
 - [fix] #125 fix for add to favorits
 - [new] #56 simple black list
