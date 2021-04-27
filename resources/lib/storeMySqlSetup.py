@@ -81,7 +81,9 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
             self.logger.debug('MySql Schema does not exists - setup schema')
             cursor = self.conn.getConnection().cursor()
             cursor.execute(self._setupSchema)
+            self.logger.debug("MySql Schema '{}':", self._setupSchema)
             cursor.execute("USE {}".format(self.settings.getDatabaseSchema()))
+            self.logger.debug("Use '{}':", self.settings.getDatabaseSchema())
             cursor.close()
             self.conn.database = self.settings.getDatabaseSchema()
         #
@@ -89,10 +91,10 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
         cursor = con.cursor()
         for result in cursor.execute(self._setupScript, multi=True):
           if result.with_rows:
-            self.logger.debug("Rows produced by statement '{}':".format(result.statement))
+            self.logger.debug("Rows produced by statement '{}':", result.statement)
             self.logger.debug(result.fetchall())
           else:
-            self.logger.debug("Number of rows affected by statement '{}': {}".format(result.statement, result.rowcount))
+            self.logger.debug("Number of rows affected by statement '{}': {}", result.statement, result.rowcount)
         cursor.close()
         con.commit()
         self.logger.debug('End DB setup')
