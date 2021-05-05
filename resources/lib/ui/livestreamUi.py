@@ -53,7 +53,7 @@ class LivestreamUi(object):
         self.startTime = time.time()
         #
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
-        xbmcplugin.setContent(self.handle, 'movies')
+        xbmcplugin.setContent(self.handle, '')
         #
         livestreamModel = Livestream()
         listOfElements = []
