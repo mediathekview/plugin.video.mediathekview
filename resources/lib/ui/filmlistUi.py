@@ -136,7 +136,14 @@ class FilmlistUi(object):
             'resources',
             'icons',
             'sender',
-            pFilm.channel.lower() + '-c.png'
+            pFilm.channel.lower() + '-i.png'
+        )
+        fanart = os.path.join(
+            self.plugin.path,
+            'resources',
+            'icons',
+            'sender',
+            pFilm.channel.lower() + '-f.png'
         )
 
         #
@@ -149,11 +156,8 @@ class FilmlistUi(object):
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({
             'thumb': icon,
-                'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
+            'icon': icon,
+            'fanart': fanart
         })
         return (videourl, listitem)
 

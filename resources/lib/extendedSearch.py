@@ -54,7 +54,6 @@ class ExtendedSearch(object):
             appContext.MVSETTINGS.getDatapath(),
             'searchConfig.json'
         )
-        self.path = appContext.MVSETTINGS.getDatapath()
         self.logger = appContext.MVLOGGER.get_new_logger('ExtendedSearch')
         self.notifier = appContext.MVNOTIFIER
         #
@@ -202,7 +201,8 @@ class ExtendedSearch(object):
         self.plugin.add_folder_item(
             30931,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'NEW'},
-            icon=os.path.join(self.plugin.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.plugin.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'search-f.png')
         )
         #
         for entry in self.recents:
@@ -253,12 +253,8 @@ class ExtendedSearch(object):
                         )
                     )
                 ],
-                icon=os.path.join(
-                    self.plugin.path,
-                    'resources',
-                    'icons',
-                    'results-m.png'
-                )
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'results-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'results-f.png')
             )
         #
         self.plugin.end_of_directory()
@@ -273,7 +269,8 @@ class ExtendedSearch(object):
         self.plugin.add_folder_item(
             30934,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'RUN', 'searchId': extSearchModel.getId()},
-            icon=os.path.join(self.plugin.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.plugin.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'search-f.png')
         )
         #
         self.plugin.add_folder_item(
@@ -284,7 +281,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-NAME'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30403) + " : " + extSearchModel.getShowAsString(),
@@ -294,7 +292,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-SHOW'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30402) + " : " + extSearchModel.getTitleAsString(),
@@ -304,7 +303,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-TITLE'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30404) + " : " + extSearchModel.getDescriptionAsString(),
@@ -314,7 +314,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-DESCRIPTION'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30405) + " : " + extSearchModel.getChannelAsString(),
@@ -324,7 +325,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-CHANNEL'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30408) + " : " + extSearchModel.getExcludeTitleAsString(),
@@ -334,7 +336,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-BLACKLIST'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30406) + " : " + extSearchModel.getMinLengthAsString(),
@@ -344,7 +347,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-MINLENGTH'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.add_folder_item(
                 self.plugin.getCaption(30115) + " : " + extSearchModel.getMaxResultsAsString(),
@@ -354,7 +358,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-MAXROWS'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         if extSearchModel.isIgnoreTrailer():
             languageString = self.plugin.language(30410)
@@ -369,7 +374,8 @@ class ExtendedSearch(object):
                     'extendedSearchAction': 'EDIT-NOFUTURE'
                 },
                 None,
-                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png')
+                icon=os.path.join(self.plugin.path, 'resources', 'icons', 'control-m.png'),
+                fanart=os.path.join(self.plugin.path, 'resources', 'icons', 'control-f.png')
             )
         self.plugin.end_of_directory()
         self.logger.debug('showEntry processed: {} sec', time.time() - start)

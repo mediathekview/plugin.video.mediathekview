@@ -222,7 +222,7 @@ class KodiPlugin(KodiAddon):
         """
         xbmcplugin.setResolvedUrl(self.addon_handle, succeeded, listitem)
 
-    def add_action_item(self, name, params, contextmenu=None, icon=None, thumb=None):
+    def add_action_item(self, name, params, contextmenu=None, icon=None, fanart=None):
         """
         Adds an item to the directory that triggers a plugin action
 
@@ -239,9 +239,9 @@ class KodiPlugin(KodiAddon):
 
             thumb(str, optional): path to an optional thumbnail
         """
-        self.add_directory_item(name, params, False, contextmenu, icon, thumb)
+        self.add_directory_item(name, params, False, contextmenu, icon, fanart)
 
-    def add_folder_item(self, name, params, contextmenu=None, icon=None, thumb=None):
+    def add_folder_item(self, name, params, contextmenu=None, icon=None, fanart=None):
         """
         Adds an item to the directory that opens a subdirectory
 
@@ -256,11 +256,11 @@ class KodiPlugin(KodiAddon):
 
             icon(str, optional): path to an optional icon
 
-            thumb(str, optional): path to an optional thumbnail
+            fanart(str, optional): path to an optional thumbnail
         """
-        self.add_directory_item(name, params, True, contextmenu, icon, thumb)
+        self.add_directory_item(name, params, True, contextmenu, icon, fanart)
 
-    def add_directory_item(self, name, params, isfolder, contextmenu=None, icon=None, thumb=None):
+    def add_directory_item(self, name, params, isfolder, contextmenu=None, icon=None, fanart=None):
         """
         Adds an item to the directory
 
@@ -278,7 +278,7 @@ class KodiPlugin(KodiAddon):
 
             icon(str, optional): path to an optional icon
 
-            thumb(str, optional): path to an optional thumbnail
+            fanart(str, optional): path to an optional thumbnail
         """
         if isinstance(name, int):
             name = self.language(name)
@@ -290,18 +290,15 @@ class KodiPlugin(KodiAddon):
         #
         if contextmenu is not None:
             list_item.addContextMenuItems(contextmenu)
-        if icon is not None or thumb is not None:
+        if icon is not None or fanart is not None:
             if icon is None:
-                icon = thumb
-            if thumb is None:
-                thumb = icon
+                icon = fanart
+            if fanart is None:
+                fanart = icon
             list_item.setArt({
                 'thumb': icon,
                 'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
+                'fanart': fanart
             })
         xbmcplugin.addDirectoryItem(
             handle=self.addon_handle,

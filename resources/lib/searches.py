@@ -174,6 +174,12 @@ class RecentSearches(object):
                     'resources',
                     'icons',
                     'results-m.png'
+                ),
+                fanart=os.path.join(
+                    self.plugin.path,
+                    'resources',
+                    'icons',
+                    'results-f.png'
                 )
             )
         self.logger.debug('populate search: {} sec', time.time() - start)

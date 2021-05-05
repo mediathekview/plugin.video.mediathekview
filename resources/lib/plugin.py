@@ -67,44 +67,51 @@ class MediathekViewPlugin(KodiPlugin):
         self.add_folder_item(
             30901,
             {'mode': "search"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'search-f.png')
         )
         # search
         self.add_folder_item(
             30902,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'SHOW'},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'search-f.png')
         )
         # Browse livestreams
         self.add_folder_item(
             30903,
             {'mode': "livestreams"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'live2-f.png')
         )
         # Browse recently added by channel
         self.add_folder_item(
             30904,
             {'mode': "recentchannels"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'new-f.png')
         )
         # Browse Shows (Channel > Show > Film | Channel > letter > show > Film)
         self.add_folder_item(
             30905,
             {'mode': "channels"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'movie-f.png')
         )
         # Database Information
         self.add_action_item(
             30908,
             {'mode': "action-dbinfo"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'dbinfo-f.png')
         )
         # Manual database update
         if self.settings.getDatabaseUpateMode() == 1 or self.settings.getDatabaseUpateMode() == 2:
             self.add_action_item(
                 30909,
                 {'mode': "action-dbupdate"},
-                icon=os.path.join(self.path, 'resources', 'icons', 'download-m.png')
+                icon=os.path.join(self.path, 'resources', 'icons', 'download-m.png'),
+                fanart=os.path.join(self.path, 'resources', 'icons', 'download-f.png')
             )
         #
         self.end_of_directory()
@@ -159,7 +166,8 @@ class MediathekViewPlugin(KodiPlugin):
             self.add_folder_item(
                 30906,
                 {'mode': 'recent' },
-                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
+                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png'),
+                fanart=os.path.join(self.path, 'resources', 'icons', 'broadcast-f.png')
             )
             ui = ChannelUi.ChannelUi(self, 'recent')
             ui.generate(self.database.getChannelsRecent())
@@ -168,7 +176,8 @@ class MediathekViewPlugin(KodiPlugin):
             self.add_folder_item(
                 30906,
                 {'mode': 'initial' },
-                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
+                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png'),
+                fanart=os.path.join(self.path, 'resources', 'icons', 'broadcast-f.png')
             )
             #
             ui = ChannelUi.ChannelUi(self, 'shows')
@@ -283,7 +292,8 @@ class MediathekViewPlugin(KodiPlugin):
         self.add_folder_item(
             30931,
             {'mode': "newsearch"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'search-f.png')
         )
         RecentSearches(self).load().populate()
         self.end_of_directory()
