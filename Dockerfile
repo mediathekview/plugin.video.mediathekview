@@ -1,4 +1,4 @@
-FROM linuxserver/mariadb
+FROM ghcr.io/linuxserver/mariadb
 
 # fill variables from linuxserver/mariadb with mediathekview default (https://docs.linuxserver.io/images/docker-mariadb)
 ENV MYSQL_DATABASE='mediathekview'
@@ -11,10 +11,9 @@ ENV CRON_TIMESPEC="0 4-22/1 * * *"
 ENV RUN_ON_STARTUP='no'
 
 # install dependencies
-RUN apt update -y && \
-    apt install python3-pip cron vim -y && \
-    apt autoclean -y && \
-    apt autoremove -y
+RUN apk update && apk upgrade && \
+    apk add py3-pip apk-cron vim && \
+    rm -rf /var/cache/apk/*
 
 RUN pip3 install mysql-connector-python
 
