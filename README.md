@@ -8,6 +8,7 @@ Kodi MediathekView.de Addon
 [2]: https://forum.kodi.tv/showthread.php?tid=326799
 [3]: https://github.com/mediathekview/plugin.video.mediathekview/issues
 [4]: https://github.com/mediathekview/plugin.video.mediathekview
+[5]: https://github.com/mediathekview/kodi-repos
 
 Über dieses Addon
 -----------------
@@ -79,10 +80,15 @@ allerdings nicht möglich eine abschließende Kompatibilitätsaussage zu machen.
 Installation
 ---------------------
 
-Das Mediathekviewplugin kann für Kodi 17, Kodi 18 und Kodi 19 aus den jeweiligen
-offiziellen Repository installiert werden.
+Das Mediathekviewplugin kann für Kodi 17, Kodi 18 und Kodi 19 aus eigens dafür
+angelegten Repositories bezogen werden. So können stable releases oder auch Beta-Versionen
+automatisch bezogen werden.
+
+Ein ausführliche Beschreibung findet sich im [GITHUB Repository][5]
+
 Beim bauen aus GITHUB, muss man die addon.xml entsprechend anpassen (Kodi 17 &
-Kodi 18 > addon.kodi18.xml / Kodi 19 > addon.kodi19.xml).
+Kodi 18 > addon.kodi18.xml / Kodi 19 > addon.kodi19.xml). Dies ist aber nicht empfohlen,
+da so Updates und Fixes von Hand installiert werden müssen.
 
 
 Funktionsweise der Aktualisierungsmethoden
@@ -327,10 +333,14 @@ possible to make a final compatibility statement.
 Install
 -------------------
 
-The Mediathekview plug-in can be used for Kodi 17, Kodi 18 and Kodi 19 from the respective
-official repository.
+The Mediathekview plug-in can be used for Kodi 17, Kodi 18 and Kodi 19. There are
+individual repositories for stable releases and beta-versions.
+
+Please check the [GITHUB Repository][5] for further details.
+
 When building from GITHUB, you have to adapt the addon.xml accordingly (Kodi 17 &
-Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml)
+Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml). This is not recommanded,
+since you will need to install updates and fixes on your own.
 
 
 How the update methods work
@@ -557,10 +567,13 @@ possibile fare una dichiarazione finale di compatibilità.
 Install
 -------------------
 
-Il plug-in Mediathekview può essere utilizzato per Kodi 17, Kodi 18 e Kodi 19 dai rispettivi
-repository ufficiale.
-Quando si compila da GITHUB, è necessario adattare di conseguenza addon.xml (Kodi 17 &
-Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml)
+Il plugin Mediathekview può essere utilizzato per Kodi 17, Kodi 18 e Kodi 19 da singoli repository.
+
+Si prega di controllare il [GITHUB Repository] [5] per maggiori dettagli.
+
+Quando si compila da GITHUB, è necessario adattare addon.xml di conseguenza (Kodi 17 e
+Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml). Questo non è consigliato, 
+poiché dovrai installare l'aggiornamento e le correzioni da solo.
 
 
 Come funzionano i metodi di aggiornamento
