@@ -16,7 +16,7 @@ class StoreMySQLSetup(object):
         self.logger = appContext.MVLOGGER.get_new_logger('StoreMySQLSetup')
         self.settings = appContext.MVSETTINGS
         self.conn = dbCon
-        self._setupSchema = 'CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8;'.format(self.settings.getDatabaseSchema())
+        self._setupSchema = 'CREATE DATABASE IF NOT EXISTS `{}` DEFAULT CHARACTER SET utf8mb4;'.format(self.settings.getDatabaseSchema())
         self._setupScript = """
 -- ----------------------------
 -- DB V2 
@@ -47,7 +47,7 @@ CREATE TABLE film (
     url_video      varchar(384)    NULL,
     url_video_sd   varchar(384)    NULL,
     url_video_hd   varchar(384)    NULL
-) ENGINE=InnoDB CHARSET=utf8;
+) ENGINE=InnoDB CHARSET=utf8mb4;
 --
 CREATE INDEX idx_idhash ON film (idhash);
 -- ----------------------------
@@ -55,7 +55,7 @@ CREATE INDEX idx_idhash ON film (idhash);
 -- ----------------------------
 DROP TABLE IF EXISTS status;
 CREATE TABLE status (
-    status          varchar(255)    NOT NULL,
+    status          varchar(191)    NOT NULL,
     lastupdate      int(11)         NOT NULL,
     lastFullUpdate  int(11)         NOT NULL,
     filmupdate      int(11)         NOT NULL,
