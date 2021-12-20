@@ -29,7 +29,7 @@ v.1.0.5 (2021-xx-xx):
 - [fix] #197 change connect settings and MySqlDB settings to utf8mb4
 - [new] #196 download all items in one folder via context menue
 - [other] remove HD download option and add config setting for quality
-- [other] Add missing livestream icons (SWR RP / BW)
+- [other] Add missing livestream icons (SWR RP / BW / Arte EN)
 - [other] internal update to file parsing
 v.1.0.0 (2021-03-14):
 - [fix] #125 fix for add to favorits
