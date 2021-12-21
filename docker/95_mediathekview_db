@@ -37,4 +37,4 @@ else
 fi
 
 echo "[mediathekview_db] Start cron"
-/usr/sbin/cron -f -L 1 &
+/usr/sbin/crond -f -L 1 &
