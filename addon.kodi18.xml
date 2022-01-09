@@ -26,9 +26,10 @@
 		<news>
 v.1.0.6 (2021-xx-xx):
 - [new] #194 landscape fanart and changed content id to video
+- [new] #196 download all items in one folder via context menue
 - [fix] Kodi settings for batchSize must be int (Kodi 17 issue)
 - [fix] #197 change connect settings and MySqlDB settings to utf8mb4
-- [new] #196 download all items in one folder via context menue
+- [other] Removed sqlite custom functions
 - [other] Update Dockerfile - Linuxserver.io changed the mariadb baseimage
 - [other] remove HD download option and add config setting for quality
 - [other] Add missing livestream icons (SWR RP / BW / Arte EN)

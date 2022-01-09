@@ -156,7 +156,7 @@ class MediathekViewPlugin(KodiPlugin):
             #
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
+            channel = "" if channel == "0" else channel
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getRecentFilms(channel))
             # self.database.get_recents(channel, FilmUI(self))
@@ -194,9 +194,9 @@ class MediathekViewPlugin(KodiPlugin):
             ui.generate(self.database.getStartLettersOfShows())
         elif mode == 'shows':
             channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
+            channel = "" if channel == "0" else channel
             initial = self.get_arg('initial', "")
-            initial == "" if initial == "0" else initial
+            initial = "" if initial == "0" else initial
             # self.database.get_shows(channel, initial, ShowUI(self))
             ui = ShowUi.ShowUi(self)
             if initial == "":
@@ -205,9 +205,9 @@ class MediathekViewPlugin(KodiPlugin):
                 ui.generate(self.database.getShowsByLetter(initial))
         elif mode == 'films':
             show = self.get_arg('show', "")
-            show == "" if show == "0" else show
+            show = "" if show == "0" else show
             channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
+            channel = "" if channel == "0" else channel
             # self.database.get_films(show, FilmUI(self))
             ui = FilmlistUi.FilmlistUi(self, pLongTitle=False)
             ui.generate(self.database.getFilms(channel, show))
