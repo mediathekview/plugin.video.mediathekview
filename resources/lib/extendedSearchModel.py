@@ -288,19 +288,22 @@ class ExtendedSearchModel(object):
     #
     def generateRecentCondition(self):
         sql = ""
+        params = []
         if self.isRecentOnly():
-            sql = "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format(
-                "aired" if self.settings.getRecentMode() == 0 else "dtCreated",
-                self.settings.getMaxAge()
+            sql = "({} > ?)".format(
+                "aired" if self.settings.getRecentMode() == 0 else "dtCreated"
             )
-        return sql
+            params.append( ( int( time.time() ) - self.settings.getMaxAge() ) )
+        return (sql, params)
 
     #
     def generateIgnoreTrailer(self):
         sql = ""
+        params = []
         if self.isIgnoreTrailer():
-            sql += "( aired < UNIX_TIMESTAMP() )"
-        return sql
+            sql += "( aired < ? )"
+            params.append(int(time.time()))
+        return (sql, params)
 
     #
     def generateMinLength(self):
