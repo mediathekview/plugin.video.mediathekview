@@ -196,7 +196,7 @@ class MediathekViewPlugin(KodiPlugin):
             channel = self.get_arg('channel', "")
             channel = "" if channel == "0" else channel
             initial = self.get_arg('initial', "")
-            initial = "" if initial == "0" else initial
+            #initial = "" if initial == "0" else initial
             # self.database.get_shows(channel, initial, ShowUI(self))
             ui = ShowUi.ShowUi(self)
             if initial == "":
