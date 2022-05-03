@@ -84,7 +84,7 @@ Das Mediathekviewplugin kann für Kodi 17, Kodi 18 und Kodi 19 aus eigens dafür
 angelegten Repositories bezogen werden. So können stable releases oder auch Beta-Versionen
 automatisch bezogen werden.
 
-Ein ausführliche Beschreibung findet sich im [GITHUB Repository][5]
+Ein ausführliche Beschreibung zur Installation und die ZIP-Dateien sind im [Mediathekview GITHUB Repository][5] abgelegt.
 
 Beim bauen aus GITHUB, muss man die addon.xml entsprechend anpassen (Kodi 17 &
 Kodi 18 > addon.kodi18.xml / Kodi 19 > addon.kodi19.xml). Dies ist aber nicht empfohlen,
@@ -93,7 +93,7 @@ da so Updates und Fixes von Hand installiert werden müssen.
 **Anmerkung**:
 Da das Mediathekviewplugin nicht mehr über das offizielle Kodi 18 oder Kodi 19 Repository
 angeboten wird, muss es als ZIP-Datei installiert werden.
-Die ZIP-Datei kann von [hier (mediathekview/kodi-repos)](https://github.com/mediathekview/kodi-repos) geladen werden.
+
 
 
 Funktionsweise der Aktualisierungsmethoden
@@ -341,7 +341,7 @@ Install
 The Mediathekview plug-in can be used for Kodi 17, Kodi 18 and Kodi 19. There are
 individual repositories for stable releases and beta-versions.
 
-Please check the [GITHUB Repository][5] for further details.
+Please check the [GITHUB Repository][5] for further details and repository ZIP-Files.
 
 When building from GITHUB, you have to adapt the addon.xml accordingly (Kodi 17 &
 Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml). This is not recommanded,
@@ -350,7 +350,6 @@ since you will need to install updates and fixes on your own.
 **Note**:
 Since the Mediathekview plug-in no longer available on the official Kodi 18 or Kodi 19 Repository
 , it must be installed from a ZIP file.
-The ZIP file can be loaded from [here (MediathekView/kodi-repos)](https://github.com/mediathekview/kodi-repos).
 
 
 How the update methods work
