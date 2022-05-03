@@ -38,7 +38,7 @@ class LetterUi(object):
         self.startTime = time.time()
         #
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
-        xbmcplugin.setContent(self.handle, 'movies')
+        xbmcplugin.setContent(self.handle, '')
         #
         letterModel = Letter()
         listOfElements = []
@@ -60,13 +60,17 @@ class LetterUi(object):
                 'letter',
                 'letter-' + letterModel.letter + '-m.png'
             )
+            fanart = os.path.join(
+                self.plugin.path,
+                'resources',
+                'icons',
+                'letter',
+                'letter-' + letterModel.letter + '-f.png'
+            )
             list_item.setArt({
                 'thumb': icon,
                 'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
+                'fanart': fanart
             })
             #
             info_labels = {

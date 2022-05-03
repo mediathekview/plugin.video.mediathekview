@@ -23,11 +23,8 @@ class StoreQuery(object):
         self.settings = appContext.MVSETTINGS
         self._cache = StoreCache()
         self.sql_query_films = "SELECT idhash, title, showname, channel, description, duration, aired, url_sub, url_video, url_video_sd, url_video_hd FROM film"
-        self.sql_cond_recent = "( ( UNIX_TIMESTAMP() - {} ) <= {} )".format(
-            "aired" if self.settings.getRecentMode() == 0 else "dtCreated",
-            self.settings.getMaxAge()
-        )
-        self.sql_cond_nofuture = " AND ( aired < UNIX_TIMESTAMP() )" if self.settings.getNoFutur() else ""
+        self.sql_cond_recent = "({} > {})".format("aired" if self.settings.getRecentMode() == 0 else "dtCreated",(int(time.time())-self.settings.getMaxAge()))
+        self.sql_cond_nofuture = " AND ( aired < {} )".format(int(time.time())) if self.settings.getNoFutur() else ""
         self.sql_cond_minlength = " AND ( duration >= %d )" % (self.settings.getMinLength() * 60) if self.settings.getMinLength() > 0 else ""
         # IMPORT SQL
         self.sql_pStmtInsert = """
@@ -161,13 +158,15 @@ class StoreQuery(object):
         if minLengthCondition != '':
             sql += ' AND ' + minLengthCondition
         # no future
-        noTrailerCondition = esModel.generateIgnoreTrailer()
+        (noTrailerCondition, noTrailerParams) = esModel.generateIgnoreTrailer()
         if noTrailerCondition != '':
             sql += " AND " + noTrailerCondition
+            params.extend(noTrailerParams)
         #
-        recentOnlyCondition = esModel.generateRecentCondition()
+        (recentOnlyCondition, recentParams) = esModel.generateRecentCondition()
         if recentOnlyCondition != '':
             sql += " AND " + recentOnlyCondition
+            params.extend(recentParams)
         #
         sql += ' ORDER BY aired DESC '
         #
@@ -205,7 +204,8 @@ class StoreQuery(object):
         esModel = ExtendedSearchModel.ExtendedSearchModel('')
         esModel.setShow(searchTerm)
         esModel.setTitle(searchTerm)
-        cacheKey = searchTerm + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateMaxRows()
+        #cacheKey = searchTerm + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateMaxRows()
+        cacheKey = esModel.getCacheKey()
         cached_data = self._cache.load_cache('quickSearch', cacheKey)
         if cached_data is not None:
             rs = cached_data;
@@ -244,7 +244,8 @@ class StoreQuery(object):
         esModel.setRecentOnly(1)
         esModel.setChannel(channelId)
         #
-        cacheKey = channelId + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateRecentCondition() + esModel.generateMaxRows()
+        #cacheKey = channelId + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateRecentCondition() + esModel.generateMaxRows()
+        cacheKey = esModel.getCacheKey()
         cached_data = self._cache.load_cache('recentFilms', cacheKey)
         if cached_data is not None:
             rs = cached_data
@@ -267,7 +268,8 @@ class StoreQuery(object):
         esModel.setChannel(channel)
         esModel.setShowId(showIds)
         #
-        cacheKey = channel + showIds + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateRecentCondition() + esModel.generateMaxRows()
+        #cacheKey = channel + showIds + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateRecentCondition() + esModel.generateMaxRows()
+        cacheKey = esModel.getCacheKey()
         cached_data = self._cache.load_cache('films', cacheKey)
         if cached_data is not None:
             rs = cached_data
@@ -373,9 +375,9 @@ class StoreQuery(object):
         #
         try:
             if self.settings.getGroupShow():
-                sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film WHERE (CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
+                sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film WHERE (CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
             else:
-                sql = "SELECT showid, channel as channelId, showname, channel FROM film WHERE (CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
+                sql = "SELECT showid, channel as channelId, showname, channel FROM film WHERE (CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
             # duration filter
             sql += self.sql_cond_nofuture
             # no future
@@ -406,7 +408,7 @@ class StoreQuery(object):
         self.logger.debug('getStartLettersOfShows')
         #
         try:
-            sql = "SELECT CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END, COUNT(DISTINCT(SHOWID)) FROM film where (1=1) "
+            sql = "SELECT CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END, COUNT(DISTINCT(SHOWID)) FROM film where (1=1) "
             # recent
             # sql += " AND " + self.sql_cond_recent
             # duration filter
@@ -414,8 +416,8 @@ class StoreQuery(object):
             # no future
             sql += self.sql_cond_minlength
             #
-            sql += " GROUP BY CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END"
-            sql += " ORDER BY CASE WHEN SUBSTR(showname,1,1) between 'A' and 'Z' THEN SUBSTR(showname,1,1) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END asc"
+            sql += " GROUP BY CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END"
+            sql += " ORDER BY CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END asc"
             #
             cached_data = self._cache.load_cache('letters', sql)
             if cached_data is not None:

@@ -43,7 +43,7 @@ class ChannelUi(object):
         self.startTime = time.time()
         #
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
-        xbmcplugin.setContent(self.handle, 'movies')
+        xbmcplugin.setContent(self.handle, '')
         #
         channelModel = Channel()
         listOfElements = []
@@ -65,15 +65,19 @@ class ChannelUi(object):
                 'resources',
                 'icons',
                 'sender',
-                channelModel.channelId.lower() + '-c.png'
+                channelModel.channelId.lower() + '-i.png'
+            )
+            fanart = os.path.join(
+                self.plugin.path,
+                'resources',
+                'icons',
+                'sender',
+                channelModel.channelId.lower() + '-f.png'
             )
             list_item.setArt({
                 'thumb': icon,
                 'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
+                'fanart': fanart
             })
 
             info_labels = {

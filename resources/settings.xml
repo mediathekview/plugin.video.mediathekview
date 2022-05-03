@@ -19,7 +19,7 @@
 		<setting id="updnative"			type="bool"		label="30233"	default="true"				visible="eq(-6,0)"		/>
 		<setting id="updmode"			type="enum"		label="30231"	default="3"	lvalues="30241|30242|30243|30244|30245"	/>
 		<setting id="updinterval"		type="slider"	label="30232"	default="2"	range="1,24"	visible="gt(-1,2)"		/>
-		<setting id="updateBatchSize"   type="slider"   label="30235"   default="10000" range="1000,100000"                 />
+		<setting id="updateBatchSize"   type="slider"   label="30235"   default="10000" range="1000,100000" option="int"    />
 	</category>
 	<category label="30003">
 		<setting id="downloadpathep"	type="folder"	label="30310"	source="auto"	option="writeable"					/>
@@ -29,6 +29,9 @@
 		<setting id="reviewname"		type="bool"		label="30314"	default="false"										/>
 		<setting id="downloadsrt"		type="bool"		label="30315"	default="true"										/>
 		<setting id="makenfo"			type="enum"		label="30316"	default="2"		lvalues="30340|30341|30342"			/>
+		<setting id="fileExistsAction"  type="enum"     label="30344"   default="0"     lvalues="30345|30346|30347"         />
+		<setting id="downloadQuality"   type="enum"     label="30348"   default="0"     lvalues="30351|30350|30349"         />
+		
     </category>
     <category label="30004">
         <setting id="updateCheckInterval" type="slider" label="30118"   default="30"    range="10,60" option="int"          />

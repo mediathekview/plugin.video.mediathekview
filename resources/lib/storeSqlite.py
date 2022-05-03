@@ -40,10 +40,8 @@ class StoreSQLite(StoreQuery):
             self.conn = sqlite3.connect(self.dbfile, timeout=60)
             self.conn.execute('pragma synchronous=off')
             self.conn.execute('pragma journal_mode=off')
-            self.conn.execute('pragma page_size=65536')
+            self.conn.execute('pragma page_size=16384')
             self.conn.execute('pragma encoding="UTF-8"')
-            self.conn.create_function('UNIX_TIMESTAMP', 0, get_unix_timestamp)
-            self.conn.create_aggregate('GROUP_CONCAT', 1, GroupConcatClass)
         return self.conn
 
     def exit(self):
@@ -67,32 +65,3 @@ class StoreSQLite(StoreQuery):
             'version': self.settings.getDatabaseVersion()
         }
         return updateStatus
-
-
-class GroupConcatClass(object):
-    """ Aggregate class for SQLite """
-
-    def __init__(self):
-        self.value = ''
-
-    def step(self, value):
-        """
-        Accumulates the values to aggregate
-
-        Args:
-            value(any): Value to aggregate
-        """
-        if value is not None:
-            if self.value == '':
-                self.value = '{0}'.format(value)
-            else:
-                self.value = '{0},{1}'.format(self.value, value)
-
-    def finalize(self):
-        """ Returns the aggregated value """
-        return self.value
-
-
-def get_unix_timestamp():
-    """ User defined function for SQLite """
-    return int(time.time())

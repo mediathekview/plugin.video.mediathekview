@@ -71,7 +71,7 @@ class MediathekViewUpdater(object):
             currentDate.month == lastUpdateDatetime.month and
             currentDate.year == lastUpdateDatetime.year)
         #
-        self.logger.info('Last Update {}', datetime.fromtimestamp(databaseStatus['lastUpdate']))
+        self.logger.debug('Last Update {}', datetime.fromtimestamp(databaseStatus['lastUpdate']))
         self.logger.debug('Last Full Update {}', datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
         self.logger.debug('version {}', databaseStatus['version'])
         self.logger.debug('status {}', databaseStatus['status'])
@@ -113,7 +113,7 @@ class MediathekViewUpdater(object):
             doSomething = -1
         #
         if (doSomething == 0):
-            self.logger.info('nothing to do')
+            self.logger.debug('nothing to do')
             return
         #
         lastFullUpdate = datetime.fromtimestamp(databaseStatus['lastFullUpdate'])

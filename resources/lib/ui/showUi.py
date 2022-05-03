@@ -56,7 +56,14 @@ class ShowUi(object):
                     'resources',
                     'icons',
                     'sender',
-                    element[1].lower() + '-c.png'
+                    element[1].lower() + '-i.png'
+                )
+                fanart = os.path.join(
+                    self.plugin.path,
+                    'resources',
+                    'icons',
+                    'sender',
+                    element[1].lower() + '-f.png'
                 )
             else:
                 nameLabel = element[2] + ' [' + element[3] + ']';
@@ -65,6 +72,12 @@ class ShowUi(object):
                     'resources',
                     'icons',
                     'default2-m.png'
+                )
+                fanart = os.path.join(
+                    self.plugin.path,
+                    'resources',
+                    'icons',
+                    'default2-f.png'
                 )
             #
             if self.plugin.get_kodi_version() > 17:
@@ -76,10 +89,7 @@ class ShowUi(object):
             list_item.setArt({
                 'thumb': icon,
                 'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
+                'fanart': fanart
             })
 
             info_labels = {
@@ -93,6 +103,31 @@ class ShowUi(object):
                 'channel' : element[1].replace(',', '|'),
                 'show': element[0]
             })
+            #
+            contextmenu = []
+            contextmenu.append((
+            self.plugin.language(30922),
+            'RunPlugin({})'.format(
+                self.plugin.build_url({
+                    'mode': "downloadmv",
+                    'channel' : element[1].replace(',', '|'),
+                    'show': element[0]
+                })
+            )
+            ))
+            # Download TV episode
+            contextmenu.append((
+                self.plugin.language(30924),
+                'RunPlugin({})'.format(
+                    self.plugin.build_url({
+                        'mode': "downloadep",
+                        'channel' : element[1].replace(',', '|'),
+                        'show': element[0]
+                    })
+                )
+            ))
+            #
+            list_item.addContextMenuItems(contextmenu)
             #
             listOfElements.append((targetUrl, list_item, True))
         #

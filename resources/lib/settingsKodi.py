@@ -176,6 +176,14 @@ class SettingsKodi(SettingsInterface):
     def getMakeInfo(self):
         return int(self._addonClass.getSetting('makenfo'))
 
+    # prompt / keep / overwrite
+    def getFileExistsAction(self):
+        return int(self._addonClass.getSetting('fileExistsAction'))
+
+    # low / med / high
+    def getDownloadQuality(self):
+        return int(self._addonClass.getSetting('downloadQuality'))
+
     # RUNTIME
     def is_update_triggered(self):
         return self._addonClass.getSetting('updatetrigger') == 'true'

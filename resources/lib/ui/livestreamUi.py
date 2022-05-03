@@ -53,13 +53,13 @@ class LivestreamUi(object):
         self.startTime = time.time()
         #
         xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
-        xbmcplugin.setContent(self.handle, 'movies')
+        xbmcplugin.setContent(self.handle, '')
         #
         livestreamModel = Livestream()
         listOfElements = []
         #
         for element in databaseRs:
-            livestreamModel.init(element[1], element[8])
+            livestreamModel.init(element[3], element[1], element[8])
             #
             videourl = livestreamModel.url + self.settings.getUserAgentString()
             #
@@ -68,14 +68,9 @@ class LivestreamUi(object):
                 'sorttitle': livestreamModel.name.lower()
             }
             #
-            iconFile = livestreamModel.name.replace(' ', '') + '.png'
-            icon = os.path.join(
-                self.plugin.path,
-                'resources',
-                'icons',
-                'livestream',
-                iconFile
-            )
+            livestreamName = livestreamModel.name.replace(' ', '')
+            fanArt = self._findIconName(livestreamModel.channel, livestreamName) + '-f.png'
+            icon = self._findIconName(livestreamModel.channel, livestreamName) + '-i.png'
             #
             if self.plugin.get_kodi_version() > 17:
                 listitem = xbmcgui.ListItem(label=livestreamModel.name, path=videourl, offscreen=True)
@@ -85,12 +80,9 @@ class LivestreamUi(object):
             listitem.setInfo(type='video', infoLabels=info_labels)
             listitem.setProperty('IsPlayable', 'true')
             listitem.setArt({
-                    'thumb': icon,
-                    'icon': icon,
-                    'banner': icon,
-                    'fanart': icon,
-                    'clearart': icon,
-                    'clearlogo': icon
+                'thumb': icon,
+                'icon': icon,
+                'fanart': fanArt
             })
             #
             listOfElements.append((videourl, listitem, False))
@@ -105,3 +97,58 @@ class LivestreamUi(object):
         self.plugin.setViewId(self.plugin.resolveViewId('THUMBNAIL'))
         #
         self.logger.debug('generated: {} sec', time.time() - self.startTime)
+
+    def _findIconName(self, pchannel, pName):
+        liveStreamMap = {
+                "3SatLivestream": None,
+                "ARDLivestream":None,
+                "ARDAlphaLivestream":"ardalpha",
+                "ARDONELivestream":"one",
+                "ARDTagesschauLivestream":"tagesschau24",
+                "ARTE.DELivestream":None,
+                "ARTE.FRLivestream":None,
+                "BRNordLivestream":None,
+                "BRSüdLivestream":None,
+                "DWLivestream":None,
+                "HRLivestream":None,
+                "KiKALivestream":None,
+                "MDRSachsenLivestream":"mdr-s",
+                "MDRSachsen-AnhaltLivestream":"mdr-sa",
+                "MDRThüringenLivestream":"mdr-th",
+                "NDRHamburg":None,
+                "NDRMecklenburg-Vorpommern":None,
+                "NDRNiedersachsen":None,
+                "NDRSchleswig-Holstein":None,
+                "ORF-1Livestream":"orf1",
+                "ORF-2Livestream":"orf2",
+                "ORF-3Livestream":"orf3",
+                "ORF-SportLivestream":"orfsport",
+                "PHOENIXLivestream":None,
+                "RBBBrandenburgLivestream":None,
+                "RBBBerlinLivestream":None,
+                "SRLivestream":None,
+                "SWRBWLivestream":None,
+                "SWRRPLivestream":None,
+                "WDRLivestream":None,
+                "ZDFLivestream":None,
+                "ZDF.infoLivestream":"zdf.info",
+                "ZDF.neoLivestream":"zdf.neo",
+            }
+        altPath = liveStreamMap.get(pName)
+        if altPath is not None:
+            altPath = os.path.join(
+                self.plugin.path,
+                'resources',
+                'icons',
+                'livestream',
+                altPath,
+            )
+        else:
+            altPath = os.path.join(
+                self.plugin.path,
+                'resources',
+                'icons',
+                'sender',
+                pchannel.lower(),
+            )
+        return altPath

@@ -136,7 +136,14 @@ class FilmlistUi(object):
             'resources',
             'icons',
             'sender',
-            pFilm.channel.lower() + '-c.png'
+            pFilm.channel.lower() + '-i.png'
+        )
+        fanart = os.path.join(
+            self.plugin.path,
+            'resources',
+            'icons',
+            'sender',
+            pFilm.channel.lower() + '-f.png'
         )
 
         #
@@ -149,11 +156,8 @@ class FilmlistUi(object):
         listitem.setProperty('IsPlayable', 'true')
         listitem.setArt({
             'thumb': icon,
-                'icon': icon,
-                'banner': icon,
-                'fanart': icon,
-                'clearart': icon,
-                'clearlogo': icon
+            'icon': icon,
+            'fanart': fanart
         })
         return (videourl, listitem)
 
@@ -177,45 +181,19 @@ class FilmlistUi(object):
             'RunPlugin({})'.format(
                 self.plugin.build_url({
                     'mode': "downloadmv",
-                    'id': pFilm.filmid,
-                    'quality': 1
+                    'id': pFilm.filmid
                 })
             )
         ))
-        if pFilm.url_video_hd:
-            # Download HD movie
-            contextmenu.append((
-                self.plugin.language(30923),
-                'RunPlugin({})'.format(
-                    self.plugin.build_url({
-                        'mode': "downloadmv",
-                        'id': pFilm.filmid,
-                        'quality': 2
-                    })
-                )
-            ))
         # Download TV episode
         contextmenu.append((
             self.plugin.language(30924),
             'RunPlugin({})'.format(
                 self.plugin.build_url({
                     'mode': "downloadep",
-                    'id': pFilm.filmid,
-                    'quality': 1
+                    'id': pFilm.filmid
                 })
             )
         ))
-        if pFilm.url_video_hd:
-            # Download HD TV episode
-            contextmenu.append((
-                self.plugin.language(30925),
-                'RunPlugin({})'.format(
-                    self.plugin.build_url({
-                        'mode': "downloadep",
-                        'id': pFilm.filmid,
-                        'quality': 2
-                    })
-                )
-            ))
         return contextmenu
 

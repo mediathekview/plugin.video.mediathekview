@@ -67,44 +67,51 @@ class MediathekViewPlugin(KodiPlugin):
         self.add_folder_item(
             30901,
             {'mode': "search"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'search-f.png')
         )
         # search
         self.add_folder_item(
             30902,
             {'mode': "extendedSearchScreen", 'extendedSearchAction': 'SHOW'},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'search-f.png')
         )
         # Browse livestreams
         self.add_folder_item(
             30903,
             {'mode': "livestreams"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'live2-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'live2-f.png')
         )
         # Browse recently added by channel
         self.add_folder_item(
             30904,
             {'mode': "recentchannels"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'new-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'new-f.png')
         )
         # Browse Shows (Channel > Show > Film | Channel > letter > show > Film)
         self.add_folder_item(
             30905,
             {'mode': "channels"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'movie-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'movie-f.png')
         )
         # Database Information
         self.add_action_item(
             30908,
             {'mode': "action-dbinfo"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'dbinfo-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'dbinfo-f.png')
         )
         # Manual database update
         if self.settings.getDatabaseUpateMode() == 1 or self.settings.getDatabaseUpateMode() == 2:
             self.add_action_item(
                 30909,
                 {'mode': "action-dbupdate"},
-                icon=os.path.join(self.path, 'resources', 'icons', 'download-m.png')
+                icon=os.path.join(self.path, 'resources', 'icons', 'download-m.png'),
+                fanart=os.path.join(self.path, 'resources', 'icons', 'download-f.png')
             )
         #
         self.end_of_directory()
@@ -149,7 +156,7 @@ class MediathekViewPlugin(KodiPlugin):
             #
         elif mode == 'recent':
             channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
+            channel = "" if channel == "0" else channel
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getRecentFilms(channel))
             # self.database.get_recents(channel, FilmUI(self))
@@ -159,7 +166,8 @@ class MediathekViewPlugin(KodiPlugin):
             self.add_folder_item(
                 30906,
                 {'mode': 'recent' },
-                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
+                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png'),
+                fanart=os.path.join(self.path, 'resources', 'icons', 'broadcast-f.png')
             )
             ui = ChannelUi.ChannelUi(self, 'recent')
             ui.generate(self.database.getChannelsRecent())
@@ -168,7 +176,8 @@ class MediathekViewPlugin(KodiPlugin):
             self.add_folder_item(
                 30906,
                 {'mode': 'initial' },
-                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png')
+                icon=os.path.join(self.path, 'resources', 'icons', 'broadcast-m.png'),
+                fanart=os.path.join(self.path, 'resources', 'icons', 'broadcast-f.png')
             )
             #
             ui = ChannelUi.ChannelUi(self, 'shows')
@@ -185,9 +194,9 @@ class MediathekViewPlugin(KodiPlugin):
             ui.generate(self.database.getStartLettersOfShows())
         elif mode == 'shows':
             channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
+            channel = "" if channel == "0" else channel
             initial = self.get_arg('initial', "")
-            initial == "" if initial == "0" else initial
+            #initial = "" if initial == "0" else initial
             # self.database.get_shows(channel, initial, ShowUI(self))
             ui = ShowUi.ShowUi(self)
             if initial == "":
@@ -196,21 +205,37 @@ class MediathekViewPlugin(KodiPlugin):
                 ui.generate(self.database.getShowsByLetter(initial))
         elif mode == 'films':
             show = self.get_arg('show', "")
-            show == "" if show == "0" else show
+            show = "" if show == "0" else show
             channel = self.get_arg('channel', "")
-            channel == "" if channel == "0" else channel
+            channel = "" if channel == "0" else channel
             # self.database.get_films(show, FilmUI(self))
             ui = FilmlistUi.FilmlistUi(self, pLongTitle=False)
             ui.generate(self.database.getFilms(channel, show))
             #
         elif mode == 'downloadmv':
-            filmid = self.get_arg('id', "")
-            quality = self.get_arg('quality', 1)
-            Downloader(self).download_movie(filmid, quality)
+            filmIdArray = self._resolveFilmIdsFromParams(
+                self.get_arg('id', None),
+                self.get_arg('search', None),
+                self.get_arg('searchId', None),
+                self.get_arg('channel', None),
+                self.get_arg('show', None)
+            )
+            #
+            for id in filmIdArray:
+                Downloader(self).download_movie(id)
+            #
         elif mode == 'downloadep':
-            filmid = self.get_arg('id', "")
-            quality = self.get_arg('quality', 1)
-            Downloader(self).download_episode(filmid, quality)
+            filmIdArray = self._resolveFilmIdsFromParams(
+                self.get_arg('id', None),
+                self.get_arg('search', None),
+                self.get_arg('searchId', None),
+                self.get_arg('channel', None),
+                self.get_arg('show', None)
+            )
+            #
+            for id in filmIdArray:
+                Downloader(self).download_episode(id)
+            #
         elif mode == 'playwithsrt':
             filmid = self.get_arg('id', "")
             Downloader(self).play_movie_with_subs(filmid)
@@ -267,7 +292,8 @@ class MediathekViewPlugin(KodiPlugin):
         self.add_folder_item(
             30931,
             {'mode': "newsearch"},
-            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png')
+            icon=os.path.join(self.path, 'resources', 'icons', 'search-m.png'),
+            fanart=os.path.join(self.path, 'resources', 'icons', 'search-f.png')
         )
         RecentSearches(self).load().populate()
         self.end_of_directory()
@@ -301,6 +327,25 @@ class MediathekViewPlugin(KodiPlugin):
                 self.logger.debug(
                     'The following ERROR can be ignored. It is caused by the architecture of the Kodi Plugin Engine')
                 self.end_of_directory(False, cache_to_disc=False)
+
+    def _resolveFilmIdsFromParams(self, filmId, quickSearch, searchId, channelId, showId):
+        filmIdArray = []
+        if filmId is not None:
+            filmIdArray.append(filmId)
+        elif quickSearch is not None:
+            rs = self.database.getQuickSearch(quickSearch)
+            for id in rs:
+                filmIdArray.append(id[0])
+        elif searchId is not None:
+            ex = ExtendedSearch(self, self.database, None, searchId)
+            rs = ex.getFilmData(searchId)
+            for id in rs:
+                filmIdArray.append(id[0])
+        elif showId is not None:
+            rs = self.database.getFilms(channelId, showId)
+            for id in rs:
+                filmIdArray.append(id[0])
+        return filmIdArray;
 
     def migrateExtendedSearch(self):
         import resources.lib.mvutils as mvutils
