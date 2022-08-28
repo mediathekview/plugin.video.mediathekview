@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.0.9"
+	version="1.0.10"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -24,6 +24,11 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.0.10 (2022-08-28):
+- [other] channel icons turned monochrome mimicing the top corner icon during live TV broadcasting - thx@Ch1llb0
+- [other] streamline non-channel icon style - thx@Ch1llb0
+- [other] make all icons feature high resolution - thx@Ch1llb0
+- [other] minor fixes (renaming icons, adding missing ones) - thx@Ch1llb0
 v.1.0.9 (2022-05-03):
 - [new] #194 landscape fanart and changed content id to video
 - [new] #196 download all items in one folder via context menue
@@ -45,7 +50,6 @@ v.1.0.0 (2021-03-14):
 - [other] Navigation for all channels moved into channel view
 - [other] Settings split into general (UI settings) and advanced settings for UI behaviour
 - [other] Code restructring
-
 v.0.6.6 (2020-11-21)
 </news>
 		<platform>all</platform>
