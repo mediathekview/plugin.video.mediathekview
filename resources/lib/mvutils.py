@@ -14,6 +14,7 @@ import sys
 import stat
 import string
 import json
+import datetime
 from contextlib import closing
 from codecs import open
 from functools import reduce
@@ -94,6 +95,8 @@ def dict_to_utf(d):
             dutf[k] = v
     return dutf
 
+def unixtimestamp2iso(uxtimestamp):
+    return datetime.datetime.fromtimestamp(uxtimestamp).strftime('%Y-%m-%d %H:%M:%S')
 
 def dir_exists(name):
     """

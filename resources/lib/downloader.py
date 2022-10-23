@@ -311,16 +311,11 @@ class Downloader(object):
                         bytearray('\t<plot>{}</plot>\n'.format(film.description), 'utf-8'))
                     nfofile.write(
                         bytearray('\t<studio>{}</studio>\n'.format(film.channel), 'utf-8'))
-                    aired = self._matches(
-                        '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', str(film.aired))
-                    if aired is not None:
-                        nfofile.write(
-                            bytearray('\t<aired>{}</aired>\n'.format(aired), 'utf-8'))
-                    year = self._matches(
-                        '([12][0-9][0-9][0-9])', str(film.aired))
-                    if year is not None:
-                        nfofile.write(
-                            bytearray('\t<year>{}</year>\n'.format(year), 'utf-8'))
+                    airedIso = mvutils.unixtimestamp2iso(film.aired)
+                    nfofile.write(
+                            bytearray('\t<aired>{}</aired>\n'.format(airedIso[0:10]), 'utf-8'))
+                    nfofile.write(
+                            bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
                     if film.seconds > 60:
                         nfofile.write(
                             bytearray(
@@ -342,9 +337,6 @@ class Downloader(object):
         # See: https://kodi.wiki/view/NFO_files/TV_shows
         # pylint: disable=broad-except
         if self.settings.getMakeInfo() > 0:
-            aired = self._matches(
-                '([12][0-9][0-9][0-9].[0-9][0-9].[0-9][0-9])', str(film.aired))
-            year = self._matches('([12][0-9][0-9][0-9])', str(film.aired))
             if not xbmcvfs.exists(pathname + 'tvshow.nfo'):
                 try:
                     # bug of pylint 1.7.1 - See https://github.com/PyCQA/pylint/issues/1444
@@ -358,9 +350,9 @@ class Downloader(object):
                             bytearray('\t<sorttitle>{}</sorttitle>\n'.format(film.show), 'utf-8'))
                         nfofile.write(
                             bytearray('\t<studio>{}</studio>\n'.format(film.channel), 'utf-8'))
-                        if year is not None:
-                            nfofile.write(
-                                bytearray('\t<year>{}</year>\n'.format(year), 'utf-8'))
+                        airedIso = mvutils.unixtimestamp2iso(film.aired)
+                        nfofile.write(
+                            bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
                         nfofile.write(bytearray('</tvshow>\n', 'utf-8'))
                 except Exception as err:
                     self.logger.error(
@@ -394,12 +386,13 @@ class Downloader(object):
                         bytearray('\t<showtitle>{}</showtitle>\n'.format(film.show), 'utf-8'))
                     nfofile.write(
                         bytearray('\t<plot>{}</plot>\n'.format(film.description), 'utf-8'))
-                    if aired is not None:
+                    airedIso = mvutils.unixtimestamp2iso(film.aired)
+                    if airedIso is not None:
                         nfofile.write(
-                            bytearray('\t<aired>{}</aired>\n'.format(aired), 'utf-8'))
-                    if year is not None:
+                            bytearray('\t<aired>{}</aired>\n'.format(airedIso[0:10]), 'utf-8'))
+                    if airedIso is not None:
                         nfofile.write(
-                            bytearray('\t<year>{}</year>\n'.format(year), 'utf-8'))
+                            bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
                     if film.seconds > 60:
                         nfofile.write(
                             bytearray(
