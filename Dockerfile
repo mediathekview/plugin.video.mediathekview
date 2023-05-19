@@ -12,7 +12,7 @@ ENV RUN_ON_STARTUP='no'
 
 # install dependencies
 RUN apk update && apk upgrade && \
-    apk add py3-pip apk-cron vim && \
+    apk add py3-pip apk-cron vim sqlite3 && \
     rm -rf /var/cache/apk/*
 
 RUN pip3 install mysql-connector-python

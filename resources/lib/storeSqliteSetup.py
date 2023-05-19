@@ -34,10 +34,10 @@ CREATE TABLE "film" (
      "aired" integer(11,0),
      "duration" integer(11,0),
      "description" TEXT(1024,0) COLLATE NOCASE,
-     "url_sub" TEXT(384,0),
-     "url_video" TEXT(384,0),
-     "url_video_sd" TEXT(384,0),
-     "url_video_hd" TEXT(384,0)
+     "url_sub" TEXT(2048,0),
+     "url_video" TEXT(2048,0),
+     "url_video_sd" TEXT(2048,0),
+     "url_video_hd" TEXT(2048,0)
 );
 -- ----------------------------
 CREATE INDEX idx_idhash ON film (idhash);

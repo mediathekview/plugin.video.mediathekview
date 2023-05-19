@@ -80,19 +80,19 @@ allerdings nicht möglich eine abschließende Kompatibilitätsaussage zu machen.
 Installation
 ---------------------
 
-Das Mediathekviewplugin kann für Kodi 17, Kodi 18 und Kodi 19 aus eigens dafür
+Das Mediathekviewplugin kann für Kodi (17-20) aus eigens dafür
 angelegten Repositories bezogen werden. So können stable releases oder auch Beta-Versionen
 automatisch bezogen werden.
 
 Ein ausführliche Beschreibung zur Installation und die ZIP-Dateien sind im [Mediathekview GITHUB Repository][5] abgelegt.
 
 Beim bauen aus GITHUB, muss man die addon.xml entsprechend anpassen (Kodi 17 &
-Kodi 18 > addon.kodi18.xml / Kodi 19 > addon.kodi19.xml). Dies ist aber nicht empfohlen,
+Kodi 18 > addon.kodi18.xml / Kodi 19 & Kodi 20 > addon.kodi19.xml). Dies ist aber nicht empfohlen,
 da so Updates und Fixes von Hand installiert werden müssen.
 
 **Anmerkung**:
-Da das Mediathekviewplugin nicht mehr über das offizielle Kodi 18 oder Kodi 19 Repository
-angeboten wird, muss es als ZIP-Datei installiert werden.
+Da das Mediathekviewplugin nicht mehr über das offizielle Kodi Repository
+angeboten und muss über das eigene Mediathek Repo installiert werden.
 
 
 
@@ -218,10 +218,10 @@ Die Standalone Datenbank inkl. regelmäßiger Aktualisierung (Cronjob) über `mv
 
 **Container bauen:**
 
-Zunächst muss das Repository als zip heruntergeladen und enpackt oder via git clone auf den Rechner mit installierten docker gebracht werden. Danach in das Verseichnis `plugin.video.mediathekview` gehen und das Container Image erstellen:
+Zunächst muss das Repository als zip heruntergeladen und enpackt oder via git clone auf den Rechner mit installierten docker gebracht werden. Dann im Verzeichnis `plugin.video.mediathekview` das Container Image erstellen:
 
 ````
-docker build -t mediathekview-kodi-db .
+docker build --no-cache -t mediathekview-kodi-db .
 ````
 
 
@@ -264,6 +264,8 @@ docker run -d \
 
 
 **Hinweise:**
+* In der Powershell werden mehrzeilige Befehle mit ` (Backtickle) dargestellt
+* Je nach GIT Einstellung werden Dateien mit Windows LN ausgecheckt. Ggf. müssen die Scripte geprüft werden.
 * Die Log-Ausgabe von `mvupdate3` wird im Docker-Log teilweise erst nach Abschluss der Aktualisierung angezeigt.
 * Um Speicherplatz zu sparen kann das binlog der maria-db abgeschaltet werden. Dazu in `/config/custom.cnf` die Zeile `log_bin = /config/log/mysql/mariadb-bin` durch `skip-log-bin` ersetzen. Weitere Informationen zum Thema binlog gibt es [hier](https://mariadb.com/kb/en/binary-log/).
 
@@ -338,18 +340,18 @@ possible to make a final compatibility statement.
 Install
 -------------------
 
-The Mediathekview plug-in can be used for Kodi 17, Kodi 18 and Kodi 19. There are
+The Mediathekview plug-in can be used for Kodi (17-20). There are
 individual repositories for stable releases and beta-versions.
 
 Please check the [GITHUB Repository][5] for further details and repository ZIP-Files.
 
 When building from GITHUB, you have to adapt the addon.xml accordingly (Kodi 17 &
-Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml). This is not recommanded,
+Kodi 18> addon.kodi18.xml / Kodi 19 & Kodi 20> addon.kodi19.xml). This is not recommanded,
 since you will need to install updates and fixes on your own.
 
 **Note**:
-Since the Mediathekview plug-in no longer available on the official Kodi 18 or Kodi 19 Repository
-, it must be installed from a ZIP file.
+Since the Mediathekview plug-in no longer available on the official Kodi Repository
+, it must be installed from the Mediathek Repository.
 
 
 How the update methods work
@@ -576,12 +578,12 @@ possibile fare una dichiarazione finale di compatibilità.
 Install
 -------------------
 
-Il plugin Mediathekview può essere utilizzato per Kodi 17, Kodi 18 e Kodi 19 da singoli repository.
+Il plugin Mediathekview può essere utilizzato per Kodi (17-20) da singoli repository.
 
 Si prega di controllare il [GITHUB Repository] [5] per maggiori dettagli.
 
 Quando si compila da GITHUB, è necessario adattare addon.xml di conseguenza (Kodi 17 e
-Kodi 18> addon.kodi18.xml / Kodi 19> addon.kodi19.xml). Questo non è consigliato, 
+Kodi 18> addon.kodi18.xml / Kodi 19 & Kodi 20 > addon.kodi19.xml). Questo non è consigliato, 
 poiché dovrai installare l'aggiornamento e le correzioni da solo.
 
 
