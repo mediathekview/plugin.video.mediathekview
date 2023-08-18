@@ -12,6 +12,14 @@
 		library="addon.py">
 		<provides>video</provides>
 	</extension>
+	<extension point="kodi.context.item">
+	  <menu id="kodi.core.main">
+	    <item library="contextMenu.py" args="command_arg">
+	      <label>30005</label>
+	      <visible>Window.IsVisible(tvguide)|Window.IsVisible(tvsearch)</visible>
+	    </item>
+	  </menu>
+	</extension>
 	<extension
 		point="xbmc.service"
 		library="service.py"
@@ -24,6 +32,9 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.0.14 (2023-08-18):
+- [new] jump to MV from EPG context
+- [new] support VTT Subs
 v.1.0.13 (2023-05-19):
 - [fix] extend url max size
 v.1.0.12 (2022-10-23):

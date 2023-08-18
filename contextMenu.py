@@ -10,7 +10,12 @@ SPDX-License-Identifier: MIT
 import sys
 import xbmc
 import resources.lib.mvutils as mvutils
-from urllib.parse import urlencode
+try:
+    # Python 3.x
+    from urllib.parse import urlencode
+except ImportError:
+    # Python 2.x
+    from urllib import urlencode
 
 if __name__ == '__main__':
     params = {"mode":"research", "doNotSave":"true", "search" : sys.listitem.getLabel()}
