@@ -33,10 +33,15 @@ msgctxt "#30004"
 msgid "Advanced Settings"
 msgstr "Avanzate"
 
+msgctxt "#30005"
+msgid "Jump to Mediathekview"
+msgstr "cerca nel Mediathek"
+
 # Settings Page 1
 msgctxt "#30110"
 msgid "Prefer HD streams"
 msgstr "Preferisci alta definizione"
+
 
 msgctxt "#30111"
 msgid "Autoplay Subtitles"

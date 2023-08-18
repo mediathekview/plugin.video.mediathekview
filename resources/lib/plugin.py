@@ -139,7 +139,8 @@ class MediathekViewPlugin(KodiPlugin):
             search = self.get_arg('search', '')
             ui = FilmlistUi.FilmlistUi(self)
             ui.generate(self.database.getQuickSearch(search))
-            RecentSearches(self).load().add(search).save()
+            if self.get_arg('doNotSave', 'false') == 'false':
+                RecentSearches(self).load().add(search).save()
             #
         elif mode == 'delsearch':
             search = self.get_arg('search', '')

@@ -33,6 +33,10 @@ msgctxt "#30004"
 msgid "Advanced Settings"
 msgstr "Erweitert"
 
+msgctxt "#30005"
+msgid "Jump to Mediathekview"
+msgstr "In Mediathekview suchen"
+
 # Settings Page 1
 msgctxt "#30110"
 msgid "Prefer HD streams"
