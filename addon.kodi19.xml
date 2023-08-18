@@ -34,6 +34,7 @@
 v.1.0.14 (2023-08-18):
 - [new] jump to MV from EPG context
 - [new] support VTT Subs
+- [fix] channel icon rbtv - radio bremen tv
 v.1.0.13 (2023-05-19):
 - [fix] extend url max size
 v.1.0.12 (2022-10-23):

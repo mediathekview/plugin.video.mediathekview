@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.0.14+matrix.1"
+	version="1.0.14"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
-		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="xbmc.python" version="2.25.0"/>
 		<import addon="script.module.myconnpy" version="1.1.7"/>
 	</requires>
 	<extension
@@ -22,7 +22,8 @@
 	</extension>
 	<extension
 		point="xbmc.service"
-		library="service.py"/>
+		library="service.py"
+		start="startup" />
 	<extension point="xbmc.addon.metadata">
 		<summary lang="de_DE">Öffentlich-Rechtliche Mediatheken</summary>
 		<summary lang="en_GB">Public service video-platforms</summary>
@@ -34,6 +35,7 @@
 v.1.0.14 (2023-08-18):
 - [new] jump to MV from EPG context
 - [new] support VTT Subs
+- [fix] channel icon rbtv - radio bremen tv
 v.1.0.13 (2023-05-19):
 - [fix] extend url max size
 v.1.0.12 (2022-10-23):
