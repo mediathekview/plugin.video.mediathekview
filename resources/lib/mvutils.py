@@ -329,6 +329,35 @@ def _chunked_url_copier(src, dst, reporthook, chunk_size, aborthook):
     # abort requested
     raise ExitRequested('Reception interrupted.')
 
+def readTextFile( pFilename, pEncoding='utf-8'):
+    """
+    Read a file into a string
+
+    Args:
+        pFilename(str): the source file to read
+
+        encoding(str): the destination filename
+
+    """
+    with closing(open(pFilename, 'r', encoding=pEncoding)) as txtFile:
+        data = txtFile.read()
+    return data
+
+def writeTextFile( pFilename, pText, pEncoding='utf-8'):
+    """
+    Read a file into a string
+
+    Args:
+        pFilename(str): the target file to write to
+
+        pText(str): txt data
+        
+        encoding(str): Encoding by default utf-8
+
+    """
+    with closing(open(pFilename, 'w', encoding=pEncoding)) as txtFile:
+        data = txtFile.write(pText)
+    
 
 def loadJsonFile(filename):
     #
@@ -352,3 +381,4 @@ def saveJsonFile(filename, pData):
         return False
     #
     return True
+

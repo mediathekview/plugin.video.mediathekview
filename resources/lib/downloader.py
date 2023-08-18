@@ -25,6 +25,7 @@ from resources.lib.kodi.kodiui import KodiProgressDialog
 from resources.lib.model.film import Film
 from resources.lib.ui.filmlistUi import FilmlistUi
 from resources.lib.ttml2srt import ttml2srt
+from resources.lib.vtt2srt import vtt2srt
 
 
 class Downloader(object):
@@ -96,17 +97,24 @@ class Downloader(object):
         self.logger.debug('download_subtitle')
         ret = False
         if film.url_sub:
+            self.logger.debug('found subtitle {}',film.url_sub)
+            self.logger.debug('download to tmp file {}',ttmname)
             progress = KodiProgressDialog()
-            progress.create(30978, filename + u'.ttml')
+            progress.create(30978, filename)
             # pylint: disable=broad-except
             try:
                 progress.update(0)
-                mvutils.url_retrieve_vfs(
-                    film.url_sub, ttmname, progress.url_retrieve_hook)
+                mvutils.url_retrieve(film.url_sub, ttmname, progress.url_retrieve_hook)
                 try:
-                    ttml2srtConverter = ttml2srt()
-                    ttml2srtConverter.do(xbmcvfs.File(ttmname, 'r'),
-                             xbmcvfs.File(srtname, 'w'))
+                    if film.url_sub.endswith('vtt'):
+                        self.logger.debug('convert CTT subtitle')
+                        vtt2srtConverter = vtt2srt()
+                        srtFormat = vtt2srtConverter.convertContent( mvutils.readTextFile( ttmname))
+                        mvutils.writeTextFile( srtname, srtFormat)
+                    else:
+                        self.logger.debug('convert TTML subtitle')
+                        ttml2srtConverter = ttml2srt()
+                        ttml2srtConverter.do(xbmcvfs.File(ttmname, 'r'), xbmcvfs.File(srtname, 'w'))
                     ret = True
                 except Exception as err:
                     self.logger.error('Failed to convert to srt: {}', err)
