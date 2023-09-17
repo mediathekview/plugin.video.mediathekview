@@ -68,8 +68,8 @@ class MediathekViewService(KodiService):
                     self.logger.debug('database change from {} to {}', self._lastDatabaseType, self.settings.getDatabaseType())
                     self._lastDatabaseType = self.settings.getDatabaseType()
                     self.updater.database.get_status()
-
-                self.updater.doUpdate()
+                if self.settings.getDatabaseUpateMode() > 0:
+                    self.updater.doUpdate()
                 self.errorCount = 0
             except Exception as err:
                 self.logger.error('MediathekViewUpdater {}', err)
