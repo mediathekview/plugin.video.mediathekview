@@ -31,6 +31,9 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
+v.1.1.0 (2023-10-09):
+- [new] Update build via github actions
+- [new] Removed service startup (Kodi17)
 v.1.0.15 (2023-09-17):
 - [fix] disable client on updatemode disabled #229
 v.1.0.14 (2023-08-18):
