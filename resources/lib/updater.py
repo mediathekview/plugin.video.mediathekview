@@ -145,11 +145,14 @@ class MediathekViewUpdater(object):
                 self.logger.debug('full update')
                 if (not(mvutils.file_exists(os.path.join(self.settings.getDatapath() , 'Filmliste-akt')))): 
                     ufd.downloadFullUpdateFile()
+                    downloadFullUpdate = True
                 else:
                     ufd._filename = os.path.join(self.settings.getDatapath() , 'Filmliste-akt')
                     self.logger.debug('use existing full update file')
+                    downloadFullUpdate = False
                 UpdateFileImport(ufd.getTargetFilename(), self.database).updateFull()
-                ufd.removeDownloads()
+                if (downloadFullUpdate):
+                    ufd.removeDownloads()
                 #
                 self.database.set_status('IDLE', pLastupdate=int(time.time()), pLastFullUpdate=int(time.time()))
                 #
