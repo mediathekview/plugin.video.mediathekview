@@ -12,8 +12,12 @@ ENV RUN_ON_STARTUP='no'
 
 # install dependencies
 RUN apk update && apk upgrade && \
-    apk add py3-pip apk-cron vim sqlite && \
+    apk add py3-virtualenv py3-pip apk-cron vim sqlite && \
     rm -rf /var/cache/apk/*
+
+# create Python virtual environment
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 RUN pip3 install mysql-connector-python
 
