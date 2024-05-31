@@ -121,10 +121,10 @@ class FilmlistUi(object):
         }
 
         if pFilm.seconds is not None and pFilm.seconds > 0:
-            info_labels['duration'] = pFilm.seconds
+            info_labels['duration'] = float(pFilm.seconds)
 
         if pFilm.aired is not None and pFilm.aired != 0:
-            ndate = self.tzBase + timedelta(seconds=(pFilm.aired))
+            ndate = self.tzBase + timedelta(seconds=float(pFilm.aired))
             airedstring = ndate.isoformat().replace('T', ' ')
             info_labels['date'] = airedstring[:10]
             info_labels['aired'] = airedstring[:10]

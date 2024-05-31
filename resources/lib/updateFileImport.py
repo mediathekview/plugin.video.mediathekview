@@ -17,7 +17,7 @@ import resources.lib.appContext as appContext
 from contextlib import closing
 from codecs import open
 
-import json
+import simplejson as json
 
 import resources.lib.mvutils as mvutils
 

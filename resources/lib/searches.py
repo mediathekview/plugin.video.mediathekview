@@ -6,7 +6,7 @@ SPDX-License-Identifier: MIT
 """
 
 import os
-import json
+import simplejson as json
 import time
 import resources.lib.appContext as appContext
 

@@ -20,6 +20,7 @@ RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN pip3 install mysql-connector-python
+RUN pip3 install simplejson
 
 #cop mediathekview plugin
 WORKDIR /plugin.video.mediathekview

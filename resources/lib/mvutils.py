@@ -13,7 +13,7 @@ import re
 import sys
 import stat
 import string
-import json
+import simplejson as json
 import datetime
 from contextlib import closing
 from codecs import open

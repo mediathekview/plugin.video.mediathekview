@@ -7,7 +7,7 @@ SPDX-License-Identifier: MIT
 """
 
 # -- Imports ------------------------------------------------
-import json
+import simplejson as json
 from contextlib import closing
 from codecs import open
 
