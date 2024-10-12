@@ -57,7 +57,6 @@ class UpdateFileImport(object):
         self._update_end()
 
     def _importFile(self, targetFilename):
-        #
         if not mvutils.file_exists(targetFilename):
             self.logger.error('File {} does not exists!', targetFilename)
             return False
@@ -65,19 +64,19 @@ class UpdateFileImport(object):
         fileSizeInByte = mvutils.file_size(targetFilename)
         records = int(fileSizeInByte / 600)
         self.logger.info('Starting import of approximately {} records from {}', records, targetFilename)
-        #
+
         # pylint: disable=broad-except
         try:
             flsm = 0
             flts = 0
-            #
+
             sender = ""
             thema = ""
             self.notifier.show_update_progress()
-            #
+
             ufp = UpdateFileParser.UpdateFileParser(self.logger, 512000, targetFilename)
             ufp.init()
-            fileHeader = ufp.next('"X":');
+            fileHeader = ufp.next('"X":')
             # META
             # {"Filmliste":["30.08.2020, 11:13","30.08.2020, 09:13","3","MSearch [Vers.: 3.1.139]","d93c9794acaf3e482d42c24e513f78a8"],"Filmliste":["Sender","Thema","Titel","Datum","Zeit","Dauer","Größe [MB]","Beschreibung","Url","Website","Url Untertitel","Url RTMP","Url Klein","Url RTMP Klein","Url HD","Url RTMP HD","DatumL","Url History","Geo","neu"]
             # this is the timestamp of this database update
@@ -101,22 +100,21 @@ class UpdateFileImport(object):
                 except Exception as err:
                     # If the universe hates us...
                     self.logger.debug('Could not determine date "{}" of filmliste: {}', value.strip(), err)
-            except ValueError as err:
+            except ValueError:
                 pass
 
-            #
-            recordArray = [];
-            #
+            recordArray = []
+
             while (True):
                 aPart = ufp.next('"X":')
                 aPart = aPart.strip()
                 if (len(aPart) == 0):
-                    break;
-                #
+                    break
+
                 aPart = '{"X":' + aPart
                 aPart = aPart[0:-1] + '}'
-                #
-                #self.logger.debug('PARSE {}', aPart)
+
+                # self.logger.debug('PARSE {}', aPart)
                 jsonDoc = json.loads(aPart)
                 jsonDoc = jsonDoc['X']
                 self._init_record()
@@ -130,16 +128,16 @@ class UpdateFileImport(object):
                     thema = jsonDoc[1][:128]
                 else:
                     jsonDoc[1] = thema
-                #
+
                 self.film['channel'] = sender
                 self.film['show'] = thema
                 self.film["title"] = jsonDoc[2][:128]
-                #
+
                 if len(jsonDoc[3]) == 10:
                     self.film["aired"] = jsonDoc[3][6:] + '-' + jsonDoc[3][3:5] + '-' + jsonDoc[3][:2]
                     if (len(jsonDoc[4]) == 8):
                         self.film["aired"] = self.film["aired"] + " " + jsonDoc[4]
-                #
+
                 if len(jsonDoc[5]) > 0:
                     self.film["duration"] = jsonDoc[5]
                 if len(jsonDoc[7]) > 0:
@@ -233,7 +231,9 @@ class UpdateFileImport(object):
         self._init_record()
 
     def _update_end(self):
-        self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {} deleted: {}', self.count, int(time.time() - self.startTime), self.updateCount, self.insertCount, self.deletedCount)
+        self.logger.info('{} records processed in {} sec. Updated: {} Inserted: {} deleted: {}',
+                         self.count, int(time.time() - self.startTime),
+                         self.updateCount, self.insertCount, self.deletedCount)
 
     def _init_record(self):
         self.film["channel"] = ""

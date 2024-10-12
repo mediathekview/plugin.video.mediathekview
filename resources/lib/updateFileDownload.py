@@ -24,8 +24,6 @@ from contextlib import closing
 from codecs import open
 
 import resources.lib.mvutils as mvutils
-
-# from resources.lib.utils import *
 from resources.lib.exceptions import ExitRequested
 
 # -- Unpacker support ---------------------------------------
@@ -79,47 +77,44 @@ class UpdateFileDownload(object):
         mvutils.file_remove(self._filename)
 
     def downloadIncrementalUpdateFile(self):
-        #
         ext = self._getExtension()
         downloadUrl = FILMLISTE_URL + FILMLISTE_DIF + ext
-        self._compressedFilename = os.path.join(self.settings.getDatapath() , FILMLISTE_DIF + ext)
-        self._filename = os.path.join(self.settings.getDatapath() , FILMLISTE_DIF)
-        #
+        self._compressedFilename = os.path.join(self.settings.getDatapath(), FILMLISTE_DIF + ext)
+        self._filename = os.path.join(self.settings.getDatapath(), FILMLISTE_DIF)
+
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
-        #
+
         return check
 
     def downloadFullUpdateFile(self):
-        #
         ext = self._getExtension()
         downloadUrl = FILMLISTE_URL + FILMLISTE_AKT + ext
-        self._compressedFilename = os.path.join(self.settings.getDatapath() , FILMLISTE_AKT + ext)
-        self._filename = os.path.join(self.settings.getDatapath() , FILMLISTE_AKT)
-        #
+        self._compressedFilename = os.path.join(self.settings.getDatapath(), FILMLISTE_AKT + ext)
+        self._filename = os.path.join(self.settings.getDatapath(), FILMLISTE_AKT)
+
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
-        #
+
         if check:
             filesize = mvutils.file_size(self._filename)
             if filesize < 200000000:
                 raise Exception('FullUpdate file size {} smaller than allowed (200MB)'.format(filesize))
-        #
+
         return check
 
     def downloadSqliteDb(self):
         ext = self._getExtension()
         downloadUrl = DATABASE_URL + DATABASE_DBF + ext
-        self._compressedFilename = os.path.join(self.settings.getDatapath() , 'tmp_' + DATABASE_DBF + ext)
-        self._filename = os.path.join(self.settings.getDatapath() , 'tmp_' + DATABASE_DBF)
-        self._Dbfilename = os.path.join(self.settings.getDatapath() , DATABASE_DBF)
+        self._compressedFilename = os.path.join(self.settings.getDatapath(), 'tmp_' + DATABASE_DBF + ext)
+        self._filename = os.path.join(self.settings.getDatapath(), 'tmp_' + DATABASE_DBF)
+        self._Dbfilename = os.path.join(self.settings.getDatapath(), DATABASE_DBF)
 
-        #
         check = self._download(downloadUrl, self._compressedFilename, self._filename)
-        #
+
         if check:
             filesize = mvutils.file_size(self._filename)
             if filesize < 200000000:
                 raise Exception('FullUpdate file size {} smaller than allowed (200MB)'.format(filesize))
-        #
+
         return check
 
     def updateSqliteDb(self):
@@ -153,7 +148,7 @@ class UpdateFileDownload(object):
         # pylint: disable=broad-except
         try:
             self.logger.debug('Trying to download {} from {}...',
-                             os.path.basename(compressedFilename), url)
+                              os.path.basename(compressedFilename), url)
             self.notifier.update_download_progress(0, url)
             mvutils.url_retrieve(
                 url,
@@ -237,7 +232,7 @@ class UpdateFileDownload(object):
                     mvutils.file_remove(destfile)
                     retval = subprocess.call([gzip_binary, '-d', sourcefile])
                     self.logger.debug('Calling {} -d {} returned {}',
-                                     gzip_binary, sourcefile, retval)
+                                      gzip_binary, sourcefile, retval)
                     return retval
                 except Exception as err:
                     self.logger.error(
