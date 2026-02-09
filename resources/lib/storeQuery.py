@@ -122,6 +122,11 @@ class StoreQuery(object):
         sql = self.sql_query_films
         sql += ' WHERE (1=1)'
         #
+        (quickSearchCondition, quickSearchParams) = esModel.generateQuickSearch()
+        if (quickSearchCondition != ''):
+            sql += ' AND ' + quickSearchCondition
+            params.extend(quickSearchParams)
+        #
         (mixedSearchCondition, mixedSearchParams) = esModel.generateShowTitleDescription()
         if (mixedSearchCondition != ''):
             sql += ' AND ' + mixedSearchCondition
@@ -202,8 +207,8 @@ class StoreQuery(object):
         self.logger.debug('getQuickSearch')
         #
         esModel = ExtendedSearchModel.ExtendedSearchModel('')
-        esModel.setShow(searchTerm)
-        esModel.setTitle(searchTerm)
+        esModel.setQuick(searchTerm)
+
         #cacheKey = searchTerm + esModel.generateMinLength() + esModel.generateIgnoreTrailer() + esModel.generateMaxRows()
         cacheKey = esModel.getCacheKey()
         cached_data = self._cache.load_cache('quickSearch', cacheKey)
