@@ -17,23 +17,13 @@ class ExtendedSearchModel(object):
         self.logger = appContext.MVLOGGER.get_new_logger('ExtendedSearchModel')
         self.settings = appContext.MVSETTINGS
         self.id = int(time.time())
+        self.reset()
         self.name = pName
-        self.channel = []
-        self.title = []
         self.setShow(pName)
-        self.showId = []
-        self.showStartLetter = []
-        self.exactMatchForShow = 0
-        self.description = []
-        self.excludeTitle = []
         self.setExcludeTitle(self.settings.getBlacklist())
-        self.minLength = 0
         self.setMinLength((self.settings.getMinLength()))
-        self.ignoreTrailer = 1
         self.setIgnoreTrailer(self.settings.getNoFutur())
-        self.maxResults = 0
         self.setMaxResults(self.settings.getMaxResults())
-        self.recentOnly = 0
         self.when = self.id
         #
         #
@@ -74,7 +64,7 @@ class ExtendedSearchModel(object):
         self.description = []
         self.excludeTitle = []
         self.minLength = 0
-        self.ignoreTrailer = 0
+        self.ignoreTrailer = 1
         self.maxResults = 0
         self.recentOnly = 0
 
@@ -364,15 +354,18 @@ class ExtendedSearchModel(object):
         sql = ""
         params = []
         if len(self.getQuick()) > 0:
-            sql += ' ('
-            innerSql = []
+            sql += " ("
+            inner_sql = []
             for conditionString in self.getQuick():
-                exp = '%' + conditionString + '%'
+                exp = "%" + conditionString + "%"
                 params.append(exp)
-                innerSql.append('concat(showname, \' \', title) like ?')
-            sql += ' and '.join(innerSql)
-            sql += ')'
+                params.append(exp)
+                inner_sql.append("(showname LIKE ? OR title LIKE ?)")
+            sql += " AND ".join(inner_sql)
+            sql += ")"
+    
         return (sql, params)
+
 
     #
     def generateShowTitleDescription(self):
