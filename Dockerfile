@@ -12,14 +12,14 @@ ENV RUN_ON_STARTUP='no'
 
 # install dependencies
 RUN apk update && apk upgrade && \
-    apk add py3-virtualenv py3-pip apk-cron vim sqlite && \
+    apk add py3-virtualenv py3-pip apk-cron vim sqlite dos2unix && \
     rm -rf /var/cache/apk/*
 
 # create Python virtual environment
 RUN python3 -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-RUN pip3 install mysql-connector-python==9.1.0
+RUN pip3 install mysql-connector-python
 
 #cop mediathekview plugin
 WORKDIR /plugin.video.mediathekview
@@ -27,6 +27,9 @@ ADD * ./
 ADD resources/ ./resources/
 
 #add a script that configures and starts cronjob
-ADD docker/95_mediathekview_db /etc/cont-init.d/
+COPY docker/95_mediathekview_db /etc/cont-init.d/95_mediathekview_db
+
+RUN dos2unix /etc/cont-init.d/95_mediathekview_db && \
+    chmod 0755 /etc/cont-init.d/95_mediathekview_db
 
 #CMD and ENTRYPOINT are set by base image

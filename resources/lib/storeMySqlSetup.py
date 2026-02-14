@@ -89,12 +89,27 @@ INSERT INTO status values ('UNINIT',0,0,0,3);
         #
         con = self.conn.getConnection()
         cursor = con.cursor()
-        for result in cursor.execute(self._setupScript, multi=True):
-          if result.with_rows:
-            self.logger.debug("Rows produced by statement '{}':", result.statement)
-            self.logger.debug(result.fetchall())
-          else:
-            self.logger.debug("Number of rows affected by statement '{}': {}", result.statement, result.rowcount)
+        
+        try:
+            # >= 9.1
+            cursor.execute(self._setupScript, map_results=True)
+            for statement, rows in cursor.fetchsets():
+                if rows:
+                    self.logger.debug("Rows produced by statement '{}': {}", statement, rows)
+                else:
+                    self.logger.debug("Statement '{}' executed, no rows returned", statement)
+        
+        except TypeError:
+            # < 9.1
+            for result in cursor.execute(self._setupScript, multi=True):
+                if result.with_rows:
+                    rows = result.fetchall()
+                    self.logger.debug("Rows produced by statement '{}': {}", result.statement, rows)
+                else:
+                    self.logger.debug("Number of rows affected by statement '{}': {}", result.statement, result.rowcount)
+        
+
+
         cursor.close()
         con.commit()
         self.logger.debug('End DB setup')
