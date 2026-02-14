@@ -68,6 +68,7 @@ class ExtendedSearchModel(object):
         self.title = []
         self.show = []
         self.showId = []
+        self.quick = []
         self.showStartLetter = []
         self.exactMatchForShow = 0
         self.description = []
@@ -101,6 +102,9 @@ class ExtendedSearchModel(object):
 
     def getTitle(self):
         return self.title
+
+    def getQuick(self):
+        return self.quick
 
     def getDescription(self):
         return self.description
@@ -212,6 +216,13 @@ class ExtendedSearchModel(object):
         else:
             pValue = pValue.split('|')
         self.title = pValue
+
+    def setQuick(self, pValue):
+        if pValue is None or pValue == "":
+            pValue = []
+        else:
+            pValue = pValue.split(' ')
+        self.quick = pValue
 
     def setDescription(self, pValue):
         if pValue is None or pValue == "":
@@ -347,6 +358,20 @@ class ExtendedSearchModel(object):
                 sql += ' title not like ? and showname not like ? and'
             sql = sql[0:(len(sql) - 3)]
             sql += ")"
+        return (sql, params)
+
+    def generateQuickSearch(self):
+        sql = ""
+        params = []
+        if len(self.getQuick()) > 0:
+            sql += ' ('
+            innerSql = []
+            for conditionString in self.getQuick():
+                exp = '%' + conditionString + '%'
+                params.append(exp)
+                innerSql.append('concat(showname, \' \', title) like ?')
+            sql += ' and '.join(innerSql)
+            sql += ')'
         return (sql, params)
 
     #
