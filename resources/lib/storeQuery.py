@@ -23,22 +23,30 @@ class StoreQuery(object):
         self.settings = appContext.MVSETTINGS
         self._cache = StoreCache()
         self.sql_query_films = "SELECT idhash, title, showname, channel, description, duration, aired, url_sub, url_video, url_video_sd, url_video_hd FROM film"
+        self.sql_query_films_meta = "SELECT idhash, title, showname, channel, description, duration, aired, url_sub_exists FROM film_meta"
         self.sql_cond_recent = "({} > {})".format("aired" if self.settings.getRecentMode() == 0 else "dtCreated",(self.settings.getLastUpdate()-self.settings.getMaxAge()))
         self.sql_cond_nofuture = " AND ( aired < {} )".format(self.settings.getLastUpdate()) if self.settings.getNoFutur() else ""
         self.sql_cond_minlength = " AND ( duration >= %d )" % (self.settings.getMinLength() * 60) if self.settings.getMinLength() > 0 else ""
         # IMPORT SQL
-        self.sql_pStmtInsert = """
-            INSERT INTO film (
+        self.sql_pStmtInsert_meta = """
+            INSERT INTO film_meta (
                 idhash, touched, dtCreated, channel, showid, showname, title,
                 aired, duration, description,
-                url_sub, url_video, url_video_sd, url_video_hd
+                url_sub_exists
             )
             VALUES (
                 ?, 1, ?, ?, ?, ?, ?,
                 ?, ?, ?,
-                ?, ?, ?, ?
+                ?
             )"""
-        self.sql_pStmtUpdate = """UPDATE film SET touched = touched+1 WHERE idhash = ?"""
+        self.sql_pStmtInsert_video = """
+            INSERT INTO film_video (
+                idhash, touched, url_sub, url_video, url_video_sd, url_video_hd
+            )
+            VALUES (
+                ?, 1, ?, ?, ?, ?
+            )"""
+        self.sql_pStmtUpdate = """UPDATE film_meta SET touched = touched+1 WHERE idhash = ?"""
 
     # ABSTRACT
     def getConnection(self):
@@ -97,8 +105,11 @@ class StoreQuery(object):
         return rs
 
     # # All this just because mysql is not compliant to sql standard
-    def getImportPreparedStmtInsert(self):
-            return self.sql_pStmtInsert
+    def getImportPreparedStmtInsertMeta(self):
+            return self.sql_pStmtInsert_meta
+    
+    def getImportPreparedStmtInsertVideo(self):
+        return self.sql_pStmtInsert_video
 
     def getImportPreparedStmtUpdate(self):
             return self.sql_pStmtUpdate
@@ -119,7 +130,7 @@ class StoreQuery(object):
     def extendedSearchQuery(self, esModel):
         rs = None
         params = []
-        sql = self.sql_query_films
+        sql = self.sql_query_films_meta
         sql += ' WHERE (1=1)'
         #
         (quickSearchCondition, quickSearchParams) = esModel.generateQuickSearch()
@@ -296,7 +307,7 @@ class StoreQuery(object):
             return cached_data
         #
         try:
-            sql = "SELECT channel AS channelid, channel, 0 as count FROM film GROUP BY channel ORDER BY channel ASC"
+            sql = "SELECT channel AS channelid, channel, 0 as count FROM film_meta GROUP BY channel ORDER BY channel ASC"
             rs = self.execute(sql)
             self._cache.save_cache('channels', '', rs)
 
@@ -322,7 +333,7 @@ class StoreQuery(object):
         self.logger.debug('getChannelsRecent')
         #
         try:
-            sql = "SELECT channel channelid, channel, count(*) as count FROM film WHERE "
+            sql = "SELECT channel channelid, channel, count(*) as count FROM film_meta WHERE "
             # recent
             sql += self.sql_cond_recent
             # duration filter
@@ -351,7 +362,7 @@ class StoreQuery(object):
         self.logger.debug('getShowsByChannnel')
         #
         try:
-            sql = "SELECT showid, channel as channelId, showname, channel from film where (channel=?) "
+            sql = "SELECT showid, channel as channelId, showname, channel FROM film_meta where (channel=?) "
             # duration filter
             sql += self.sql_cond_nofuture
             # no future
@@ -380,9 +391,9 @@ class StoreQuery(object):
         #
         try:
             if self.settings.getGroupShow():
-                sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film WHERE (CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
+                sql = "SELECT GROUP_CONCAT(DISTINCT(showid)), GROUP_CONCAT(DISTINCT(channel)), showname, GROUP_CONCAT(DISTINCT(channel)) FROM film_meta WHERE (CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
             else:
-                sql = "SELECT showid, channel as channelId, showname, channel FROM film WHERE (CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
+                sql = "SELECT showid, channel as channelId, showname, channel FROM film_meta WHERE (CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END = ?) "
             # duration filter
             sql += self.sql_cond_nofuture
             # no future
@@ -413,7 +424,7 @@ class StoreQuery(object):
         self.logger.debug('getStartLettersOfShows')
         #
         try:
-            sql = "SELECT CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END, COUNT(DISTINCT(SHOWID)) FROM film where (1=1) "
+            sql = "SELECT CASE WHEN UPPER(SUBSTR(showname,1,1)) between 'A' and 'Z' THEN UPPER(SUBSTR(showname,1,1)) WHEN SUBSTR(showname,1,1) between '0' and '9' THEN '0' ELSE '#' END, COUNT(DISTINCT(SHOWID)) FROM film_meta where (1=1) "
             # recent
             # sql += " AND " + self.sql_cond_recent
             # duration filter
@@ -528,7 +539,7 @@ class StoreQuery(object):
         self.logger.debug('import_begin')
         try:
             cursor = self.getConnection().cursor()
-            cursor.execute("update film set touched = 0")
+            cursor.execute("update film_meta set touched = 0")
             cnt = cursor.rowcount
             cursor.close()
             return cnt
@@ -541,7 +552,7 @@ class StoreQuery(object):
         self.logger.debug('import_end')
         try:
             cursor = self.getConnection().cursor()
-            cursor.execute("delete from film where touched = 0")
+            cursor.execute("delete from film_meta where touched = 0")
             cnt = cursor.rowcount
             cursor.close()
             return cnt
@@ -553,14 +564,16 @@ class StoreQuery(object):
     def import_films(self, filmArray):
         self.logger.debug('import_films')
         #
-        pStmtInsert = self.getImportPreparedStmtInsert()
+        pStmtInsertMeta = self.getImportPreparedStmtInsertMeta()
+        pStmtInsertVideo = self.getImportPreparedStmtInsertVideo()
         pStmtUpdate = self.getImportPreparedStmtUpdate()
         #
         try:
             #
             cursor = self.getConnection().cursor()
             #
-            insertArray = []
+            insertArrayMeta = []
+            insertArrayVideo = []
             updateCnt = 0
             insertCnt = 0
             for f in filmArray:
@@ -568,13 +581,15 @@ class StoreQuery(object):
                 rs = cursor.rowcount
                 # self.logger.debug('executeUpdate rs {} for {}', rs , f[0] )
                 if rs == 0:
-                    insertArray.append(f)
+                    insertArrayMeta.append(list(f[:10]))
+                    insertArrayVideo.append([f[0]] + list(f[-4:]))
                     insertCnt += 1
                 else:
                     updateCnt += 1
             #
             cursor.close()
-            self.executemany(pStmtInsert, insertArray)
+            self.executemany(pStmtInsertMeta, insertArrayMeta)
+            self.executemany(pStmtInsertVideo, insertArrayVideo)
             #
             return (insertCnt, updateCnt)
         except Exception as err:

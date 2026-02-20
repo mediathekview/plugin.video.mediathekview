@@ -15,6 +15,7 @@ import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
 from resources.lib.model.livestream import Livestream
+import resources.lib.mvutils as mvutils
 
 
 class LivestreamUi(object):
@@ -59,9 +60,14 @@ class LivestreamUi(object):
         listOfElements = []
         #
         for element in databaseRs:
-            livestreamModel.init(element[3], element[1], element[8])
+            #livestreamModel.init(element[3], element[1], element[8])
+            livestreamModel.init(element[3], element[1])
             #
-            videourl = livestreamModel.url + self.settings.getUserAgentString()
+            #videourl = livestreamModel.url + self.settings.getUserAgentString()
+            videourl = mvutils.build_url({
+                'mode': 'play',
+                'id' : element[0]
+            })
             #
             info_labels = {
                 'title': livestreamModel.name,

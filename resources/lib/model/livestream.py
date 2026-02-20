@@ -13,20 +13,17 @@ class Livestream(object):
     def __init__(self):
         self.channel = ''
         self.name = ''
-        self.url = ''
 
-    def init(self, pChannel, pName, pUrl):
+    def init(self, pChannel, pName):
         """ init the object with new values """
         self.channel = pChannel
         self.name = pName
-        self.url = pUrl
 
     def get_as_dict(self):
         """ Returns the values as a map """
         return {
             "channel": self.channel,
-            "name": self.name,
-            "url": self.url
+            "name": self.name
         }
 
     def set_from_dict(self, data):
@@ -35,4 +32,3 @@ class Livestream(object):
             return
         self.channel = data.get('channel', '')
         self.name = data.get('name', '')
-        self.url = data.get('url', '')

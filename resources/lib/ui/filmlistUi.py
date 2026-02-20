@@ -15,6 +15,7 @@ import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
 from resources.lib.model.film import Film
+import resources.lib.mvutils as mvutils
 
 
 class FilmlistUi(object):
@@ -65,8 +66,12 @@ class FilmlistUi(object):
         listOfElements = []
         for element in databaseRs:
             #
+            if len(element) == 10:
             aFilm.init(element[0], element[1], element[2], element[3], element[4], element[5],
                         element[6], element[7], element[8], element[9], element[10])
+            else:
+              aFilm.initShort(element[0], element[1], element[2], element[3], element[4], element[5],
+                        element[6], element[7])
             #
             (targetUrl, list_item) = self._generateListItem(aFilm)
             #
@@ -91,8 +96,7 @@ class FilmlistUi(object):
         #
         self.logger.debug('generated: {} sec', time.time() - self.startTime)
 
-    def _generateListItem(self, pFilm):
-        #
+    def _generatePlayableUrl(self, pFilm):
         videohds = ""
         if (pFilm.url_video_hd != "" and self.settings.getPreferHd()):
             videourl = pFilm.url_video_hd
@@ -102,11 +106,24 @@ class FilmlistUi(object):
         else:
             videourl = pFilm.url_video
 
-        # exit if no url supplied
         if videourl == "":
             return None
 
         videourl = videourl + self.settings.getUserAgentString()
+
+        return videourl
+
+    def _generateListItem(self, pFilm):
+        #
+        if pFilm.url_video_hd == '' and pFilm.url_video_sd == '' and pFilm.url_video == '':
+          videourl = mvutils.build_url({
+                'mode': 'play',
+                'id' : pFilm.filmid
+            })
+        else:
+          videourl = self._generatePlayableUrl(pFilm)
+        #
+        videohds = ''
 
         if self.useLongTitle:
             resultingtitle = pFilm.show + ': ' + pFilm.title + videohds

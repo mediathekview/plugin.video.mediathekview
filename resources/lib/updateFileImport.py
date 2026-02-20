@@ -171,6 +171,7 @@ class UpdateFileImport(object):
                         self.film['airedepoch'],
                         mvutils.make_duration(self.film['duration']),
                         self.film['description'],
+                        '' if self.film['url_sub'] == '' else '1',
                         self.film['url_sub'],
                         self.film['url_video'],
                         self.film['url_video_sd'],

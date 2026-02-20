@@ -241,6 +241,15 @@ class MediathekViewPlugin(KodiPlugin):
             filmid = self.get_arg('id', "")
             Downloader(self).play_movie_with_subs(filmid)
 
+        elif mode == 'play':
+            filmid = self.get_arg('id', "")
+            film = self.database.retrieve_film_info(filmid)
+            (_, listitem) = FilmlistUi.FilmlistUi(self)._generateListItem(film)
+            self.logger.debug('PLAY {}' , film)
+            if listitem:
+              self.set_resolved_url(True, listitem)
+            
+
         # cleanup saved searches
         if self.get_setting('lastsearch1') != '' and (mode is None or mode != 'newsearch'):
             self.set_setting('lastsearch1', '')

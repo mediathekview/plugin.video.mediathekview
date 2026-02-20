@@ -31,8 +31,8 @@ DROP TABLE IF EXISTS `channel`;
 -- ----------------------------
 --  Table structure for film
 -- ----------------------------
-DROP TABLE IF EXISTS film;
-CREATE TABLE film (
+DROP TABLE IF EXISTS film_meta;
+CREATE TABLE film_meta (
     idhash         char(32)        NOT NULL,
     dtCreated      INT             NOT NULL,
     touched        smallint(1)     NOT NULL,
@@ -43,13 +43,22 @@ CREATE TABLE film (
     aired          INT             NOT NULL,
     duration       INT             NOT NULL,
     description    varchar(1024)   NULL,
+    url_sub_exists varchar(1)    NULL
+) ENGINE=InnoDB CHARSET=utf8mb4;
+--
+CREATE INDEX idx_idhash_meta ON film_meta (idhash);
+-- ----------------------------
+DROP TABLE IF EXISTS film_video;
+CREATE TABLE film_video (
+    idhash         char(32)        NOT NULL,
+    touched        smallint(1)     NOT NULL,
     url_sub        varchar(2048)    NULL,
     url_video      varchar(2048)    NULL,
     url_video_sd   varchar(2048)    NULL,
     url_video_hd   varchar(2048)    NULL
 ) ENGINE=InnoDB CHARSET=utf8mb4;
 --
-CREATE INDEX idx_idhash ON film (idhash);
+CREATE INDEX idx_idhash_video ON film_video (idhash);
 -- ----------------------------
 --  Table structure for status
 -- ----------------------------
@@ -62,8 +71,12 @@ CREATE TABLE status (
     version         INT             NOT NULL
 ) ENGINE=InnoDB;
 -- ----------------
-INSERT INTO status values ('UNINIT',0,0,0,3);
---
+INSERT INTO status values ('UNINIT',0,0,0,4);
+-- ----------------------------
+DROP VIEW IF EXISTS film;
+CREATE VIEW film AS
+SELECT m.idhash, dtCreated, channel, showid, showname, title, aired, duration, description, url_sub, url_video, url_video_sd, url_video_hd from film_meta m left outer join film_video v on m.idhash = v.idhash;
+
 """
 
     def setupDatabase(self):

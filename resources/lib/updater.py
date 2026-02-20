@@ -81,8 +81,8 @@ class MediathekViewUpdater(object):
         self.logger.debug('Update Mode "{}"', updateConfigName.get(updateConfig))
         #
         doSomething = 0
-        if (int(databaseStatus['version']) != 3 or databaseStatus['status'] == 'UNINIT'):
-            self.logger.debug('Version update or not initialized')
+        if (databaseStatus['status'] == 'UNINIT'):
+            self.logger.debug('not initialized')
             doSomething = -1
             #
             if self.settings.getDatabaseType() == 0:
@@ -90,7 +90,19 @@ class MediathekViewUpdater(object):
             else:
                 StoreMySQLSetup(self.database).setupDatabase()
             #
-            self.database.set_status(pStatus='IDLE', pLastupdate=0, pLastFullUpdate=0, pFilmupdate=0, pVersion='3')
+            self.database.set_status(pStatus='IDLE', pLastupdate=0, pLastFullUpdate=0, pFilmupdate=0, pVersion='4')
+            databaseStatus = self.database.getDatabaseStatus()
+            #
+        elif (int(databaseStatus['version']) != 4 or databaseStatus['status'] == 'MIG'):
+            self.logger.debug('Version update')
+            doSomething = 0
+            #
+            if self.settings.getDatabaseType() == 0:
+                StoreSQLiteSetup(self.database).migration34()
+            else:
+                StoreMySQLSetup(self.database).migration34()
+            #
+            self.database.set_status(pStatus='IDLE', pVersion='4')
             databaseStatus = self.database.getDatabaseStatus()
             #
         elif updateConfig == 1 and self.settings.is_update_triggered():

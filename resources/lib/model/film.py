@@ -36,6 +36,16 @@ class Film(object):
         self.url_video_sd = pVideo_sd
         self.url_video_hd = pVideo_hd
 
+    def initShort(self, pFilmId, pTitle, pShow, pChannel, pDescription, pSeconds, pAired, pSub):
+        self.filmid = pFilmId
+        self.title = pTitle
+        self.show = pShow
+        self.channel = pChannel
+        self.description = pDescription
+        self.seconds = pSeconds
+        self.aired = pAired
+        self.url_sub = pSub
+
     def get_as_dict(self):
         """ Returns the values as a map """
         return {
