@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="plugin.video.mediathekview"
 	name="MediathekView"
-	version="1.2.1"
+	version="1.2.2"
 	provider-name="MediathekView.de, Leo Moll">
 	<requires>
 		<import addon="xbmc.python" version="2.25.0"/>
@@ -31,9 +31,11 @@
 		<description lang="en_GB">Gives access to most video-platforms from German public service broadcasters using the database of MediathekView.de</description>
 		<description lang="it_IT">Fornisce l'accesso a gran parte delle piattaforme video operate dalle emittenti pubbliche tedesche usando la banca dati di MediathekView.de</description>
 		<news>
-v.1.2.1 (YYYY-MM-DD):
-- [fix] Added icons for zdfino, zdfneo, tagesschau24
-- [fix] Quick Search improvements
+v.1.2.2 (2026-02-21):
+- [fix] Quick Search cache fix
+- [new] Added icons for zdfino, zdfneo, tagesschau24
+v.1.2.1 (2026-02-20):
+- [new] Quick Search improvements
 - [fix] MySQL9.1 compatibility
 - [new] Docker build improvements
 v.1.1.3 (2024-06-02):

@@ -142,6 +142,9 @@ class ExtendedSearchModel(object):
     def getTitleAsString(self):
         return '|'.join(self.title)
 
+    def getQuickAsString(self):
+        return ' '.join(self.quick)
+
     def getDescriptionAsString(self):
         return '|'.join(self.description)
 
@@ -452,7 +455,8 @@ class ExtendedSearchModel(object):
             'F' + self.getIgnoreTrailerAsString() + \
             'M' + self.getMaxResultsAsString() + \
             'N' + self.getExactMatchForShowAsString() + \
-            'R' + self.getRecentOnlyAsString()
+            'R' + self.getRecentOnlyAsString() + \
+            'Q' + self.getQuickAsString()
 
     #
     def toDict(self):
@@ -463,6 +467,7 @@ class ExtendedSearchModel(object):
             "title" : self.title,
             "show" : self.show,
             "showId" : self.showId,
+            "quick" : self.quick,
             "description" : self.description,
             "excludeTitle" : self.excludeTitle,
             "minLength" : self.minLength,
@@ -480,6 +485,7 @@ class ExtendedSearchModel(object):
         self.title = aObject["title"]
         self.show = aObject["show"]
         self.showId = aObject["showId"]
+        self.quick = aObject["quick"]
         self.description = aObject["description"]
         self.excludeTitle = aObject["excludeTitle"]
         self.minLength = aObject["minLength"]
