@@ -101,7 +101,7 @@ class ShowUi(object):
             targetUrl = mvutils.build_url({
                 'mode': 'films',
                 'channel' : element[1].replace(',', '|'),
-                'show': element[0]
+                'show': element[0].replace(',', '|')
             })
             #
             contextmenu = []
@@ -111,7 +111,7 @@ class ShowUi(object):
                 self.plugin.build_url({
                     'mode': "downloadmv",
                     'channel' : element[1].replace(',', '|'),
-                    'show': element[0]
+                    'show': element[0].replace(',', '|')
                 })
             )
             ))
@@ -122,7 +122,7 @@ class ShowUi(object):
                     self.plugin.build_url({
                         'mode': "downloadep",
                         'channel' : element[1].replace(',', '|'),
-                        'show': element[0]
+                        'show': element[0].replace(',', '|')
                     })
                 )
             ))
