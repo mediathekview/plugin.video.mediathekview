@@ -149,7 +149,7 @@ class UpdateFileImport(object):
                 self.film["url_sub"] = jsonDoc[10]
                 self.film["url_video_sd"] = self._make_url(jsonDoc[12])
                 self.film["url_video_hd"] = self._make_url(jsonDoc[14])
-                if len(jsonDoc[16]) > 0 and int(jsonDoc[16]) < 2147483647:
+                if jsonDoc[16].isdigit() and int(jsonDoc[16]) < 2147483647:
                     self.film["airedepoch"] = int(jsonDoc[16])
                 self.film["geo"] = jsonDoc[18]
                 #

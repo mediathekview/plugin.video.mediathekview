@@ -64,15 +64,15 @@ class MediathekViewUpdater(object):
         updateConfig = self.settings.getDatabaseUpateMode()
         tsnow = int(time.time())
         currentDate = datetime.now()
-        lastUpdateDatetime = datetime.fromtimestamp(databaseStatus['lastUpdate'])
+        lastUpdateDatetime = mvutils.local_datetime(databaseStatus['lastUpdate'], datetime(1970, 1, 1))
         #
         outdated = ((databaseStatus['lastUpdate'] + self.settings.getDatabaseUpdateInvterval()) < tsnow)
         sameDay = (currentDate.day == lastUpdateDatetime.day and
             currentDate.month == lastUpdateDatetime.month and
             currentDate.year == lastUpdateDatetime.year)
         #
-        self.logger.debug('Last Update {}', datetime.fromtimestamp(databaseStatus['lastUpdate']))
-        self.logger.debug('Last Full Update {}', datetime.fromtimestamp(databaseStatus['lastFullUpdate']))
+        self.logger.debug('Last Update {}', mvutils.local_datetime(databaseStatus['lastUpdate'], datetime(1970, 1, 1)))
+        self.logger.debug('Last Full Update {}', mvutils.local_datetime(databaseStatus['lastFullUpdate'], datetime(1970, 1, 1)))
         self.logger.debug('version {}', databaseStatus['version'])
         self.logger.debug('status {}', databaseStatus['status'])
         self.logger.debug('update interval {}', self.settings.getDatabaseUpdateInvterval())
@@ -116,7 +116,7 @@ class MediathekViewUpdater(object):
             self.logger.debug('nothing to do')
             return
         #
-        lastFullUpdate = datetime.fromtimestamp(databaseStatus['lastFullUpdate'])
+        lastFullUpdate = mvutils.local_datetime(databaseStatus['lastFullUpdate'], datetime(1970, 1, 1))
         #
         ufd = UpdateFileDownload()
         #
