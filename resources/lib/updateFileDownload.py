@@ -180,6 +180,7 @@ class UpdateFileDownload(object):
             raise
         # decompress filmliste
         start = time.time()
+        retval = -1
         try:
             if self.use_xz is True:
                 self.logger.debug('Trying to decompress xz file...')
