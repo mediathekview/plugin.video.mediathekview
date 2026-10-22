@@ -65,9 +65,10 @@ class StoreCache(object):
                         return data
         # pylint: disable=broad-except
         except Exception as err:
+            # e.g. a file cut off by a full disk: drop it and query the database
             self.logger.error('Failed to load cache file {}: {}', filename, err)
             mvutils.file_remove(filename)
-            raise
+            return None
         self.logger.debug('no cache found')
         return None
 
@@ -98,5 +99,6 @@ class StoreCache(object):
                 json.dump(cache, json_file)
         except Exception as err:
             self.logger.error('Failed to write cache file {}: {}', filename, err)
-            raise
+            mvutils.file_remove(filename)
+            return None
         self.logger.debug('cache saved after {} sec for request "{}" and condition "{}"', (time.time() - start), reqtype, condition)

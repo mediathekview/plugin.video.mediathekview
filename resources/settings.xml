@@ -35,7 +35,7 @@
     </category>
     <category label="30004">
         <setting id="updateCheckInterval" type="slider" label="30118"   default="30"    range="10,60" option="int"          />
-        <setting id="contentType"       type="enum"     label="30130"   default="30131" lvalues="30131|30132|30133|30134|30135"/>
+        <setting id="contentType"       type="enum"     label="30130"   default="0"     lvalues="30131|30132|30133|30134|30135"/>
         <setting id="caching"           type="bool"     label="30234"   default="true"                                      />
         <setting id="filmuisortmethod"  type="enum"     label="30119"   default="0"     lvalues="30173|30120|30121|30122|30124" />        
         <setting id="groupshows"        type="bool"     label="30114"   default="true"                                      />
