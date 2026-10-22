@@ -45,6 +45,8 @@ class RecentSearches(object):
         self.logger.debug('load')
         start = time.time()
         #
+        if not os.path.exists(self.datafile):
+            return self
         try:
             with closing(open(self.datafile, encoding='utf-8')) as json_file:
                 data = json.load(json_file)
