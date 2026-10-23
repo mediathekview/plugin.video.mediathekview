@@ -14,8 +14,15 @@ import re
 import time
 
 from contextlib import closing
+from xml.sax.saxutils import escape
+
+try:
+    from urllib.parse import urlparse
+except ImportError:
+    from urlparse import urlparse
 
 # pylint: disable=import-error
+import xbmcgui
 import xbmcvfs
 
 import resources.lib.mvutils as mvutils
@@ -60,8 +67,10 @@ class Downloader(object):
         #
         film = self.database.retrieve_film_info(filmid)
         if film is None:
-            self.logger.error("no film for download " + self.plugin.language(30991))
-            self.notifier.show_error(30990, self.plugin.language(30991))
+            self.logger.error('Film {} not found', filmid)
+            self.notifier.show_error(30988, 30989)
+            # Kodi waits for the resolved url otherwise
+            self.plugin.set_resolved_url(False, xbmcgui.ListItem())
             return
         ttmname = os.path.join(self.settings.getDatapath(), 'subtitle.ttml')
         srtname = os.path.join(self.settings.getDatapath(), 'subtitle.srt')
@@ -75,6 +84,8 @@ class Downloader(object):
             if subs:
                 listitem.setSubtitles(subs)
             self.plugin.set_resolved_url(True, listitem)
+        else:
+            self.plugin.set_resolved_url(False, xbmcgui.ListItem())
         self.logger.debug('play_movie_with_subs processed: {} sec', time.time() - start)
 
     def download_subtitle(self, film, ttmname, srtname, filename):
@@ -142,6 +153,8 @@ class Downloader(object):
         if film is None:
             return
         (filmurl, extension,) = self._get_film_url_and_extension(film)
+        if not filmurl:
+            return
         # try to create a good name for the downloaded file
         namestem = mvutils.cleanup_filename(film.title)[:80]
         if not namestem:
@@ -204,6 +217,8 @@ class Downloader(object):
             return
 
         (filmurl, extension,) = self._get_film_url_and_extension(film)
+        if not filmurl:
+            return
 
         # detect season and episode
         (season, episode, fninfo,) = self._season_and_episode_detect(film)
@@ -269,7 +284,10 @@ class Downloader(object):
             self.logger.error('Failure downloading {}: {}', filmurl, err)
             self.notifier.show_error(
                 30952, self.plugin.language(30975).format(filmurl, err))
-            raise
+            # remove the incomplete file
+            if xbmcvfs.exists(movname):
+                xbmcvfs.delete(movname)
+            return False
 
         # download subtitles
         if self.settings.getDownloadSubtitle() and film.url_sub:
@@ -295,9 +313,9 @@ class Downloader(object):
             filmurl = mvutils.coalesce(film.url_video_sd, film.url_video, film.url_video_hd)
         else:
             filmurl = mvutils.coalesce(film.url_video, film.url_video_sd, film.url_video_hd)
-        #
-        extension = os.path.splitext(filmurl)[1]
-        if extension:
+        # extension of the path, the url can have a query
+        extension = os.path.splitext(urlparse(filmurl or '').path)[1]
+        if extension and len(extension) <= 5:
             return (filmurl, extension,)
         else:
             return (filmurl, u'.mp4',)
@@ -314,17 +332,18 @@ class Downloader(object):
                 with closing(xbmcvfs.File(pathname + filename + u'.nfo', 'w')) as nfofile:
                     nfofile.write(bytearray('<movie>\n', 'utf-8'))
                     nfofile.write(
-                        bytearray('\t<title>{}</title>\n'.format(film.title), 'utf-8'))
+                        bytearray('\t<title>{}</title>\n'.format(escape(film.title or '')), 'utf-8'))
                     nfofile.write(
-                        bytearray('\t<plot>{}</plot>\n'.format(film.description), 'utf-8'))
+                        bytearray('\t<plot>{}</plot>\n'.format(escape(film.description or '')), 'utf-8'))
                     nfofile.write(
-                        bytearray('\t<studio>{}</studio>\n'.format(film.channel), 'utf-8'))
+                        bytearray('\t<studio>{}</studio>\n'.format(escape(film.channel or '')), 'utf-8'))
                     airedIso = mvutils.unixtimestamp2iso(film.aired)
-                    nfofile.write(
-                            bytearray('\t<aired>{}</aired>\n'.format(airedIso[0:10]), 'utf-8'))
-                    nfofile.write(
-                            bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
-                    if film.seconds > 60:
+                    if airedIso is not None:
+                        nfofile.write(
+                                bytearray('\t<aired>{}</aired>\n'.format(airedIso[0:10]), 'utf-8'))
+                        nfofile.write(
+                                bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
+                    if film.seconds and film.seconds > 60:
                         nfofile.write(
                             bytearray(
                                 '\t<runtime>{}</runtime>\n'.format(
@@ -353,14 +372,15 @@ class Downloader(object):
                         nfofile.write(bytearray('<tvshow>\n', 'utf-8'))
                         nfofile.write(bytearray('\t<id></id>\n', 'utf-8'))
                         nfofile.write(
-                            bytearray('\t<title>{}</title>\n'.format(film.show), 'utf-8'))
+                            bytearray('\t<title>{}</title>\n'.format(escape(film.show or '')), 'utf-8'))
                         nfofile.write(
-                            bytearray('\t<sorttitle>{}</sorttitle>\n'.format(film.show), 'utf-8'))
+                            bytearray('\t<sorttitle>{}</sorttitle>\n'.format(escape(film.show or '')), 'utf-8'))
                         nfofile.write(
-                            bytearray('\t<studio>{}</studio>\n'.format(film.channel), 'utf-8'))
+                            bytearray('\t<studio>{}</studio>\n'.format(escape(film.channel or '')), 'utf-8'))
                         airedIso = mvutils.unixtimestamp2iso(film.aired)
-                        nfofile.write(
-                            bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
+                        if airedIso is not None:
+                            nfofile.write(
+                                bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
                         nfofile.write(bytearray('</tvshow>\n', 'utf-8'))
                 except Exception as err:
                     self.logger.error(
@@ -372,7 +392,7 @@ class Downloader(object):
                 with closing(xbmcvfs.File(pathname + filename + u'.nfo', 'w')) as nfofile:
                     nfofile.write(bytearray('<episodedetails>\n', 'utf-8'))
                     nfofile.write(
-                        bytearray('\t<title>{}</title>\n'.format(film.title), 'utf-8'))
+                        bytearray('\t<title>{}</title>\n'.format(escape(film.title or '')), 'utf-8'))
                     if self.settings.getMakeInfo() == 2 and season is not None and episode is not None:
                         nfofile.write(
                             bytearray('\t<season>{}</season>\n'.format(season), 'utf-8'))
@@ -391,9 +411,9 @@ class Downloader(object):
                         nfofile.write(
                             bytearray('\t<autonumber>1</autonumber>\n', 'utf-8'))
                     nfofile.write(
-                        bytearray('\t<showtitle>{}</showtitle>\n'.format(film.show), 'utf-8'))
+                        bytearray('\t<showtitle>{}</showtitle>\n'.format(escape(film.show or '')), 'utf-8'))
                     nfofile.write(
-                        bytearray('\t<plot>{}</plot>\n'.format(film.description), 'utf-8'))
+                        bytearray('\t<plot>{}</plot>\n'.format(escape(film.description or '')), 'utf-8'))
                     airedIso = mvutils.unixtimestamp2iso(film.aired)
                     if airedIso is not None:
                         nfofile.write(
@@ -401,7 +421,7 @@ class Downloader(object):
                     if airedIso is not None:
                         nfofile.write(
                             bytearray('\t<year>{}</year>\n'.format(airedIso[0:4]), 'utf-8'))
-                    if film.seconds > 60:
+                    if film.seconds and film.seconds > 60:
                         nfofile.write(
                             bytearray(
                                 '\t<runtime>{}</runtime>\n'.format(
@@ -411,7 +431,7 @@ class Downloader(object):
                             )
                         )
                     nfofile.write(
-                        bytearray('\t<studio>{}</studio>\n'.format(film.channel), 'utf-8'))
+                        bytearray('\t<studio>{}</studio>\n'.format(escape(film.channel or '')), 'utf-8'))
                     nfofile.write(bytearray('</episodedetails>\n', 'utf-8'))
             except Exception as err:
                 self.logger.error(
@@ -420,8 +440,6 @@ class Downloader(object):
     def _season_and_episode_detect(self, film):
         self.logger.debug('_season_and_episode_detect')
         # initial trivial implementation
-        self.logger.error('film.show is type {}', type(film.show))
-        self.logger.error('film.title is type {}', type(film.title))
         season = self._matches(r'staffel[\.:\- ]+([0-9]+)', film.title)
         if season is None:
             season = self._matches(r'([0-9]+)[\.:\- ]+staffel', film.title)
