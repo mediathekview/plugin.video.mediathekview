@@ -449,12 +449,7 @@ class StoreQuery(object):
         self.logger.debug('retrieve_film_info')
         #
         try:
-            condition = "( idhash='{}' )".format(filmid)
-            rs = self.execute(
-                self.sql_query_films +
-                ' WHERE ' +
-                condition
-            )
+            rs = self.execute(self.sql_query_films + ' WHERE ( idhash = ? )', (filmid,))
             film = Film()
             for (film.filmid, film.title, film.show, film.channel, film.description, film.seconds, film.aired, film.url_sub, film.url_video, film.url_video_sd, film.url_video_hd) in rs:
                 return film
