@@ -467,6 +467,7 @@ class ExtendedSearchModel(object):
             "title" : self.title,
             "show" : self.show,
             "showId" : self.showId,
+            "showStartLetter" : self.showStartLetter,
             "quick" : self.quick,
             "description" : self.description,
             "excludeTitle" : self.excludeTitle,
@@ -479,19 +480,21 @@ class ExtendedSearchModel(object):
             }
 
     def fromDict(self, aObject):
-        self.id = aObject["id"]
-        self.name = aObject["name"]
-        self.channel = aObject["channel"]
-        self.title = aObject["title"]
-        self.show = aObject["show"]
-        self.showId = aObject["showId"]
-        self.quick = aObject["quick"]
-        self.description = aObject["description"]
-        self.excludeTitle = aObject["excludeTitle"]
-        self.minLength = aObject["minLength"]
-        self.ignoreTrailer = aObject["ignoreTrailer"]
-        self.maxResults = aObject["maxResults"]
-        self.exactMatchForShow = aObject["exactMatchForShow"]
-        self.recentOnly = aObject["recentOnly"]
-        self.when = aObject["when"]
+        # entries saved by older versions lack some of the keys
+        self.id = aObject.get("id", self.id)
+        self.name = aObject.get("name", "")
+        self.channel = aObject.get("channel", [])
+        self.title = aObject.get("title", [])
+        self.show = aObject.get("show", [])
+        self.showId = aObject.get("showId", [])
+        self.showStartLetter = aObject.get("showStartLetter", [])
+        self.quick = aObject.get("quick", [])
+        self.description = aObject.get("description", [])
+        self.excludeTitle = aObject.get("excludeTitle", [])
+        self.minLength = aObject.get("minLength", 0)
+        self.ignoreTrailer = aObject.get("ignoreTrailer", 0)
+        self.maxResults = aObject.get("maxResults", 0)
+        self.exactMatchForShow = aObject.get("exactMatchForShow", 0)
+        self.recentOnly = aObject.get("recentOnly", 0)
+        self.when = aObject.get("when", self.when)
         return self

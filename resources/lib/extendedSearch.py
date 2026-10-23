@@ -62,7 +62,9 @@ class ExtendedSearch(object):
         #
 
     def getFilmData(self, searchId):
-        data = self._getModelById(self.searchId);
+        data = self._getModelById(searchId);
+        if data is None:
+            return []
         return self.database.extendedSearch(data)
 
     def show(self):
@@ -75,6 +77,9 @@ class ExtendedSearch(object):
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
         elif self.action == "RUN":
             data = self._getModelById(self.searchId);
+            if data is None:
+                self.plugin.end_of_directory(False)
+                return
             # self.database.extendedSearchQuery(data, FilmUI(self.plugin))
             ui = FilmlistUi.FilmlistUi(self.plugin)
             ui.generate(self.database.extendedSearch(data))
@@ -100,12 +105,17 @@ class ExtendedSearch(object):
 
         elif self.action == "EDIT":
             data = self._getModelById(self.searchId);
+            if data is None:
+                self.plugin.end_of_directory(False)
+                return
             self.showEntry(data)
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
 
         elif self.action == "DELETE":
-            self.recents.remove(self._getItemById(self.searchId))
-            self._save()
+            item = self._getItemById(self.searchId)
+            if item is not None:
+                self.recents.remove(item)
+                self._save()
             #
             cmd = 'Container.refresh({})'.format(
                             self.plugin.build_url({
@@ -118,7 +128,7 @@ class ExtendedSearch(object):
             self.plugin.run_builtin(cmd)
             self.plugin.setViewId(self.plugin.resolveViewId('MAIN'))
 
-        if self.action[:5] == 'EDIT-':
+        if self.action and self.action[:5] == 'EDIT-' and self._getItemById(self.searchId) is not None:
             #
             cmd = 'Container.update({}, replace)'.format(
                 self.plugin.build_url({
@@ -236,7 +246,7 @@ class ExtendedSearch(object):
                     ),
                     (
                         self.plugin.language(30922),
-                        'Container.update({})'.format(
+                        'RunPlugin({})'.format(
                             self.plugin.build_url({
                                 'mode': "downloadmv",
                                 'searchId': str(entry['id'])
@@ -245,7 +255,7 @@ class ExtendedSearch(object):
                     ),
                     (
                         self.plugin.language(30924),
-                        'Container.update({})'.format(
+                        'RunPlugin({})'.format(
                             self.plugin.build_url({
                                 'mode': "downloadep",
                                 'searchId': str(entry['id'])
@@ -383,14 +393,22 @@ class ExtendedSearch(object):
 ######################################
 
     def _getItemById(self, pId):
+        try:
+            pId = int(pId)
+        except (TypeError, ValueError):
+            return None
         for entry in self.recents:
-            if int(entry['id']) == int(pId):
+            if int(entry['id']) == pId:
                 return entry
         return None
 
     def _getModelById(self, pId):
+        try:
+            pId = int(pId)
+        except (TypeError, ValueError):
+            return None
         for entry in self.recents:
-            if int(entry['id']) == int(pId):
+            if int(entry['id']) == pId:
                 x = ExtendedSearchModel.ExtendedSearchModel("")
                 x.fromDict(entry)
                 return x
@@ -402,6 +420,9 @@ class ExtendedSearch(object):
         start = time.time()
         #
         listOfItems = []
+        if not os.path.exists(self.datafile):
+            self.recents = listOfItems
+            return
         try:
             with closing(open(self.datafile, encoding='utf-8')) as json_file:
                 data = json.load(json_file)
