@@ -20,6 +20,7 @@ import xbmcgui
 import xbmcplugin
 
 from resources.lib.kodi.kodiaddon import KodiPlugin
+import resources.lib.mvutils as mvutils
 
 from resources.lib.storeMySql import StoreMySQL
 from resources.lib.storeSqlite import StoreSQLite
@@ -272,9 +273,9 @@ class MediathekViewPlugin(KodiPlugin):
             info['mov']
             )
         updinfo = self.language(30970) % (
-            datetime.fromtimestamp(info['filmUpdate']).isoformat().replace('T', ' '),
-            datetime.fromtimestamp(info['lastFullUpdate']).isoformat().replace('T', ' '),
-            datetime.fromtimestamp(info['lastUpdate']).isoformat().replace('T', ' ')
+            mvutils.local_datetime(info['filmUpdate'], datetime(1970, 1, 1)).isoformat().replace('T', ' '),
+            mvutils.local_datetime(info['lastFullUpdate'], datetime(1970, 1, 1)).isoformat().replace('T', ' '),
+            mvutils.local_datetime(info['lastUpdate'], datetime(1970, 1, 1)).isoformat().replace('T', ' ')
             )
         #
         xbmcgui.Dialog().textviewer(

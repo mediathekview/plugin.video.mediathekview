@@ -101,8 +101,25 @@ def dict_to_utf(d):
             dutf[k] = v
     return dutf
 
+def local_datetime(uxtimestamp, default=None):
+    """
+    Local time of a unix timestamp. The film list has 0 or negative values for unknown
+    dates, Windows cannot convert negative timestamps (OSError), these return default.
+    """
+    try:
+        uxtimestamp = int(uxtimestamp or 0)
+        if uxtimestamp > 0:
+            return datetime.datetime.fromtimestamp(uxtimestamp)
+    except (TypeError, ValueError, OSError, OverflowError):
+        pass
+    return default
+
+
 def unixtimestamp2iso(uxtimestamp):
-    return datetime.datetime.fromtimestamp(uxtimestamp).strftime('%Y-%m-%d %H:%M:%S')
+    aired = local_datetime(uxtimestamp)
+    if aired is None:
+        return None
+    return aired.strftime('%Y-%m-%d %H:%M:%S')
 
 def dir_exists(name):
     """

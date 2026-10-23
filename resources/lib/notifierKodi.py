@@ -8,6 +8,7 @@ SPDX-License-Identifier: MIT
 
 # -- Imports ------------------------------------------------
 import datetime
+import resources.lib.mvutils as mvutils
 
 # pylint: disable=import-error
 from resources.lib.kodi.kodiui import KodiUI
@@ -47,8 +48,8 @@ class NotifierKodi(NotifierInterface):
         """ Display UI for an outdated database """
         updatetype = self.language(
             30972 if status['lastFullUpdate'] > 0 else 30973)
-        updatetime = datetime.datetime.fromtimestamp(
-            status['lastUpdate']).strftime('%Y-%m-%d %H:%M:%S'),
+        updatetime = mvutils.local_datetime(
+            status['lastUpdate'], datetime.datetime(1970, 1, 1)).strftime('%Y-%m-%d %H:%M:%S'),
         updinfo = self.language(30983)
         self.kodiUi.show_warning(30982, updinfo.format(updatetype, updatetime[0]))
 
