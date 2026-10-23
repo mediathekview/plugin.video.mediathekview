@@ -42,7 +42,13 @@ PY2 = sys.version_info[0] == 2
 
 
 def coalesce(*arg):
-  return reduce(lambda x, y: x if x is not None else y, arg)
+    """ Returns the first argument that is neither None nor empty """
+    return reduce(lambda x, y: x if x else y, arg)
+
+
+def first_url(*urls):
+    """ Returns the first non empty url or an empty string """
+    return next((url for url in urls if url), '')
 
 
 def py2_encode(s, encoding='utf-8'):

@@ -14,6 +14,7 @@ from datetime import timedelta
 import xbmcgui
 import xbmcplugin
 import resources.lib.appContext as appContext
+import resources.lib.mvutils as mvutils
 from resources.lib.model.film import Film
 
 
@@ -69,6 +70,8 @@ class FilmlistUi(object):
                         element[6], element[7], element[8], element[9], element[10])
             #
             (targetUrl, list_item) = self._generateListItem(aFilm)
+            if list_item is None:
+                continue
             #
             list_item.addContextMenuItems(self._generateContextMenu(aFilm))
             #
@@ -94,17 +97,16 @@ class FilmlistUi(object):
     def _generateListItem(self, pFilm):
         #
         videohds = ""
-        if (pFilm.url_video_hd != "" and self.settings.getPreferHd()):
+        # url_video is the normal quality, url_video_sd the small one
+        if pFilm.url_video_hd and self.settings.getPreferHd():
             videourl = pFilm.url_video_hd
             videohds = " (HD)"
-        elif (pFilm.url_video_sd != ""):
-            videourl = pFilm.url_video_sd
         else:
-            videourl = pFilm.url_video
+            videourl = mvutils.first_url(pFilm.url_video, pFilm.url_video_sd, pFilm.url_video_hd)
 
         # exit if no url supplied
-        if videourl == "":
-            return None
+        if not videourl:
+            return (None, None)
 
         videourl = videourl + self.settings.getUserAgentString()
 
