@@ -529,6 +529,14 @@ msgctxt "#30971"
 msgid "%d channels\n%d shows\n%d movies"
 msgstr "%d Sender\n%d Sendungen\n%d Filme"
 
+msgctxt "#30972"
+msgid "Full Update"
+msgstr "Komplettaktualisierung"
+
+msgctxt "#30973"
+msgid "Differential Update"
+msgstr "Teilaktualisierung"
+
 msgctxt "#30974"
 msgid "Downloading Video"
 msgstr "Video wird heruntergeladen"

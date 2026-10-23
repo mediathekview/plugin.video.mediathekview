@@ -180,8 +180,8 @@ class ttml2srt(object):
 
             result += trailing_whitespaces
 
-            result = re.sub(r'(?P<all>(\s|^)<(font color="([^"]+)"|i)>) +', '\g<all>', result)
-            result = re.sub(r' +(?P<all></(font|i)>(\s|$))', '\g<all>', result)
+            result = re.sub(r'(?P<all>(\s|^)<(font color="([^"]+)"|i)>) +', r'\g<all>', result)
+            result = re.sub(r' +(?P<all></(font|i)>(\s|$))', r'\g<all>', result)
             result = re.sub(r'\n\s+', '\n', result)
             result = re.sub(r'\s+\n', '\n', result)
 
@@ -189,9 +189,9 @@ class ttml2srt(object):
                             r'\g<startspaces><font color="\g<color2>">\g<text></font>\g<endspaces>',
                             result)
 
-            result = re.sub(r'\n+(?P<all></(font|i)>)', '\g<all>\n', result)
+            result = re.sub(r'\n+(?P<all></(font|i)>)', r'\g<all>' + '\n', result)
 
-            result = re.sub(r'<font color="([^"]+)">(?P<spaces>\s*)</font>', '\g<spaces>', result)
+            result = re.sub(r'<font color="([^"]+)">(?P<spaces>\s*)</font>', r'\g<spaces>', result)
 
             if elem.tag in ('div', 'p', 'br'):
                 result += '\n'
