@@ -50,6 +50,22 @@ class StoreSQLite(StoreQuery):
             self.conn.close()
             self.conn = None
 
+    def ensureIndexes(self):
+        """
+        The database downloaded from MediathekView only has an index on idhash,
+        every view had to read the whole table without these
+        """
+        start = time.time()
+        conn = self.getConnection()
+        conn.execute('CREATE INDEX IF NOT EXISTS idx_channel_aired ON film (channel, aired)')
+        conn.execute('CREATE INDEX IF NOT EXISTS idx_showid ON film (showid)')
+        # statistics let the query planner use the channel index for queries without a channel
+        if not conn.execute("SELECT 1 FROM sqlite_master WHERE name = 'sqlite_stat1'").fetchall():
+            conn.execute('PRAGMA analysis_limit=1000')
+            conn.execute('ANALYZE')
+        conn.commit()
+        self.logger.debug('ensureIndexes in {} sec', time.time() - start)
+
     def reset(self):
         mvutils.file_remove(self.dbfile)
         # last version

@@ -128,10 +128,13 @@ class MediathekViewUpdater(object):
             if self.settings.getDatabaseType() == 0 and self.settings.getDatabaseUpdateNative():
                 # replace the sqlite DB by downloaded version
                 self.logger.debug('sqlite update')
-                ufd.downloadSqliteDb()
+                if not ufd.downloadSqliteDb():
+                    ufd.removeDownloads()
+                    raise Exception('Download of the database failed')
                 self.database.exit()
                 ufd.updateSqliteDb()
                 ufd.removeDownloads()
+                self.database.ensureIndexes()
                 # check database is alive
                 check = self.database.get_status()
                 if check['mov'] > 0:

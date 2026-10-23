@@ -95,6 +95,15 @@ SET GLOBAL MAX_EXECUTION_TIME=2000;
         aStmt = aStmt.replace('?', '%s')
         return aStmt
 
+    def ensureIndexes(self):
+        """ Indexes for the queries of the views, databases set up by older versions have none """
+        existing = [row[0] for row in self.execute(
+            "SELECT DISTINCT index_name FROM information_schema.statistics WHERE table_schema = DATABASE() AND table_name = 'film'")]
+        for name, columns in (('idx_channel_aired', 'channel, aired'), ('idx_showid', 'showid')):
+            if name not in existing:
+                self.logger.info('Creating index {}', name)
+                self.executeUpdate('CREATE INDEX {} ON film ({})'.format(name, columns), None)
+
     def exit(self):
         if self.conn is not None:
             self.conn.close();
