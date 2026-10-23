@@ -5,7 +5,7 @@
 		<setting id="autosub"			type="bool"		label="30111"	default="false"										/>
 		<setting id="nofuture"			type="bool"		label="30112"	default="true"										/>
 		<setting id="minlength"			type="slider"	label="30113"	default="0"		range="0,30"						/>
-		<setting id="maxresults"		type="slider"	label="30115"	default="1000"	range="100,100,3000" option="int"	/>
+		<setting id="maxresults"		type="slider"	label="30115"	default="1000"	range="0,100000" option="int"	/>
 		<setting id="maxage"			type="slider"	label="30116"	default="2"		range="1,30" option="int"			/>
 		<setting id="blacklist"         type="text"     label="30125"   default=""                                          />
 	</category>
