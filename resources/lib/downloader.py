@@ -308,7 +308,7 @@ class Downloader(object):
     def _get_film_url_and_extension(self, film):
         # try best
         if (self.settings.getDownloadQuality() == 2):
-            filmurl = mvutils.coalesce(film.url_video_hd, film.url_video_sd, film.url_video)
+            filmurl = mvutils.coalesce(film.url_video_hd, film.url_video, film.url_video_sd)
         elif (self.settings.getDownloadQuality() == 0):
             filmurl = mvutils.coalesce(film.url_video_sd, film.url_video, film.url_video_hd)
         else:
