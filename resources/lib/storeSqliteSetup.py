@@ -41,6 +41,8 @@ CREATE TABLE "film" (
 );
 -- ----------------------------
 CREATE INDEX idx_idhash ON film (idhash);
+CREATE INDEX idx_channel_aired ON film (channel, aired);
+CREATE INDEX idx_showid ON film (showid);
 -- ----------------------------
 --  Table structure for status
 -- ----------------------------

@@ -24,7 +24,8 @@ class StoreQuery(object):
         self._cache = StoreCache()
         self.sql_query_films = "SELECT idhash, title, showname, channel, description, duration, aired, url_sub, url_video, url_video_sd, url_video_hd FROM film"
         self.sql_cond_recent = "({} > {})".format("aired" if self.settings.getRecentMode() == 0 else "dtCreated",(self.settings.getLastUpdate()-self.settings.getMaxAge()))
-        self.sql_cond_nofuture = " AND ( aired < {} )".format(self.settings.getLastUpdate()) if self.settings.getNoFutur() else ""
+        # '+aired' keeps the database from using the index for this condition, it matches nearly all films
+        self.sql_cond_nofuture = " AND ( +aired < {} )".format(self.settings.getLastUpdate()) if self.settings.getNoFutur() else ""
         self.sql_cond_minlength = " AND ( duration >= %d )" % (self.settings.getMinLength() * 60) if self.settings.getMinLength() > 0 else ""
         # IMPORT SQL
         self.sql_pStmtInsert = """
@@ -48,6 +49,11 @@ class StoreQuery(object):
     # ABSTRACT
     def exit(self):
         """ Abstract method to implement the database specific disconnect """
+        pass
+
+    # OVERWRITE
+    def ensureIndexes(self):
+        """ Hook to create the indexes the queries of the views rely on """
         pass
 
     # OVERWRITE

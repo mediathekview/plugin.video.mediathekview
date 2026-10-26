@@ -51,6 +51,7 @@ class MediathekViewService(KodiService):
         self.monitor.wait_for_abort(self.settings.getDelayStartupSec())
         # error counter to slow down
         self.errorCount = 0
+        self._ensureIndexes()
         #
         while not self.monitor.abort_requested():
             # slow down in case of errors (+1 because 0 is unlimited!)
@@ -83,6 +84,17 @@ class MediathekViewService(KodiService):
                 # Abort was requested while waiting. We should exit
                 break
         self.logger.info('Shutting down Service')
+
+    def _ensureIndexes(self):
+        """ Databases of older versions lack the indexes of the views """
+        try:
+            self.updater.init()
+            if self.updater.database is not None and self.settings.getDatabaseStatus() == 'IDLE':
+                self.updater.database.ensureIndexes()
+        # pylint: disable=broad-except
+        except Exception as err:
+            self.logger.error('ensureIndexes {}', err)
+        self.updater.exit()
 
     def exit(self):
         """ Shutdown of the service """

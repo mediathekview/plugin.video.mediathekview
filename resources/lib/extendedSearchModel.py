@@ -305,7 +305,8 @@ class ExtendedSearchModel(object):
         sql = ""
         params = []
         if self.isIgnoreTrailer():
-            sql += "( aired < ? )"
+            # '+aired': the index does not help for a condition that matches nearly all films
+            sql += "( +aired < ? )"
             params.append(int(time.time()))
         return (sql, params)
 
